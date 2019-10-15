@@ -1,0 +1,38 @@
+%% spellcheck-off
+\setlength{\parindent}{0pt}              % Keine Paragraphen Einrückung.
+                                         % Dafür haben wir den Abstand zwischen den Paragraphen.
+\setcounter{secnumdepth}{2}              % Nummerierungstiefe fürs Inhaltsverzeichnis
+\setcounter{tocdepth}{2}                 % Tiefe des Inhaltsverzeichnisses. Ggf. so anpassen,
+                                         % dass das Verzeichnis auf eine Seite passt.
+\sffamily                                % Serifenlose Schrift verwenden.
+
+% ---- Vorspann
+% ------ Titelseite
+\include{template/01_Standard/titelseite}  % Titelseite
+
+% ------ Erklärung, Sperrvermerk, Abstact
+\include{template/01_Standard/erklaerung}
+%\include{template/01_Standard/sperrvermerk}
+
+% ------ Inhaltsverzeichnis
+\singlespacing
+\tableofcontents
+
+% ------ Verzeichnisse
+\renewcommand*{\chapterpagestyle}{plain}
+\pagestyle{plain}
+\include{template/03_Verzeichnisse/abkuerzungen}
+\listoffigures                          % Erzeugen des Abbildungsverzeichnisses 
+% \listoftables                           % Erzeugen des Tabellenverzeichnisses
+\lstlistoflistings                      % Erzeugen des Listenverzeichnisses
+\setcounter{savepage}{\value{page}}
+
+
+% ---- Inhalt der Arbeit
+\cleardoublepage
+\pagenumbering{arabic}                  % Arabische Seitenzahlen für den Hauptteil
+\setlength{\parskip}{0.5\baselineskip}  % Abstand zwischen Absätzen
+\rmfamily
+\renewcommand*{\chapterpagestyle}{scrheadings}
+\pagestyle{scrheadings}
+\onehalfspacing

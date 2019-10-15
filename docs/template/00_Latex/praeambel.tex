@@ -1,0 +1,79 @@
+%% spellcheck-off
+\usepackage[ngerman]{babel}  % Neue deutsche Rechtschreibung
+\usepackage[utf8]{luainputenc}
+\usepackage[t1]{sourcesanspro}
+\usepackage[T1]{fontenc}     % Ausgabe von westeuropäischen Zeichen (auch Umlaute)
+\usepackage{graphicx}        % Einbinden von Grafiken erlauben
+\usepackage{wrapfig}         % Grafiken fließend im Text
+\usepackage{setspace}        % Zeilenabstand \singlespacing, \onehalfspaceing, \doublespacing
+\usepackage[left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm,	includeheadfoot]{geometry}
+\usepackage{scrlayer-scrpage}    % Gestaltung von Fuß- und Kopfzeilen
+\usepackage[printonlyused]{acronym}             % Abkürzungen, Abkürzungsverzeichnis
+\usepackage{titletoc}            % Anpassungen am Inhaltsverzeichnis
+\contentsmargin{0.725cm}         % Abstand im Inhaltsverzeichnis zw. Punkt und Seitenzahl
+\usepackage[hidelinks, breaklinks=true]{hyperref}
+\urlstyle{same}                  % Aktuelle Schrift auch für URLs
+
+% ---- Abstand verkleinern von der Überschrift 
+\renewcommand*{\chapterheadstartvskip}{\vspace*{.5\baselineskip}}
+
+% ---- Für das Quellenverzeichnis
+\usepackage[
+	backend = biber,                % Verweis auf biber
+	language = auto,
+	style = numeric,                % Nummerierung der Quellen mit Zahlen
+	sorting = none,                 % none = Sortierung nach der Erscheinung im Dokument
+	sortcites = true,               % Sortiert die Quellen innerhalb eines cite-Befehls
+	block = space,                  % Extra Leerzeichen zwischen Blocks
+	hyperref = true,                % Links sind klickbar auch in der Quelle
+	backref = true,                % Referenz, auf den Text an die zitierte Stelle
+	bibencoding = auto,
+	giveninits = true,              % Vornamen werden abgekürzt
+	doi=false,                      % DOI nicht anzeigen
+	isbn=false,                     % ISBN nicht anzeigen
+  alldates=short                  % Datum immer als DD.MM.YYYY anzeigen
+]{biblatex}
+\addbibresource{literatur.bib}
+\setcounter{biburlnumpenalty}{3000}     % Umbruchgrenze für Zahlen
+\setcounter{biburlucpenalty}{6000}      % Umbruchgrenze für Großbuchstaben
+\setcounter{biburllcpenalty}{9000}      % Umbruchgrenze für Kleinbuchstaben
+\DeclareNameAlias{default}{last-first}  % Nachname vor dem Vornamen
+\AtBeginBibliography{\renewcommand{\multinamedelim}{\addslash\space
+}\renewcommand{\finalnamedelim}{\multinamedelim}}  % Semikolon zwischen den Autorennamen
+
+\usepackage[babel]{csquotes}         % Anführungszeichen + Zitate
+
+% ---- Für Mathevorlage
+\usepackage{amsmath}    % Erweiterung vom Mathe-Satz
+\usepackage{amssymb}    % Lädt amsfonts und weitere Symbole
+\usepackage{MnSymbol}   % Für Symbole, die in amssymb nicht enthalten sind.
+
+
+% ---- Für Quellcodevorlage
+\usepackage{scrhack}                    % Hack zur Verw. von listings in KOMA-Script
+\usepackage{listings}                   % Darstellung von Quellcode
+\usepackage[dvipsnames]{xcolor}         % Einfache Verwendung von Farben
+\input{template/00_Latex/quellcodeStyle}  % Weitere Details sind ausgelagert
+
+% ---- Tabellen
+%\usepackage{booktabs}  % Für schönere Tabellen. Enthält neue Befehle wie \midrule
+%\usepackage{multirow}  % Mehrzeilige Tabellen
+%\usepackage{siunitx}   % Für SI Einheiten und das Ausrichten Nachkommastellen
+%\sisetup{loctolang=DE:ngerman, decimalsymbol=comma} % Damit ein Komma und kein Punkt verwendet wird.
+
+% ---- Für Definitionsboxen in der Einleitung
+%\usepackage{amsthm}                     % Liefert die Grundlagen für Theoreme
+%\usepackage[framemethod=tikz]{mdframed} % Boxen für die Umrandung
+%\input{template/00_Latex/highlightBoxen}  % Weitere Details sind ausgelagert
+
+\usepackage[section]{placeins} % FloatBarrier
+\usepackage{enumitem}
+
+% Todos
+\usepackage{xargs}
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+\newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+\newcommandx{\change}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
+\newcommandx{\info}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{#2}}
+\newcommandx{\improvement}[2][1=]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,#1]{#2}}
+\newcommandx{\thiswillnotshow}[2][1=]{\todo[disable,#1]{#2}}

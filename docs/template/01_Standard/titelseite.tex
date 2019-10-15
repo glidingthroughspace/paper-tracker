@@ -1,0 +1,45 @@
+\singlespacing
+
+\thispagestyle{empty}
+\begin{titlepage}
+	\newgeometry{left=2.5cm, right=2.5cm, top=1.5cm, bottom=1.5cm}
+
+\begin{figure}           % Logo vom Ausbildungsbetrieb und der DHBW
+	\begin{minipage}{0.49\textwidth}
+		\flushleft
+		\includegraphics[height=2cm]{images/logos/Logo_SAP.pdf} 
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.49\textwidth}
+		\flushright
+		\includegraphics[height=2cm]{images/logos/Logo_DHBW.pdf} 
+	\end{minipage}
+\end{figure} 
+\vspace*{1.0cm}
+
+\begin{center}
+	\huge{\thetitle}\\[3cm]
+	\Large{\arbeit}\\[1cm]
+	\normalsize{des Studienganges \studiengang}\\[1ex]
+	\normalsize{an der Dualen Hochschule Baden-Württemberg Karlsruhe}\\[1cm]
+	\Large{\theauthor} \\[3cm]
+\end{center}
+
+\begin{center}
+	\vfill
+	\setlength\tabcolsep{3em}
+	\begin{tabular}{ll}
+		Abgabedatum                     & \abgabe \\[0.2cm]
+		Bearbeitungszeitraum            & \bearbeitungszeitraum \\[0.2cm]
+		Kurs            								& \kurs \\[0.2cm]
+		Hochschule                			& \firmaName, \firmaOrt \\[0.2cm]
+		Betreuer 											  & \betreuerDhbw \\[0.8cm]
+	\end{tabular} 
+\end{center}
+
+\restoregeometry
+\end{titlepage}
+
+\newcounter{savepage}
+\pagenumbering{Roman}                    % Römische Seitenzahlen
+\onehalfspacing

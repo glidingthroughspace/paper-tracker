@@ -1,0 +1,40 @@
+%% spellcheck-off
+% -- Eigene Farben für den Quellcode
+\definecolor{JavaLila}{rgb}{0.4,0.1,0.4}
+\definecolor{JavaGruen}{rgb}{0.3,0.5,0.4}
+\definecolor{JavaBlau}{rgb}{0.0,0.0,1.0}
+\definecolor{ABAPKeywordsBlue}{HTML}{6000ff}
+\definecolor{ABAPCommentGrey}{HTML}{808080}
+\definecolor{ABAPStringGreen}{HTML}{4da619}
+\definecolor{PyKeywordsBlue}{HTML}{0000AC}
+\definecolor{PyCommentGrey}{HTML}{808080}
+\definecolor{PyStringGreen}{HTML}{008080}
+
+% -- Default Listing-Styles
+
+\lstset{
+	% Das Paket "listings" kann kein UTF-8. Deswegen werden hier 
+	% die häufigsten Zeichen definiert (ä,ö,ü,...)
+	literate=%
+		{ä}{{\"a}}1 {ë}{{\"e}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+		{Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+		{ß}{{\ss}}1 {ø}{{\o}}1  {€}{{\euro}}1,
+	breaklines=true,        % Breche lange Zeilen um 
+	breakatwhitespace=true, % Wenn möglich, bei Leerzeichen umbrechen
+	% Symbol für Zeilenumbruch einfügen
+	prebreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\rhookswarrow}},
+	postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\rcurvearrowse\space}},
+	tabsize=4,                                 % Setze die Breite eines Tabs
+	basicstyle=\ttfamily\small,                % Grundsätzlicher Schriftstyle
+	columns=fixed,                             % Besseres Schriftbild
+	numbers=left,                              % Nummerierung der Zeilen
+	%frame=single,                             % Umrandung des Codes
+	showstringspaces=false,                    % Keine Leerzeichen hervorheben
+	keywordstyle=\color{blue},
+	ndkeywordstyle=\bfseries\color{darkgray},
+	identifierstyle=\color{black},
+	commentstyle=\itshape\color{JavaGruen},   % Kommentare in eigener Farbe
+	stringstyle=\color{JavaBlau},             % Strings in eigener Farbe,
+	captionpos=b,                             % Bild*unter*schrift
+	xleftmargin=5.0ex
+}

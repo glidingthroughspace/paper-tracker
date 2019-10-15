@@ -1,0 +1,18 @@
+% ---- Literaturverzeichnis
+\cleardoublepage
+\renewcommand*{\chapterpagestyle}{plain}
+\pagestyle{plain}
+\pagenumbering{Roman}                   % Römische Seitenzahlen
+\setcounter{page}{\numexpr\value{savepage}+1}
+\printbibliography
+
+% ---- Anhang
+\appendix
+%\clearpage
+%\pagenumbering{Roman}  % römische Seitenzahlen für Anhang
+
+\newpage
+
+\ifthenelse{\boolean{final}}
+	{}
+	{\listoftodos} 

@@ -1,0 +1,33 @@
+% ---- Elektronische Version oder Gedruckte Version?
+% ---- Unterschied: Die elektronische Version enthält keinen Platzhalter für die Unterschrift
+\usepackage{ifthen}
+\newboolean{e-Abgabe}
+\setboolean{e-Abgabe}{false}    
+\newboolean{final}
+\setboolean{final}{false}
+
+\usepackage{titling}         % \thetitle, \theauthor, ...
+
+\author{Max Heidinger \and Pascal Riesinger}
+
+\title{Lokalisierung von Dokumenten und Tracking ihrer Workflows mit IoT-Geräten}
+
+\newcommand{\titelheader}{Topologie- und Ressourcendaten im IaaS-Umfeld}
+\newcommand{\arbeit}{Studienarbeit}
+\newcommand{\studiengang}{Informatik}
+\newcommand{\studienjahr}{2017}
+\newcommand{\verfassungsort}{Karlsruhe}
+\newcommand{\matrikelnr}{}
+\newcommand{\kurs}{TINF17B1}
+\newcommand{\bearbeitungsmonat}{September 2019}
+\newcommand{\abgabe}{16. \bearbeitungsmonat}
+\newcommand{\bearbeitungszeitraum}{01.07.2019 - 16.09.2019}
+\newcommand{\firmaName}{DHBW Karlsruhe}
+\newcommand{\firmaStrasse}{Erzbergerstraße 121}
+\newcommand{\firmaOrt}{Karlsruhe}
+\newcommand{\firmaPlz}{76133 \firmaOrt, Deutschland}
+\newcommand{\betreuerFirma}{}
+\newcommand{\betreuerDhbw}{Prof. Dr. Marcus Strand}
+
+% Silbentrennung
+\hyphenation{HANA}         % anstatt HA-NA
