@@ -1,8 +1,13 @@
-sourcefiles := $(wildcard **/*.tex)
-sourcefiles += $(wildcard **/*.bib)
-sourcefiles += $(wildcard *.tex)
-sourcefiles += $(wildcard *.bib)
+target = Studienarbeit.tex
+latexmk_options = -synctex=1 -interaction=nonstopmode -pdflatex=lualatex -lualatex -file-line-error -pdf $(target)
 
-Studienarbeit.pdf: $(sourcefiles)
-	echo $(sourcefiles)
-	latexmk -synctex=1 -interaction=nonstopmode -pdflatex=lualatex -lualatex -file-line-error -pdf Studienarbeit.tex
+Studienarbeit.pdf:
+	latexmk $(latexmk_options)
+
+watch:
+	latexmk -pvc $(latexmk_options)
+
+clean:
+	latexmk -c
+
+.PHONY: Studienarbeit.pdf

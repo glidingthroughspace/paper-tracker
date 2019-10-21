@@ -8,13 +8,12 @@
 \usepackage{setspace}        % Zeilenabstand \singlespacing, \onehalfspaceing, \doublespacing
 \usepackage[left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm,	includeheadfoot]{geometry}
 \usepackage{scrlayer-scrpage}    % Gestaltung von Fuß- und Kopfzeilen
-\usepackage[printonlyused]{acronym}             % Abkürzungen, Abkürzungsverzeichnis
 \usepackage{titletoc}            % Anpassungen am Inhaltsverzeichnis
 \contentsmargin{0.725cm}         % Abstand im Inhaltsverzeichnis zw. Punkt und Seitenzahl
 \usepackage[hidelinks, breaklinks=true]{hyperref}
 \urlstyle{same}                  % Aktuelle Schrift auch für URLs
 
-% ---- Abstand verkleinern von der Überschrift 
+% ---- Abstand verkleinern von der Überschrift
 \renewcommand*{\chapterheadstartvskip}{\vspace*{.5\baselineskip}}
 
 % ---- Für das Quellenverzeichnis
@@ -75,3 +74,7 @@
 \newcommandx{\NOTE}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{#2}}
 \newcommandx{\TODO}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
 \newcommandx{\FIXME}[2][1=]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,#1]{#2}}
+
+% Glossar, Akronyme
+\usepackage[acronym,toc,automake]{glossaries}
+\makeglossaries
