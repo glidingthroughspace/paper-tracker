@@ -362,3 +362,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/latex,linux,vim,windows,osx
+
+credentials.h
+
+.vscode
