@@ -37,6 +37,11 @@ class Log {
         Serial.println();
       #endif
     }
+    static void println(const int32_t value) {
+      #ifndef NDEBUG
+        Serial.println(value);
+      #endif
+    }
 
     static void print(const Printable& value) {
       #ifndef NDEBUG
@@ -54,6 +59,11 @@ class Log {
       #endif
     }
     static void print(const StringSumHelper& value) {
+      #ifndef NDEBUG
+        Serial.print(value);
+      #endif
+    }
+    static void print(const int32_t value) {
       #ifndef NDEBUG
         Serial.print(value);
       #endif

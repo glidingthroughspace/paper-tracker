@@ -4,7 +4,7 @@
 #include "vector"
 
 struct ScanResult {
-  int signalStrength;
+  int32_t signalStrength;
   String SSID;
   String MAC;
 };
