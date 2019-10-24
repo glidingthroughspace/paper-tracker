@@ -15,7 +15,7 @@ class Wifi {
     Wifi();
     ~Wifi();
     int getVisibleNetworks();
-    int getVisibleNetworkBatch(WifiNetwork* results, int size, int offset);
+    int getVisibleNetworkBatch(WifiNetwork* results, int size, int offset) const;
     void connect(const char* SSID, const char* password);
     void connectDot1X(const char* ssid, const char* username, const char* password);
     bool isConnected() const;

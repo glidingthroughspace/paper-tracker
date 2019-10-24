@@ -34,7 +34,7 @@ int Wifi::getVisibleNetworks() {
   return numVisibleNetworks;
 }
 
-int Wifi::getVisibleNetworkBatch(WifiNetwork* results, const int size, const int offset) {
+int Wifi::getVisibleNetworkBatch(WifiNetwork* results, const int size, const int offset) const {
   int i;
   for (i = 0; (i < size) && (offset + i < numVisibleNetworks); i++) {
     WifiNetwork result;
