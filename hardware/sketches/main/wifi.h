@@ -14,7 +14,8 @@ class Wifi {
     Wifi();
     ~Wifi();
     std::vector<ScanResult> getAvailableNetworks();
-    int connect(const char* SSID, const char* password);
+    void connect(const char* SSID, const char* password);
+    void connectDot1X(const char* ssid, const char* username, const char* password);
     bool isConnected() const;
   private:
     void printNetworks(const std::vector<ScanResult>& networks);
