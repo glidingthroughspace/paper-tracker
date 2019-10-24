@@ -11,9 +11,9 @@ extern "C" {
 
 #include "log.h"
 
-
 Wifi::Wifi() : connected(false) {
-
+  // This saves time when connecting, and isn't needed, see https://www.instructables.com/id/ESP8266-Pro-Tips/
+  WiFi.persistent(false);
 };
 
 Wifi::~Wifi() {
@@ -22,50 +22,28 @@ Wifi::~Wifi() {
    }
 };
 
-std::vector<ScanResult> Wifi::getAvailableNetworks() {
-  std::vector<ScanResult> networks;
-  int numberOfNetworks = WiFi.scanNetworks();
-  for (int i = 0; i < numberOfNetworks; i++) {
-    ScanResult net;
-    net.SSID = WiFi.SSID(i);
-    net.MAC = WiFi.BSSIDstr(i);
-    net.signalStrength = WiFi.RSSI(i);
-    networks.push_back(net);
-  }
+int Wifi::getVisibleNetworks() {
+  numVisibleNetworks = WiFi.scanNetworks();
 
-  // the printNetworks function is relatively expensive, so only do this in debug mode
   #ifndef NDEBUG
-  printNetworks(networks);
+  Log::print("Found ");
+  Log::print(numVisibleNetworks);
+  Log::println(" networks in reach");
   #endif
 
-  return networks;
+  return numVisibleNetworks;
 }
 
-String padRight(String input, int wantedLength) {
-  while (input.length() < wantedLength) {
-    input.concat(' ');
+int Wifi::getVisibleNetworkBatch(WifiNetwork* results, const int size, const int offset) {
+  int i;
+  for (i = 0; (i < size) && (offset + i < numVisibleNetworks); i++) {
+    WifiNetwork result;
+    result.SSID = WiFi.SSID(offset + i);
+    result.RSSI = WiFi.RSSI(offset + i);
+    result.BSSID = WiFi.BSSIDstr(offset + i);
+    results[i] = result;
   }
-  return input;
-}
-
-void Wifi::printNetworks(const std::vector<ScanResult>& networks) {
-  Log::println("The following networks were found:");
-  // Find the SSID with the maximum length
-  int maxLength = 0;
-  for (auto net : networks) {
-    if (maxLength < net.SSID.length()) {
-      maxLength = net.SSID.length();
-    }
-  }
-  Log::println(padRight("SSID", maxLength) + '\t' + "MAC             " + '\t' + "RSSID");
-  for (auto net: networks) {
-    Log::print(padRight(net.SSID, maxLength));
-    Log::print('\t');
-    Log::print(net.MAC);
-    Log::print('\t');
-    Log::print(net.signalStrength);
-    Log::println();
-  }
+  return i;
 }
 
 void Wifi::connect(const char* SSID, const char* password) {
@@ -75,11 +53,16 @@ void Wifi::connect(const char* SSID, const char* password) {
   WiFi.begin(SSID, password);
   while (WiFi.status() != WL_CONNECTED) {
     Log::print('.');
+    delay(500);
   }
+  Log::println();
+  Log::println("Connected");
+  Log::print("IP address: ");
+  Log::println(WiFi.localIP());
+  connected = true;
 }
 
 void Wifi::connectDot1X(const char* ssid, const char* username, const char* password) {
-  // WPA2 Connection starts here
   // Setting ESP into STATION mode only (no AP mode or dual mode)
   wifi_set_opmode(STATION_MODE);
   struct station_config wifi_config;
@@ -93,17 +76,19 @@ void Wifi::connectDot1X(const char* ssid, const char* username, const char* pass
   wifi_station_set_enterprise_username((uint8_t*)username, strlen(username));
   wifi_station_set_enterprise_password((uint8_t*)password, strlen(password));
   wifi_station_connect();
-  // WPA2 Connection ends here
 
   // Wait for connection AND IP address from DHCP
   Log::println();
-  Log::println("Waiting for connection and IP Address from DHCP");
+  Log::print("Connecting to 802.1X network with SSID ");
+  Log::print(ssid);
+  Log::println("...");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Log::print(".");
   }
-  Log::println("");
-  Log::println("WiFi connected");
-  Log::println("IP address: ");
+  Log::println();
+  Log::println("Connected");
+  Log::print("IP address: ");
   Log::println(WiFi.localIP());
+  connected = true;
 }
