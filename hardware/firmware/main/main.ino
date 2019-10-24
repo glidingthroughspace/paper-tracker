@@ -33,7 +33,7 @@ void setup()
   } else {
     wifi.connect(WIFI_SSID, WIFI_PASSWORD);
   }
-
+  Log::println("Getting networks");
   apiClient.getVisbleNetworks(wifi);
   delay(100);
   apiClient.getVisbleNetworks(wifi);

@@ -38,12 +38,17 @@ int Wifi::getVisibleNetworkBatch(WifiNetwork* results, const int size, const int
   int i;
   for (i = 0; (i < size) && (offset + i < numVisibleNetworks); i++) {
     WifiNetwork result;
-    result.SSID = WiFi.SSID(offset + i);
+    result.SSID = WiFi.SSID(offset + i).c_str();
     result.RSSI = WiFi.RSSI(offset + i);
-    result.BSSID = WiFi.BSSIDstr(offset + i);
+    result.BSSID = WiFi.BSSIDstr(offset + i).c_str();
     results[i] = result;
+    result.print();
   }
   return i;
+}
+
+int Wifi::getVisibleNetworkCount() const {
+  return numVisibleNetworks;
 }
 
 void Wifi::connect(const char* SSID, const char* password) {

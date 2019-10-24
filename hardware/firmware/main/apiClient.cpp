@@ -6,24 +6,30 @@ ApiClient::ApiClient() : wifiNetworkBuf({}) {
 
 void ApiClient::getVisbleNetworks(Wifi& wifiClient) {
   wifiClient.getVisibleNetworks();
+
   int offset = 0;
-  int networkCount;
+  int count;
 
-
-  do {
-    networkCount = wifiClient.getVisibleNetworkBatch(wifiNetworkBuf, WIFI_NETWORK_BUFFER_SIZE, offset);
+  while (true) {
+    count = wifiClient.getVisibleNetworkBatch(wifiNetworkBuf, WIFI_NETWORK_BUFFER_SIZE, offset);
+    Log::println("Networks:");
+    for (int i = 0; i < count; i++) {
+      wifiNetworkBuf[i].print();
+    }
     Log::print("Got ");
-    Log::print(networkCount);
+    Log::print(count);
     Log::println(" networks");
-    auto doc = getVisibleNetworksBatchAsJSON(networkCount);
+    if (count == 0) {
+      break;
+    }
+    auto doc = getVisibleNetworksBatchAsJSON(count);
     // TODO: Serialize to an HTTP connection
     #ifndef NDEBUG
     serializeJson(doc, Serial);
     #endif
     Log::println();
-
-    offset += WIFI_NETWORK_BUFFER_SIZE;
-  } while(networkCount >= WIFI_NETWORK_BUFFER_SIZE);
+    offset += count;
+  }
 }
 
 JsonDocument ApiClient::getVisibleNetworksBatchAsJSON(int networkCount) {
@@ -39,7 +45,12 @@ JsonDocument ApiClient::getVisibleNetworksBatchAsJSON(int networkCount) {
   JsonArray wifiNetworks = doc.createNestedArray("wifiNetworks");
 
   for (int i = 0; i < networkCount; i++) {
+    Log::print("Serializing network with SSID ");
+    Log::print(wifiNetworkBuf[i].SSID);
     JsonObject network = wifiNetworks.createNestedObject();
+    if (network.isNull()) {
+      Log::println("Object is null");
+    }
     network["SSID"] = wifiNetworkBuf[i].SSID;
     network["RSSI"] = wifiNetworkBuf[i].RSSI;
     network["BSSID"] = wifiNetworkBuf[i].BSSID;
