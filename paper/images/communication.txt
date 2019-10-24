@@ -1,0 +1,38 @@
+title ESP-Server communication
+
+participantspacing equal
+participant ESP
+participant Server
+
+group Every 30 seconds
+  ESP->ESP: Wakeup
+  ESP->Server: Ask for new commands
+  ESP<--Server: Command
+  ESP->ESP: Execute command
+  ESP->Server: Result
+  ESP<--Server: Acknowledge + sleep time
+  ESP->ESP: Deep sleep with given sleep time
+end
+
+group Tracking command
+  ESP->ESP: Collect number of available APs
+
+  loop available APs
+  ESP->ESP: Gather information about AP into List
+  alt Information about 5 APs gathered
+  ESP->Server: Send information about gathered APS
+  ESP->ESP: Clear AP List
+  end
+  end
+  ESP->Server: Send "Completed"
+  ESP<--Server: Acknowledge
+end
+
+group Signal location
+  loop For X seconds
+  ESP->ESP: Turn on LED and/or buzzer
+  ESP->ESP: Wait X milliseconds
+  ESP->ESP: Turn off LED and/or buzzer
+  ESP->ESP: Wait X milliseconds
+  end
+end
