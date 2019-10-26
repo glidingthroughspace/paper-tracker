@@ -42,6 +42,16 @@ class Log {
         Serial.println(value);
       #endif
     }
+    static void println(const uint32_t value) {
+      #ifndef NDEBUG
+        Serial.println(value);
+      #endif
+    }
+    static void println(const __FlashStringHelper* value) {
+      #ifndef NDEBUG
+        Serial.println(value);
+      #endif
+    }
 
     static void print(const Printable& value) {
       #ifndef NDEBUG
@@ -64,6 +74,16 @@ class Log {
       #endif
     }
     static void print(const int32_t value) {
+      #ifndef NDEBUG
+        Serial.print(value);
+      #endif
+    }
+    static void print(const uint32_t value) {
+      #ifndef NDEBUG
+        Serial.print(value);
+      #endif
+    }
+    static void print(const __FlashStringHelper* value) {
       #ifndef NDEBUG
         Serial.print(value);
       #endif

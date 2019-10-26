@@ -12,7 +12,6 @@ void ApiClient::getVisbleNetworks(Wifi& wifiClient) {
 
   while (true) {
     count = wifiClient.getVisibleNetworkBatch(wifiNetworkBuf, WIFI_NETWORK_BUFFER_SIZE, offset);
-    Log::println("Networks:");
     for (int i = 0; i < count; i++) {
       wifiNetworkBuf[i].print();
     }
@@ -35,7 +34,9 @@ void ApiClient::getVisbleNetworks(Wifi& wifiClient) {
 JsonDocument ApiClient::getVisibleNetworksBatchAsJSON(int networkCount) {
   const size_t capacity = JSON_OBJECT_SIZE(3) // The outer object
                           + JSON_ARRAY_SIZE(networkCount)  // The array of visible networks
-                          + networkCount * JSON_OBJECT_SIZE(3);  // Contents of the array of found networks
+                          // FIXME: For some reason, the strings are too large for the objects. As
+                          // a workaround, we just allocate three times the object size 
+                          + (networkCount * 3) * JSON_OBJECT_SIZE(3);  // Contents of the array of found networks
   DynamicJsonDocument doc(capacity);
 
   // TODO: Fill those with proper content
@@ -47,14 +48,33 @@ JsonDocument ApiClient::getVisibleNetworksBatchAsJSON(int networkCount) {
   for (int i = 0; i < networkCount; i++) {
     Log::print("Serializing network with SSID ");
     Log::print(wifiNetworkBuf[i].SSID);
+    Log::print(", BSSID: ");
+    Log::print(wifiNetworkBuf[i].BSSID);
+    Log::print(", RSSI: ");
+    Log::println(wifiNetworkBuf[i].RSSI);
     JsonObject network = wifiNetworks.createNestedObject();
     if (network.isNull()) {
       Log::println("Object is null");
+      Log::print("Free heap size: ");
+      Log::println(ESP.getFreeHeap());
     }
-    network["SSID"] = wifiNetworkBuf[i].SSID;
+    if (!network["SSID"].set(wifiNetworkBuf[i].SSID)) {
+      Log::println("Failed to add SSID");
+      Log::print("Free heap size: ");
+      Log::println(ESP.getFreeHeap());
+    }
     network["RSSI"] = wifiNetworkBuf[i].RSSI;
-    network["BSSID"] = wifiNetworkBuf[i].BSSID;
+    if (!network["BSSID"].set(wifiNetworkBuf[i].BSSID)) {
+      Log::println("Failed to add BSSID");
+      Log::print("Free heap size: ");
+      Log::println(ESP.getFreeHeap());
+    }
   }
+
+  Log::print("Document size: ");
+  Log::print(doc.memoryUsage());
+  Log::print(", capacity: ");
+  Log::println(doc.capacity());
 
   return doc;
 }

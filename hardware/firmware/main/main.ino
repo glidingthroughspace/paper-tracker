@@ -1,7 +1,6 @@
 // To disable debugging, remove this line (or comment it out). The compiler will set NDEBUG automatically
 #undef NDEBUG
 
-
 #include <Arduino.h>
 
 #include <ArduinoJson.h>

@@ -38,9 +38,9 @@ int Wifi::getVisibleNetworkBatch(WifiNetwork* results, const int size, const int
   int i;
   for (i = 0; (i < size) && (offset + i < numVisibleNetworks); i++) {
     WifiNetwork result;
-    result.SSID = WiFi.SSID(offset + i).c_str();
+    result.SSID = WiFi.SSID(offset + i);
     result.RSSI = WiFi.RSSI(offset + i);
-    result.BSSID = WiFi.BSSIDstr(offset + i).c_str();
+    result.BSSID = WiFi.BSSIDstr(offset + i);
     results[i] = result;
     result.print();
   }
