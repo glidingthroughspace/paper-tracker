@@ -27,6 +27,7 @@ void setup()
 {
   Log::initSerial(115200);
   Log::println("Starting...");
+  const auto startupMills = millis();
   if (WIFI_IS_DOT1X == 1) {
     wifi.connectDot1X(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD);
   } else {
@@ -36,9 +37,12 @@ void setup()
   apiClient.getVisbleNetworks(wifi);
   delay(100);
   apiClient.getVisbleNetworks(wifi);
-
   pinMode(2, OUTPUT);
-  Log::println("Sleeping for 15 seconds");
+
+  const auto shutdownMillis = millis();
+  Log::print("Running for ");
+  Log::print(shutdownMillis - startupMills);
+  Log::println("ms, going to sleep now");
   ESP.deepSleep(SLEEP_TIME);
 }
 

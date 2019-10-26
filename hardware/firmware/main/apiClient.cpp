@@ -43,15 +43,11 @@ JsonDocument ApiClient::getVisibleNetworksBatchAsJSON(int networkCount) {
   doc["trackerID"] = "abcdef";
   doc["done"] = false;
 
-  JsonArray wifiNetworks = doc.createNestedArray("wifiNetworks");
+  JsonArray wifiNetworks = doc.createNestedArray("networks");
 
   for (int i = 0; i < networkCount; i++) {
-    Log::print("Serializing network with SSID ");
-    Log::print(wifiNetworkBuf[i].SSID);
-    Log::print(", BSSID: ");
-    Log::print(wifiNetworkBuf[i].BSSID);
-    Log::print(", RSSI: ");
-    Log::println(wifiNetworkBuf[i].RSSI);
+    Log::print("Serializing network: ");
+    wifiNetworkBuf[i].print();
     JsonObject network = wifiNetworks.createNestedObject();
     if (network.isNull()) {
       Log::println("Object is null");
@@ -60,14 +56,10 @@ JsonDocument ApiClient::getVisibleNetworksBatchAsJSON(int networkCount) {
     }
     if (!network["SSID"].set(wifiNetworkBuf[i].SSID)) {
       Log::println("Failed to add SSID");
-      Log::print("Free heap size: ");
-      Log::println(ESP.getFreeHeap());
     }
     network["RSSI"] = wifiNetworkBuf[i].RSSI;
     if (!network["BSSID"].set(wifiNetworkBuf[i].BSSID)) {
       Log::println("Failed to add BSSID");
-      Log::print("Free heap size: ");
-      Log::println(ESP.getFreeHeap());
     }
   }
 

@@ -10,11 +10,11 @@ struct WifiNetwork {
   String SSID;
   String BSSID;
   void print() {
-    Log::print("SSID : ");
+    Log::print("SSID: ");
     Log::print(SSID);
     Log::print(", BSSID: ");
     Log::print(BSSID);
-    Log::print(", RSSI : ");
+    Log::print(", RSSI: ");
     Log::println(RSSI);
   };
 };
