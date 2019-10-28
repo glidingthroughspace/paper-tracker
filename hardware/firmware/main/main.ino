@@ -1,4 +1,4 @@
-// To disable debugging, remove this line (or comment it out). The compiler will set NDEBUG automatically
+// To disable debugging, change 'undef' to 'define'
 #undef NDEBUG
 
 #include <Arduino.h>
@@ -15,9 +15,9 @@
 #define MINUTES 60 * SECONDS
 
 #ifndef NDEBUG
-#define SLEEP_TIME 15 * SECONDS
+#define SLEEP_TIME 10 * SECONDS
 #else
-#define SLEEP_TIME 15 * MINUTES
+#define SLEEP_TIME 1 * MINUTES
 #endif
 
 Wifi wifi;
@@ -28,16 +28,15 @@ void setup()
   Log::initSerial(115200);
   Log::println("Starting...");
   const auto startupMills = millis();
-  if (WIFI_IS_DOT1X == 1) {
-    wifi.connectDot1X(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD);
-  } else {
-    wifi.connect(WIFI_SSID, WIFI_PASSWORD);
+  wifi.connect();
+  if (!wifi.isConnected()) {
+    Log::println("Could not connect to WiFi!");
   }
-  Log::println("Getting networks");
-  apiClient.getVisbleNetworks(wifi);
-  delay(100);
-  apiClient.getVisbleNetworks(wifi);
-  pinMode(2, OUTPUT);
+
+  // Log::println("Getting networks");
+  // apiClient.getVisbleNetworks(wifi);
+  // delay(100);
+  // apiClient.getVisbleNetworks(wifi);
 
   const auto shutdownMillis = millis();
   Log::print("Running for ");

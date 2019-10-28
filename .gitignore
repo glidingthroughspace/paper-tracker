@@ -366,3 +366,5 @@ $RECYCLE.BIN/
 credentials.h
 
 .vscode
+# Lock files for libreoffice
+.~lock.*
