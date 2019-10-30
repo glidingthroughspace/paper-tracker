@@ -1,33 +1,30 @@
 package router
 
 import (
-	"net/http"
 	"paper-tracker/managers"
-	"paper-tracker/models"
 
-	"github.com/gin-gonic/gin"
+	coap "github.com/go-ocf/go-coap"
 )
 
 func (r *Router) buildTrackerAPIRoutes() {
-	trackerAPI := r.Router.Group("/api/tracker")
-	trackerAPI.POST("/notify-new", r.trackerNotifyHandler())
-	trackerAPI.GET("/:id/poll", r.trackerPollHandler())
+	r.Mux.Handle("/notify-new", r.trackerNotifyHandler())
+	r.Mux.Handle("/:id/poll", r.trackerPollHandler())
 }
 
-func (r *Router) trackerNotifyHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		tracker, err := managers.GetTrackerManager().NotifyNewTracker()
+func (r *Router) trackerNotifyHandler() coap.HandlerFunc {
+	return func(w coap.ResponseWriter, req *coap.Request) {
+		_, err := managers.GetTrackerManager().NotifyNewTracker()
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
+			//c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
 			return
 		}
 
-		c.JSON(http.StatusOK, tracker)
+		//c.JSON(http.StatusOK, tracker)
 	}
 }
 
-func (r *Router) trackerPollHandler() gin.HandlerFunc {
-	return func(c *gin.Context) {
+func (r *Router) trackerPollHandler() coap.HandlerFunc {
+	return func(w coap.ResponseWriter, req *coap.Request) {
 		//TODO
 	}
 }

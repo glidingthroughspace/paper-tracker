@@ -1,11 +1,11 @@
 package main
 
 import (
-	"paper-tracker/repositories"
 	"paper-tracker/managers"
+	"paper-tracker/repositories"
 	"paper-tracker/router"
-	"strconv"
 
+	"github.com/go-ocf/go-coap"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,6 +25,6 @@ func main() {
 	router := router.NewRouter()
 
 	// Start
-	log.WithField("port", 8080).Info("Listening on specified port")
-	log.Info(router.Router.Run(":" + strconv.Itoa(8080)))
+	log.WithField("port", 5688).Info("Listening on specified port")
+	log.Info(coap.ListenAndServe("udp", ":5688", router.Mux))
 }

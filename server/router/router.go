@@ -1,14 +1,14 @@
 package router
 
-import "github.com/gin-gonic/gin"
+import coap "github.com/go-ocf/go-coap"
 
 type Router struct {
-	Router *gin.Engine
+	Mux *coap.ServeMux
 }
 
 func NewRouter() *Router {
 	r := &Router{
-		Router: gin.New(),
+		Mux: coap.NewServeMux(),
 	}
 	r.buildRoutes()
 	return r
