@@ -1,11 +1,59 @@
-\chapter{Entwurf}
+\chapter{Entwurf} \label{chap:entwurf}
 
-\section{Systemarchitektur}
+\section{Systemarchitektur} \label{sec:systemarchitektur}
 
-\section{Komponentenarchitektur}
+\section{Komponentenarchitektur} \label{sec:komponentenarchitektur}
 
-\subsection{Tracking mit IoT-Hardware}
+In den folgenden Abschnitten wird detaillierter auf die einzelnen Komponenten des in
+\autoref{sec:systemarchitektur} beschriebenen Systems eingegangen.
+Dabei werden die Komponenten in derselben Reihenfolge beschrieben, in welcher die Daten im
+Gesamtsystem fließen.
 
-\subsection{Verarbeitung der Standortdaten und Workflows in der Backend-Anwendung}
+\subsection{Tracking mit IoT-Hardware} \label{sec:tracking-hardware}
 
-\subsection{App für Mobilgeräte}
+Zur Erfassung der Standortdaten der Dokumente werden, wie in \autoref{sec:soll-analyse}
+beschrieben, Hardware-Tracker eingesetzt.
+\TODO{Es wäre schön, Glossar-Referenzen zu kennzeichnen (oft mit Glos, oder Gls)}
+Diese verwenden jedoch keine absolute Positionierungstechnologie wie beispielsweise \gls{GPS}, da
+das hierfür benötigte Satellitensignal in Gebäuden zu schwach, und somit die Positionierung
+fehlschlagen kann.
+\TODO{Quelle für die Genauigkeit von GPS in Gebäuden}
+
+\TODO{Ist das hier eher Analyse?}
+Für die Lokalisierung von Geräten innerhalb eines Gebäudes gibt es daher mehrere Ansätze.
+\TODO{Glossar: Mesh-Netzwerk}
+Eine Möglichkeit ist es, ein Mesh-Netzwerk aus den Tracker-Geräten aufzubauen. Ist die Position
+einiger weniger Knoten des Meshes bekannt, kann durch die Signalstärke zu umliegenden Knoten oder
+über die sogenannte Time-of-Arrival bestimmt werden, wo sich ein Knoten relativ zu anderen Knoten
+und damit auch zu den Knoten mit bekannter Position befindet.
+\TODO{Time-of-Arrival erläutern}
+Mit dieser Methode kann eine Genauigkeit von bis zu einem Meter bei der Lokalisierung erzielt
+werden. (vgl. \cite{Patwari2003})
+
+Eine weitere Möglichkeit ist, auf bestehende Infrastruktur zurückzugreifen. \Gls{WLAN} ist
+heutzutage in praktisch jedem Gebäude verfügbar.
+In Gebäuden, in welchen es mehrere \glspl{AP} gibt, kann die Position dadurch bestimmt werden,
+dass der Tracker auswertet, von welchen \glspl{AP} er ein Signal empfängt und wie stark der
+Empfang zum jeweiligen \gls{AP} ist.
+Da die Positionsdaten ohnehin zur Auswertung an das Backend übertragen werden müssen, wofür eine
+\gls{WLAN}-Verbindung notwendig ist, wird diese Methode eingesetzt.
+
+Um die Daten über die Signalstärke an das Backend zu übermitteln wird das Protokoll \gls{CoAP}
+eingesetzt. Hierbei handelt es sich um ein spezialisiertes Protokoll für die Verwendung in
+\gls{IoT}-Hardware, welches dafür optimiert wurde möglichst wenig Overhead zu haben.
+\TODO{Glossar: Overhead}
+Im \gls{IoT}-Bereich haben sich einige Protokolle durchsetzen können. Dazu zählen vor allem
+\gls{HTTP}, \gls{MQTT}, \gls{AMQP} und \gls{CoAP}.
+Da die Tracker Batteriebetrieben sind, ist für diesen Anwendungsfall besonders die Performance des
+eingesetzten Protokolles wichtig. Je weniger Overhead das Protokoll aufweist, desto weniger
+Instruktionen müssen vom Prozessor des Trackers durchgeführt werden, was zu einer längeren Laufzeit
+führt.
+Werden die Protokolle anhand dieses Aspektes verglichen, erweist sich \gls{CoAP} als effizientestes
+Protokoll. (vgl. \cite{Dizdarevic2019}, \cite{Naik2017})
+\TODO{Quellen verwenden, die in diesem Paper zitiert werden}
+
+
+
+\subsection{Backend-Anwendung} \label{sec:backend}
+
+\subsection{App für Mobilgeräte} \label{sec:app}
