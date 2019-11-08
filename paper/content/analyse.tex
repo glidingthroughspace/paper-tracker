@@ -1,10 +1,54 @@
 \chapter{Analyse} \label{chap:analyse}
 
+In den folgenden Abschnitten werden der Ist-Zustand, aus welchem sich die Problemstellung ergibt,
+der Soll-Zustand, sowie die gestellten Anforderungen beschrieben.
+
 \section{Ist-Analyse} \label{sec:ist-analyse}
 
 Es gibt Probleme bei der Nachvollziehbarkeit von Workflows. Es ist undurchsichtig, was gerade
 passiert. Außerdem kommen Papiere durcheinander.
 
+\section{Soll-Analyse} \label{sec:soll-analyse}
+
 \section{Anforderungsanalyse} \label{sec:anforderungsanalyse}
 
-\section{Soll-Analyse} \label{sec:soll-analyse}
+Im Folgenden werden die gestellten Anforderungen in funktionale und nichtfunktionale Anforderungen
+unterteilt. 
+\TODO{Evtl. noch eine tatsächliche Anforderungsanalyse durchführen}
+Dabei beschreiben funktionale Anforderungen konkrete Funktionen, die die entwickelte Lösung bieten
+muss, nichtfunktionale Anforderungen hingegegen zeigen Rahmenbedingungen, sowie Anforderungen an die
+technische Umsetzung auf.
+Desweiteren werden den Anforderungen Prioritäten zugewiesen, wobei ein Wert von 0 die höchste
+Priorität, ein Wert von 3 die niedrigste Priorität beschreibt, sodass die Lösung ohne Erfüllung der
+Anforderungen mit Priorität 0 nicht einsetzbar ist und Priorität 3 optionale Funktionalitäten
+beschreibt, die nicht zum Betrieb notwendig sind. 
+\begin{table}[htbp]
+  \renewcommand{\arraystretch}{1.5}
+\centering
+\begin{tabularx}{0.9\textwidth}{lXc}
+  \textbf{Name} & \textbf{Beschreibung} & \textbf{Priorität} \\
+  \hline 
+  F-1 \label{fa:tracking} & Der Standort von Dokumenten kann raumgenau verfolgt werden & 0 \\
+  F-2 \label{fa:workflow} & Der aktuelle Status des mit dem Dokument verbundenen Workflows kann
+  nachvollzogen werden & 0 \\
+  F-3 \label{fa:neue-workflows} & Neue Workflows können vom Nutzer definiert werden & 2 \\
+  F-4 \label{fa:neue-tracker} & Neue Tracker können dem System vom Nutzer hinzugefügt werden & 1 \\
+  F-5 \label{fa:raumplan} & Der Raumplan kann vom Nutzer eingelernt werden & 3 \\
+  \midrule
+  NF-1 \label{nf:akku} & Die Laufzeit der Tracker im Batteriebetrieb beläuft sich auf mindestens
+  eine Woche & 2 \\
+  NF-2 \label{nf:klein} & Die Tracker sollen möglichst unscheinbar und daher klein und leicht sein
+  & 1 \\
+  NF-3 \label{nf:app} & Die Daten können in einer Applikation für Mobiltelefone abgefragt werden.
+  Dabei ist besonders die Verwendbarkeit unter dem Betriebssystem Android wichtig, die Unterstützung
+ von iOS ist optional & 0 \\
+  NF-4 \label{nf:stabilität} & Die Anwendung muss stabil laufen und sollte sich nicht unerwartet
+  beenden & 1 \\
+  NF-5 \label{nf:skalierbarkeit} & Die Lösung sollte skalierbar hinsichtlich der Anzahl der Tracker
+  und der Größe des Tracking-Bereiches sein & 2 \\
+  NF-6 \label{nf:nachvollziehbarkeit} & Zur optimalen Nachvollziehbarkeit von Workflows sollten deren auch
+  nach Abschluss nicht gelöscht werden & 2 \\
+\end{tabularx}
+\caption{Funktionale und nichtfunktionale Anforderungen}
+\label{tab:anforderungen}
+\end{table}
