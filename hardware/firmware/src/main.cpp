@@ -26,12 +26,12 @@ void setup() {
 }
 
 void serializeData(size_t count) {
-  DynamicJsonDocument doc(JSON_OBJECT_SIZE(4));
-  ScanResult res{-count, "AA:BB:CC:DD:EE", "MyWifiNetwork"};
+  DynamicJsonDocument doc(JSON_OBJECT_SIZE(3));
+  ScanResult res{-count, "AA:BB:CC:DD:EE", "MyWifi"};
   res.print();
-  doc['RSSI'] = res.RSSI;
-  doc['BSSID'] = res.BSSID;
-  doc['SSID'] = res.SSID;
+  doc["RSSI"] = res.RSSI;
+  doc["BSSID"] = res.BSSID;
+  doc["SSID"] = res.SSID;
   serializeJson(doc, Serial);
 }
 
