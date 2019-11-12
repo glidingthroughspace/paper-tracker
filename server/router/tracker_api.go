@@ -7,19 +7,19 @@ import (
 )
 
 func (r *Router) buildTrackerAPIRoutes() {
-	r.Mux.Handle("/notify-new", r.trackerNotifyHandler())
-	r.Mux.Handle("/:id/poll", r.trackerPollHandler())
+	r.addRoute("/tracker/notify-new", &routeHandlers{Post: r.trackerNotifyHandler()})
+	r.addRoute("/tracker/:id/poll", &routeHandlers{Get: r.trackerPollHandler()})
 }
 
 func (r *Router) trackerNotifyHandler() coap.HandlerFunc {
 	return func(w coap.ResponseWriter, req *coap.Request) {
-		_, err := managers.GetTrackerManager().NotifyNewTracker()
+		tracker, err := managers.GetTrackerManager().NotifyNewTracker()
 		if err != nil {
-			//c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
+			r.writeError(w, err)
 			return
 		}
 
-		//c.JSON(http.StatusOK, tracker)
+		r.writeJSON(w, coap.Created, tracker)
 	}
 }
 
