@@ -4,6 +4,9 @@ SERIALPORT?=/dev/ttyUSB0 # Usually the default port
 build:
 	pio run -e $(PLATFORM)
 
+build-all:
+	pio run
+
 upload: build
 	pio run -e $(PLATFORM) -t upload --upload-port $(SERIALPORT)
 
