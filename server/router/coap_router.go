@@ -3,24 +3,30 @@ package router
 import (
 	"encoding/json"
 	"paper-tracker/models"
+	"sync"
 
 	coap "github.com/go-ocf/go-coap"
 	log "github.com/sirupsen/logrus"
 )
 
-type Router struct {
-	Mux *coap.ServeMux
+type CoapRouter struct {
+	mux *coap.ServeMux
 }
 
-func NewRouter() *Router {
-	r := &Router{
-		Mux: coap.NewServeMux(),
+func NewCoapRouter() *CoapRouter {
+	r := &CoapRouter{
+		mux: coap.NewServeMux(),
 	}
 	r.buildRoutes()
 	return r
 }
 
-func (r *Router) buildRoutes() {
+func (r *CoapRouter) Serve(network, addr string, wg *sync.WaitGroup) {
+	log.Error(coap.ListenAndServe("udp", ":5688", r.mux))
+	wg.Done()
+}
+
+func (r *CoapRouter) buildRoutes() {
 	r.buildTrackerAPIRoutes()
 }
 
@@ -31,8 +37,8 @@ type routeHandlers struct {
 	Delete coap.HandlerFunc
 }
 
-func (r *Router) addRoute(path string, handlers *routeHandlers) {
-	r.Mux.Handle(path, coap.HandlerFunc(func(w coap.ResponseWriter, req *coap.Request) {
+func (r *CoapRouter) addRoute(path string, handlers *routeHandlers) {
+	r.mux.Handle(path, coap.HandlerFunc(func(w coap.ResponseWriter, req *coap.Request) {
 		reqType := req.Msg.Code()
 		if reqType == coap.GET && handlers.Get != nil {
 			handlers.Get.ServeCOAP(w, req)
@@ -48,7 +54,7 @@ func (r *Router) addRoute(path string, handlers *routeHandlers) {
 	}))
 }
 
-func (r *Router) writeJSON(w coap.ResponseWriter, status coap.COAPCode, body interface{}) (err error) {
+func (r *CoapRouter) writeJSON(w coap.ResponseWriter, status coap.COAPCode, body interface{}) (err error) {
 	w.SetContentFormat(coap.AppJSON)
 	w.SetCode(status)
 	data, err := json.Marshal(body)
@@ -63,6 +69,6 @@ func (r *Router) writeJSON(w coap.ResponseWriter, status coap.COAPCode, body int
 	return
 }
 
-func (r *Router) writeError(w coap.ResponseWriter, err error) error {
+func (r *CoapRouter) writeError(w coap.ResponseWriter, err error) error {
 	return r.writeJSON(w, coap.InternalServerError, &models.ErrorResponse{Error: err.Error()})
 }
