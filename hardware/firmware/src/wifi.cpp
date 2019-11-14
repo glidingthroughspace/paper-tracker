@@ -4,6 +4,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifndef NDEBUG
+#define WIFI_CONNECTION_DELAY 250
+#else
+#define WIFI_CONNECTION_DELAY 10
+#endif
+
 extern "C" {
   #include "user_interface.h"
   #include "wpa2_enterprise.h"
@@ -17,6 +23,10 @@ WIFI::WIFI() {
 
 WIFI::~WIFI() {
   WiFi.disconnect();
+}
+
+WiFiUDP& WIFI::getUDP() {
+  return udp;
 }
 
 bool WIFI::connect(const char* ssid, const char* password) {
@@ -48,13 +58,19 @@ bool WIFI::connectLoop() {
     if (status == WL_CONNECT_FAILED) {
       logln();
       logln("Connection failed");
+
+      auto status = wifi_station_get_connect_status();
+      logln("Status is ");
+      logln(status);
       return false;
     }
     log('.');
+    delay(WIFI_CONNECTION_DELAY);
   } while(status != WL_CONNECTED);
   logln();
   log("Connected, IP address is: ");
   logln(WiFi.localIP());
+  udp.begin(LOCAL_UDP_PORT);
   return true;
 }
 

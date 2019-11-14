@@ -2,8 +2,10 @@
 
 #include <scanResult.h>
 #include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
 
 #define SCAN_RESULT_BUFFER_SIZE 5
+#define LOCAL_UDP_PORT 4210
 
 class WIFI {
   public:
@@ -29,7 +31,10 @@ class WIFI {
      */
     uint8_t getVisibleNetworks(uint8_t startAt, ScanResult* buffer, uint8_t bufferSize);
 
+    WiFiUDP& getUDP();
+
   private:
+    WiFiUDP udp;
     bool connectLoop();
     uint8_t visibleNetworkCount;
 };
