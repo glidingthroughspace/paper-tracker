@@ -1,21 +1,23 @@
 package router
 
 import (
-	"encoding/json"
 	"paper-tracker/models"
 	"sync"
 
 	coap "github.com/go-ocf/go-coap"
 	log "github.com/sirupsen/logrus"
+	"github.com/ugorji/go/codec"
 )
 
 type CoapRouter struct {
-	mux *coap.ServeMux
+	mux        *coap.ServeMux
+	cborHandle codec.Handle
 }
 
 func NewCoapRouter() *CoapRouter {
 	r := &CoapRouter{
-		mux: coap.NewServeMux(),
+		mux:        coap.NewServeMux(),
+		cborHandle: &codec.CborHandle{},
 	}
 	r.buildRoutes()
 	return r
@@ -38,37 +40,23 @@ type routeHandlers struct {
 }
 
 func (r *CoapRouter) addRoute(path string, handlers *routeHandlers) {
-	r.mux.Handle(path, coap.HandlerFunc(func(w coap.ResponseWriter, req *coap.Request) {
-		reqType := req.Msg.Code()
-		if reqType == coap.GET && handlers.Get != nil {
-			handlers.Get.ServeCOAP(w, req)
-		} else if reqType == coap.POST && handlers.Post != nil {
-			handlers.Post.ServeCOAP(w, req)
-		} else if reqType == coap.PUT && handlers.Put != nil {
-			handlers.Put.ServeCOAP(w, req)
-		} else if reqType == coap.DELETE && handlers.Delete != nil {
-			handlers.Delete.ServeCOAP(w, req)
-		} else {
-			r.writeJSON(w, coap.MethodNotAllowed, &models.ErrorResponse{Error: "Method not allowed"})
-		}
-	}))
+	r.mux.Handle(path, r.loggingMiddleware(r.methodSwitchMiddleware(handlers)))
 }
 
-func (r *CoapRouter) writeJSON(w coap.ResponseWriter, status coap.COAPCode, body interface{}) (err error) {
-	w.SetContentFormat(coap.AppJSON)
+func (r *CoapRouter) writeCBOR(w coap.ResponseWriter, status coap.COAPCode, body interface{}) (err error) {
+	w.SetContentFormat(coap.AppCBOR)
 	w.SetCode(status)
-	data, err := json.Marshal(body)
+
+	enc := codec.NewEncoder(w, r.cborHandle)
+	defer enc.Release()
+	err = enc.Encode(body)
 	if err != nil {
-		log.Error("Failed to marshal body to json: %v", err)
-	}
-	_, err = w.Write(data)
-	if err != nil {
-		log.Error("Failed to write JSON response: %v", err)
+		log.Error("Failed to write or encode CBOR response: %v", err)
 		return
 	}
 	return
 }
 
 func (r *CoapRouter) writeError(w coap.ResponseWriter, err error) error {
-	return r.writeJSON(w, coap.InternalServerError, &models.ErrorResponse{Error: err.Error()})
+	return r.writeCBOR(w, coap.InternalServerError, &models.ErrorResponse{Error: err.Error()})
 }

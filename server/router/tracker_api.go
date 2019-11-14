@@ -19,7 +19,7 @@ func (r *CoapRouter) trackerNotifyHandler() coap.HandlerFunc {
 			return
 		}
 
-		r.writeJSON(w, coap.Created, tracker)
+		r.writeCBOR(w, coap.Created, tracker)
 	}
 }
 

@@ -8,4 +8,5 @@ require (
 	github.com/jinzhu/gorm v1.9.11
 	github.com/pion/dtls v1.5.3 // indirect
 	github.com/sirupsen/logrus v1.4.2
+	github.com/ugorji/go v1.1.4
 )
