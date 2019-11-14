@@ -3,21 +3,23 @@ package router
 import (
 	"paper-tracker/managers"
 	"paper-tracker/models"
-	"strconv"
 
 	coap "github.com/go-ocf/go-coap"
+	log "github.com/sirupsen/logrus"
+	"github.com/ugorji/go/codec"
 )
 
 func (r *CoapRouter) buildTrackerAPIRoutes() {
 	r.addRoute("/tracker/notify-new", &routeHandlers{Post: r.trackerNotifyHandler()})
 	r.addRoute("/tracker/poll", &routeHandlers{Get: r.trackerPollHandler()})
+	r.addRoute("/tracker/tracking", &routeHandlers{Post: r.trackerTrackingData()})
 }
 
 func (r *CoapRouter) trackerNotifyHandler() coap.HandlerFunc {
 	return func(w coap.ResponseWriter, req *coap.Request) {
 		tracker, err := managers.GetTrackerManager().NotifyNewTracker()
 		if err != nil {
-			r.writeError(w, err)
+			r.writeError(w, coap.InternalServerError, err)
 			return
 		}
 
@@ -27,22 +29,35 @@ func (r *CoapRouter) trackerNotifyHandler() coap.HandlerFunc {
 
 func (r *CoapRouter) trackerPollHandler() coap.HandlerFunc {
 	return func(w coap.ResponseWriter, req *coap.Request) {
-		params := r.parseQuery(req)
-		trackerIDStr, ok := params["trackerid"]
-		if !(ok && trackerIDStr != nil) {
-			r.writeCBOR(w, coap.BadRequest, &models.ErrorResponse{Error: "trackerid not found in query"})
-			return
-		}
-		trackerID, err := strconv.Atoi(*trackerIDStr)
+		trackerID, err := r.extractTrackerID(req)
 		if err != nil {
-			r.writeCBOR(w, coap.BadRequest, &models.ErrorResponse{Error: "trackerid is not an integer"})
+			r.writeError(w, coap.BadRequest, err)
+			return
 		}
 
 		cmd, err := managers.GetTrackerManager().PollCommand(trackerID)
 		if err != nil {
-			r.writeError(w, err)
+			r.writeError(w, coap.InternalServerError, err)
+			return
 		}
 
 		r.writeCBOR(w, coap.Content, cmd)
+	}
+}
+
+func (r *CoapRouter) trackerTrackingData() coap.HandlerFunc {
+	return func(w coap.ResponseWriter, req *coap.Request) {
+		trackerID, err := r.extractTrackerID(req)
+		if err != nil {
+			r.writeError(w, coap.BadRequest, err)
+			return
+		}
+
+		dec := codec.NewDecoderBytes(req.Msg.Payload(), r.cborHandle)
+		defer dec.Release()
+
+		resp := &models.TrackingInformationResponse{}
+		err = dec.Decode(resp)
+		log.WithFields(log.Fields{"trackerID": trackerID, "response": resp}).Info("Received tracking data")
 	}
 }
