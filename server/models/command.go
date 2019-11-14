@@ -1,7 +1,15 @@
 package models
 
 type Command struct {
+	ID         int
 	Command    string `json:"command,omitempty"`
-	WaitTimeMS int    `json:"wait_time_ms,omitempty"`
-	PollAgain  bool   `json:"poll_again,omitempty"`
+	WaitTimeMS int    `gorm:"-"`
 }
+
+type CommandType int8
+
+const (
+	SendTrackingInformation CommandType = 0
+	SignalLocation          CommandType = 1
+	Sleep                   CommandType = 2
+)
