@@ -1,9 +1,13 @@
 package models
 
+import "time"
+
 type Command struct {
-	ID         int
-	Command    string `json:"command,omitempty"`
-	WaitTimeMS int    `gorm:"-"`
+	ID           int `codec:"-"`
+	TrackerID    int `codec:"-"`
+	Command      CommandType
+	SleepTimeSec int
+	CreatedAt    time.Time `codec:"-"`
 }
 
 type CommandType int8

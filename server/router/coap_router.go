@@ -2,6 +2,7 @@ package router
 
 import (
 	"paper-tracker/models"
+	"strings"
 	"sync"
 
 	coap "github.com/go-ocf/go-coap"
@@ -19,6 +20,7 @@ func NewCoapRouter() *CoapRouter {
 		mux:        coap.NewServeMux(),
 		cborHandle: &codec.CborHandle{},
 	}
+	r.mux.DefaultHandleFunc(r.notfound())
 	r.buildRoutes()
 	return r
 }
@@ -59,4 +61,20 @@ func (r *CoapRouter) writeCBOR(w coap.ResponseWriter, status coap.COAPCode, body
 
 func (r *CoapRouter) writeError(w coap.ResponseWriter, err error) error {
 	return r.writeCBOR(w, coap.InternalServerError, &models.ErrorResponse{Error: err.Error()})
+}
+
+func (r *CoapRouter) parseQuery(req *coap.Request) (paramMap map[string]*string) {
+	paramMap = make(map[string]*string)
+
+	queryParams := req.Msg.Query()
+	for _, param := range queryParams {
+		paramSplit := strings.SplitN(param, "=", 2)
+		if len(paramSplit) == 2 {
+			paramMap[paramSplit[0]] = &paramSplit[1]
+		} else {
+			paramMap[paramSplit[0]] = nil
+		}
+	}
+
+	return
 }

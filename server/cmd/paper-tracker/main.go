@@ -16,6 +16,7 @@ func main() {
 	coapNetworkPtr := flag.String("coap-network", "udp", "Network which should be used for coap requests; 'udp' or 'tcp'")
 	coapPortPtr := flag.Int("coap-port", 5688, "Port on which the application will listen for coap requests")
 	httpPortPtr := flag.Int("http-port", 8080, "Port on which the application will listen for http requests")
+	defaultSleepSecPtr := flag.Int("default-sleep", 5, "Default sleep duration for the tracker before polling for new commands")
 
 	err := repositories.InitDatabaseConnection(*dbNamePtr)
 	if err != nil {
@@ -26,8 +27,12 @@ func main() {
 	if err != nil {
 		log.Fatal("Abort: Failed to create tracker repository")
 	}
+	cmdRep, err := repositories.CreateCommandRepository()
+	if err != nil {
+		log.Fatal("Abort: Failed to create command repository")
+	}
 
-	_ = managers.CreateTrackerManager(trackerRep)
+	_ = managers.CreateTrackerManager(trackerRep, cmdRep, *defaultSleepSecPtr)
 
 	coapRouter := router.NewCoapRouter()
 	httpRouter := router.NewHttpRouter()

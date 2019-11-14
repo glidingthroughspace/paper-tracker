@@ -20,3 +20,9 @@ func (rep *TrackerRepository) Create(tracker *models.Tracker) (err error) {
 	err = databaseConnection.Create(tracker).Error
 	return
 }
+
+func (rep *TrackerRepository) GetByID(trackerID int) (tracker *models.Tracker, err error) {
+	tracker = &models.Tracker{}
+	err = databaseConnection.First(tracker, &models.Tracker{ID: trackerID}).Error
+	return
+}
