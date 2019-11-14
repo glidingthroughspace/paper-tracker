@@ -40,6 +40,15 @@ func GetTrackerManager() *TrackerManager {
 	return trackerManager
 }
 
+func (mgr *TrackerManager) GetAllTrackers() (trackers []*models.Tracker, err error) {
+	trackers, err = mgr.trackerRep.GetAll()
+	if err != nil {
+		log.WithField("err", err).Error("Failed to get all trackers")
+		return
+	}
+	return
+}
+
 func (mgr *TrackerManager) NotifyNewTracker() (tracker *models.Tracker, err error) {
 	tracker = &models.Tracker{Label: "New Tracker"}
 	err = mgr.trackerRep.Create(tracker)
