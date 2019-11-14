@@ -13,6 +13,11 @@ upload: build
 monitor:
 	pio device monitor --eol LF -b 115400 -p $(SERIALPORT)
 
+test:
+	pio test -e $(PLATFORM)
+
 run:
 	$(MAKE) upload
 	$(MAKE) monitor
+
+.PHONY: test

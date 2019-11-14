@@ -1,54 +1,37 @@
 #include <Arduino.h>
 
-#include "log.h"
-#include "scanResult.h"
+#include <log.h>
+#include <scanResult.h>
+#include <wifi.h>
 
 #include <CBOR.h>
 #include <CBOR_streams.h>
 
+#include <credentials.h>
+
+#define SCAN_RESULT_BUFFER_SIZE 5
+// FIXME: This number is not correct
+#define SCAN_RESULT_MESSAGE_OVERHEAD 100
+
 namespace cbor = ::qindesign::cbor;
 
-#define RUNS 250
 
-void serializeData(size_t);
+WIFI wifi;
+ScanResult scanResultBuffer[SCAN_RESULT_BUFFER_SIZE];
 
 // FIXME: This should have a better size
-uint8_t bytes[255]{0};
-cbor::BytesStream bs{bytes, sizeof(bytes)};
+uint8_t bytes[SCAN_RESULT_BUFFER_SIZE * SCAN_RESULT_SIZE_BYTES + SCAN_RESULT_MESSAGE_OVERHEAD]{0};
 cbor::BytesPrint bp{bytes, sizeof(bytes)};
 
 void setup() {
   initSerial(115400);
   logln("Starting");
-  auto start = millis();
-  for (size_t i = 0; i < RUNS; i++) {
-    serializeData(i);
+
+  if (!wifi.connect(WIFI_SSID, WIFI_PASSWORD)) {
+    // TODO: Indicate that the connection failed. Maybe blink the LED?
   }
-  auto end = millis();
-  logln();
-  log("Serialized ");
-  log(RUNS);
-  log(" scan results in ");
-  log(end - start);
-  logln("ms");
-}
 
 
-void serializeData(size_t count) {
-  cbor::Writer cbor{bp};
-  ScanResult res{ -count, "AA:BB:CC:DD:EE", "MyWifi"};
-
-  bp.reset();
-
-  cbor.writeTag(cbor::kSelfDescribeTag);
-  cbor.beginArray(2);
-  cbor.writeInt(res.RSSI);
-  cbor.beginText(res.BSSID.length());
-  cbor.writeBytes((const uint8_t *) res.BSSID.c_str(), res.BSSID.length());
-  cbor.beginText(res.SSID.length());
-  cbor.writeBytes((const uint8_t *) res.SSID.c_str(), res.SSID.length());
-
-  logln(cbor.getWriteSize());
 }
 
 void loop() { }
