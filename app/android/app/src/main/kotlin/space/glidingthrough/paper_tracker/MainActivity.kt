@@ -1,4 +1,4 @@
-package space.glidingthrough.app
+package space.glidingthrough.paper_tracker
 
 import android.os.Bundle
 

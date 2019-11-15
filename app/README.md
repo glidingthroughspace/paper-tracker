@@ -1,6 +1,6 @@
-# app
+# paper_tracker
 
-App to track papers inside a WIFI network
+Frontend application for the paper-tracker project
 
 ## Getting Started
 
