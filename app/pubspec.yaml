@@ -1,5 +1,5 @@
-name: app
-description: App to track papers inside a WIFI network
+name: paper_tracker
+description: Frontend application for the paper-tracker project
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -23,7 +23,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
-  english_words: ^3.1.0
+  flutter_launcher_icons: ^0.7.4
 
 dev_dependencies:
   flutter_test:
