@@ -53,20 +53,10 @@ bool WIFI::connect(const char* ssid, const char* username, const char* password)
 
 bool WIFI::connectLoop() {
   wl_status_t status;
-  do {
-    status = WiFi.status();
-    if (status == WL_CONNECT_FAILED) {
-      logln();
-      logln("Connection failed");
-
-      auto status = wifi_station_get_connect_status();
-      logln("Status is ");
-      logln(status);
-      return false;
-    }
+  while(WiFi.status() != WL_CONNECTED) {
     log('.');
     delay(WIFI_CONNECTION_DELAY);
-  } while(status != WL_CONNECTED);
+  }
   logln();
   log("Connected, IP address is: ");
   logln(WiFi.localIP());
