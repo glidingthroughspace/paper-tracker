@@ -8,9 +8,9 @@ class Tracker {
   @JsonKey(name: "Label")
   String label;
   @JsonKey(name: "LastPoll")
-  String lastPoll;
+  DateTime lastPoll;
   @JsonKey(name: "LastSleepTime")
-  String lastSleepTime;
+  DateTime lastSleepTime;
 
   Tracker({this.id, this.label, this.lastPoll, this.lastSleepTime});
 

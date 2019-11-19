@@ -10,13 +10,17 @@ Tracker _$TrackerFromJson(Map<String, dynamic> json) {
   return Tracker(
       id: json['ID'] as int,
       label: json['Label'] as String,
-      lastPoll: json['LastPoll'] as String,
-      lastSleepTime: json['LastSleepTime'] as String);
+      lastPoll: json['LastPoll'] == null
+          ? null
+          : DateTime.parse(json['LastPoll'] as String),
+      lastSleepTime: json['LastSleepTime'] == null
+          ? null
+          : DateTime.parse(json['LastSleepTime'] as String));
 }
 
 Map<String, dynamic> _$TrackerToJson(Tracker instance) => <String, dynamic>{
       'ID': instance.id,
       'Label': instance.label,
-      'LastPoll': instance.lastPoll,
-      'LastSleepTime': instance.lastSleepTime
+      'LastPoll': instance.lastPoll?.toIso8601String(),
+      'LastSleepTime': instance.lastSleepTime?.toIso8601String()
     };
