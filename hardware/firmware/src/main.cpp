@@ -1,11 +1,13 @@
 #undef NDEBUG
 
 #include <Arduino.h>
+#include <WiFiUdp.h>
 
 #include <log.h>
 #include <scanResult.h>
 #include <wifi.h>
-
+#include <apiClient.h>
+#include <coap-simple.h>
 
 #include <credentials.h>
 
@@ -16,6 +18,7 @@
 
 WIFI wifi;
 ScanResult scanResultBuffer[SCAN_RESULT_BUFFER_SIZE];
+ApiClient apiClient(wifi.getUDP());
 
 uint8_t bytes[SCAN_RESULT_BUFFER_SIZE * SCAN_RESULT_SIZE_BYTES + SCAN_RESULT_MESSAGE_OVERHEAD]{0};
 
@@ -25,9 +28,17 @@ void setup() {
 
   if (!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD)) {
     // TODO: Indicate that the connection failed. Maybe blink the LED?
+    logln("Failed to connect to WiFi! Stalling Tracker!");
+    while(true) {;}
+  }
+
+  if (!apiClient.start()) {
+    logln("Failed to start CoAP client! Stalling Tracker!");
+    while(true) {;}
   }
 
 }
 
 void loop() {
+  apiClient.loop();
 }

@@ -52,7 +52,6 @@ bool WIFI::connect(const char* ssid, const char* username, const char* password)
 }
 
 bool WIFI::connectLoop() {
-  wl_status_t status;
   while(WiFi.status() != WL_CONNECTED) {
     log('.');
     delay(WIFI_CONNECTION_DELAY);
