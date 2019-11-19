@@ -28,9 +28,9 @@ name: frontend
 
 steps:
 - name: build
-  image: cirrusci/flutter:stable
+  image: gableroux/flutter:v1.9.1_hotfix.4
   commands:
   - cd app
   - flutter doctor
-  - flutter build apk
+  - flutter build apk --release
   - flutter test
