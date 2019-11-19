@@ -11,14 +11,14 @@ import (
 var defaultSleepCmd *models.Command
 
 type TrackerManager struct {
-	trackerRep *repositories.TrackerRepository
-	cmdRep     *repositories.CommandRepository
+	trackerRep repositories.TrackerRepository
+	cmdRep     repositories.CommandRepository
 	done       chan struct{}
 }
 
 var trackerManager *TrackerManager
 
-func CreateTrackerManager(trackerRep *repositories.TrackerRepository, cmdRep *repositories.CommandRepository, defaultSleepSec int) *TrackerManager {
+func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repositories.CommandRepository, defaultSleepSec int) *TrackerManager {
 	if trackerManager != nil {
 		return trackerManager
 	}
