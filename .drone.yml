@@ -1,0 +1,16 @@
+---
+kind: pipeline
+name: default
+type: docker
+
+steps:
+- name: build-firmware
+  image: petewall/platformio
+  commands:
+  - cp hardware/firmware/include/credentials.example.h hardware/firmware/include/credentials.h
+  - cd hardware/firmware && make
+
+- name: build-server
+  image: golang
+  commands:
+  - cd server && make

@@ -32,7 +32,7 @@ struct ScanResult {
     // 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
     buf[2] = buf[5] = buf[8] = buf[11] = buf[14] = ':';
     for (int i = 0; i < BSSID_LENGTH; i++) {
-      byte_to_hex(BSSID[i], &buf[i * 3]);
+      utils::byte_to_hex(BSSID[i], &buf[i * 3]);
     }
     buf[17] = '\0';
   }

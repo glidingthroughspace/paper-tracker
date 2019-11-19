@@ -24,20 +24,8 @@ static void initSerial(const unsigned long baudRate) {
 }
 
 static void logln() { PRINTLN(); }
-static void logln(const Printable& value) { PRINTLN(value); }
-static void logln(const char* value) { PRINTLN(value); }
-static void logln(const char value) { PRINTLN(value); }
-static void logln(const StringSumHelper& value) { PRINTLN(value); }
-static void logln(const int32_t value) { PRINTLN(value); }
-static void logln(const uint32_t value) { PRINTLN(value); }
-static void logln(const __FlashStringHelper* value) { PRINTLN(value); }
-static void logln(const unsigned long value) { PRINTLN(value); }
+template <typename T>
+static void logln(T value) { PRINTLN(value); }
 
-static void log(const Printable& value) { PRINT(value); }
-static void log(const char* value) { PRINT(value); }
-static void log(const char value) { PRINT(value); }
-static void log(const StringSumHelper& value) { PRINT(value); }
-static void log(const int32_t value) { PRINT(value); }
-static void log(const uint32_t value) { PRINT(value); }
-static void log(const __FlashStringHelper* value) { PRINT(value); }
-static void log(const unsigned long value) { PRINT(value); }
+template <typename T>
+static void log(T value) { PRINT(value); }
