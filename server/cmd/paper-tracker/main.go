@@ -23,11 +23,11 @@ func main() {
 		log.Fatal("Abort: Failed to initialize database")
 	}
 
-	trackerRep, err := repositories.CreateTrackerRepository()
+	trackerRep, err := repositories.CreateGormTrackerRepository()
 	if err != nil {
 		log.Fatal("Abort: Failed to create tracker repository")
 	}
-	cmdRep, err := repositories.CreateCommandRepository()
+	cmdRep, err := repositories.CreateGormCommandRepository()
 	if err != nil {
 		log.Fatal("Abort: Failed to create command repository")
 	}
