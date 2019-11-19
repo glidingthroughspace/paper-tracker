@@ -1,16 +1,36 @@
 ---
 kind: pipeline
-name: default
 type: docker
+name: firmware
 
 steps:
-- name: build-firmware
+- name: build
   image: petewall/platformio
   commands:
   - cp hardware/firmware/include/credentials.example.h hardware/firmware/include/credentials.h
   - cd hardware/firmware && make
 
-- name: build-server
+---
+kind: pipeline
+type: docker
+name: backend
+
+steps:
+- name: build
   image: golang
   commands:
   - cd server && make
+
+---
+kind: pipeline
+type: docker
+name: frontend
+
+steps:
+- name: build
+  image: cirrusci/flutter:stable
+  commands:
+  - cd app
+  - flutter doctor
+  - flutter build apk
+  - flutter test
