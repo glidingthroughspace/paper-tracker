@@ -15,6 +15,12 @@ steps:
   - cp hardware/firmware/include/credentials.example.h hardware/firmware/include/credentials.h
   - cd hardware/firmware && make
 
+- name: test
+  image: petewall/platformio
+  commands:
+  - cd hardware/firmware && PLATFORM=desktop make test
+
+
 ---
 kind: pipeline
 type: docker
