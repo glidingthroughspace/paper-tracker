@@ -1,0 +1,3 @@
+[submodule "hardware/firmware/lib/CoAP-simple-library"]
+	path = hardware/firmware/lib/CoAP-simple-library
+	url = git@github.com:riesinger/CoAP-simple-library.git
