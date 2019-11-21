@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include <WiFiUdp.h>
+#include <IPAddress.h>
 
 #include <log.h>
 #include <scanResult.h>
@@ -18,7 +19,7 @@
 
 WIFI wifi;
 ScanResult scanResultBuffer[SCAN_RESULT_BUFFER_SIZE];
-ApiClient apiClient(wifi.getUDP());
+ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,43,111));
 
 uint8_t bytes[SCAN_RESULT_BUFFER_SIZE * SCAN_RESULT_SIZE_BYTES + SCAN_RESULT_MESSAGE_OVERHEAD]{0};
 
