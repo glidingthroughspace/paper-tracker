@@ -14,7 +14,10 @@ monitor:
 	pio device monitor --eol LF -b 115400 -p $(SERIALPORT)
 
 test:
-	pio test -e $(PLATFORM) -v
+	$(MAKE) test-desktop
+
+test-desktop:
+	pio test -e desktop
 
 run:
 	$(MAKE) upload

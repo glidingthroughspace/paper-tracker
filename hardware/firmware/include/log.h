@@ -13,18 +13,12 @@
   #define PRINT(x)
 #endif
 
+void initSerial(const unsigned long baudRate);
 
-static void initSerial(const unsigned long baudRate) {
-  #ifndef NDEBUG
-    Serial.begin(baudRate);
-    while (!Serial.available()) { ; }
-    Serial.println(); // To end the first line which contains garbled text
-  #endif
-}
-
-static void logln() { PRINTLN(); }
+void logln();
 template <typename T>
-static void logln(T value) { PRINTLN(value); }
+void logln(T value) { PRINTLN(value); }
 
 template <typename T>
-static void log(T value) { PRINT(value); }
+void log(T value) { PRINT(value); }
+

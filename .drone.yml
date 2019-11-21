@@ -18,7 +18,7 @@ steps:
 - name: test
   image: petewall/platformio
   commands:
-  - cd hardware/firmware && PLATFORM=desktop make test
+  - cd hardware/firmware && make test-desktop
 
 
 ---
