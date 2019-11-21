@@ -19,9 +19,12 @@ steps:
 - name: build
   image: golang
   commands:
-  - cd server
-  - make
-  - make test
+  - cd server && make
+
+- name: test
+  image: golang
+  commands:
+  - cd server && make test
 
 ---
 kind: pipeline
@@ -32,7 +35,9 @@ steps:
 - name: build
   image: gableroux/flutter:v1.9.1_hotfix.4
   commands:
-  - cd app
-  - flutter doctor
-  - flutter build apk --release
-  - flutter test
+  - cd app && flutter build apk --release
+
+- name: test
+  image: gableroux/flutter:v1.9.1_hotfix.4
+  commands:
+  - cd app && flutter pub get && flutter test
