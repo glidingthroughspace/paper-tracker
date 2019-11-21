@@ -26,16 +26,26 @@ void setup() {
   initSerial(115400);
   logln("Starting");
 
+  #ifdef WIFI_USERNAME
   if (!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD)) {
     // TODO: Indicate that the connection failed. Maybe blink the LED?
     logln("Failed to connect to WiFi! Stalling Tracker!");
     while(true) {;}
   }
+  #else
+  if (!wifi.connect(WIFI_SSID, WIFI_PASSWORD)) {
+    // TODO: Indicate that the connection failed. Maybe blink the LED?
+    logln("Failed to connect to WiFi! Stalling Tracker!");
+    while(true) {;}
+  }
+  #endif
 
   if (!apiClient.start()) {
     logln("Failed to start CoAP client! Stalling Tracker!");
     while(true) {;}
   }
+
+  apiClient.requestNextAction([] () {});
 
 }
 

@@ -30,11 +30,17 @@ WiFiUDP& WIFI::getUDP() {
 }
 
 bool WIFI::connect(const char* ssid, const char* password) {
+  log("Connecting to WiFi SSID ");
+  logln(ssid);
   WiFi.begin(ssid, password);
   return connectLoop();
 }
 
 bool WIFI::connect(const char* ssid, const char* username, const char* password) {
+  log("Connecting to WiFi SSID ");
+  log(ssid);
+  log(" with user ");
+  logln(username);
   wifi_set_opmode(STATION_MODE);
   struct station_config wifi_config;
   memset(&wifi_config, 0, sizeof(wifi_config));
