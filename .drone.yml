@@ -4,6 +4,11 @@ type: docker
 name: firmware
 
 steps:
+- name: fetch-submodules
+  image: alpine/git
+  commands:
+  - git submodule update --init --recursive
+
 - name: build
   image: petewall/platformio
   commands:
