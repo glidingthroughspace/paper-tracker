@@ -1,9 +1,9 @@
 #include <apiClient.h>
-#include <IPAddress.h>
 
 #include <log.h>
 
-ApiClient::ApiClient(WiFiUDP& udp) : coap(udp) {
+ApiClient::ApiClient(WiFiUDP& udp, IPAddress serverIP) 
+  : coap(udp), serverIP(serverIP) {
 
 }
 
@@ -18,7 +18,7 @@ bool ApiClient::loop() {
 
 void ApiClient::requestNextAction(std::function<void(void)> callback) {
   logln("Requesting next action from server");
-  coap.get(IPAddress(192, 168, 43, 91), 5688, "tracker/poll?trackerid=1");
+  coap.get(serverIP, 5688, "tracker/poll");
 }
 
 void ApiClient::coap_response_callback(CoapPacket &packet, IPAddress ip, int port) {
