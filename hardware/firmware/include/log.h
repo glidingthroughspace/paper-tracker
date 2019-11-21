@@ -4,14 +4,13 @@
  * Abstraction around Serial for disabling Serial output when not in debug mode
  */
 
-#include "Arduino.h"
-
 #ifndef NDEBUG
-#define PRINTLN(x) Serial.println(x)
-#define PRINT(x) Serial.print(x)
+  #include "Arduino.h"
+  #define PRINTLN(x) Serial.println(x)
+  #define PRINT(x) Serial.print(x)
 #else
-#define PRINTLN(x)
-#define PRINT(x)
+  #define PRINTLN(x)
+  #define PRINT(x)
 #endif
 
 

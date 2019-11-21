@@ -1,7 +1,7 @@
 #pragma once
 
 #include <WiFiUdp.h>
-#include <coap-simple.h>
+#include <coap/coap-simple.h>
 #include <IPAddress.h>
 
 #include <functional>

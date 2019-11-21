@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Arduino.h>
-
 namespace utils {
   // Map for converting bytes to hex strings
   constexpr char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
