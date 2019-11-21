@@ -1,5 +1,5 @@
 build-json:
-	${HOME}/flutter/bin/flutter pub run build_runner build
+	flutter pub run build_runner build
 
 convert-icon:
-	${HOME}/flutter/bin/flutter pub run flutter_launcher_icons:main
+	flutter pub run flutter_launcher_icons:main
