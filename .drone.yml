@@ -20,7 +20,6 @@ steps:
   commands:
   - cd hardware/firmware && make test-desktop
 
-
 ---
 kind: pipeline
 type: docker
