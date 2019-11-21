@@ -1,7 +1,6 @@
 package managers
 
 import (
-	"fmt"
 	"paper-tracker/models"
 	"paper-tracker/repositories"
 
@@ -16,15 +15,10 @@ type TrackerManager struct {
 	done       chan struct{}
 }
 
-var trackerManager *TrackerManager
-
 func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repositories.CommandRepository, defaultSleepSec int) *TrackerManager {
-	if trackerManager != nil {
-		return trackerManager
-	}
-
-	trackerManager = &TrackerManager{
+	trackerManager := &TrackerManager{
 		trackerRep: trackerRep,
+		cmdRep:     cmdRep,
 		done:       make(chan struct{}),
 	}
 
@@ -33,10 +27,6 @@ func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repo
 		SleepTimeSec: defaultSleepSec,
 	}
 
-	return trackerManager
-}
-
-func GetTrackerManager() *TrackerManager {
 	return trackerManager
 }
 
@@ -54,7 +44,7 @@ func (mgr *TrackerManager) NotifyNewTracker() (tracker *models.Tracker, err erro
 	err = mgr.trackerRep.Create(tracker)
 	if err != nil {
 		log.WithField("err", err).Error("Failed to create new tracker")
-		return nil, fmt.Errorf("Failed to create new tracker")
+		return
 	}
 	return
 }
@@ -87,6 +77,8 @@ func (mgr *TrackerManager) PollCommand(trackerID int) (cmd *models.Command, err 
 
 	if _, err = mgr.cmdRep.GetNextCommand(trackerID); !repositories.IsRecordNotFoundError(err) {
 		cmd.SleepTimeSec = 0
+	} else {
+		err = nil
 	}
 
 	return

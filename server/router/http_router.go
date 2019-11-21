@@ -1,6 +1,7 @@
 package router
 
 import (
+	"paper-tracker/managers"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -8,12 +9,14 @@ import (
 )
 
 type HttpRouter struct {
-	engine *gin.Engine
+	engine     *gin.Engine
+	trackerMgr *managers.TrackerManager
 }
 
-func NewHttpRouter() *HttpRouter {
+func NewHttpRouter(trackerMgr *managers.TrackerManager) *HttpRouter {
 	r := &HttpRouter{
-		engine: gin.New(),
+		engine:     gin.New(),
+		trackerMgr: trackerMgr,
 	}
 	r.buildRoutes()
 	return r

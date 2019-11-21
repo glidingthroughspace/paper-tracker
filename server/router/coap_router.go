@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"paper-tracker/managers"
 	"paper-tracker/models"
 	"strconv"
 	"strings"
@@ -15,12 +16,14 @@ import (
 type CoapRouter struct {
 	mux        *coap.ServeMux
 	cborHandle codec.Handle
+	trackerMgr *managers.TrackerManager
 }
 
-func NewCoapRouter() *CoapRouter {
+func NewCoapRouter(trackerMgr *managers.TrackerManager) *CoapRouter {
 	r := &CoapRouter{
 		mux:        coap.NewServeMux(),
 		cborHandle: &codec.CborHandle{},
+		trackerMgr: trackerMgr,
 	}
 	r.mux.DefaultHandleFunc(r.notfound())
 	r.buildRoutes()
@@ -55,7 +58,7 @@ func (r *CoapRouter) writeCBOR(w coap.ResponseWriter, status coap.COAPCode, body
 	defer enc.Release()
 	err = enc.Encode(body)
 	if err != nil {
-		log.Error("Failed to write or encode CBOR response: %v", err)
+		log.WithField("err", err).Error("Failed to write or encode CBOR response")
 		return
 	}
 	return

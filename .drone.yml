@@ -19,7 +19,9 @@ steps:
 - name: build
   image: golang
   commands:
-  - cd server && make
+  - cd server
+  - make
+  - make test
 
 ---
 kind: pipeline
