@@ -18,7 +18,7 @@ bool ApiClient::loop() {
 
 void ApiClient::requestNextAction(std::function<void(void)> callback) {
   logln("Requesting next action from server");
-  coap.get(serverIP, 5688, "tracker/poll");
+  coap.get(serverIP, 5688, "tracker/poll", "trackerid=1");
 }
 
 void ApiClient::coap_response_callback(CoapPacket &packet, IPAddress ip, int port) {
