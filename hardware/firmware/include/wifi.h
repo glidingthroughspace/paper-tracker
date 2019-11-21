@@ -1,6 +1,6 @@
 #pragma once
 
-#include <scanResult.h>
+#include <models/scanResult.h>
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 

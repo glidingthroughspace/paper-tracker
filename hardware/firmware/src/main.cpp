@@ -3,7 +3,7 @@
 #include <IPAddress.h>
 
 #include <log.h>
-#include <scanResult.h>
+#include <models/scanResult.h>
 #include <wifi.h>
 #include <apiClient.h>
 
