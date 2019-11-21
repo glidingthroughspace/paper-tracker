@@ -15,7 +15,5 @@ class ApiClient {
   private:
     IPAddress serverIP;
     Coap coap;
-    uint16_t onNextActionMessageID;
-    function<void(void)> onNextActionCallback;
     static void coap_response_callback(CoapPacket &packet, IPAddress ip, int port);
 };
