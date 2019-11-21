@@ -1,4 +1,5 @@
 #include <apiClient.h>
+#include <IPAddress.h>
 
 #include <log.h>
 
@@ -13,6 +14,11 @@ bool ApiClient::start() {
 
 bool ApiClient::loop() {
   return coap.loop();
+}
+
+void ApiClient::requestNextAction(std::function<void(void)> callback) {
+  logln("Requesting next action from server");
+  coap.get(IPAddress(192, 168, 43, 91), 5688, "tracker/poll?trackerid=1");
 }
 
 void ApiClient::coap_response_callback(CoapPacket &packet, IPAddress ip, int port) {
