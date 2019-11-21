@@ -32,10 +32,10 @@ func main() {
 		log.Fatal("Abort: Failed to create command repository")
 	}
 
-	_ = managers.CreateTrackerManager(trackerRep, cmdRep, *defaultSleepSecPtr)
+	trackerMgr := managers.CreateTrackerManager(trackerRep, cmdRep, *defaultSleepSecPtr)
 
-	coapRouter := router.NewCoapRouter()
-	httpRouter := router.NewHttpRouter()
+	coapRouter := router.NewCoapRouter(trackerMgr)
+	httpRouter := router.NewHttpRouter(trackerMgr)
 
 	// Start
 	var wg sync.WaitGroup

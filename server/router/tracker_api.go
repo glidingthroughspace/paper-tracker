@@ -1,7 +1,6 @@
 package router
 
 import (
-	"paper-tracker/managers"
 	"paper-tracker/models"
 
 	coap "github.com/go-ocf/go-coap"
@@ -17,7 +16,7 @@ func (r *CoapRouter) buildTrackerAPIRoutes() {
 
 func (r *CoapRouter) trackerNotifyHandler() coap.HandlerFunc {
 	return func(w coap.ResponseWriter, req *coap.Request) {
-		tracker, err := managers.GetTrackerManager().NotifyNewTracker()
+		tracker, err := r.trackerMgr.NotifyNewTracker()
 		if err != nil {
 			r.writeError(w, coap.InternalServerError, err)
 			return
@@ -35,7 +34,7 @@ func (r *CoapRouter) trackerPollHandler() coap.HandlerFunc {
 			return
 		}
 
-		cmd, err := managers.GetTrackerManager().PollCommand(trackerID)
+		cmd, err := r.trackerMgr.PollCommand(trackerID)
 		if err != nil {
 			r.writeError(w, coap.InternalServerError, err)
 			return

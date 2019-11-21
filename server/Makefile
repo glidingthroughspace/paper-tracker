@@ -6,5 +6,8 @@ paper-tracker: $(sources)
 run: paper-tracker
 	./paper-tracker
 
+test:
+	go test ./...
+
 clean:
 	- rm paper-tracker

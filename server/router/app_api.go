@@ -1,7 +1,6 @@
 package router
 
 import (
-	"paper-tracker/managers"
 	"paper-tracker/models"
 
 	"net/http"
@@ -15,7 +14,7 @@ func (r *HttpRouter) buildAppAPIRoutes() {
 
 func (r *HttpRouter) trackerListHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		trackers, err := managers.GetTrackerManager().GetAllTrackers()
+		trackers, err := r.trackerMgr.GetAllTrackers()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
 			return
