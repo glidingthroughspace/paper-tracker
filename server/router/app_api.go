@@ -33,11 +33,12 @@ func (r *HttpRouter) trackerLearnStartHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = r.trackerMgr.StartLearning(trackerID)
+		learnTime, err := r.trackerMgr.StartLearning(trackerID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &models.ErrorResponse{Error: err.Error()})
 			return
 		}
-		ctx.Status(http.StatusOK)
+		//TODO: Move to a model
+		ctx.JSON(http.StatusOK, struct{ LearnTimeSec int }{learnTime})
 	}
 }

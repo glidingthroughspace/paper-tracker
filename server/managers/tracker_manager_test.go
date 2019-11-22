@@ -1,10 +1,10 @@
-package managers_test
+package managers
 
 import (
 	"errors"
-	. "paper-tracker/managers"
 	"paper-tracker/mock"
 	"paper-tracker/models"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/gorm"
@@ -21,12 +21,14 @@ var _ = Describe("TrackerManager", func() {
 		manager        *TrackerManager
 	)
 	const sleepTimeSec = 5
+	const sleepBetweenLearnSec = 1
+	const learnCount = 2
 
 	BeforeEach(func() {
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockTrackerRep = mock.NewMockTrackerRepository(mockCtrl)
 		mockCommandRep = mock.NewMockCommandRepository(mockCtrl)
-		manager = CreateTrackerManager(mockTrackerRep, mockCommandRep, sleepTimeSec)
+		manager = CreateTrackerManager(mockTrackerRep, mockCommandRep, sleepTimeSec, learnCount, sleepBetweenLearnSec)
 	})
 	AfterEach(func() {
 		mockCtrl.Finish()
@@ -91,7 +93,7 @@ var _ = Describe("TrackerManager", func() {
 			mockCommandRep.EXPECT().GetNextCommand(id).Return(outCmd, nil).Times(2)
 			mockCommandRep.EXPECT().Delete(id).Return(nil).Times(1)
 			Expect(manager.PollCommand(id)).To(PointTo(MatchFields(IgnoreExtras, Fields{
-				"SleepTimeSec": Equal(0),
+				"SleepTimeSec": BeEquivalentTo(0),
 			})))
 		})
 	})
@@ -99,23 +101,57 @@ var _ = Describe("TrackerManager", func() {
 	Context("Test StartLearning", func() {
 		wrongID := 0
 		id := 1
-		trackerIdle := &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusIdle}
-		trackerLearning := &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearning}
+		var trackerIdle *models.Tracker
+		var trackerLearning *models.Tracker
+		var cmdCreateCall *gomock.Call
+		trackCmd := &models.Command{TrackerID: id, Command: models.CmdSendTrackingInformation, SleepTimeSec: sleepBetweenLearnSec}
+
+		BeforeEach(func() {
+			trackerIdle = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusIdle}
+			trackerLearning = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearning}
+			cmdCreateCall = mockCommandRep.EXPECT().Create(trackCmd).Return(nil).AnyTimes()
+		})
 
 		It("StartLearning returns error if tracker does not exist", func() {
 			mockTrackerRep.EXPECT().GetByID(wrongID).Return(nil, gorm.ErrRecordNotFound).Times(1)
-			Expect(manager.StartLearning(wrongID)).To(MatchError(gorm.ErrRecordNotFound))
+			_, err := manager.StartLearning(wrongID)
+			Expect(err).To(MatchError(gorm.ErrRecordNotFound))
 		})
 
 		It("StartLearning returns error if tracker is not in idle mode", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearning, nil).Times(1)
-			Expect(manager.StartLearning(id)).To(HaveOccurred())
+			_, err := manager.StartLearning(id)
+			Expect(err).To(HaveOccurred())
 		})
 
-		It("StartLearning sets tracker status to learning", func() {
+		It("StartLearning sets tracker status to learning and succeed", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
 			mockTrackerRep.EXPECT().Update(trackerLearning).Times(1)
-			Expect(manager.StartLearning(id)).NotTo(HaveOccurred())
+			_, err := manager.StartLearning(id)
+			Expect(err).To(Succeed())
+		})
+
+		It("StartLearning return correct total learn time", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
+			mockTrackerRep.EXPECT().Update(trackerLearning).Times(1)
+			Expect(manager.StartLearning(id)).To(Equal(learnCount * sleepBetweenLearnSec))
+		})
+
+		It("StartLearning inserts first command", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
+			mockTrackerRep.EXPECT().Update(trackerLearning).Times(1)
+			cmdCreateCall.MinTimes(1)
+			_, err := manager.StartLearning(id)
+			Expect(err).To(Succeed())
+			time.Sleep(10 * time.Millisecond)
+		})
+
+		Context("Test learningSendTrackingCmds", func() {
+			It("learningSendTrackingCmds insert correct amounts of tracking commands", func() {
+				cmdCreateCall.Times(learnCount)
+				manager.learningSendTrackingCmds(id)
+			})
 		})
 	})
+
 })

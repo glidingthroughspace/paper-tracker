@@ -4,6 +4,7 @@ import (
 	"errors"
 	"paper-tracker/models"
 	"paper-tracker/repositories"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -11,16 +12,20 @@ import (
 var defaultSleepCmd *models.Command
 
 type TrackerManager struct {
-	trackerRep repositories.TrackerRepository
-	cmdRep     repositories.CommandRepository
-	done       chan struct{}
+	trackerRep           repositories.TrackerRepository
+	cmdRep               repositories.CommandRepository
+	learnCount           int
+	sleepBetweenLearnSec int
+	done                 chan struct{}
 }
 
-func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repositories.CommandRepository, defaultSleepSec int) *TrackerManager {
+func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repositories.CommandRepository, defaultSleepSec, learnCount, sleepBetweenLearnSec int) *TrackerManager {
 	trackerManager := &TrackerManager{
-		trackerRep: trackerRep,
-		cmdRep:     cmdRep,
-		done:       make(chan struct{}),
+		trackerRep:           trackerRep,
+		cmdRep:               cmdRep,
+		learnCount:           learnCount,
+		sleepBetweenLearnSec: sleepBetweenLearnSec,
+		done:                 make(chan struct{}),
 	}
 
 	defaultSleepCmd = &models.Command{
@@ -85,7 +90,7 @@ func (mgr *TrackerManager) PollCommand(trackerID int) (cmd *models.Command, err 
 	return
 }
 
-func (mgr *TrackerManager) StartLearning(trackerID int) (err error) {
+func (mgr *TrackerManager) StartLearning(trackerID int) (learnTimeSec int, err error) {
 	learnLog := log.WithField("trackerID", trackerID)
 
 	tracker, err := mgr.trackerRep.GetByID(trackerID)
@@ -104,5 +109,27 @@ func (mgr *TrackerManager) StartLearning(trackerID int) (err error) {
 		return
 	}
 
+	go mgr.learningSendTrackingCmds(trackerID)
+
+	learnTimeSec = mgr.learnCount * mgr.sleepBetweenLearnSec
 	return
+}
+
+func (mgr *TrackerManager) learningSendTrackingCmds(trackerID int) {
+	learnRoutineLog := log.WithField("trackerID", trackerID)
+
+	trackCmd := &models.Command{
+		TrackerID:    trackerID,
+		Command:      models.CmdSendTrackingInformation,
+		SleepTimeSec: mgr.sleepBetweenLearnSec,
+	}
+
+	for it := 0; it < mgr.learnCount; it++ {
+		err := mgr.cmdRep.Create(trackCmd)
+		if err != nil {
+			learnRoutineLog.WithField("err", err).Error("Failed to insert tracking command")
+		}
+
+		time.Sleep(time.Duration(mgr.sleepBetweenLearnSec-1) * time.Second)
+	}
 }
