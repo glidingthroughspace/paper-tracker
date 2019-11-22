@@ -1,3 +1,4 @@
+#pragma once
 // CBOR_streams.h contains definitions for useful Stream and
 // Print implementations.
 // This is part of libCBOR.

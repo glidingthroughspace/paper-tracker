@@ -12,6 +12,7 @@ class ApiClient {
     bool loop();
     bool start();
     void requestNextAction(std::function<void(void)> callback);
+    void writeTrackingData(uint8_t* scanResults, size_t scanResultLen, std::function<void(void)> callback);
   private:
     Coap coap;
     IPAddress serverIP;
