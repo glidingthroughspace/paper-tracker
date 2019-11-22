@@ -9,12 +9,12 @@ import (
 )
 
 func (r *CoapRouter) buildTrackerAPIRoutes() {
-	r.addRoute("/tracker/notify-new", &routeHandlers{Post: r.trackerNotifyHandler()})
+	r.addRoute("/tracker/new", &routeHandlers{Post: r.trackerNewHandler()})
 	r.addRoute("/tracker/poll", &routeHandlers{Get: r.trackerPollHandler()})
 	r.addRoute("/tracker/tracking", &routeHandlers{Post: r.trackerTrackingData()})
 }
 
-func (r *CoapRouter) trackerNotifyHandler() coap.HandlerFunc {
+func (r *CoapRouter) trackerNewHandler() coap.HandlerFunc {
 	return func(w coap.ResponseWriter, req *coap.Request) {
 		tracker, err := r.trackerMgr.NotifyNewTracker()
 		if err != nil {

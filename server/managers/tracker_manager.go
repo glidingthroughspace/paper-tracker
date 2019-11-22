@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"errors"
 	"paper-tracker/models"
 	"paper-tracker/repositories"
 
@@ -23,7 +24,7 @@ func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repo
 	}
 
 	defaultSleepCmd = &models.Command{
-		Command:      models.Sleep,
+		Command:      models.CmdSleep,
 		SleepTimeSec: defaultSleepSec,
 	}
 
@@ -79,6 +80,28 @@ func (mgr *TrackerManager) PollCommand(trackerID int) (cmd *models.Command, err 
 		cmd.SleepTimeSec = 0
 	} else {
 		err = nil
+	}
+
+	return
+}
+
+func (mgr *TrackerManager) StartLearning(trackerID int) (err error) {
+	learnLog := log.WithField("trackerID", trackerID)
+
+	tracker, err := mgr.trackerRep.GetByID(trackerID)
+	if err != nil {
+		learnLog.WithField("err", err).Error("Failed to get tracker with tracker ID")
+		return
+	} else if tracker.Status != models.StatusIdle {
+		err = errors.New("Given tracker is not in idle mode")
+		return
+	}
+
+	tracker.Status = models.StatusLearning
+	err = mgr.trackerRep.Update(tracker)
+	if err != nil {
+		learnLog.WithField("err", err).Error("Failed to update tracker with status learning")
+		return
 	}
 
 	return

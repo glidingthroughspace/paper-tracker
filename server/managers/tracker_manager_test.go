@@ -1,7 +1,7 @@
 package managers_test
 
 import (
-	"fmt"
+	"errors"
 	. "paper-tracker/managers"
 	"paper-tracker/mock"
 	"paper-tracker/models"
@@ -34,7 +34,7 @@ var _ = Describe("TrackerManager", func() {
 
 	Context("Test GetAllTrackers", func() {
 		outTrackers := []*models.Tracker{&models.Tracker{ID: 1, Label: "Tracker 1"}}
-		expErr := fmt.Errorf("error")
+		expErr := errors.New("error")
 
 		It("GetAllTrackers should call get all in rep exactly once", func() {
 			mockTrackerRep.EXPECT().GetAll().Return(outTrackers, nil).Times(1)
@@ -50,7 +50,7 @@ var _ = Describe("TrackerManager", func() {
 
 	Context("Test NotifyNewTracker", func() {
 		outTracker := &models.Tracker{Label: "New Tracker"}
-		expErr := fmt.Errorf("error")
+		expErr := errors.New("error")
 
 		It("NotifyNewTracker calls create in rep exactly once", func() {
 			mockTrackerRep.EXPECT().Create(outTracker).Return(nil).Times(1)
@@ -67,14 +67,14 @@ var _ = Describe("TrackerManager", func() {
 	Context("Test PollCommand", func() {
 		id := 1
 		outTracker := &models.Tracker{ID: id, Label: "New Tracker"}
-		outCmd := &models.Command{ID: 1, TrackerID: id, Command: models.SendTrackingInformation, SleepTimeSec: 10}
+		outCmd := &models.Command{ID: 1, TrackerID: id, Command: models.CmdSendTrackingInformation, SleepTimeSec: 10}
 
 		It("PollCommand returns correct sleep if no command in DB", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(outTracker, nil).Times(1)
 			mockCommandRep.EXPECT().GetNextCommand(id).Return(nil, gorm.ErrRecordNotFound).Times(1)
 			Expect(manager.PollCommand(id)).To(PointTo(MatchFields(IgnoreExtras, Fields{
 				"SleepTimeSec": Equal(sleepTimeSec),
-				"Command":      Equal(models.Sleep),
+				"Command":      Equal(models.CmdSleep),
 			})))
 		})
 
@@ -93,6 +93,29 @@ var _ = Describe("TrackerManager", func() {
 			Expect(manager.PollCommand(id)).To(PointTo(MatchFields(IgnoreExtras, Fields{
 				"SleepTimeSec": Equal(0),
 			})))
+		})
+	})
+
+	Context("Test StartLearning", func() {
+		wrongID := 0
+		id := 1
+		trackerIdle := &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusIdle}
+		trackerLearning := &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearning}
+
+		It("StartLearning returns error if tracker does not exist", func() {
+			mockTrackerRep.EXPECT().GetByID(wrongID).Return(nil, gorm.ErrRecordNotFound).Times(1)
+			Expect(manager.StartLearning(wrongID)).To(MatchError(gorm.ErrRecordNotFound))
+		})
+
+		It("StartLearning returns error if tracker is not in idle mode", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearning, nil).Times(1)
+			Expect(manager.StartLearning(id)).To(HaveOccurred())
+		})
+
+		It("StartLearning sets tracker status to learning", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
+			mockTrackerRep.EXPECT().Update(trackerLearning).Times(1)
+			Expect(manager.StartLearning(id)).NotTo(HaveOccurred())
 		})
 	})
 })

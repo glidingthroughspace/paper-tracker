@@ -31,3 +31,8 @@ func (rep *GormTrackerRepository) GetByID(trackerID int) (tracker *models.Tracke
 	err = databaseConnection.First(tracker, &models.Tracker{ID: trackerID}).Error
 	return
 }
+
+func (rep *GormTrackerRepository) Update(tracker *models.Tracker) (err error) {
+	err = databaseConnection.Save(tracker).Error
+	return
+}
