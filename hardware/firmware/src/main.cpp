@@ -4,6 +4,7 @@
 
 #include <log.h>
 #include <models/scanResult.h>
+#include <models/trackerResponse.h>
 #include <wifi.h>
 #include <apiClient.h>
 
@@ -43,7 +44,14 @@ void setup() {
     while(true) {;}
   }
 
+  wifi.scanVisibleNetworks();
+  logln("Scanned for networks");
+  wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
+  TrackerResponse trackerResponse{0};
   apiClient.requestNextAction([] () {});
+  memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
+  trackerResponse.toCBOR(bytes, sizeof(bytes));
+  apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
 
 }
 

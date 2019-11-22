@@ -45,6 +45,17 @@ struct ScanResult {
     buf[17] = '\0';
   }
 
+  bool toCBOR(cbor::Writer& cbor) {
+    cbor.writeTag(cbor::kSelfDescribeTag);
+    cbor.writeInt(RSSI);
+    cbor.beginBytes(BSSID_LENGTH); // Is this correct?
+    cbor.writeBytes(BSSID, BSSID_LENGTH);
+    cbor.beginText(SSID_LENGTH);
+    cbor.writeBytes((uint8_t*) SSID, SSID_LENGTH);
+    return true;
+  }
+
+
   bool toCBOR(uint8_t* buffer, size_t bufferSize) {
     cbor::BytesPrint bp{buffer, bufferSize};
     cbor::Writer cbor{bp};
@@ -54,6 +65,6 @@ struct ScanResult {
     cbor.writeBytes(BSSID, BSSID_LENGTH);
     cbor.beginText(SSID_LENGTH);
     cbor.writeBytes((uint8_t*) SSID, SSID_LENGTH);
+    return true;
   }
 };
-
