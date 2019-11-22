@@ -1,0 +1,86 @@
+@startuml
+skinparam nodesep 50
+skinparam ranksep 100
+
+package model {
+  class Tracker {
+    Int ID
+    String Label
+    Time LastPoll <no cbor>
+    Time LastSleepTime <no cbor>
+  }
+  
+  enum TrackerStatus {
+    Idle = 1
+    Learning = 2
+    Tracking = 3
+  }
+  hide TrackerStatus methods
+  
+  class Command {
+    Int ID
+    Int SleepTimeSec
+    Time CreatedAt
+  }
+
+  enum CommandType {
+    SendTrackingInformation = 0
+    SignalLocation = 1
+    Sleep = 2
+  }
+  hide CommandType methods
+  together {
+    class Command
+    class CommandType
+  }
+
+  class Room {
+    Int ID
+    String Label
+  }
+  
+  class BSSIDTrackingData {
+    Int BSSID
+    Int Minimum
+    Int Maximum
+    Int Median
+    Float Average
+  }
+  together {
+    class Room
+    class BSSIDTrackingData
+  }
+
+  package communication {
+    class TrackerResponse {
+      Float BatteryPercentage
+    }
+
+    class TrackingInformationResponse {
+    }
+
+    class ScanResult {
+      String SSID
+      Int BSSID
+      Int RSSID
+    }
+
+    class ErrorResponse {
+      String Error
+    }
+  }
+
+  Tracker -up- TrackerStatus
+  Tracker "0..*" -- "0..*" Room : LastLocations
+  Tracker "0..*" -- "1" Room : LastLocation
+  Tracker "1" -- "0..*" Command : NextCommands
+  Tracker "1" -- "0..*" ScanResult
+
+  Command -- CommandType
+
+  Room "1" -- "0..*" BSSIDTrackingData
+
+  TrackerResponse <|-- TrackingInformationResponse
+  TrackingInformationResponse "1" -- "0..*" ScanResult
+}
+@enduml
