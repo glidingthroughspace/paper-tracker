@@ -11,12 +11,14 @@ import (
 type HttpRouter struct {
 	engine     *gin.Engine
 	trackerMgr *managers.TrackerManager
+	roomMgr    *managers.RoomManager
 }
 
-func NewHttpRouter(trackerMgr *managers.TrackerManager) *HttpRouter {
+func NewHttpRouter(trackerMgr *managers.TrackerManager, roomMgr *managers.RoomManager) *HttpRouter {
 	r := &HttpRouter{
 		engine:     gin.New(),
 		trackerMgr: trackerMgr,
+		roomMgr:    roomMgr,
 	}
 	r.buildRoutes()
 	return r

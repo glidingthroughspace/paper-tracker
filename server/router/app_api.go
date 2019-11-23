@@ -38,7 +38,17 @@ func (r *HttpRouter) trackerLearnStartHandler() gin.HandlerFunc {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
-		//TODO: Move to a model
-		ctx.JSON(http.StatusOK, struct{ LearnTimeSec int }{learnTime})
+		ctx.JSON(http.StatusOK, &communication.LearnStartResponse{LearnTimeSec: learnTime})
+	}
+}
+
+func (r *HttpRouter) roomListHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		rooms, err := r.roomMgr.GetAllRooms()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			return
+		}
+		ctx.JSON(http.StatusOK, rooms)
 	}
 }

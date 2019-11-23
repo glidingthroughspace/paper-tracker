@@ -43,10 +43,10 @@ func main() {
 	}
 
 	trackerMgr := managers.CreateTrackerManager(trackerRep, cmdRep, scanResultRep, *defaultSleepSecPtr, *learnCountPtr, *sleepBetweenLearnSecPtr)
-	_ = managers.CreateRoomManager(roomRep)
+	roomMgr := managers.CreateRoomManager(roomRep)
 
 	coapRouter := router.NewCoapRouter(trackerMgr)
-	httpRouter := router.NewHttpRouter(trackerMgr)
+	httpRouter := router.NewHttpRouter(trackerMgr, roomMgr)
 
 	// Start
 	var wg sync.WaitGroup
