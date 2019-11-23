@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gstruct"
+	log "github.com/sirupsen/logrus"
 )
 
 var _ = Describe("TrackerManager", func() {
@@ -104,12 +105,15 @@ var _ = Describe("TrackerManager", func() {
 		var trackerIdle *models.Tracker
 		var trackerLearning *models.Tracker
 		var cmdCreateCall *gomock.Call
+		var trackerUpdateCall *gomock.Call
 		trackCmd := &models.Command{TrackerID: id, Command: models.CmdSendTrackingInformation, SleepTimeSec: sleepBetweenLearnSec}
+		testLogger := log.WithField("unit_test", true)
 
 		BeforeEach(func() {
 			trackerIdle = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusIdle}
 			trackerLearning = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearning}
 			cmdCreateCall = mockCommandRep.EXPECT().Create(trackCmd).Return(nil).AnyTimes()
+			trackerUpdateCall = mockTrackerRep.EXPECT().Update(gomock.Any()).AnyTimes()
 		})
 
 		It("StartLearning returns error if tracker does not exist", func() {
@@ -124,34 +128,31 @@ var _ = Describe("TrackerManager", func() {
 			Expect(err).To(HaveOccurred())
 		})
 
-		It("StartLearning sets tracker status to learning and succeed", func() {
-			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
-			mockTrackerRep.EXPECT().Update(trackerLearning).Times(1)
-			_, err := manager.StartLearning(id)
-			Expect(err).To(Succeed())
-		})
-
 		It("StartLearning return correct total learn time", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
-			mockTrackerRep.EXPECT().Update(trackerLearning).Times(1)
 			Expect(manager.StartLearning(id)).To(Equal(learnCount * sleepBetweenLearnSec))
 		})
 
 		It("StartLearning inserts first command", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
-			mockTrackerRep.EXPECT().Update(trackerLearning).Times(1)
 			cmdCreateCall.MinTimes(1)
 			_, err := manager.StartLearning(id)
 			Expect(err).To(Succeed())
 			time.Sleep(10 * time.Millisecond)
 		})
 
+		Context("Test learningRoutine", func() {
+			It("learningRoutine sets tracker status to learning and back to idle", func() {
+				trackerUpdateCall.Times(2)
+				manager.learningRoutine(trackerIdle, testLogger)
+			})
+		})
+
 		Context("Test learningSendTrackingCmds", func() {
 			It("learningSendTrackingCmds insert correct amounts of tracking commands", func() {
 				cmdCreateCall.Times(learnCount)
-				manager.learningSendTrackingCmds(id)
+				manager.learningCreateTrackingCmds(trackerLearning, testLogger)
 			})
 		})
 	})
-
 })

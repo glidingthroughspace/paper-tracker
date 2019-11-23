@@ -102,24 +102,38 @@ func (mgr *TrackerManager) StartLearning(trackerID int) (learnTimeSec int, err e
 		return
 	}
 
-	tracker.Status = models.StatusLearning
-	err = mgr.trackerRep.Update(tracker)
-	if err != nil {
-		learnLog.WithField("err", err).Error("Failed to update tracker with status learning")
-		return
-	}
-
-	go mgr.learningSendTrackingCmds(trackerID)
+	go mgr.learningRoutine(tracker, learnLog)
 
 	learnTimeSec = mgr.learnCount * mgr.sleepBetweenLearnSec
 	return
 }
 
-func (mgr *TrackerManager) learningSendTrackingCmds(trackerID int) {
-	learnRoutineLog := log.WithField("trackerID", trackerID)
+func (mgr *TrackerManager) learningRoutine(tracker *models.Tracker, logger *log.Entry) {
+	logger.Trace("Start routine")
+
+	logger.Trace("Set tracker status to learning")
+	tracker.Status = models.StatusLearning
+	err := mgr.trackerRep.Update(tracker)
+	if err != nil {
+		logger.WithField("err", err).Error("Failed to update tracker with status learning")
+		return
+	}
+
+	mgr.learningCreateTrackingCmds(tracker, logger)
+
+	tracker.Status = models.StatusIdle
+	err = mgr.trackerRep.Update(tracker)
+	if err != nil {
+		logger.WithField("err", err).Error("Failed to update tracker with status learning")
+		return
+	}
+}
+
+func (mgr *TrackerManager) learningCreateTrackingCmds(tracker *models.Tracker, logger *log.Entry) {
+	logger.Info("Start creating tracking commands")
 
 	trackCmd := &models.Command{
-		TrackerID:    trackerID,
+		TrackerID:    tracker.ID,
 		Command:      models.CmdSendTrackingInformation,
 		SleepTimeSec: mgr.sleepBetweenLearnSec,
 	}
@@ -127,9 +141,10 @@ func (mgr *TrackerManager) learningSendTrackingCmds(trackerID int) {
 	for it := 0; it < mgr.learnCount; it++ {
 		err := mgr.cmdRep.Create(trackCmd)
 		if err != nil {
-			learnRoutineLog.WithField("err", err).Error("Failed to insert tracking command")
+			logger.WithField("err", err).Error("Failed to insert tracking command")
 		}
 
 		time.Sleep(time.Duration(mgr.sleepBetweenLearnSec-1) * time.Second)
 	}
+	logger.Info("Finished creating tracking commands, set tracker status to idle")
 }
