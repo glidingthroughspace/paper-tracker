@@ -25,6 +25,12 @@ func (rep *GormRoomRepository) Create(room *models.Room) (err error) {
 	return
 }
 
+func (rep *GormRoomRepository) GetByID(roomID int) (room *models.Room, err error) {
+	room = &models.Room{}
+	err = databaseConnection.First(room, &models.Room{ID: roomID}).Error
+	return
+}
+
 func (rep *GormRoomRepository) GetAll() (rooms []*models.Room, err error) {
 	err = databaseConnection.Find(&rooms).Error
 	return

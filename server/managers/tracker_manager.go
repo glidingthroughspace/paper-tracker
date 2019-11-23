@@ -2,6 +2,7 @@ package managers
 
 import (
 	"errors"
+	"fmt"
 	"paper-tracker/models"
 	"paper-tracker/repositories"
 	"time"
@@ -15,16 +16,18 @@ type TrackerManager struct {
 	trackerRep           repositories.TrackerRepository
 	cmdRep               repositories.CommandRepository
 	scanResultRep        repositories.ScanResultRepository
+	roomRep              repositories.RoomRepository
 	learnCount           int
 	sleepBetweenLearnSec int
 	done                 chan struct{}
 }
 
-func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repositories.CommandRepository, scanResultRep repositories.ScanResultRepository, defaultSleepSec, learnCount, sleepBetweenLearnSec int) *TrackerManager {
+func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repositories.CommandRepository, scanResultRep repositories.ScanResultRepository, roomRep repositories.RoomRepository, defaultSleepSec, learnCount, sleepBetweenLearnSec int) *TrackerManager {
 	trackerManager := &TrackerManager{
 		trackerRep:           trackerRep,
 		cmdRep:               cmdRep,
 		scanResultRep:        scanResultRep,
+		roomRep:              roomRep,
 		learnCount:           learnCount,
 		sleepBetweenLearnSec: sleepBetweenLearnSec,
 		done:                 make(chan struct{}),
@@ -90,6 +93,7 @@ func (mgr *TrackerManager) PollCommand(trackerID int) (cmd *models.Command, err 
 	return
 }
 
+//TODO: Move learning to own manager
 func (mgr *TrackerManager) StartLearning(trackerID int) (learnTimeSec int, err error) {
 	learnLog := log.WithField("trackerID", trackerID)
 
@@ -177,5 +181,32 @@ func (mgr *TrackerManager) newLearningTrackingData(trackerID int, scanRes []*mod
 	}
 
 	err = mgr.scanResultRep.CreateAll(scanRes)
+	return
+}
+
+func (mgr *TrackerManager) FinishLearning(trackerID, roomID int) (err error) {
+	finishLearningLog := log.WithFields(log.Fields{"trackerID": trackerID, "roomID": roomID})
+
+	tracker, err := mgr.trackerRep.GetByID(trackerID)
+	if err != nil {
+		finishLearningLog.WithField("err", err).Error("Failed to get tracker")
+		err = fmt.Errorf("tracker: %v", err)
+		return
+	}
+
+	if tracker.Status != models.StatusLearningFinished {
+		err = errors.New("Tracker is not in status LearningFinished")
+		return
+	}
+
+	_, err = mgr.roomRep.GetByID(roomID)
+	if err != nil {
+		finishLearningLog.WithField("err", err).Error("Failed to get room")
+		err = fmt.Errorf("room: %v", err)
+		return
+	}
+
+	//TODO: Calc something useful from saved scans
+
 	return
 }

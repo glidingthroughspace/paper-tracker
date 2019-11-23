@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	"github.com/jinzhu/gorm"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gstruct"
@@ -19,6 +18,7 @@ var _ = Describe("TrackerManager", func() {
 		mockTrackerRep    *mock.MockTrackerRepository
 		mockCommandRep    *mock.MockCommandRepository
 		mockScanResultRep *mock.MockScanResultRepository
+		mockRoomRep       *mock.MockRoomRepository
 		mockCtrl          *gomock.Controller
 		manager           *TrackerManager
 
@@ -26,7 +26,8 @@ var _ = Describe("TrackerManager", func() {
 		trackerLearning         *models.Tracker
 		trackerLearningFinished *models.Tracker
 
-		testErr = errors.New("error")
+		recordNotFoundErr = errors.New("record not found")
+		testErr           = errors.New("error")
 	)
 	const (
 		sleepTimeSec         = 5
@@ -41,10 +42,11 @@ var _ = Describe("TrackerManager", func() {
 		mockTrackerRep = mock.NewMockTrackerRepository(mockCtrl)
 		mockCommandRep = mock.NewMockCommandRepository(mockCtrl)
 		mockScanResultRep = mock.NewMockScanResultRepository(mockCtrl)
-		manager = CreateTrackerManager(mockTrackerRep, mockCommandRep, mockScanResultRep, sleepTimeSec, learnCount, sleepBetweenLearnSec)
+		mockRoomRep = mock.NewMockRoomRepository(mockCtrl)
+		manager = CreateTrackerManager(mockTrackerRep, mockCommandRep, mockScanResultRep, mockRoomRep, sleepTimeSec, learnCount, sleepBetweenLearnSec)
 
 		gormNotFound := func(err error) bool {
-			return gorm.IsRecordNotFoundError(err)
+			return err == recordNotFoundErr
 		}
 		mockTrackerRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
 		mockCommandRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
@@ -95,7 +97,7 @@ var _ = Describe("TrackerManager", func() {
 
 		It("PollCommand returns correct sleep if no command in DB", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(outTracker, nil).Times(1)
-			mockCommandRep.EXPECT().GetNextCommand(id).Return(nil, gorm.ErrRecordNotFound).Times(1)
+			mockCommandRep.EXPECT().GetNextCommand(id).Return(nil, recordNotFoundErr).Times(1)
 			Expect(manager.PollCommand(id)).To(PointTo(MatchFields(IgnoreExtras, Fields{
 				"SleepTimeSec": Equal(sleepTimeSec),
 				"Command":      Equal(models.CmdSleep),
@@ -131,9 +133,9 @@ var _ = Describe("TrackerManager", func() {
 		})
 
 		It("StartLearning returns error if tracker does not exist", func() {
-			mockTrackerRep.EXPECT().GetByID(wrongID).Return(nil, gorm.ErrRecordNotFound).Times(1)
+			mockTrackerRep.EXPECT().GetByID(wrongID).Return(nil, recordNotFoundErr).Times(1)
 			_, err := manager.StartLearning(wrongID)
-			Expect(err).To(MatchError(gorm.ErrRecordNotFound))
+			Expect(err).To(MatchError(recordNotFoundErr))
 		})
 
 		It("StartLearning returns error if tracker is not in idle mode", func() {
@@ -211,6 +213,24 @@ var _ = Describe("TrackerManager", func() {
 				mockScanResultRep.EXPECT().CreateAll(gomock.Any()).Return(testErr).Times(1)
 				Expect(manager.newLearningTrackingData(id, scanRes)).To(MatchError(testErr))
 			})
+		})
+	})
+
+	Context("Test FinishLearning", func() {
+		It("FinishLearning throws error starting with 'tracker' if tracker does not exist", func() {
+			mockTrackerRep.EXPECT().GetByID(wrongID).Return(nil, recordNotFoundErr).Times(1)
+			Expect(manager.FinishLearning(wrongID, id).Error()).To(HavePrefix("tracker: "))
+		})
+
+		It("FinishLearning throws error if tracker has not status LearningFinished", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
+			Expect(manager.FinishLearning(id, id)).To(HaveOccurred())
+		})
+
+		It("FinishLearning throws error starting with 'room' if room does not exist", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
+			mockRoomRep.EXPECT().GetByID(wrongID).Return(nil, recordNotFoundErr).Times(1)
+			Expect(manager.FinishLearning(id, wrongID).Error()).To(HavePrefix("room: "))
 		})
 	})
 })

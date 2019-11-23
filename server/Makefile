@@ -1,5 +1,7 @@
 sources = $(wildcard **/*.go)
 
+.PHONY: clean test mock
+
 paper-tracker: $(sources)
 	go build -o paper-tracker ./cmd/paper-tracker
 
