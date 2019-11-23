@@ -8,5 +8,5 @@ type TrackerCmdResponse struct {
 
 type TrackingCmdResponse struct {
 	TrackerCmdResponse
-	ScanResults []models.ScanResult
+	ScanResults []*models.ScanResult
 }

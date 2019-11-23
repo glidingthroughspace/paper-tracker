@@ -33,8 +33,12 @@ func main() {
 	if err != nil {
 		log.Fatal("Abort: Failed to create command repository")
 	}
+	scanResultRep, err := gorm.CreateGormScanResultRepository()
+	if err != nil {
+		log.Fatal("Abort: Failed to create scan result repository")
+	}
 
-	trackerMgr := managers.CreateTrackerManager(trackerRep, cmdRep, *defaultSleepSecPtr, *learnCountPtr, *sleepBetweenLearnSecPtr)
+	trackerMgr := managers.CreateTrackerManager(trackerRep, cmdRep, scanResultRep, *defaultSleepSecPtr, *learnCountPtr, *sleepBetweenLearnSecPtr)
 
 	coapRouter := router.NewCoapRouter(trackerMgr)
 	httpRouter := router.NewHttpRouter(trackerMgr)

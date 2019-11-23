@@ -90,3 +90,17 @@ func (mr *MockTrackerRepositoryMockRecorder) Update(tracker interface{}) *gomock
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockTrackerRepository)(nil).Update), tracker)
 }
+
+// IsRecordNotFoundError mocks base method
+func (m *MockTrackerRepository) IsRecordNotFoundError(err error) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsRecordNotFoundError", err)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsRecordNotFoundError indicates an expected call of IsRecordNotFoundError
+func (mr *MockTrackerRepositoryMockRecorder) IsRecordNotFoundError(err interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsRecordNotFoundError", reflect.TypeOf((*MockTrackerRepository)(nil).IsRecordNotFoundError), err)
+}

@@ -14,15 +14,17 @@ var defaultSleepCmd *models.Command
 type TrackerManager struct {
 	trackerRep           repositories.TrackerRepository
 	cmdRep               repositories.CommandRepository
+	scanResultRep        repositories.ScanResultRepository
 	learnCount           int
 	sleepBetweenLearnSec int
 	done                 chan struct{}
 }
 
-func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repositories.CommandRepository, defaultSleepSec, learnCount, sleepBetweenLearnSec int) *TrackerManager {
+func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repositories.CommandRepository, scanResultRep repositories.ScanResultRepository, defaultSleepSec, learnCount, sleepBetweenLearnSec int) *TrackerManager {
 	trackerManager := &TrackerManager{
 		trackerRep:           trackerRep,
 		cmdRep:               cmdRep,
+		scanResultRep:        scanResultRep,
 		learnCount:           learnCount,
 		sleepBetweenLearnSec: sleepBetweenLearnSec,
 		done:                 make(chan struct{}),
@@ -81,10 +83,8 @@ func (mgr *TrackerManager) PollCommand(trackerID int) (cmd *models.Command, err 
 		return
 	}
 
-	if _, err = mgr.cmdRep.GetNextCommand(trackerID); !mgr.cmdRep.IsRecordNotFoundError(err) {
+	if _, nextErr := mgr.cmdRep.GetNextCommand(trackerID); !mgr.cmdRep.IsRecordNotFoundError(nextErr) {
 		cmd.SleepTimeSec = 0
-	} else {
-		err = nil
 	}
 
 	return
@@ -120,6 +120,14 @@ func (mgr *TrackerManager) learningRoutine(tracker *models.Tracker, logger *log.
 	}
 
 	mgr.learningCreateTrackingCmds(tracker, logger)
+
+	logger.Trace("Set tracker status to learning finished")
+	tracker.Status = models.StatusLearningFinished
+	err = mgr.trackerRep.Update(tracker)
+	if err != nil {
+		logger.WithField("err", err).Error("Failed to update tracker with status learning finished")
+		return
+	}
 }
 
 func (mgr *TrackerManager) learningCreateTrackingCmds(tracker *models.Tracker, logger *log.Entry) {
@@ -140,4 +148,34 @@ func (mgr *TrackerManager) learningCreateTrackingCmds(tracker *models.Tracker, l
 		time.Sleep(time.Duration(mgr.sleepBetweenLearnSec-1) * time.Second)
 	}
 	logger.Info("Finished creating tracking commands, set tracker status to idle")
+}
+
+func (mgr *TrackerManager) NewTrackingData(trackerID int, scanRes []*models.ScanResult) (err error) {
+	trackingDataLog := log.WithField("trackerID", trackerID)
+
+	tracker, err := mgr.trackerRep.GetByID(trackerID)
+	if err != nil {
+		trackingDataLog.WithField("err", err).Error("Failed to get tracker with tracker ID")
+		return
+	}
+
+	switch tracker.Status {
+	case models.StatusIdle, models.StatusLearningFinished:
+		err = errors.New("No tracking data expected")
+		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unexpected tracking data")
+	case models.StatusLearning:
+		err = mgr.newLearningTrackingData(trackerID, scanRes)
+	case models.StatusTracking:
+		err = errors.New("Not implemented yes") //TODO
+	}
+	return
+}
+
+func (mgr *TrackerManager) newLearningTrackingData(trackerID int, scanRes []*models.ScanResult) (err error) {
+	for _, scan := range scanRes {
+		scan.TrackerID = trackerID
+	}
+
+	err = mgr.scanResultRep.CreateAll(scanRes)
+	return
 }

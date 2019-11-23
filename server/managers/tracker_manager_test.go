@@ -16,10 +16,11 @@ import (
 
 var _ = Describe("TrackerManager", func() {
 	var (
-		mockTrackerRep *mock.MockTrackerRepository
-		mockCommandRep *mock.MockCommandRepository
-		mockCtrl       *gomock.Controller
-		manager        *TrackerManager
+		mockTrackerRep    *mock.MockTrackerRepository
+		mockCommandRep    *mock.MockCommandRepository
+		mockScanResultRep *mock.MockScanResultRepository
+		mockCtrl          *gomock.Controller
+		manager           *TrackerManager
 	)
 	const sleepTimeSec = 5
 	const sleepBetweenLearnSec = 1
@@ -29,7 +30,15 @@ var _ = Describe("TrackerManager", func() {
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockTrackerRep = mock.NewMockTrackerRepository(mockCtrl)
 		mockCommandRep = mock.NewMockCommandRepository(mockCtrl)
-		manager = CreateTrackerManager(mockTrackerRep, mockCommandRep, sleepTimeSec, learnCount, sleepBetweenLearnSec)
+		mockScanResultRep = mock.NewMockScanResultRepository(mockCtrl)
+		manager = CreateTrackerManager(mockTrackerRep, mockCommandRep, mockScanResultRep, sleepTimeSec, learnCount, sleepBetweenLearnSec)
+
+		gormNotFound := func(err error) bool {
+			return gorm.IsRecordNotFoundError(err)
+		}
+		mockTrackerRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
+		mockCommandRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
+		mockScanResultRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
 	})
 	AfterEach(func() {
 		mockCtrl.Finish()
@@ -83,9 +92,8 @@ var _ = Describe("TrackerManager", func() {
 
 		It("PollCommand returns correct command from DB and deletes it", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(outTracker, nil).Times(1)
-			mockCommandRep.EXPECT().GetNextCommand(id).Return(outCmd, nil).Times(1)
+			mockCommandRep.EXPECT().GetNextCommand(id).Return(outCmd, nil).MinTimes(1)
 			mockCommandRep.EXPECT().Delete(id).Return(nil).Times(1)
-			mockCommandRep.EXPECT().GetNextCommand(id).Return(nil, gorm.ErrRecordNotFound).Times(1)
 			Expect(manager.PollCommand(id)).To(Equal(outCmd))
 		})
 
@@ -143,7 +151,7 @@ var _ = Describe("TrackerManager", func() {
 
 		Context("Test learningRoutine", func() {
 			It("learningRoutine sets tracker status to learning and back to idle", func() {
-				trackerUpdateCall.Times(1)
+				trackerUpdateCall.Times(2)
 				manager.learningRoutine(trackerIdle, testLogger)
 			})
 		})
@@ -154,5 +162,9 @@ var _ = Describe("TrackerManager", func() {
 				manager.learningCreateTrackingCmds(trackerLearning, testLogger)
 			})
 		})
+	})
+
+	Context("Test NewTrackingData", func() {
+		//TODO
 	})
 })
