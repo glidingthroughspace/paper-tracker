@@ -21,10 +21,20 @@ var _ = Describe("TrackerManager", func() {
 		mockScanResultRep *mock.MockScanResultRepository
 		mockCtrl          *gomock.Controller
 		manager           *TrackerManager
+
+		trackerIdle             *models.Tracker
+		trackerLearning         *models.Tracker
+		trackerLearningFinished *models.Tracker
+
+		testErr = errors.New("error")
 	)
-	const sleepTimeSec = 5
-	const sleepBetweenLearnSec = 1
-	const learnCount = 2
+	const (
+		sleepTimeSec         = 5
+		sleepBetweenLearnSec = 1
+		learnCount           = 2
+		wrongID              = 0
+		id                   = 1
+	)
 
 	BeforeEach(func() {
 		mockCtrl = gomock.NewController(GinkgoT())
@@ -39,6 +49,10 @@ var _ = Describe("TrackerManager", func() {
 		mockTrackerRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
 		mockCommandRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
 		mockScanResultRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
+
+		trackerIdle = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusIdle}
+		trackerLearning = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearning}
+		trackerLearningFinished = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearningFinished}
 	})
 	AfterEach(func() {
 		mockCtrl.Finish()
@@ -46,7 +60,6 @@ var _ = Describe("TrackerManager", func() {
 
 	Context("Test GetAllTrackers", func() {
 		outTrackers := []*models.Tracker{&models.Tracker{ID: 1, Label: "Tracker 1"}}
-		expErr := errors.New("error")
 
 		It("GetAllTrackers should call get all in rep exactly once", func() {
 			mockTrackerRep.EXPECT().GetAll().Return(outTrackers, nil).Times(1)
@@ -54,15 +67,14 @@ var _ = Describe("TrackerManager", func() {
 		})
 
 		It("GetAllTrackers should return db error", func() {
-			mockTrackerRep.EXPECT().GetAll().Return(nil, expErr).Times(1)
+			mockTrackerRep.EXPECT().GetAll().Return(nil, testErr).Times(1)
 			_, err := manager.GetAllTrackers()
-			Expect(err).To(MatchError(expErr))
+			Expect(err).To(MatchError(testErr))
 		})
 	})
 
 	Context("Test NotifyNewTracker", func() {
 		outTracker := &models.Tracker{Label: "New Tracker"}
-		expErr := errors.New("error")
 
 		It("NotifyNewTracker calls create in rep exactly once", func() {
 			mockTrackerRep.EXPECT().Create(outTracker).Return(nil).Times(1)
@@ -70,9 +82,9 @@ var _ = Describe("TrackerManager", func() {
 		})
 
 		It("NotifyNewTracker should return db error", func() {
-			mockTrackerRep.EXPECT().Create(outTracker).Return(expErr).Times(1)
+			mockTrackerRep.EXPECT().Create(outTracker).Return(testErr).Times(1)
 			_, err := manager.NotifyNewTracker()
-			Expect(err).To(MatchError(expErr))
+			Expect(err).To(MatchError(testErr))
 		})
 	})
 
@@ -108,18 +120,12 @@ var _ = Describe("TrackerManager", func() {
 	})
 
 	Context("Test StartLearning", func() {
-		wrongID := 0
-		id := 1
-		var trackerIdle *models.Tracker
-		var trackerLearning *models.Tracker
 		var cmdCreateCall *gomock.Call
 		var trackerUpdateCall *gomock.Call
 		trackCmd := &models.Command{TrackerID: id, Command: models.CmdSendTrackingInformation, SleepTimeSec: sleepBetweenLearnSec}
 		testLogger := log.WithField("unit_test", true)
 
 		BeforeEach(func() {
-			trackerIdle = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusIdle}
-			trackerLearning = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearning}
 			cmdCreateCall = mockCommandRep.EXPECT().Create(trackCmd).Return(nil).AnyTimes()
 			trackerUpdateCall = mockTrackerRep.EXPECT().Update(gomock.Any()).AnyTimes()
 		})
@@ -165,6 +171,46 @@ var _ = Describe("TrackerManager", func() {
 	})
 
 	Context("Test NewTrackingData", func() {
-		//TODO
+		scanRes := []*models.ScanResult{
+			&models.ScanResult{SSID: "Test0", BSSID: 20, RSSID: -50},
+			&models.ScanResult{SSID: "Test1", BSSID: 30, RSSID: -40},
+		}
+		scanResWithID := []*models.ScanResult{
+			&models.ScanResult{TrackerID: id, SSID: "Test0", BSSID: 20, RSSID: -50},
+			&models.ScanResult{TrackerID: id, SSID: "Test1", BSSID: 30, RSSID: -40},
+		}
+
+		It("NewTrackingData throws error for tracker with status LearningFinished", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
+			Expect(manager.NewTrackingData(id, nil)).To(HaveOccurred())
+		})
+
+		It("NewTrackingData throws error for tracker with status Idle", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
+			Expect(manager.NewTrackingData(id, nil)).To(HaveOccurred())
+		})
+
+		It("NewTrackingData inserts into ScanResults for status Learning", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearning, nil).Times(1)
+			mockScanResultRep.EXPECT().CreateAll(gomock.Any()).Return(nil).Times(1)
+			Expect(manager.NewTrackingData(id, scanRes)).To(Succeed())
+		})
+
+		Context("Test newLearningTrackingData", func() {
+			It("newLearningTrackingData creates all scan results in db", func() {
+				mockScanResultRep.EXPECT().CreateAll(gomock.Any()).Return(nil).Times(1)
+				Expect(manager.newLearningTrackingData(id, scanRes)).To(Succeed())
+			})
+
+			It("newLearningTrackingData add proper trackerID to scan results", func() {
+				mockScanResultRep.EXPECT().CreateAll(scanResWithID).Return(nil).Times(1)
+				Expect(manager.newLearningTrackingData(id, scanRes)).To(Succeed())
+			})
+
+			It("newLearningTrackingData returns error of creating scan results", func() {
+				mockScanResultRep.EXPECT().CreateAll(gomock.Any()).Return(testErr).Times(1)
+				Expect(manager.newLearningTrackingData(id, scanRes)).To(MatchError(testErr))
+			})
+		})
 	})
 })
