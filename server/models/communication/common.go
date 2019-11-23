@@ -1,4 +1,4 @@
-package models
+package communication
 
 type ErrorResponse struct {
 	Error string

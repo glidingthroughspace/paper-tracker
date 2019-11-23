@@ -1,7 +1,7 @@
 package router
 
 import (
-	"paper-tracker/models"
+	"paper-tracker/models/communication"
 	"strings"
 
 	coap "github.com/go-ocf/go-coap"
@@ -46,7 +46,7 @@ func (r *CoapRouter) methodSwitchMiddleware(handlers *routeHandlers) coap.Handle
 		} else if reqType == coap.DELETE && handlers.Delete != nil {
 			handlers.Delete.ServeCOAP(w, req)
 		} else {
-			r.writeCBOR(w, coap.MethodNotAllowed, &models.ErrorResponse{Error: "Method not allowed"})
+			r.writeCBOR(w, coap.MethodNotAllowed, &communication.ErrorResponse{Error: "Method not allowed"})
 		}
 	}
 }

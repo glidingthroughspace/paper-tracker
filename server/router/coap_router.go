@@ -3,7 +3,7 @@ package router
 import (
 	"errors"
 	"paper-tracker/managers"
-	"paper-tracker/models"
+	"paper-tracker/models/communication"
 	"strconv"
 	"strings"
 	"sync"
@@ -65,7 +65,7 @@ func (r *CoapRouter) writeCBOR(w coap.ResponseWriter, status coap.COAPCode, body
 }
 
 func (r *CoapRouter) writeError(w coap.ResponseWriter, code coap.COAPCode, err error) error {
-	return r.writeCBOR(w, code, &models.ErrorResponse{Error: err.Error()})
+	return r.writeCBOR(w, code, &communication.ErrorResponse{Error: err.Error()})
 }
 
 func (r *CoapRouter) parseQuery(req *coap.Request) (paramMap map[string]*string) {

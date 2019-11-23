@@ -1,7 +1,8 @@
 package models
 
 type ScanResult struct {
-	SSID  string
-	BSSID int
-	RSSID int
+	TrackerID int
+	SSID      string
+	BSSID     int
+	RSSID     int
 }

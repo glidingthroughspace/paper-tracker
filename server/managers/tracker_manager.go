@@ -65,10 +65,10 @@ func (mgr *TrackerManager) PollCommand(trackerID int) (cmd *models.Command, err 
 	}
 
 	cmd, err = mgr.cmdRep.GetNextCommand(trackerID)
-	if err != nil && !repositories.IsRecordNotFoundError(err) {
+	if err != nil && !mgr.cmdRep.IsRecordNotFoundError(err) {
 		pollLog.WithField("err", err).Error("Failed to get next command for tracker")
 		return
-	} else if repositories.IsRecordNotFoundError(err) {
+	} else if mgr.cmdRep.IsRecordNotFoundError(err) {
 		pollLog.Info("No command for tracker, return default sleep")
 		err = nil
 		cmd = defaultSleepCmd
@@ -81,7 +81,7 @@ func (mgr *TrackerManager) PollCommand(trackerID int) (cmd *models.Command, err 
 		return
 	}
 
-	if _, err = mgr.cmdRep.GetNextCommand(trackerID); !repositories.IsRecordNotFoundError(err) {
+	if _, err = mgr.cmdRep.GetNextCommand(trackerID); !mgr.cmdRep.IsRecordNotFoundError(err) {
 		cmd.SleepTimeSec = 0
 	} else {
 		err = nil
@@ -120,13 +120,6 @@ func (mgr *TrackerManager) learningRoutine(tracker *models.Tracker, logger *log.
 	}
 
 	mgr.learningCreateTrackingCmds(tracker, logger)
-
-	tracker.Status = models.StatusIdle
-	err = mgr.trackerRep.Update(tracker)
-	if err != nil {
-		logger.WithField("err", err).Error("Failed to update tracker with status learning")
-		return
-	}
 }
 
 func (mgr *TrackerManager) learningCreateTrackingCmds(tracker *models.Tracker, logger *log.Entry) {

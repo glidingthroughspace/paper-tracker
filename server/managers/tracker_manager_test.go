@@ -143,7 +143,7 @@ var _ = Describe("TrackerManager", func() {
 
 		Context("Test learningRoutine", func() {
 			It("learningRoutine sets tracker status to learning and back to idle", func() {
-				trackerUpdateCall.Times(2)
+				trackerUpdateCall.Times(1)
 				manager.learningRoutine(trackerIdle, testLogger)
 			})
 		})

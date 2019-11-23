@@ -1,7 +1,7 @@
 package router
 
 import (
-	"paper-tracker/models"
+	"paper-tracker/models/communication"
 
 	coap "github.com/go-ocf/go-coap"
 	log "github.com/sirupsen/logrus"
@@ -55,7 +55,7 @@ func (r *CoapRouter) trackerTrackingData() coap.HandlerFunc {
 		dec := codec.NewDecoderBytes(req.Msg.Payload(), r.cborHandle)
 		defer dec.Release()
 
-		resp := &models.TrackingInformationResponse{}
+		resp := &communication.TrackingCmdResponse{}
 		err = dec.Decode(resp)
 		log.WithFields(log.Fields{"trackerID": trackerID, "response": resp}).Info("Received tracking data")
 	}

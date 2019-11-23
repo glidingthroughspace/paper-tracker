@@ -1,4 +1,4 @@
-package repositories
+package gorm
 
 import "paper-tracker/models"
 
@@ -14,6 +14,10 @@ func CreateGormTrackerRepository() (*GormTrackerRepository, error) {
 		return nil, ErrGormNotInitialized
 	}
 	return &GormTrackerRepository{}, nil
+}
+
+func (rep *GormTrackerRepository) IsRecordNotFoundError(err error) bool {
+	return IsRecordNotFoundError(err)
 }
 
 func (rep *GormTrackerRepository) Create(tracker *models.Tracker) (err error) {
