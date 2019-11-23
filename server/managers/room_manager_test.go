@@ -11,7 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("TrackerManager", func() {
+var _ = Describe("RoomManager", func() {
 	var (
 		mockRoomRep *mock.MockRoomRepository
 		mockCtrl    *gomock.Controller
@@ -21,6 +21,8 @@ var _ = Describe("TrackerManager", func() {
 	)
 
 	BeforeEach(func() {
+		roomManager = nil
+
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockRoomRep = mock.NewMockRoomRepository(mockCtrl)
 		manager = CreateRoomManager(mockRoomRep)

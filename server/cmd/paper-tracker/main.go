@@ -42,11 +42,12 @@ func main() {
 		log.Fatal("Abort: Failed to create room repository")
 	}
 
-	trackerMgr := managers.CreateTrackerManager(trackerRep, cmdRep, scanResultRep, roomRep, *defaultSleepSecPtr, *learnCountPtr, *sleepBetweenLearnSecPtr)
-	roomMgr := managers.CreateRoomManager(roomRep)
+	managers.CreateTrackerManager(trackerRep, cmdRep, *defaultSleepSecPtr)
+	managers.CreateRoomManager(roomRep)
+	managers.CreateLearningManager(scanResultRep, *learnCountPtr, *sleepBetweenLearnSecPtr)
 
-	coapRouter := router.NewCoapRouter(trackerMgr)
-	httpRouter := router.NewHttpRouter(trackerMgr, roomMgr)
+	coapRouter := router.NewCoapRouter()
+	httpRouter := router.NewHttpRouter()
 
 	// Start
 	var wg sync.WaitGroup

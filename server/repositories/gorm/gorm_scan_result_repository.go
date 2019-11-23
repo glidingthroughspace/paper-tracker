@@ -30,6 +30,11 @@ func (rep *GormScanResultRepository) CreateAll(scanRes []*models.ScanResult) (er
 	return
 }
 
+func (rep *GormScanResultRepository) GetAllForTracker(trackerID int) (scanRes []*models.ScanResult, err error) {
+	err = databaseConnection.Find(&scanRes, &models.ScanResult{TrackerID: trackerID}).Error
+	return
+}
+
 func (rep *GormScanResultRepository) DeleteForTracker(trackerID int) (err error) {
 	err = databaseConnection.Where(&models.ScanResult{TrackerID: trackerID}).Delete(&models.ScanResult{}).Error
 	return

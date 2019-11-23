@@ -2,7 +2,6 @@ package router
 
 import (
 	"errors"
-	"paper-tracker/managers"
 	"paper-tracker/models/communication"
 	"strconv"
 	"strings"
@@ -16,14 +15,12 @@ import (
 type CoapRouter struct {
 	mux        *coap.ServeMux
 	cborHandle codec.Handle
-	trackerMgr *managers.TrackerManager
 }
 
-func NewCoapRouter(trackerMgr *managers.TrackerManager) *CoapRouter {
+func NewCoapRouter() *CoapRouter {
 	r := &CoapRouter{
 		mux:        coap.NewServeMux(),
 		cborHandle: &codec.CborHandle{},
-		trackerMgr: trackerMgr,
 	}
 	r.mux.DefaultHandleFunc(r.notfound())
 	r.buildRoutes()

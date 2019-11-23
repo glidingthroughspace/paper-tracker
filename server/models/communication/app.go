@@ -1,5 +1,10 @@
 package communication
 
-type LearnStartResponse struct {
+type LearningStartResponse struct {
 	LearnTimeSec int
+}
+
+type LearningStatusResponse struct {
+	Done  bool
+	SSIDs []string
 }
