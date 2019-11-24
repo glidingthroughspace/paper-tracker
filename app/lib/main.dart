@@ -1,27 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:paper_tracker/tracker_list.dart';
+import 'package:paper_tracker/pages/config_page.dart';
+import 'package:paper_tracker/pages/init_page.dart';
+import 'package:paper_tracker/pages/main_page.dart';
 
 void main() => runApp(PaperTrackerApp());
 
 class PaperTrackerApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final String title = "Paper Tracker";
-
     return MaterialApp(
-      title: title,
+      title: "Paper Tracker",
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-        ),
-        body: TrackerList(),
-      )
+      initialRoute: "/",
+      routes: {
+        InitPage.Route: (context) => InitPage(),
+        MainPage.Route: (context) => MainPage(),
+        ConfigPage.Route: (context) => ConfigPage(),
+      },
     );
   }
 }
-
-
