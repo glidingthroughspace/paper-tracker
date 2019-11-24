@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/api_client.dart';
 import 'package:paper_tracker/config.dart';
+import 'package:paper_tracker/pages/main_page.dart';
 
 class ConfigPage extends StatefulWidget {
+  static const Route = "/config";
+
   @override
   _ConfigPageState createState() => _ConfigPageState();
 }
@@ -15,19 +18,23 @@ class _ConfigPageState extends State<ConfigPage> {
     await config.setServerURL(urlEditController.text);
     var serverAvailable = await APIClient().isAvailable();
     if (serverAvailable) {
-      return showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Text("Server available"),
-            );
-          });
+      Navigator.of(context).pushReplacementNamed(MainPage.Route);
     } else {
       return showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
-              content: Text("Server not available"),
+              content: Row(children: [
+                Icon(Icons.warning),
+                Padding(padding: EdgeInsets.only(left: 10.0)),
+                Text("Server not available"),
+              ]),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("OK"),
+                  onPressed: () => Navigator.of(context).pop(),
+                )
+              ],
             );
           });
     }
@@ -35,11 +42,9 @@ class _ConfigPageState extends State<ConfigPage> {
 
   @override
   void initState() {
-    config.getServerURL().then((url) => {
-          setState(() {
-            urlEditController.text = url;
-          })
-        });
+    config.getServerURL().then((url) {
+      urlEditController.text = url;
+    });
     super.initState();
   }
 
