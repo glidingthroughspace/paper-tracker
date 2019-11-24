@@ -89,7 +89,7 @@ var _ = Describe("LearningManager", func() {
 
 		BeforeEach(func() {
 			cmdCreateCall = mockCommandRep.EXPECT().Create(trackCmd).Return(nil).AnyTimes()
-			trackerSetStatusCall = mockTrackerRep.EXPECT().SetStatusByID(gomock.Any(), gomock.Any()).AnyTimes()
+			trackerSetStatusCall = mockTrackerRep.EXPECT().SetStatusByID(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 		})
 
 		It("StartLearning returns error if tracker does not exist", func() {
