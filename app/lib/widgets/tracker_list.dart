@@ -1,9 +1,7 @@
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
-import 'model/tracker.dart';
+import '../client/tracker_client.dart';
+import '../model/tracker.dart';
 
 class TrackerList extends StatefulWidget {
   TrackerList({Key key}) : super(key: key);
@@ -15,20 +13,10 @@ class TrackerList extends StatefulWidget {
 class _TrackerListState extends State<TrackerList> {
   Future<List<Tracker>> trackers;
 
-  Future<List<Tracker>> fetchTrackers() async {
-    final response = await http.get('http://192.168.0.164:8080/tracker');
-    if (response.statusCode == 200) {
-      final rawList = json.decode(response.body) as List;
-      return rawList.map((i) => Tracker.fromJson(i)).toList();
-    } else {
-      throw Exception("Failed to load trackers");
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    trackers = fetchTrackers();
+    trackers = TrackerClient().fetchTrackers();
   }
 
   @override
