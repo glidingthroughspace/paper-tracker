@@ -26,6 +26,10 @@ var _ = Describe("LearningManager", func() {
 		trackerLearning         *models.Tracker
 		trackerLearningFinished *models.Tracker
 
+		scanRes       []*models.ScanResult
+		scanResWithID []*models.ScanResult
+		scanResSSIDs  []string
+
 		recordNotFoundErr = errors.New("record not found")
 		testErr           = errors.New("error")
 	)
@@ -62,6 +66,16 @@ var _ = Describe("LearningManager", func() {
 		trackerIdle = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusIdle}
 		trackerLearning = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearning}
 		trackerLearningFinished = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearningFinished}
+
+		scanRes = []*models.ScanResult{
+			&models.ScanResult{SSID: "Test0", BSSID: 20, RSSID: -50},
+			&models.ScanResult{SSID: "Test1", BSSID: 30, RSSID: -40},
+		}
+		scanResWithID = []*models.ScanResult{
+			&models.ScanResult{TrackerID: id, SSID: "Test0", BSSID: 20, RSSID: -50},
+			&models.ScanResult{TrackerID: id, SSID: "Test1", BSSID: 30, RSSID: -40},
+		}
+		scanResSSIDs = []string{"Test0", "Test1"}
 	})
 	AfterEach(func() {
 		mockCtrl.Finish()
@@ -119,14 +133,6 @@ var _ = Describe("LearningManager", func() {
 	})
 
 	Context("Test NewTrackingData", func() {
-		scanRes := []*models.ScanResult{
-			&models.ScanResult{SSID: "Test0", BSSID: 20, RSSID: -50},
-			&models.ScanResult{SSID: "Test1", BSSID: 30, RSSID: -40},
-		}
-		scanResWithID := []*models.ScanResult{
-			&models.ScanResult{TrackerID: id, SSID: "Test0", BSSID: 20, RSSID: -50},
-			&models.ScanResult{TrackerID: id, SSID: "Test1", BSSID: 30, RSSID: -40},
-		}
 
 		It("NewTrackingData throws error for tracker with status LearningFinished", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
@@ -177,6 +183,41 @@ var _ = Describe("LearningManager", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
 			mockRoomRep.EXPECT().GetByID(wrongID).Return(nil, recordNotFoundErr).Times(1)
 			Expect(manager.FinishLearning(id, wrongID).Error()).To(HavePrefix("room: "))
+		})
+	})
+
+	Context("Test GetLearningStatus", func() {
+		It("GetLearningStatus throws error if tracker does not exist", func() {
+			mockTrackerRep.EXPECT().GetByID(wrongID).Return(nil, recordNotFoundErr).Times(1)
+			_, _, err := manager.GetLearningStatus(wrongID)
+			Expect(err).To(MatchError(recordNotFoundErr))
+		})
+
+		It("GetLearningStatus throws error if tracker is not in learning or learningFinished", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
+			_, _, err := manager.GetLearningStatus(id)
+			Expect(err).To(HaveOccurred())
+		})
+
+		It("GetLearningStatus return done is true if tracker status is learningFinished", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
+			mockScanResultRep.EXPECT().GetAllForTracker(gomock.Any()).AnyTimes()
+			done, _, _ := manager.GetLearningStatus(id)
+			Expect(done).To(BeTrue())
+		})
+
+		It("GetLearningStatus return done is false if tracker status is learning", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearning, nil).Times(1)
+			mockScanResultRep.EXPECT().GetAllForTracker(gomock.Any()).AnyTimes()
+			done, _, _ := manager.GetLearningStatus(id)
+			Expect(done).To(BeFalse())
+		})
+
+		It("GetLearningStatus returns correct ssid list", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearning, nil).Times(1)
+			mockScanResultRep.EXPECT().GetAllForTracker(id).Return(scanResWithID, nil).Times(1)
+			_, ssids, _ := manager.GetLearningStatus(id)
+			Expect(ssids).To(Equal(scanResSSIDs))
 		})
 	})
 })

@@ -47,6 +47,21 @@ func (mr *MockScanResultRepositoryMockRecorder) CreateAll(scanRes interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateAll", reflect.TypeOf((*MockScanResultRepository)(nil).CreateAll), scanRes)
 }
 
+// GetAllForTracker mocks base method
+func (m *MockScanResultRepository) GetAllForTracker(trackerID int) ([]*models.ScanResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllForTracker", trackerID)
+	ret0, _ := ret[0].([]*models.ScanResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllForTracker indicates an expected call of GetAllForTracker
+func (mr *MockScanResultRepositoryMockRecorder) GetAllForTracker(trackerID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllForTracker", reflect.TypeOf((*MockScanResultRepository)(nil).GetAllForTracker), trackerID)
+}
+
 // DeleteForTracker mocks base method
 func (m *MockScanResultRepository) DeleteForTracker(trackerID int) error {
 	m.ctrl.T.Helper()

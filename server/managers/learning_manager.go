@@ -7,6 +7,7 @@ import (
 	"paper-tracker/repositories"
 	"time"
 
+	"github.com/onsi/ginkgo"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -54,6 +55,8 @@ func (mgr *LearningManager) StartLearning(trackerID int) (learnTimeSec int, err 
 }
 
 func (mgr *LearningManager) learningRoutine(trackerID int, logger *log.Entry) {
+	defer ginkgo.GinkgoRecover() // Leave this in for now as sometimes the unit tests crash in this goroutine
+
 	logger.Trace("Start routine")
 
 	logger.Trace("Set tracker status to learning")
@@ -145,7 +148,6 @@ func (mgr *LearningManager) FinishLearning(trackerID, roomID int) (err error) {
 	return
 }
 
-// TODO: Test
 func (mgr *LearningManager) GetLearningStatus(trackerID int) (done bool, ssids []string, err error) {
 	learningStatusLog := log.WithField("trackerID", trackerID)
 
