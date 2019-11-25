@@ -40,7 +40,14 @@ void setup() {
     fail_loop("Failed to start the API client");
   }
 
-  apiClient.requestNextAction([] () {});
+  apiClient.requestNextAction([] (CoapPacket& responsePacket) {
+    if (ApiClient::isErrorResponse(responsePacket)) {
+      logln("Request for next action returned an error");
+      logln(responsePacket.code);
+      return;
+    }
+    // Deserialize the action, do something with it
+  });
 
 }
 

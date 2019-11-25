@@ -2,6 +2,8 @@
 
 #include <log.h>
 
+std::map<uint16_t, coap_callback> ApiClient::callbacks;
+
 ApiClient::ApiClient(WiFiUDP& udp, IPAddress serverIP) 
   : coap(udp), serverIP(serverIP) {
 
@@ -41,7 +43,7 @@ void ApiClient::coap_response_callback(CoapPacket &packet, IPAddress ip, int por
 
 }
 
-void ApiClient::store_callback(uint16_t messageID, coap_callback callback) {
+void ApiClient::storeCallback(uint16_t messageID, coap_callback callback) {
   if (messageID == 0) {
     logln("Sending the message failed");
     return;
@@ -49,4 +51,8 @@ void ApiClient::store_callback(uint16_t messageID, coap_callback callback) {
   log("Message has ID");
   logln(messageID);
   callbacks[messageID] = callback;
+}
+
+bool ApiClient::isErrorResponse(const CoapPacket& response) {
+  return response.code > RESPONSE_CODE(2, 31);
 }

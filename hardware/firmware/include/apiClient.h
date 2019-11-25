@@ -15,6 +15,7 @@ class ApiClient {
     bool loop();
     bool start();
     void requestNextAction(coap_callback);
+    static bool isErrorResponse(const CoapPacket &packet);
   private:
     static std::map<uint16_t, coap_callback> callbacks;
     void storeCallback(uint16_t messageID, coap_callback);
