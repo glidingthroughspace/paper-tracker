@@ -1,5 +1,3 @@
-#undef NDEBUG
-
 #include <Arduino.h>
 #include <WiFiUdp.h>
 #include <IPAddress.h>
@@ -8,7 +6,6 @@
 #include <scanResult.h>
 #include <wifi.h>
 #include <apiClient.h>
-#include <coap-simple.h>
 
 #include <credentials.h>
 
