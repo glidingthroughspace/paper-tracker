@@ -4,7 +4,7 @@ skinparam ranksep 100
 
 package model {
   class Tracker {
-    Int ID
+    UInt16 ID
     String Label
     Time LastPoll <no cbor>
     Time LastSleepTime <no cbor>
@@ -18,8 +18,8 @@ package model {
   hide TrackerStatus methods
   
   class Command {
-    Int ID
-    Int SleepTimeSec
+    UInt16 ID
+    UInt16 SleepTimeSec
     Time CreatedAt
   }
 
@@ -28,19 +28,20 @@ package model {
     SignalLocation = 1
     Sleep = 2
   }
+  
   hide CommandType methods
   together {
     class Command
-    class CommandType
+    enum CommandType
   }
 
   class Room {
-    Int ID
+    UInt16 ID
     String Label
   }
   
   class BSSIDTrackingData {
-    Int BSSID
+    String BSSID
     Int Minimum
     Int Maximum
     Int Median
@@ -61,8 +62,8 @@ package model {
 
     class ScanResult {
       String SSID
-      Int BSSID
-      Int RSSID
+      String BSSID
+      Int32 RSSID
     }
 
     class ErrorResponse {
