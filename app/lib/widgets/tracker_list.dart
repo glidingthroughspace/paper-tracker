@@ -22,25 +22,41 @@ class _TrackerListState extends State<TrackerList> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: trackers,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<Widget> listChildren = List<Widget>();
-          for (Tracker tracker in snapshot.data) {
-            listChildren.add(ListTile(
-              title: Text("ID: ${tracker.id.toString()}; Label: ${tracker.label}")
-            ));
+        future: trackers,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<Widget> listChildren = List<Widget>();
+            for (Tracker tracker in snapshot.data) {
+              listChildren.add(ListTile(
+                title: Row(
+                  children: [
+                    Text(
+                      "${tracker.id}",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 20.0),
+                    ),
+                    Text("${tracker.label}"),
+                  ],
+                ),
+                onTap: () {},
+              ));
+              listChildren.add(Divider());
+            }
+            return ListView(
+                children: listChildren,
+                shrinkWrap: true,
+              );
+          } else if (snapshot.hasError) {
+            return ListView(children: <Widget>[Text("${snapshot.error}")]);
           }
-          return ListView(children: listChildren);
-        } else if (snapshot.hasError) {
-          return ListView(
-            children: <Widget>[Text("${snapshot.error}")]
-          );
-        }
 
-        // By default, show a loading spinner.
-        return CircularProgressIndicator();
-      }
-    );
+          // By default, show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        });
   }
 }

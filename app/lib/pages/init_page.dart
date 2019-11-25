@@ -12,11 +12,13 @@ class _InitPageState extends State<InitPage> {
   @override
   void initState() {
     super.initState();
-    APIClient().isAvailable().then((serverAvailable) {
+    APIClient().isAvailable().timeout(Duration(seconds: 2)).then((serverAvailable) {
       if (serverAvailable)
         Navigator.pushReplacementNamed(context, "/main");
       else
         Navigator.pushReplacementNamed(context, "/config");
+    }).catchError((error) {
+      Navigator.pushReplacementNamed(context, "/config");
     });
   }
 
