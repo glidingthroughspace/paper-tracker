@@ -55,9 +55,9 @@ func (mgr *LearningManager) StartLearning(trackerID int) (learnTimeSec int, err 
 }
 
 func (mgr *LearningManager) learningRoutine(trackerID int, logger *log.Entry) {
-	defer ginkgo.GinkgoRecover() // Leave this in for now as sometimes the unit tests crash in this goroutine
+	defer ginkgo.GinkgoRecover() //FIXME: Leave this in for now as sometimes the unit tests crash in this goroutine
 
-	logger.Trace("Start routine")
+	logger.Trace("Start learning routine")
 
 	logger.Trace("Set tracker status to learning")
 	err := GetTrackerManager().SetTrackerStatus(trackerID, models.StatusLearning)
@@ -171,6 +171,7 @@ func (mgr *LearningManager) GetLearningStatus(trackerID int) (done bool, ssids [
 		return
 	}
 
+	// Filter out duplicates through map and assemble slice
 	ssidMap := make(map[string]bool, 0)
 	for _, scan := range scanRes {
 		ssidMap[scan.SSID] = true
