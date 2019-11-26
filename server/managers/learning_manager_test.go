@@ -133,7 +133,6 @@ var _ = Describe("LearningManager", func() {
 	})
 
 	Context("Test NewTrackingData", func() {
-
 		It("NewTrackingData throws error for tracker with status LearningFinished", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
 			Expect(manager.NewTrackingData(id, nil)).To(HaveOccurred())
@@ -217,7 +216,7 @@ var _ = Describe("LearningManager", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearning, nil).Times(1)
 			mockScanResultRep.EXPECT().GetAllForTracker(id).Return(scanResWithID, nil).Times(1)
 			_, ssids, _ := manager.GetLearningStatus(id)
-			Expect(ssids).To(Equal(scanResSSIDs))
+			Expect(ssids).To(ConsistOf(scanResSSIDs))
 		})
 	})
 })
