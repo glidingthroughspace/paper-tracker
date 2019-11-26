@@ -61,8 +61,7 @@ void ApiClient::coap_response_callback(CoapPacket &packet, IPAddress ip, int por
     logln(packet.messageid);
     return;
   }
-
-
+  it->second(packet);
 }
 
 void ApiClient::storeCallback(uint16_t messageID, coap_callback callback) {

@@ -42,13 +42,13 @@ void setup() {
     logln(command.sleepTimeSec);
   });
 
-  wifi.scanVisibleNetworks();
-  logln("Scanned for networks");
-  wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
-  TrackerResponse trackerResponse{0};
-  memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
-  trackerResponse.toCBOR(bytes, sizeof(bytes));
-  apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
+  // wifi.scanVisibleNetworks();
+  // logln("Scanned for networks");
+  // wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
+  // TrackerResponse trackerResponse{0};
+  // memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
+  // trackerResponse.toCBOR(bytes, sizeof(bytes));
+  // apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
 }
 
 void loop() {

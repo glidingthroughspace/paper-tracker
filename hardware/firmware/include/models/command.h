@@ -13,6 +13,10 @@ enum class CommandType {
 	SLEEP              = 2,
 };
 
+typedef enum {
+  kCOMMAND = "Command",
+  kSLEEP_TIME = "SleepTimeSec",
+} CommandFields;
 
 struct Command {
   uint16_t sleepTimeSec;
@@ -27,31 +31,36 @@ struct Command {
     cbor::BytesStream bs{bytes, byteslen};
     cbor::Reader cbor{bs};
 
-    // First check if things are well-formed
     if (!cbor.isWellFormed()) {
       logln("Malformed CBOR data while parsing Command");
       return false;
     }
+    // isWellFormed() advances the current position in the stream
+    bs.reset();
 
-    // Assume the data starts with the "Self-describe CBOR" tag and continues
-    // with an array consisting of one boolean item and one text item.
-    if (!expectValue(cbor, cbor::DataType::kTag, cbor::kSelfDescribeTag))
+    uint64_t mapLenght;
+    bool mapIsIndefinite;
+    if (!cbor::expectMap(cbor, &mapLength, &mapIsIndefinite)) {
+      logln("CBOR response is not a map");
+      return;
+    }
+    auto dataType = cbor.readDataType();
+    logln((int) dataType);
+    int64_t commandType = cbor.getInt();
+    log("Command is ");
+    logln((int32_t) commandType);
+    if (!Command::isValidType(commandType)) {
+      logln("Found invalid command number");
       return false;
-    uint64_t sleepTimeSecLarge;
-    if (!expectUnsignedInt(cbor, &sleepTimeSecLarge))
-      return false;
+    }
+    type = static_cast<CommandType>(commandType);
+
+    uint64_t sleepTimeSecLarge = cbor.getUnsignedInt();
     if (sleepTimeSecLarge > (2^16)) {
       logln("Sleep time in seconds was more than 16 bit integer");
       return false;
     }
-    sleepTimeSec = (uint16_t) sleepTimeSecLarge;
-    uint64_t commandType;
-    if (!expectUnsignedInt(cbor, &commandType))
-      return false;
-    if (!Command::isValidType(commandType))
-      return false;
-    type = (CommandType) commandType;
-
+    sleepTimeSec = static_cast<uint16_t>(sleepTimeSecLarge);
     return true;
   }
 };
