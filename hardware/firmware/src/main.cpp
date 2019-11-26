@@ -3,7 +3,8 @@
 #include <IPAddress.h>
 
 #include <log.h>
-#include <scanResult.h>
+#include <models/scanResult.h>
+#include <models/trackerResponse.h>
 #include <wifi.h>
 #include <apiClient.h>
 
@@ -27,18 +28,12 @@ void setup() {
   logln("Starting");
 
   #ifdef WIFI_USERNAME
-  if (!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD)) {
-    fail_loop("Failed to connect to WiFi");
-  }
+  haltIf(!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD), "Failed to connect to WiFi");
   #else
-  if (!wifi.connect(WIFI_SSID, WIFI_PASSWORD)) {
-    fail_loop("Failed to connect to WiFi");
-  }
+  haltIf(!wifi.connect(WIFI_SSID, WIFI_PASSWORD), "Failed to connect to WiFi");
   #endif
 
-  if (!apiClient.start()) {
-    fail_loop("Failed to start the API client");
-  }
+  haltIf(!apiClient.start(), "Failed to start the API client");
 
   apiClient.requestNextAction([] (CoapPacket& responsePacket) {
     if (ApiClient::isErrorResponse(responsePacket)) {
@@ -49,14 +44,24 @@ void setup() {
     // Deserialize the action, do something with it
   });
 
+  wifi.scanVisibleNetworks();
+  logln("Scanned for networks");
+  wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
+  TrackerResponse trackerResponse{0};
+  apiClient.requestNextAction([] () {});
+  memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
+  trackerResponse.toCBOR(bytes, sizeof(bytes));
+  apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
 }
 
 void loop() {
   apiClient.loop();
 }
 
-void fail_loop(const char* message) {
-  // TODO: Maybe blink the LED?
-  logln("Failed to start CoAP client! Stalling Tracker!");
-  while(true) {;}
+void haltIf(bool condition, const char* message) {
+  if (condition) {
+    // TODO: Maybe blink the LED?
+    logln("Failed to start CoAP client! Stalling Tracker!");
+    while(true) {;}
+  }
 }

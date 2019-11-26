@@ -7,6 +7,9 @@ build:
 build-all:
 	pio run
 
+clean:
+	pio run -t clean
+
 upload: build
 	pio run -e $(PLATFORM) -t upload --upload-port $(SERIALPORT)
 

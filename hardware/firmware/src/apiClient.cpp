@@ -22,6 +22,18 @@ void ApiClient::requestNextAction(coap_callback callback) {
   logln("Requesting next action from server");
   uint16_t messageID = coap.get(serverIP, 5688, "tracker/poll", "trackerid=1");
   storeCallback(messageID, callback);
+  coap.get(serverIP, 5688, "tracker/poll", "trackerid=1");
+}
+
+
+void ApiClient::writeTrackingData(uint8_t* scanResults, size_t scanResultLen, std::function<void(void)> callback) {
+  logln("Posting scan results to server");
+  log("Sending ");
+  log(scanResultLen);
+  logln(" scan result bytes");
+  auto msgID = coap.post(serverIP, 5688, "tracker/tracking", scanResults, scanResultLen, "trackerid=1");
+  log("Message ID is ");
+  logln(msgID);
 }
 
 void ApiClient::coap_response_callback(CoapPacket &packet, IPAddress ip, int port) {
