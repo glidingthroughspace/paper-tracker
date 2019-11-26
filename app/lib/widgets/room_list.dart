@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/model/room.dart';
+import 'package:paper_tracker/widgets/card_list.dart';
 
 class RoomList extends StatefulWidget {
   RoomList({Key key}) : super(key: key);
@@ -26,18 +27,17 @@ class _RoomListState extends State<RoomList> {
         future: rooms,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            List<Widget> listChildren = List<Widget>();
-            for (Room room in snapshot.data) {
-              listChildren.add(ListTile(
-                title: Text(room.label),
-                onTap: () {},
-              ));
-              listChildren.add(Divider());
-            }
+            List<Room> roomList = snapshot.data;
+            Map<String, Room> titleObjectMap =
+                Map.fromIterable(roomList, key: (room) => room.label, value: (room) => room);
+
             return Scaffold(
-              body: ListView(
-                children: listChildren,
-                shrinkWrap: true,
+              backgroundColor: Theme.of(context).backgroundColor,
+              body: CardList<Room>(
+                titleObjectMap: titleObjectMap,
+                onTap: (room) {
+                  showDialog(context: context, builder: buildAddRoomDialog);
+                },
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: onAddRoomButton,
@@ -45,7 +45,7 @@ class _RoomListState extends State<RoomList> {
               ),
             );
           } else if (snapshot.hasError) {
-            return ListView(children: <Widget>[Text("${snapshot.error}")]);
+            return Center(child: Text("${snapshot.error}"));
           }
 
           // By default, show a loading spinner.
@@ -55,37 +55,40 @@ class _RoomListState extends State<RoomList> {
 
   void onAddRoomButton() async {
     return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text(
-                "Add Room",
-                style: TextStyle(
-                  fontSize: 20.0,
-                  color: Colors.deepOrange,
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 10.0),
-              ),
-              TextFormField(
-                controller: roomLabelEditController,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: "Room Label",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ]),
-            actions: <Widget>[
-              FlatButton(
-                child: Text("Create"),
-                onPressed: () => addRoom(),
-              )
-            ],
-          );
-        });
+      context: context,
+      builder: buildAddRoomDialog,
+    );
+  }
+
+  Widget buildAddRoomDialog(context) {
+    return AlertDialog(
+      content: Column(mainAxisSize: MainAxisSize.min, children: [
+        Text(
+          "Add Room",
+          style: TextStyle(
+            fontSize: 20.0,
+            color: Colors.deepOrange,
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 10.0),
+        ),
+        TextFormField(
+          controller: roomLabelEditController,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: "Room Label",
+            border: OutlineInputBorder(),
+          ),
+        ),
+      ]),
+      actions: <Widget>[
+        FlatButton(
+          child: Text("Create"),
+          onPressed: () => addRoom(),
+        )
+      ],
+    );
   }
 
   void addRoom() async {

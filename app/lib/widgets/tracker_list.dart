@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:paper_tracker/widgets/card_list.dart';
 
 import '../client/tracker_client.dart';
 import '../model/tracker.dart';
@@ -25,34 +26,17 @@ class _TrackerListState extends State<TrackerList> {
         future: trackers,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            List<Widget> listChildren = List<Widget>();
-            for (Tracker tracker in snapshot.data) {
-              listChildren.add(ListTile(
-                title: Row(
-                  children: [
-                    Text(
-                      "${tracker.id}",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20.0,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 20.0),
-                    ),
-                    Text("${tracker.label}"),
-                  ],
-                ),
-                onTap: () {},
-              ));
-              listChildren.add(Divider());
-            }
-            return ListView(
-                children: listChildren,
-                shrinkWrap: true,
-              );
+            List<Tracker> trackerList = snapshot.data;
+            Map<String, Tracker> titleObjectMap =
+                Map.fromIterable(trackerList, key: (tracker) => tracker.label, value: (tracker) => tracker);
+            return CardList<Tracker>(
+              titleObjectMap: titleObjectMap,
+              onTap: (tracker) {
+                print(tracker);
+              },
+            );
           } else if (snapshot.hasError) {
-            return ListView(children: <Widget>[Text("${snapshot.error}")]);
+            return Center(child: Text("${snapshot.error}"));
           }
 
           // By default, show a loading spinner.

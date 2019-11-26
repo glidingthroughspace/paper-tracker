@@ -11,7 +11,9 @@ class PaperTrackerApp extends StatelessWidget {
     return MaterialApp(
       title: "Paper Tracker",
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        backgroundColor: Color.fromRGBO(56, 66, 86, 1.0),
+        cardColor: Color.fromRGBO(84, 93, 110, .9),
+        accentColor: Color.fromRGBO(148, 0, 238, 1.0),
       ),
       initialRoute: "/",
       routes: {
