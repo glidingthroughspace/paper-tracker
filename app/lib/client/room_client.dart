@@ -15,4 +15,8 @@ class RoomClient {
       throw Exception("Failed to load trackers");
     }
   }
+
+  Future<void> addRoom(Room room) async {
+    return apiClient.post("/room", json.encode(room));
+  }
 }

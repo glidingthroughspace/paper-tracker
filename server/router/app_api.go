@@ -2,12 +2,14 @@ package router
 
 import (
 	"paper-tracker/managers"
+	"paper-tracker/models"
 	"paper-tracker/models/communication"
 	"strconv"
 
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 func (r *HttpRouter) buildAppAPIRoutes() {
@@ -16,6 +18,7 @@ func (r *HttpRouter) buildAppAPIRoutes() {
 	r.engine.GET("/tracker/:id/learn/status", r.trackerLearnStatusHandler())
 
 	r.engine.GET("/room", r.roomListHandler())
+	r.engine.POST("/room", r.roomCreateHandler())
 }
 
 func (r *HttpRouter) trackerListHandler() gin.HandlerFunc {
@@ -71,5 +74,24 @@ func (r *HttpRouter) roomListHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, rooms)
+	}
+}
+
+func (r *HttpRouter) roomCreateHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		room := &models.Room{}
+		err := ctx.BindJSON(room)
+		if err != nil {
+			log.WithField("err", err).Error("Failed to unmarshal json to room")
+			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		err = managers.GetRoomManager().CreateRoom(room)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			return
+		}
+		ctx.Status(http.StatusOK)
 	}
 }
