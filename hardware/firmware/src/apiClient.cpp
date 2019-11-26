@@ -18,11 +18,21 @@ bool ApiClient::loop() {
   return coap.loop();
 }
 
-void ApiClient::requestNextAction(coap_callback callback) {
+void ApiClient::requestNextCommand(std::function<void(Command&)> callback) {
   logln("Requesting next action from server");
   uint16_t messageID = coap.get(serverIP, 5688, "tracker/poll", "trackerid=1");
-  storeCallback(messageID, callback);
-  coap.get(serverIP, 5688, "tracker/poll", "trackerid=1");
+  storeCallback(messageID, [&] (CoapPacket& packet) {
+    if (ApiClient::isErrorResponse(packet)) {
+      logln("Requesting the next action failed");
+      return;
+    }
+    Command cmd;
+    if (!cmd.fromCBOR(packet.payload, packet.payloadlen)) {
+      logln("Could not deserialize next command");
+      return;
+    }
+    callback(cmd);
+  });
 }
 
 

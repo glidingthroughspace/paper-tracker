@@ -3,6 +3,7 @@
 #include <WiFiUdp.h>
 #include <coap/coap-simple.h>
 #include <IPAddress.h>
+#include <models/command.h>
 #include <map>
 
 #include <functional>
@@ -14,7 +15,7 @@ class ApiClient {
     ApiClient(WiFiUDP& udp, IPAddress serverIP);
     bool loop();
     bool start();
-    void requestNextAction(coap_callback);
+    void requestNextCommand(std::function<void(Command&)>);
     static bool isErrorResponse(const CoapPacket &packet);
     void writeTrackingData(uint8_t* scanResults, size_t scanResultLen, std::function<void(void)> callback);
   private:

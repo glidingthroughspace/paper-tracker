@@ -21,7 +21,7 @@ ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,43,111));
 
 uint8_t bytes[SCAN_RESULT_BUFFER_SIZE * SCAN_RESULT_SIZE_BYTES + SCAN_RESULT_MESSAGE_OVERHEAD]{0};
 
-void fail_loop(const char* message);
+void haltIf(bool condition, const char* message);
 
 void setup() {
   initSerial(115400);
@@ -35,20 +35,17 @@ void setup() {
 
   haltIf(!apiClient.start(), "Failed to start the API client");
 
-  apiClient.requestNextAction([] (CoapPacket& responsePacket) {
-    if (ApiClient::isErrorResponse(responsePacket)) {
-      logln("Request for next action returned an error");
-      logln(responsePacket.code);
-      return;
-    }
-    // Deserialize the action, do something with it
+  apiClient.requestNextCommand([] (Command& command) {
+    log("Next Command is ");
+    log((uint8_t) command.type);
+    log(" and sleep time in seconds is ");
+    logln(command.sleepTimeSec);
   });
 
   wifi.scanVisibleNetworks();
   logln("Scanned for networks");
   wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
   TrackerResponse trackerResponse{0};
-  apiClient.requestNextAction([] () {});
   memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
   trackerResponse.toCBOR(bytes, sizeof(bytes));
   apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});

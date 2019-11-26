@@ -1,4 +1,4 @@
-#pragma
+#pragma once
 
 #include <log.h>
 #include <CBOR.h>
@@ -13,17 +13,18 @@ enum class CommandType {
 	SLEEP              = 2,
 };
 
-bool isValidCommandType(uint8_t type) {
-  return (type <= 2);
-}
 
 struct Command {
   uint16_t sleepTimeSec;
   CommandType type;
 
-  bool fromCBOR(uint8_t bytes, Command* command) {
-    // FIXME: sizeof() might not work here
-    cbor::BytesStream bs{bytes, sizeof(bytes)};
+
+  static bool isValidType(uint64_t type) {
+    return (type <= 2);
+  }
+
+  bool fromCBOR(uint8_t* bytes, size_t byteslen) {
+    cbor::BytesStream bs{bytes, byteslen};
     cbor::Reader cbor{bs};
 
     // First check if things are well-formed
@@ -36,17 +37,22 @@ struct Command {
     // with an array consisting of one boolean item and one text item.
     if (!expectValue(cbor, cbor::DataType::kTag, cbor::kSelfDescribeTag))
       return false;
-    if (!expectUnsignedInt(cbor, &command->sleepTimeSec))
+    uint64_t sleepTimeSecLarge;
+    if (!expectUnsignedInt(cbor, &sleepTimeSecLarge))
       return false;
-    uint8_t commandType;
-    if (!expectUnsignedInt(cbor, commandType))
+    if (sleepTimeSecLarge > (2^16)) {
+      logln("Sleep time in seconds was more than 16 bit integer");
       return false;
-    if (!isValidCommandType(commandType))
+    }
+    sleepTimeSec = (uint16_t) sleepTimeSecLarge;
+    uint64_t commandType;
+    if (!expectUnsignedInt(cbor, &commandType))
       return false;
-    &command->type = commandType;
+    if (!Command::isValidType(commandType))
+      return false;
+    type = (CommandType) commandType;
 
     return true;
-    }
   }
-}
+};
 
