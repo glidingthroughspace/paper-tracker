@@ -15,6 +15,13 @@ steps:
   - cp hardware/firmware/include/credentials.example.h hardware/firmware/include/credentials.h
   - cd hardware/firmware && make
 
+# FIXME: The unit tests currently don't work on the desktop platform.
+# They do however run on actual hardware, which of course is not testable in CI
+#- name: test
+#  image: petewall/platformio
+#  commands:
+#  - cd hardware/firmware && make test-desktop
+
 ---
 kind: pipeline
 type: docker
