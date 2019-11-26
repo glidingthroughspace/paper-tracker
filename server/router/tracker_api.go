@@ -1,22 +1,22 @@
 package router
 
 import (
-	"paper-tracker/models"
+	"paper-tracker/managers"
+	"paper-tracker/models/communication"
 
 	coap "github.com/go-ocf/go-coap"
-	log "github.com/sirupsen/logrus"
 	"github.com/ugorji/go/codec"
 )
 
 func (r *CoapRouter) buildTrackerAPIRoutes() {
-	r.addRoute("/tracker/notify-new", &routeHandlers{Post: r.trackerNotifyHandler()})
+	r.addRoute("/tracker/new", &routeHandlers{Post: r.trackerNewHandler()})
 	r.addRoute("/tracker/poll", &routeHandlers{Get: r.trackerPollHandler()})
 	r.addRoute("/tracker/tracking", &routeHandlers{Post: r.trackerTrackingData()})
 }
 
-func (r *CoapRouter) trackerNotifyHandler() coap.HandlerFunc {
+func (r *CoapRouter) trackerNewHandler() coap.HandlerFunc {
 	return func(w coap.ResponseWriter, req *coap.Request) {
-		tracker, err := r.trackerMgr.NotifyNewTracker()
+		tracker, err := managers.GetTrackerManager().NotifyNewTracker()
 		if err != nil {
 			r.writeError(w, coap.InternalServerError, err)
 			return
@@ -34,7 +34,7 @@ func (r *CoapRouter) trackerPollHandler() coap.HandlerFunc {
 			return
 		}
 
-		cmd, err := r.trackerMgr.PollCommand(trackerID)
+		cmd, err := managers.GetTrackerManager().PollCommand(trackerID)
 		if err != nil {
 			r.writeError(w, coap.InternalServerError, err)
 			return
@@ -55,8 +55,15 @@ func (r *CoapRouter) trackerTrackingData() coap.HandlerFunc {
 		dec := codec.NewDecoderBytes(req.Msg.Payload(), r.cborHandle)
 		defer dec.Release()
 
-		resp := &models.TrackingInformationResponse{}
+		resp := &communication.TrackingCmdResponse{}
 		err = dec.Decode(resp)
-		log.WithFields(log.Fields{"trackerID": trackerID, "response": resp}).Info("Received tracking data")
+
+		err = managers.GetLearningManager().NewTrackingData(trackerID, resp.ScanResults)
+		if err != nil {
+			r.writeError(w, coap.InternalServerError, err)
+			return
+		}
+
+		w.SetCode(coap.Empty)
 	}
 }

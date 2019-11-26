@@ -75,3 +75,17 @@ func (mr *MockCommandRepositoryMockRecorder) Delete(trackerID interface{}) *gomo
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockCommandRepository)(nil).Delete), trackerID)
 }
+
+// IsRecordNotFoundError mocks base method
+func (m *MockCommandRepository) IsRecordNotFoundError(err error) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsRecordNotFoundError", err)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsRecordNotFoundError indicates an expected call of IsRecordNotFoundError
+func (mr *MockCommandRepositoryMockRecorder) IsRecordNotFoundError(err interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsRecordNotFoundError", reflect.TypeOf((*MockCommandRepository)(nil).IsRecordNotFoundError), err)
+}

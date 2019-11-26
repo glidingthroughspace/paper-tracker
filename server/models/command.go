@@ -13,7 +13,7 @@ type Command struct {
 type CommandType int8
 
 const (
-	SendTrackingInformation CommandType = 0
-	SignalLocation          CommandType = 1
-	Sleep                   CommandType = 2
+	CmdSendTrackingInformation CommandType = 0
+	CmdSignalLocation          CommandType = 1
+	CmdSleep                   CommandType = 2
 )
