@@ -10,7 +10,7 @@ class RoomList extends StatefulWidget {
   _RoomListState createState() => _RoomListState();
 }
 
-class _RoomListState extends State<RoomList> {
+class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin {
   var roomLabelEditController = TextEditingController();
   var roomClient = RoomClient();
   Future<List<Room>> rooms;
@@ -98,4 +98,7 @@ class _RoomListState extends State<RoomList> {
     rooms = roomClient.fetchRooms();
     Navigator.of(context).pop();
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

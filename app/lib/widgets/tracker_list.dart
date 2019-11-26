@@ -11,7 +11,7 @@ class TrackerList extends StatefulWidget {
   _TrackerListState createState() => _TrackerListState();
 }
 
-class _TrackerListState extends State<TrackerList> {
+class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClientMixin {
   Future<List<Tracker>> trackers;
 
   @override
@@ -43,4 +43,7 @@ class _TrackerListState extends State<TrackerList> {
           return Center(child: CircularProgressIndicator());
         });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
