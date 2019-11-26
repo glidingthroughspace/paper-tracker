@@ -17,8 +17,15 @@ class APIClient {
     return true;
   }
 
+  Future<Uri> _buildURI(String path) async {
+    return Uri.http(await config.getServerURL(), path);
+  }
+
   Future<http.Response> get(String path) async {
-    var url = Uri.http(await config.getServerURL(), path);
-    return http.get(url);
+    return http.get(await _buildURI(path));
+  }
+
+  Future<http.Response> post(String path, String body) async {
+    return http.post(await _buildURI(path), body: body);
   }
 }

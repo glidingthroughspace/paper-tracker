@@ -15,6 +15,7 @@ func NewHttpRouter() *HttpRouter {
 	r := &HttpRouter{
 		engine: gin.New(),
 	}
+	r.engine.Use(gin.Logger())
 	r.buildRoutes()
 	return r
 }

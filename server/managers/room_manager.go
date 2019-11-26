@@ -29,6 +29,16 @@ func GetRoomManager() *RoomManager {
 	return roomManager
 }
 
+func (mgr *RoomManager) CreateRoom(room *models.Room) (err error) {
+	room.ID = 0
+	err = mgr.roomRep.Create(room)
+	if err != nil {
+		log.WithFields(log.Fields{"room": room, "err": err}).Error("Failed to create room")
+		return
+	}
+	return
+}
+
 func (mgr *RoomManager) GetRoomByID(roomID int) (room *models.Room, err error) {
 	room, err = mgr.roomRep.GetByID(roomID)
 	if err != nil {

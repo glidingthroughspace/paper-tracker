@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/model/room.dart';
 
-import '../client/tracker_client.dart';
-import '../model/tracker.dart';
-
 class RoomList extends StatefulWidget {
   RoomList({Key key}) : super(key: key);
 
@@ -14,12 +11,13 @@ class RoomList extends StatefulWidget {
 
 class _RoomListState extends State<RoomList> {
   var roomLabelEditController = TextEditingController();
+  var roomClient = RoomClient();
   Future<List<Room>> rooms;
 
   @override
   void initState() {
     super.initState();
-    rooms = RoomClient().fetchRooms();
+    rooms = roomClient.fetchRooms();
   }
 
   @override
@@ -42,7 +40,7 @@ class _RoomListState extends State<RoomList> {
                 shrinkWrap: true,
               ),
               floatingActionButton: FloatingActionButton(
-                onPressed: onAddRoom,
+                onPressed: onAddRoomButton,
                 child: Icon(Icons.add),
               ),
             );
@@ -55,7 +53,7 @@ class _RoomListState extends State<RoomList> {
         });
   }
 
-  void onAddRoom() async {
+  void onAddRoomButton() async {
     return showDialog(
         context: context,
         builder: (context) {
@@ -73,6 +71,7 @@ class _RoomListState extends State<RoomList> {
               ),
               TextFormField(
                 controller: roomLabelEditController,
+                autofocus: true,
                 decoration: InputDecoration(
                   labelText: "Room Label",
                   border: OutlineInputBorder(),
@@ -82,10 +81,18 @@ class _RoomListState extends State<RoomList> {
             actions: <Widget>[
               FlatButton(
                 child: Text("Create"),
-                onPressed: () => {},
+                onPressed: () => addRoom(),
               )
             ],
           );
         });
+  }
+
+  void addRoom() async {
+    var room = Room(label: roomLabelEditController.text);
+    await roomClient.addRoom(room);
+
+    rooms = roomClient.fetchRooms();
+    Navigator.of(context).pop();
   }
 }
