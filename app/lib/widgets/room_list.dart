@@ -13,6 +13,7 @@ class RoomList extends StatefulWidget {
 }
 
 class _RoomListState extends State<RoomList> {
+  var roomLabelEditController = TextEditingController();
   Future<List<Room>> rooms;
 
   @override
@@ -41,7 +42,7 @@ class _RoomListState extends State<RoomList> {
                 shrinkWrap: true,
               ),
               floatingActionButton: FloatingActionButton(
-                onPressed: () {},
+                onPressed: onAddRoom,
                 child: Icon(Icons.add),
               ),
             );
@@ -51,6 +52,40 @@ class _RoomListState extends State<RoomList> {
 
           // By default, show a loading spinner.
           return Center(child: CircularProgressIndicator());
+        });
+  }
+
+  void onAddRoom() async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(
+                "Add Room",
+                style: TextStyle(
+                  fontSize: 20.0,
+                  color: Colors.deepOrange,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 10.0),
+              ),
+              TextFormField(
+                controller: roomLabelEditController,
+                decoration: InputDecoration(
+                  labelText: "Room Label",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ]),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Create"),
+                onPressed: () => {},
+              )
+            ],
+          );
         });
   }
 }
