@@ -27,8 +27,7 @@ package model {
     SendTrackingInformation = 0
     SignalLocation = 1
     Sleep = 2
-  }
-  
+  }  
   hide CommandType methods
   together {
     class Command

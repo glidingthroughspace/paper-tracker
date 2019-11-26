@@ -1,9 +1,8 @@
 package router
 
 import (
-	"fmt"
-	"paper-tracker/managers"
-	"paper-tracker/models"
+	"errors"
+	"paper-tracker/models/communication"
 	"strconv"
 	"strings"
 	"sync"
@@ -16,14 +15,12 @@ import (
 type CoapRouter struct {
 	mux        *coap.ServeMux
 	cborHandle codec.Handle
-	trackerMgr *managers.TrackerManager
 }
 
-func NewCoapRouter(trackerMgr *managers.TrackerManager) *CoapRouter {
+func NewCoapRouter() *CoapRouter {
 	r := &CoapRouter{
 		mux:        coap.NewServeMux(),
 		cborHandle: &codec.CborHandle{},
-		trackerMgr: trackerMgr,
 	}
 	r.mux.DefaultHandleFunc(r.notfound())
 	r.buildRoutes()
@@ -65,7 +62,7 @@ func (r *CoapRouter) writeCBOR(w coap.ResponseWriter, status coap.COAPCode, body
 }
 
 func (r *CoapRouter) writeError(w coap.ResponseWriter, code coap.COAPCode, err error) error {
-	return r.writeCBOR(w, code, &models.ErrorResponse{Error: err.Error()})
+	return r.writeCBOR(w, code, &communication.ErrorResponse{Error: err.Error()})
 }
 
 func (r *CoapRouter) parseQuery(req *coap.Request) (paramMap map[string]*string) {
@@ -88,12 +85,12 @@ func (r *CoapRouter) extractTrackerID(req *coap.Request) (trackerID int, err err
 	params := r.parseQuery(req)
 	trackerIDStr, ok := params["trackerid"]
 	if !(ok && trackerIDStr != nil) {
-		err = fmt.Errorf("trackerid not found in query")
+		err = errors.New("trackerid not found in query")
 		return
 	}
 	trackerID, err = strconv.Atoi(*trackerIDStr)
 	if err != nil {
-		err = fmt.Errorf("trackerid is not an integer")
+		err = errors.New("trackerid is not an integer")
 		return
 	}
 

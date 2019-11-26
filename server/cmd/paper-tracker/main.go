@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"paper-tracker/managers"
-	"paper-tracker/repositories"
+	"paper-tracker/repositories/gorm"
 	"paper-tracker/router"
 	"strconv"
 	"sync"
@@ -17,25 +17,37 @@ func main() {
 	coapPortPtr := flag.Int("coap-port", 5688, "Port on which the application will listen for coap requests")
 	httpPortPtr := flag.Int("http-port", 8080, "Port on which the application will listen for http requests")
 	defaultSleepSecPtr := flag.Int("default-sleep", 5, "Default sleep duration for the tracker before polling for new commands")
+	learnCountPtr := flag.Int("learn-count", 5, "Total times the WiFi is scanned when learning a room")
+	sleepBetweenLearnSecPtr := flag.Int("sleep-between-learn", 5, "Sleep duration between two scans during learning")
 
-	err := repositories.InitDatabaseConnection(*dbNamePtr)
+	err := gorm.InitDatabaseConnection(*dbNamePtr)
 	if err != nil {
 		log.Fatal("Abort: Failed to initialize database")
 	}
 
-	trackerRep, err := repositories.CreateGormTrackerRepository()
+	trackerRep, err := gorm.CreateGormTrackerRepository()
 	if err != nil {
 		log.Fatal("Abort: Failed to create tracker repository")
 	}
-	cmdRep, err := repositories.CreateGormCommandRepository()
+	cmdRep, err := gorm.CreateGormCommandRepository()
 	if err != nil {
 		log.Fatal("Abort: Failed to create command repository")
 	}
+	scanResultRep, err := gorm.CreateGormScanResultRepository()
+	if err != nil {
+		log.Fatal("Abort: Failed to create scan result repository")
+	}
+	roomRep, err := gorm.CreateGormRoomRepository()
+	if err != nil {
+		log.Fatal("Abort: Failed to create room repository")
+	}
 
-	trackerMgr := managers.CreateTrackerManager(trackerRep, cmdRep, *defaultSleepSecPtr)
+	managers.CreateTrackerManager(trackerRep, cmdRep, *defaultSleepSecPtr)
+	managers.CreateRoomManager(roomRep)
+	managers.CreateLearningManager(scanResultRep, *learnCountPtr, *sleepBetweenLearnSecPtr)
 
-	coapRouter := router.NewCoapRouter(trackerMgr)
-	httpRouter := router.NewHttpRouter(trackerMgr)
+	coapRouter := router.NewCoapRouter()
+	httpRouter := router.NewHttpRouter()
 
 	// Start
 	var wg sync.WaitGroup
