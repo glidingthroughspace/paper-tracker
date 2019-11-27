@@ -57,24 +57,28 @@ class _ConfigPageState extends State<ConfigPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
       body: Container(
-        padding: const EdgeInsets.all(30.0),
+        padding: EdgeInsets.all(30.0),
         child: Column(children: [
           Padding(
             padding: EdgeInsets.only(top: 140),
           ),
           Text(
             "Paper Tracker Config",
-            style: TextStyle(color: Colors.deepOrange, fontSize: 30.0),
+            style: TextStyle(color: Theme.of(context).accentColor, fontSize: 30.0),
           ),
           Padding(
             padding: EdgeInsets.only(top: 50.0),
           ),
           TextFormField(
+            style: TextStyle(color: Colors.white),
             controller: urlEditController,
             decoration: InputDecoration(
               labelText: "Server URL",
-              border: OutlineInputBorder(),
+              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
+              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
+              labelStyle: TextStyle(color: Colors.white),
             ),
             validator: (val) {
               if (val.length == 0) {

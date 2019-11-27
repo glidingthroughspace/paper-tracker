@@ -76,3 +76,45 @@ func (mr *MockTrackerRepositoryMockRecorder) GetByID(trackerID interface{}) *gom
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockTrackerRepository)(nil).GetByID), trackerID)
 }
+
+// Update mocks base method
+func (m *MockTrackerRepository) Update(tracker *models.Tracker) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", tracker)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update
+func (mr *MockTrackerRepositoryMockRecorder) Update(tracker interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockTrackerRepository)(nil).Update), tracker)
+}
+
+// SetStatusByID mocks base method
+func (m *MockTrackerRepository) SetStatusByID(trackerID int, status models.TrackerStatus) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetStatusByID", trackerID, status)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetStatusByID indicates an expected call of SetStatusByID
+func (mr *MockTrackerRepositoryMockRecorder) SetStatusByID(trackerID, status interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetStatusByID", reflect.TypeOf((*MockTrackerRepository)(nil).SetStatusByID), trackerID, status)
+}
+
+// IsRecordNotFoundError mocks base method
+func (m *MockTrackerRepository) IsRecordNotFoundError(err error) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IsRecordNotFoundError", err)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// IsRecordNotFoundError indicates an expected call of IsRecordNotFoundError
+func (mr *MockTrackerRepositoryMockRecorder) IsRecordNotFoundError(err interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsRecordNotFoundError", reflect.TypeOf((*MockTrackerRepository)(nil).IsRecordNotFoundError), err)
+}

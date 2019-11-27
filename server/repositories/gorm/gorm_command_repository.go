@@ -1,4 +1,4 @@
-package repositories
+package gorm
 
 import "paper-tracker/models"
 
@@ -14,6 +14,10 @@ func CreateGormCommandRepository() (*GormCommandRepository, error) {
 		return nil, ErrGormNotInitialized
 	}
 	return &GormCommandRepository{}, nil
+}
+
+func (rep *GormCommandRepository) IsRecordNotFoundError(err error) bool {
+	return IsRecordNotFoundError(err)
 }
 
 func (rep *GormCommandRepository) Create(command *models.Command) (err error) {

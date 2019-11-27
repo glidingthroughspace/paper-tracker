@@ -12,16 +12,25 @@ class _InitPageState extends State<InitPage> {
   @override
   void initState() {
     super.initState();
-    APIClient().isAvailable().then((serverAvailable) {
+    APIClient().isAvailable().timeout(Duration(seconds: 2)).then((serverAvailable) {
       if (serverAvailable)
         Navigator.pushReplacementNamed(context, "/main");
       else
         Navigator.pushReplacementNamed(context, "/config");
+    }).catchError((error) {
+      Navigator.pushReplacementNamed(context, "/config");
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: CircularProgressIndicator()));
+    return Scaffold(
+      backgroundColor: Theme.of(context).backgroundColor,
+      body: Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).accentColor),
+        ),
+      ),
+    );
   }
 }
