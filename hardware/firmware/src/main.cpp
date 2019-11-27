@@ -37,9 +37,9 @@ void setup() {
 
   apiClient.requestNextCommand([] (Command& command) {
     log("Next Command is ");
-    log((uint8_t) command.type);
+    log((uint8_t) command.getType());
     log(" and sleep time in seconds is ");
-    logln(command.sleepTimeSec);
+    logln(command.getSleepTimeInSeconds());
   });
 
   // wifi.scanVisibleNetworks();
