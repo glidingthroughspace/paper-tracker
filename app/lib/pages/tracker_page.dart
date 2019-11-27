@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:paper_tracker/model/room.dart';
+import 'package:paper_tracker/model/tracker.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 
-class RoomPage extends StatefulWidget {
-  static const String Route = "/page";
+class TrackerPage extends StatefulWidget {
+  static const Route = "/tracker";
 
   @override
-  _RoomPageState createState() => _RoomPageState();
+  _TrackerPageState createState() => _TrackerPageState();
 }
 
-class _RoomPageState extends State<RoomPage> {
+class _TrackerPageState extends State<TrackerPage> {
   var isEditing = false;
-  Room room;
+  Tracker tracker;
 
   @override
   Widget build(BuildContext context) {
-    room = ModalRoute.of(context).settings.arguments;
+    tracker = ModalRoute.of(context).settings.arguments;
 
     return DetailContent(
-      title: room.label,
-      iconData: Icons.room,
+      title: tracker.label,
+      iconData: Icons.track_changes,
       bottomButtons: [
         ConditionalBuilder(
           conditional: isEditing,
@@ -38,12 +38,12 @@ class _RoomPageState extends State<RoomPage> {
           onPressed: () {},
         ),
       ],
-      content: Text("Content"),
+      content: Text("Tracker"),
     );
   }
 
   void setEditing(bool edit) {
-    if (edit == false) { // => Saving
+    if (edit == false) { // => Save
 
     }
     setState(() => isEditing = edit);

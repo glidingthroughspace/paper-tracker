@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:paper_tracker/pages/tracker_page.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
 
 import '../client/tracker_client.dart';
@@ -32,9 +33,7 @@ class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClient
                 Map.fromIterable(trackerList, key: (tracker) => tracker.label, value: (tracker) => tracker);
             return CardList<Tracker>(
               titleObjectMap: titleObjectMap,
-              onTap: (tracker) {
-                print(tracker);
-              },
+              onTap: (tracker) => Navigator.of(context).pushNamed(TrackerPage.Route, arguments: tracker),
             );
           } else if (snapshot.hasError) {
             return Center(child: Text("${snapshot.error}"));
