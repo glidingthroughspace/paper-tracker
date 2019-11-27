@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:paper_tracker/model/room.dart';
+import 'package:paper_tracker/model/tracker.dart';
+import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/widgets/room_list.dart';
 import 'package:paper_tracker/widgets/tracker_list.dart';
 
@@ -17,15 +20,15 @@ class MainPage extends StatelessWidget {
             bottom: TabBar(
               tabs: [
                 Tab(
-                  icon: Icon(Icons.rotate_left),
+                  icon: Icon(Workflow.IconData),
                   text: "Workflows",
                 ),
                 Tab(
-                  icon: Icon(Icons.room),
+                  icon: Icon(Room.IconData),
                   text: "Rooms",
                 ),
                 Tab(
-                  icon: Icon(Icons.track_changes),
+                  icon: Icon(Tracker.IconData),
                   text: "Tracker",
                 ),
               ],

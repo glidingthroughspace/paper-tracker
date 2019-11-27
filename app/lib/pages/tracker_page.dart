@@ -20,7 +20,7 @@ class _TrackerPageState extends State<TrackerPage> {
 
     return DetailContent(
       title: tracker.label,
-      iconData: Icons.track_changes,
+      iconData: Tracker.IconData,
       bottomButtons: [
         ConditionalBuilder(
           conditional: isEditing,
@@ -43,7 +43,8 @@ class _TrackerPageState extends State<TrackerPage> {
   }
 
   void setEditing(bool edit) {
-    if (edit == false) { // => Save
+    if (edit == false) {
+      // => Save
 
     }
     setState(() => isEditing = edit);
