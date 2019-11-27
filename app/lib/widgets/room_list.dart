@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/model/room.dart';
+import 'package:paper_tracker/pages/room_page.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
 
 class RoomList extends StatefulWidget {
@@ -18,11 +19,12 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
   @override
   void initState() {
     super.initState();
-    rooms = roomClient.fetchRooms();
+    fetchTrackers();
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FutureBuilder(
         future: rooms,
         builder: (context, snapshot) {
@@ -35,9 +37,7 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
               backgroundColor: Theme.of(context).backgroundColor,
               body: CardList<Room>(
                 titleObjectMap: titleObjectMap,
-                onTap: (room) {
-                  showDialog(context: context, builder: buildAddRoomDialog);
-                },
+                onTap: onTapRoom,
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: onAddRoomButton,
@@ -60,33 +60,39 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
     );
   }
 
-  Widget buildAddRoomDialog(context) {
+  Widget buildAddRoomDialog(BuildContext context) {
     return AlertDialog(
-      content: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(
-          "Add Room",
-          style: TextStyle(
-            fontSize: 20.0,
-            color: Colors.deepOrange,
+      backgroundColor: Theme.of(context).backgroundColor,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Add Room",
+            style: TextStyle(
+              fontSize: 20.0,
+              color: Colors.white,
+            ),
           ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 10.0),
-        ),
-        TextFormField(
-          controller: roomLabelEditController,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: "Room Label",
-            border: OutlineInputBorder(),
+          Padding(
+            padding: EdgeInsets.only(top: 10.0),
           ),
-        ),
-      ]),
+          TextFormField(
+            controller: roomLabelEditController,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: "Room Label",
+              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
+              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
+              labelStyle: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
       actions: <Widget>[
         FlatButton(
           child: Text("Create"),
           onPressed: () => addRoom(),
-        )
+        ),
       ],
     );
   }
@@ -95,10 +101,19 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
     var room = Room(label: roomLabelEditController.text);
     await roomClient.addRoom(room);
 
-    rooms = roomClient.fetchRooms();
+    fetchTrackers();
     Navigator.of(context).pop();
+  }
+
+  void fetchTrackers() {
+    rooms = roomClient.fetchRooms();
   }
 
   @override
   bool get wantKeepAlive => true;
+
+  void onTapRoom(Room room) async {
+    await Navigator.of(context).pushNamed(RoomPage.Route, arguments: room);
+    fetchTrackers();
+  }
 }

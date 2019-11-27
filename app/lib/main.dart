@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/pages/config_page.dart';
 import 'package:paper_tracker/pages/init_page.dart';
 import 'package:paper_tracker/pages/main_page.dart';
+import 'package:paper_tracker/pages/room_page.dart';
 
 void main() => runApp(PaperTrackerApp());
 
@@ -20,6 +21,7 @@ class PaperTrackerApp extends StatelessWidget {
         InitPage.Route: (context) => InitPage(),
         MainPage.Route: (context) => MainPage(),
         ConfigPage.Route: (context) => ConfigPage(),
+        RoomPage.Route: (context) => RoomPage(),
       },
     );
   }

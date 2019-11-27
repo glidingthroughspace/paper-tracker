@@ -22,6 +22,7 @@ class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClient
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FutureBuilder(
         future: trackers,
         builder: (context, snapshot) {
