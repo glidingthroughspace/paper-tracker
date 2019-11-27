@@ -48,11 +48,10 @@ bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
     } else {
       log("Command data has unknown key ");
       logln(key);
-      return false;
     }
   } while (nextType != cbor::DataType::kEOS);
 
-  return true;
+  return parseType && parsedSleepTime;
 }
 
 uint16_t Command::getSleepTimeInSeconds() const {

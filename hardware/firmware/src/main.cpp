@@ -27,15 +27,6 @@ void setup() {
   initSerial(115400);
   logln("Starting");
 
-  const char cmdData[] = { 0xa2, 0x67, 0x43, 0x6f, 0x6d, 0x6d, 0x61, 0x6e, 0x64, 0x02, 0x6c, 0x53, 0x6c, 0x65, 0x65, 0x70, 0x54, 0x69, 0x6d, 0x65, 0x53, 0x65, 0x63, 0x05, 0x0a};
-  
-  Command cmd;
-  cmd.fromCBOR((uint8_t*)(cmdData), sizeof(cmdData));
-
-  logln("Parsed command");
-  
-  return;
-
   #ifdef WIFI_USERNAME
   haltIf(!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD), "Failed to connect to WiFi");
   #else
