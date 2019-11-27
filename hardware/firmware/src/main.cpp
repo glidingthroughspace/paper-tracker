@@ -23,6 +23,13 @@ uint8_t bytes[SCAN_RESULT_BUFFER_SIZE * SCAN_RESULT_SIZE_BYTES + SCAN_RESULT_MES
 
 void haltIf(bool condition, const char* message);
 
+void onCommandReceived(Command& command) {
+  log("Next Command is ");
+  log((uint8_t) command.getType());
+  log(" and sleep time in seconds is ");
+  logln(command.getSleepTimeInSeconds());
+}
+
 void setup() {
   initSerial(115400);
   logln("Starting");
@@ -35,12 +42,7 @@ void setup() {
 
   haltIf(!apiClient.start(), "Failed to start the API client");
 
-  apiClient.requestNextCommand([] (Command& command) {
-    log("Next Command is ");
-    log((uint8_t) command.getType());
-    log(" and sleep time in seconds is ");
-    logln(command.getSleepTimeInSeconds());
-  });
+  apiClient.requestNextCommand(onCommandReceived);
 
   // wifi.scanVisibleNetworks();
   // logln("Scanned for networks");

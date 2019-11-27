@@ -21,8 +21,11 @@ bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
 
   // We're reading once to skip the map. Next value should be of type text
   cbor::DataType nextType = cbor.readDataType();
-  do {
+  while(true) {
     nextType = cbor.readDataType(); 
+    if (nextType == cbor::DataType::kEOS) {
+      break;
+    }
     if (nextType != cbor::DataType::kText) {
       logln("Expected a key, but got none");
       log("Data type is ");
@@ -49,9 +52,9 @@ bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
       log("Command data has unknown key ");
       logln(key);
     }
-  } while (nextType != cbor::DataType::kEOS);
+  }
 
-  return parseType && parsedSleepTime;
+  return parsedType && parsedSleepTime;
 }
 
 uint16_t Command::getSleepTimeInSeconds() const {
