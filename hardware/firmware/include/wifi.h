@@ -1,7 +1,7 @@
 #pragma once
 
 #include <models/scanResult.h>
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <WiFiUdp.h>
 
 #define SCAN_RESULT_BUFFER_SIZE 5

@@ -1,5 +1,4 @@
 #include <wifi.h>
-#include <ESP8266WiFi.h>
 #include <log.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,10 +9,7 @@
 #define WIFI_CONNECTION_DELAY 10
 #endif
 
-extern "C" {
-  #include "user_interface.h"
-  #include "wpa2_enterprise.h"
-}
+#include "esp_wpa2.h"
 
 WIFI::WIFI() {
   // This improves performance. WiFi credentials are hard-coded when flashing,
@@ -41,18 +37,19 @@ bool WIFI::connect(const char* ssid, const char* username, const char* password)
   log(ssid);
   log(" with user ");
   logln(username);
-  wifi_set_opmode(STATION_MODE);
-  struct station_config wifi_config;
-  memset(&wifi_config, 0, sizeof(wifi_config));
-  strcpy((char*)wifi_config.ssid, ssid);
-  wifi_station_set_config(&wifi_config);
-  wifi_station_clear_cert_key();
-  wifi_station_clear_enterprise_ca_cert();
-  wifi_station_set_wpa2_enterprise_auth(1);
-  wifi_station_set_enterprise_identity((uint8_t*)username, strlen(username));
-  wifi_station_set_enterprise_username((uint8_t*)username, strlen(username));
-  wifi_station_set_enterprise_password((uint8_t*)password, strlen(password));
-  wifi_station_connect();
+  esp_wifi_sta_wpa2_ent_set_identity((uint8_t*)username, strlen(username));
+  esp_wifi_sta_wpa2_ent_set_username((uint8_t*)username, strlen(username));
+  esp_wifi_sta_wpa2_ent_set_password((uint8_t*)password, strlen(password));
+
+  esp_wpa2_config_t config;
+  config.crypto_funcs = &g_wifi_default_wpa2_crypto_funcs;
+  logln("Initialized wifi config");
+  if (esp_wifi_sta_wpa2_ent_enable(&config)) {
+  logln("Failed to enable WPA2");
+  return false;
+  }
+
+  WiFi.begin(ssid);
 
   return connectLoop();
 }
