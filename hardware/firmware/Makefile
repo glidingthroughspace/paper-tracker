@@ -1,4 +1,4 @@
-PLATFORM?=d1_mini # This can be either esp8285 or d1_mini
+PLATFORM?=tinypico # This can be either esp8285 or d1_mini
 SERIALPORT?=/dev/ttyUSB0 # Usually the default port
 
 build:
