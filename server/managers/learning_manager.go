@@ -136,7 +136,7 @@ func (mgr *LearningManager) FinishLearning(trackerID, roomID int) (err error) {
 		return
 	}
 
-	_, err = GetRoomManager().GetRoomByID(roomID)
+	room, err := GetRoomManager().GetRoomByID(roomID)
 	if err != nil {
 		finishLearningLog.WithField("err", err).Error("Failed to get room")
 		err = fmt.Errorf("room: %v", err)
@@ -144,6 +144,19 @@ func (mgr *LearningManager) FinishLearning(trackerID, roomID int) (err error) {
 	}
 
 	//TODO: Calc something useful from saved scans
+
+	err = GetRoomManager().SetRoomLearned(room.ID, true)
+	if err != nil {
+		finishLearningLog.WithField("err", err).Error("Failed to save room")
+		err = fmt.Errorf("room: %v", err)
+		return
+	}
+
+	err = GetTrackerManager().SetTrackerStatus(tracker.ID, models.StatusIdle)
+	if err != nil {
+		finishLearningLog.WithField("err", err).Error("Failed to set tracker status to idle after learning")
+		return
+	}
 
 	return
 }

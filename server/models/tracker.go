@@ -8,7 +8,7 @@ type Tracker struct {
 	LastPoll      time.Time
 	LastSleepTime time.Time
 	LastLocations []Room
-	LastLocation  Room
+	LastLocation  *Room
 	Status        TrackerStatus
 }
 

@@ -56,3 +56,12 @@ func (mgr *RoomManager) GetAllRooms() (rooms []*models.Room, err error) {
 	}
 	return
 }
+
+func (mgr *RoomManager) SetRoomLearned(roomID int, learned bool) (err error) {
+	err = mgr.roomRep.SetLearnedByID(roomID, learned)
+	if err != nil {
+		log.WithFields(log.Fields{"roomID": roomID, "learned": learned, "err": err}).Error("Failed to set room learned")
+		return
+	}
+	return
+}

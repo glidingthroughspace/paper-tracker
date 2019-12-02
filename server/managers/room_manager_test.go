@@ -19,6 +19,9 @@ var _ = Describe("RoomManager", func() {
 
 		testErr = errors.New("error")
 	)
+	const (
+		id = 1
+	)
 
 	BeforeEach(func() {
 		roomManager = nil
@@ -72,7 +75,6 @@ var _ = Describe("RoomManager", func() {
 	})
 
 	Context("Test GetRoomByID", func() {
-		id := 1
 		outRoom := &models.Room{ID: id, Label: "TestRoom"}
 
 		It("GetRoomByID calls getByID in rep exactly once", func() {
@@ -84,6 +86,23 @@ var _ = Describe("RoomManager", func() {
 			mockRoomRep.EXPECT().GetByID(id).Return(nil, testErr).Times(1)
 			_, err := manager.GetRoomByID(id)
 			Expect(err).To(MatchError(testErr))
+		})
+	})
+
+	Context("Test SetRoomLearned", func() {
+		It("SetRoomLearned with learned true calls SetLearnedByID with learned true in rep exactly once", func() {
+			mockRoomRep.EXPECT().SetLearnedByID(id, true).Return(nil).Times(1)
+			Expect(manager.SetRoomLearned(id, true)).To(Succeed())
+		})
+
+		It("SetRoomLearned should return db error", func() {
+			mockRoomRep.EXPECT().SetLearnedByID(id, true).Return(testErr).Times(1)
+			Expect(manager.SetRoomLearned(id, true)).To(MatchError(testErr))
+		})
+
+		It("SetRoomLearned also works for learned false", func() {
+			mockRoomRep.EXPECT().SetLearnedByID(id, false).Return(nil).Times(1)
+			Expect(manager.SetRoomLearned(id, false)).To(Succeed())
 		})
 	})
 })

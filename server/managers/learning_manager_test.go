@@ -168,6 +168,8 @@ var _ = Describe("LearningManager", func() {
 	})
 
 	Context("Test FinishLearning", func() {
+		outRoom := &models.Room{ID: id}
+
 		It("FinishLearning throws error starting with 'tracker' if tracker does not exist", func() {
 			mockTrackerRep.EXPECT().GetByID(wrongID).Return(nil, recordNotFoundErr).Times(1)
 			Expect(manager.FinishLearning(wrongID, id).Error()).To(HavePrefix("tracker: "))
@@ -182,6 +184,14 @@ var _ = Describe("LearningManager", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
 			mockRoomRep.EXPECT().GetByID(wrongID).Return(nil, recordNotFoundErr).Times(1)
 			Expect(manager.FinishLearning(id, wrongID).Error()).To(HavePrefix("room: "))
+		})
+
+		It("FinishLearning sets room.IsLearned to true and tracker status to idle", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
+			mockRoomRep.EXPECT().GetByID(id).Return(outRoom, nil).Times(1)
+			mockRoomRep.EXPECT().SetLearnedByID(id, true).Return(nil).Times(1)
+			mockTrackerRep.EXPECT().SetStatusByID(id, models.StatusIdle).Return(nil).Times(1)
+			Expect(manager.FinishLearning(id, id)).To(Succeed())
 		})
 	})
 

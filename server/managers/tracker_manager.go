@@ -57,7 +57,6 @@ func (mgr *TrackerManager) GetAllTrackers() (trackers []*models.Tracker, err err
 	return
 }
 
-// TODO: Test
 func (mgr *TrackerManager) SetTrackerStatus(trackerID int, status models.TrackerStatus) (err error) {
 	err = mgr.trackerRep.SetStatusByID(trackerID, status)
 	if err != nil {
@@ -67,7 +66,6 @@ func (mgr *TrackerManager) SetTrackerStatus(trackerID int, status models.Tracker
 	return
 }
 
-// TODO: Test
 func (mgr *TrackerManager) AddTrackerCommand(command *models.Command) (err error) {
 	err = mgr.cmdRep.Create(command)
 	if err != nil {
