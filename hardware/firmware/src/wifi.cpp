@@ -41,12 +41,13 @@ bool WIFI::connect(const char* ssid, const char* username, const char* password)
   esp_wifi_sta_wpa2_ent_set_username((uint8_t*)username, strlen(username));
   esp_wifi_sta_wpa2_ent_set_password((uint8_t*)password, strlen(password));
 
-  esp_wpa2_config_t config;
-  config.crypto_funcs = &g_wifi_default_wpa2_crypto_funcs;
+  esp_wpa2_config_t config = WPA2_CONFIG_INIT_DEFAULT();
+  WiFi.mode(WIFI_STA);
+
   logln("Initialized wifi config");
   if (esp_wifi_sta_wpa2_ent_enable(&config)) {
-  logln("Failed to enable WPA2");
-  return false;
+    logln("Failed to enable WPA2");
+    return false;
   }
 
   WiFi.begin(ssid);
