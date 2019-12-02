@@ -21,40 +21,46 @@ ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,43,111));
 
 uint8_t bytes[SCAN_RESULT_BUFFER_SIZE * SCAN_RESULT_SIZE_BYTES + SCAN_RESULT_MESSAGE_OVERHEAD]{0};
 
+void haltIf(bool condition, const char* message);
+
+void onCommandReceived(Command& command) {
+  log("Next Command is ");
+  log((uint8_t) command.getType());
+  log(" and sleep time in seconds is ");
+  logln(command.getSleepTimeInSeconds());
+}
+
 void setup() {
   initSerial(115400);
   logln("Starting");
 
   #ifdef WIFI_USERNAME
-  if (!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD)) {
-    // TODO: Indicate that the connection failed. Maybe blink the LED?
-    logln("Failed to connect to WiFi! Stalling Tracker!");
-    while(true) {;}
-  }
+  haltIf(!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD), "Failed to connect to WiFi");
   #else
-  if (!wifi.connect(WIFI_SSID, WIFI_PASSWORD)) {
-    // TODO: Indicate that the connection failed. Maybe blink the LED?
-    logln("Failed to connect to WiFi! Stalling Tracker!");
-    while(true) {;}
-  }
+  haltIf(!wifi.connect(WIFI_SSID, WIFI_PASSWORD), "Failed to connect to WiFi");
   #endif
 
-  if (!apiClient.start()) {
-    logln("Failed to start CoAP client! Stalling Tracker!");
-    while(true) {;}
-  }
+  haltIf(!apiClient.start(), "Failed to start the API client");
 
-  wifi.scanVisibleNetworks();
-  logln("Scanned for networks");
-  wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
-  TrackerResponse trackerResponse{0};
-  apiClient.requestNextAction([] () {});
-  memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
-  trackerResponse.toCBOR(bytes, sizeof(bytes));
-  apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
+  apiClient.requestNextCommand(onCommandReceived);
 
+  // wifi.scanVisibleNetworks();
+  // logln("Scanned for networks");
+  // wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
+  // TrackerResponse trackerResponse{0};
+  // memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
+  // trackerResponse.toCBOR(bytes, sizeof(bytes));
+  // apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
 }
 
 void loop() {
   apiClient.loop();
+}
+
+void haltIf(bool condition, const char* message) {
+  if (condition) {
+    // TODO: Maybe blink the LED?
+    logln("Failed to start CoAP client! Stalling Tracker!");
+    while(true) {;}
+  }
 }

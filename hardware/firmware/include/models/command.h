@@ -1,9 +1,6 @@
-#pragma
+#pragma once
 
-#include <log.h>
 #include <CBOR.h>
-#include <CBOR_parsing.h>
-#include <CBOR_streams.h>
 
 namespace cbor = ::qindesign::cbor;
 
@@ -13,40 +10,20 @@ enum class CommandType {
 	SLEEP              = 2,
 };
 
-bool isValidCommandType(uint8_t type) {
-  return (type <= 2);
-}
+static const char* kCOMMAND = "Command";
+static const char* kSLEEP_TIME = "SleepTimeSec";
 
-struct Command {
-  uint16_t sleepTimeSec;
-  CommandType type;
+class Command {
+  private:
+    uint16_t sleepTimeSec;
+    CommandType type;
+    bool isValidType(uint64_t type) const { return (type <= 2); }
+    bool parseType(cbor::Reader&);
+    bool parseSleepTime(cbor::Reader&);
+  public:
+    bool fromCBOR(uint8_t* buffer, size_t bufferSize);
 
-  bool fromCBOR(uint8_t bytes, Command* command) {
-    // FIXME: sizeof() might not work here
-    cbor::BytesStream bs{bytes, sizeof(bytes)};
-    cbor::Reader cbor{bs};
-
-    // First check if things are well-formed
-    if (!cbor.isWellFormed()) {
-      logln("Malformed CBOR data while parsing Command");
-      return false;
-    }
-
-    // Assume the data starts with the "Self-describe CBOR" tag and continues
-    // with an array consisting of one boolean item and one text item.
-    if (!expectValue(cbor, cbor::DataType::kTag, cbor::kSelfDescribeTag))
-      return false;
-    if (!expectUnsignedInt(cbor, &command->sleepTimeSec))
-      return false;
-    uint8_t commandType;
-    if (!expectUnsignedInt(cbor, commandType))
-      return false;
-    if (!isValidCommandType(commandType))
-      return false;
-    &command->type = commandType;
-
-    return true;
-    }
-  }
-}
+    uint16_t getSleepTimeInSeconds() const;
+    CommandType getType() const;
+};
 
