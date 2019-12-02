@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <WiFiUdp.h>
 #include <IPAddress.h>
+#include <TinyPICO.h>
 
 #include <log.h>
 #include <models/scanResult.h>
@@ -14,7 +15,7 @@
 // FIXME: This number is not correct
 #define SCAN_RESULT_MESSAGE_OVERHEAD 100
 
-
+TinyPICO tinypico = TinyPICO();
 WIFI wifi;
 ScanResult scanResultBuffer[SCAN_RESULT_BUFFER_SIZE];
 ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,43,111));
@@ -22,6 +23,7 @@ ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,43,111));
 uint8_t bytes[SCAN_RESULT_BUFFER_SIZE * SCAN_RESULT_SIZE_BYTES + SCAN_RESULT_MESSAGE_OVERHEAD]{0};
 
 void haltIf(bool condition, const char* message);
+void enablePowersavings(void);
 
 void onCommandReceived(Command& command) {
   log("Next Command is ");
@@ -31,6 +33,7 @@ void onCommandReceived(Command& command) {
 }
 
 void setup() {
+  enablePowersavings();
   initSerial(115400);
   logln("Starting");
 
@@ -63,4 +66,8 @@ void haltIf(bool condition, const char* message) {
     logln("Failed to start CoAP client! Stalling Tracker!");
     while(true) {;}
   }
+}
+
+void enablePowersavings(void) {
+  tinypico.DotStar_SetPower(false);
 }
