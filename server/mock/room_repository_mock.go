@@ -91,6 +91,20 @@ func (mr *MockRoomRepositoryMockRecorder) Delete(roomID interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRoomRepository)(nil).Delete), roomID)
 }
 
+// SetLearnedByID mocks base method
+func (m *MockRoomRepository) SetLearnedByID(roomID int, learned bool) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetLearnedByID", roomID, learned)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetLearnedByID indicates an expected call of SetLearnedByID
+func (mr *MockRoomRepositoryMockRecorder) SetLearnedByID(roomID, learned interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLearnedByID", reflect.TypeOf((*MockRoomRepository)(nil).SetLearnedByID), roomID, learned)
+}
+
 // IsRecordNotFoundError mocks base method
 func (m *MockRoomRepository) IsRecordNotFoundError(err error) bool {
 	m.ctrl.T.Helper()

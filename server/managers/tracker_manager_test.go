@@ -106,4 +106,30 @@ var _ = Describe("TrackerManager", func() {
 			})))
 		})
 	})
+
+	Context("Test SetTrackerStatus", func() {
+		It("SetTrackerStatus calls rep exaclty once with correct status", func() {
+			mockTrackerRep.EXPECT().SetStatusByID(id, models.StatusIdle).Return(nil).Times(1)
+			Expect(manager.SetTrackerStatus(id, models.StatusIdle)).To(Succeed())
+		})
+
+		It("SetTrackerStatus should return db error", func() {
+			mockTrackerRep.EXPECT().SetStatusByID(id, models.StatusIdle).Return(testErr).Times(1)
+			Expect(manager.SetTrackerStatus(id, models.StatusIdle)).To(MatchError(testErr))
+		})
+	})
+
+	Context("Test AddTrackerCommand", func() {
+		cmd := &models.Command{TrackerID: id}
+
+		It("AddTrackerCommand calls rep exaclty once", func() {
+			mockCommandRep.EXPECT().Create(cmd).Return(nil).Times(1)
+			Expect(manager.AddTrackerCommand(cmd)).To(Succeed())
+		})
+
+		It("AddTrackerCommand should return db error", func() {
+			mockCommandRep.EXPECT().Create(cmd).Return(testErr).Times(1)
+			Expect(manager.AddTrackerCommand(cmd)).To(MatchError(testErr))
+		})
+	})
 })
