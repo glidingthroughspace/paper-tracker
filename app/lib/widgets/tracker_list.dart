@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:paper_tracker/pages/tracker_page.dart';
+import 'package:paper_tracker/widgets/card_list.dart';
 
 import '../client/tracker_client.dart';
 import '../model/tracker.dart';
@@ -10,7 +12,7 @@ class TrackerList extends StatefulWidget {
   _TrackerListState createState() => _TrackerListState();
 }
 
-class _TrackerListState extends State<TrackerList> {
+class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClientMixin {
   Future<List<Tracker>> trackers;
 
   @override
@@ -21,26 +23,27 @@ class _TrackerListState extends State<TrackerList> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FutureBuilder(
-      future: trackers,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<Widget> listChildren = List<Widget>();
-          for (Tracker tracker in snapshot.data) {
-            listChildren.add(ListTile(
-              title: Text("ID: ${tracker.id.toString()}; Label: ${tracker.label}")
-            ));
+        future: trackers,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<Tracker> trackerList = snapshot.data;
+            Map<String, Tracker> titleObjectMap =
+                Map.fromIterable(trackerList, key: (tracker) => tracker.label, value: (tracker) => tracker);
+            return CardList<Tracker>(
+              titleObjectMap: titleObjectMap,
+              onTap: (tracker) => Navigator.of(context).pushNamed(TrackerPage.Route, arguments: tracker),
+            );
+          } else if (snapshot.hasError) {
+            return Center(child: Text("${snapshot.error}"));
           }
-          return ListView(children: listChildren);
-        } else if (snapshot.hasError) {
-          return ListView(
-            children: <Widget>[Text("${snapshot.error}")]
-          );
-        }
 
-        // By default, show a loading spinner.
-        return CircularProgressIndicator();
-      }
-    );
+          // By default, show a loading spinner.
+          return Center(child: CircularProgressIndicator());
+        });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

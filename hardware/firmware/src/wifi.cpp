@@ -85,6 +85,7 @@ uint8_t WIFI::getVisibleNetworkCount() const {
 }
 
 uint8_t WIFI::scanVisibleNetworks() {
+  logln("Scanning for networks...");
   visibleNetworkCount = WiFi.scanNetworks();
   return visibleNetworkCount;
 }

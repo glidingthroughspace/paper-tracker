@@ -15,7 +15,7 @@ class ApiClient {
     ApiClient(WiFiUDP& udp, IPAddress serverIP);
     bool loop();
     bool start();
-    void requestNextCommand(std::function<void(Command&)>);
+    void requestNextCommand(std::function<void(Command&)> callback);
     static bool isErrorResponse(const CoapPacket &packet);
     void writeTrackingData(uint8_t* scanResults, size_t scanResultLen, std::function<void(void)> callback);
   private:

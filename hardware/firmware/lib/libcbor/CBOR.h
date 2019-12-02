@@ -16,22 +16,22 @@ namespace cbor {
 constexpr uint16_t kSelfDescribeTag = 55799;
 
 enum class DataType {
-  kUnsignedInt,
-  kNegativeInt,
-  kBytes,
-  kText,
-  kArray,
-  kMap,
-  kTag,
-  kFloat,
-  kDouble,
-  kBoolean,
-  kNull,
-  kUndefined,
-  kBreak,
-  kSimpleValue,
-  kEOS,
-  kSyntaxError,
+  kUnsignedInt = 0,
+  kNegativeInt = 1,
+  kBytes       = 2,
+  kText        = 3,
+  kArray       = 4,
+  kMap         = 5,
+  kTag         = 6,
+  kFloat       = 7,
+  kDouble      = 8,
+  kBoolean     = 9,
+  kNull        = 10,
+  kUndefined   = 11,
+  kBreak       = 12,
+  kSimpleValue = 13,
+  kEOS         = 14,
+  kSyntaxError = 15,
 };
 
 enum class SyntaxError {
