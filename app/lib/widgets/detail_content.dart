@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:paper_tracker/widgets/conditional_builder.dart';
 
 class DetailContent extends StatelessWidget {
   final IconData iconData;
@@ -14,12 +15,13 @@ class DetailContent extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: Column(
-        children: [
-          buildTopContent(context),
-          content
-        ],
+        children: [buildTopContent(context), content],
       ),
-      bottomNavigationBar: buildBottomNavigation(context),
+      bottomNavigationBar: ConditionalBuilder(
+        conditional: bottomButtons != null,
+        truthy: buildBottomNavigation(context),
+        falsy: Text("Bla"),
+      ),
     );
   }
 
@@ -73,7 +75,7 @@ class DetailContent extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 10.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: bottomButtons,
+            children: bottomButtons != null ? bottomButtons : [],
           ),
         ),
       ),

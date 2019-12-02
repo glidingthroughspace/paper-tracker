@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/pages/config_page.dart';
 import 'package:paper_tracker/pages/init_page.dart';
+import 'package:paper_tracker/pages/learning_page.dart';
 import 'package:paper_tracker/pages/main_page.dart';
 import 'package:paper_tracker/pages/room_page.dart';
 import 'package:paper_tracker/pages/tracker_page.dart';
@@ -16,6 +17,7 @@ class PaperTrackerApp extends StatelessWidget {
         backgroundColor: Color.fromRGBO(56, 66, 86, 1.0),
         cardColor: Color.fromRGBO(84, 93, 110, .9),
         accentColor: Color.fromRGBO(148, 0, 238, 1.0),
+        canvasColor: Color.fromRGBO(56, 66, 86, 1.0),
       ),
       initialRoute: "/",
       routes: {
@@ -24,6 +26,7 @@ class PaperTrackerApp extends StatelessWidget {
         ConfigPage.Route: (context) => ConfigPage(),
         RoomPage.Route: (context) => RoomPage(),
         TrackerPage.Route: (context) => TrackerPage(),
+        LearningPage.Route: (context) => LearningPage(),
       },
     );
   }
