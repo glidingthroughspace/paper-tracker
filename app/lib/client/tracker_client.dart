@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:paper_tracker/client/api_client.dart';
+import 'package:paper_tracker/model/learningStartResponse.dart';
 import 'package:paper_tracker/model/tracker.dart';
 
 class TrackerClient {
@@ -13,6 +14,15 @@ class TrackerClient {
       return rawList.map((i) => Tracker.fromJson(i)).toList();
     } else {
       throw Exception("Failed to load trackers");
+    }
+  }
+
+  Future<LearningStartResponse> startLearning(int id) async {
+    final response = await apiClient.post("/tracker/$id/learn/start", null);
+    if (response.statusCode == 200) {
+      return LearningStartResponse.fromJson(json.decode(response.body));
+    } else {
+      throw Exception("Failed to start learning");
     }
   }
 }

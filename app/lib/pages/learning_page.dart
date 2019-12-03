@@ -42,6 +42,13 @@ class _LearningPageState extends State<LearningPage> {
           children: [
             buildRoomDropdown(params),
             buildTrackerDropdown(params),
+            SizedBox(height: 15.0),
+            MaterialButton(
+              onPressed: onStartLearning,
+              child: Text("Start learning"),
+              color: Theme.of(context).accentColor,
+              minWidth: MediaQuery.of(context).size.width*0.8,
+            ),
           ],
         ),
       ),
@@ -83,6 +90,7 @@ class _LearningPageState extends State<LearningPage> {
         return DropdownButton(
           icon: Icon(Tracker.IconData),
           items: trackerList
+              .where((tracker) => tracker.status == TrackerStatus.Idle)
               .map((tracker) => DropdownMenuItem(
                     value: tracker,
                     child: Text(tracker.label),
@@ -99,6 +107,14 @@ class _LearningPageState extends State<LearningPage> {
         );
       },
     );
+  }
+
+  void onStartLearning() async {
+    setState(() {
+
+    });
+
+    trackerClient.startLearning(selectedTracker.id);
   }
 }
 

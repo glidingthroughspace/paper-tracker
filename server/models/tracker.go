@@ -3,13 +3,13 @@ package models
 import "time"
 
 type Tracker struct {
-	ID            int
-	Label         string
-	LastPoll      time.Time
-	LastSleepTime time.Time
-	LastLocations []Room
-	LastLocation  *Room
-	Status        TrackerStatus
+	ID            int           `json:"id,omitempty"`
+	Label         string        `json:"label,omitempty"`
+	LastPoll      time.Time     `json:"last_poll,omitempty"`
+	LastSleepTime time.Time     `json:"last_sleep_time,omitempty"`
+	LastLocations []Room        `json:"last_locations,omitempty"`
+	LastLocation  *Room         `json:"last_location,omitempty"`
+	Status        TrackerStatus `json:"status,omitempty"`
 }
 
 type TrackerStatus int8

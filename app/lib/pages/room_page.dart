@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/pages/learning_page.dart';
