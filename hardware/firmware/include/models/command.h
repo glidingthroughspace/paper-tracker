@@ -1,8 +1,6 @@
 #pragma once
 
-#include <CBOR.h>
-
-namespace cbor = ::qindesign::cbor;
+#include <serialization/cborUtils.h>
 
 enum class CommandType {
 	SEND_TRACKING_INFO = 0,
@@ -10,16 +8,15 @@ enum class CommandType {
 	SLEEP              = 2,
 };
 
-static const char* kCOMMAND = "Command";
-static const char* kSLEEP_TIME = "SleepTimeSec";
-
 class Command {
   private:
     uint16_t sleepTimeSec;
+    const char* k_sleepTimeSec = "SleepTimeSec";
     CommandType type;
-    bool isValidType(uint64_t type) const { return (type <= 2); }
-    bool parseType(cbor::Reader&);
-    bool parseSleepTime(cbor::Reader&);
+    const char* k_type = "Command";
+    bool isValidType(uint8_t type) const { return (type <= 2); }
+    bool parseType(CBORDocument&);
+    bool parseSleepTime(CBORDocument&);
   public:
     bool fromCBOR(uint8_t* buffer, size_t bufferSize);
 
