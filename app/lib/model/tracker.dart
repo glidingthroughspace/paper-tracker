@@ -18,7 +18,7 @@ class Tracker {
   @JsonKey(name: "status")
   TrackerStatus status;
 
-  Tracker({this.id, this.label, this.lastPoll, this.lastSleepTime});
+  Tracker({this.id, this.label, this.lastPoll, this.lastSleepTime, this.status});
 
   factory Tracker.fromJson(Map<String, dynamic> json) => _$TrackerFromJson(json);
 
