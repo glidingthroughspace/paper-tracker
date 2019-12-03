@@ -48,6 +48,12 @@ func (mgr *LearningManager) StartLearning(trackerID int) (learnTimeSec int, err 
 		return
 	}
 
+	err = mgr.scanResultRep.DeleteForTracker(trackerID)
+	if err != nil {
+		learnLog.WithField("err", err).Error("Failed to delete scan results for tracker")
+		return
+	}
+
 	go mgr.learningRoutine(trackerID, learnLog)
 
 	learnTimeSec = mgr.learnCount * mgr.sleepBetweenLearnSec

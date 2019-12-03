@@ -106,11 +106,13 @@ var _ = Describe("LearningManager", func() {
 
 		It("StartLearning return correct total learn time", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
+			mockScanResultRep.EXPECT().DeleteForTracker(id).Return(nil).Times(1)
 			Expect(manager.StartLearning(id)).To(Equal(learnCount * sleepBetweenLearnSec))
 		})
 
 		It("StartLearning inserts first command", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
+			mockScanResultRep.EXPECT().DeleteForTracker(id).Return(nil).Times(1)
 			cmdCreateCall.MinTimes(1)
 			_, err := manager.StartLearning(id)
 			Expect(err).To(Succeed())
