@@ -1,50 +1,30 @@
 #include <models/command.h>
 
 #include <log.h>
-
-#include <CBOR_parsing.h>
-#include <CBOR_streams.h>
+#include <serialization/cborUtils.h>
 
 bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
-  cbor::BytesStream bs{buffer, bufferSize};
-  cbor::Reader cbor{bs};
+  auto cbor = CBORDocument::fromBuffer(buffer, bufferSize);
 
   bool parsedType = false;
   bool parsedSleepTime = false; 
 
-  if (!cbor.isWellFormed()) {
+  if (!cbor.isWellformedModel()) {
     logln("Malformed CBOR data while parsing Command");
     return false;
   }
-  // isWellFormed() advances the current position in the stream, so we have to reset it
-  bs.reset();
 
-  // We're reading once to skip the map. Next value should be of type text
-  cbor::DataType nextType = cbor.readDataType();
-  while(true) {
-    nextType = cbor.readDataType(); 
-    if (nextType == cbor::DataType::kEOS) {
-      break;
+  while(!cbor.advance()) {
+    auto key = cbor.findNextKey();
+    if (key == nullptr) {
+      logln("Unexpected token in CBOR input, continuing with next token");
+      continue;
     }
-    if (nextType != cbor::DataType::kText) {
-      logln("Expected a key, but got none");
-      log("Data type is ");
-      logln(static_cast<uint8_t>(nextType));
-      if (parsedType && parsedSleepTime) {
-        logln("Ignoring extra data, since all needed values have been parsed");
-        return true;
-      }
-      return false;
-    }
-    auto bytesAvailable = cbor.bytesAvailable();
-    char key[bytesAvailable + 1];
-    cbor.readBytes((uint8_t*) key, bytesAvailable);
-    key[bytesAvailable] = '\0';
-    if (strcmp(key, kCOMMAND) == 0) {
+    if (strcmp(key, k_type) == 0) {
       if (!parseType(cbor))
         return false;
       parsedType = true;
-    } else if (strcmp(key, kSLEEP_TIME) == 0) {
+    } else if (strcmp(key, k_sleepTimeSec) == 0) {
       if (!parseSleepTime(cbor))
         return false;
       parsedSleepTime = true;
@@ -65,12 +45,12 @@ CommandType Command::getType() const {
   return type;
 }
 
-bool Command::parseType(cbor::Reader& cbor) {
-  if (cbor.readDataType() != cbor::DataType::kUnsignedInt) {
-    logln("Expected an unsigned int when reading command type, but got something else");
+bool Command::parseType(CBORDocument& cbor) {
+  uint8_t commandType;
+  if (!cbor.readUnsignedInt(commandType)) {
+    logln("Expected an 8 bit usigned int when reading the command type, but got something else");
     return false;
   }
-  auto commandType = cbor.getUnsignedInt();
   if (!isValidType(commandType)) {
     logln("Found unknown command number");
     return false;
@@ -79,16 +59,10 @@ bool Command::parseType(cbor::Reader& cbor) {
   return true;
 }
 
-bool Command::parseSleepTime(cbor::Reader& cbor) {
-  if (cbor.readDataType() != cbor::DataType::kUnsignedInt) {
-    logln("Expected an unsigned int when reading sleep time, but got something else");
+bool Command::parseSleepTime(CBORDocument& cbor) {
+  if (!cbor.readUnsignedInt(sleepTimeSec)) {
+    logln("Expected a 16 bit unsigned int when reading sleep time, but got something else");
     return false;
   }
-  uint64_t sleepTimeSecLarge = cbor.getUnsignedInt();
-  if (sleepTimeSecLarge > (2^16)) {
-    logln("Sleep time in seconds was more than 16 bit integer");
-    return false;
-  }
-  sleepTimeSec = static_cast<uint16_t>(sleepTimeSecLarge);
   return true;
 }
