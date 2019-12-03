@@ -37,6 +37,7 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
               body: CardList<Room>(
                 titleObjectMap: titleObjectMap,
                 onTap: onTapRoom,
+                iconData: Icons.keyboard_arrow_right,
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: onAddRoomButton,

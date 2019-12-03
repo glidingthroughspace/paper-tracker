@@ -3,6 +3,7 @@ import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/tracker_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/model/tracker.dart';
+import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/countdown_timer.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
@@ -24,6 +25,7 @@ class _LearningPageState extends State<LearningPage> {
   Room selectedRoom;
   Tracker selectedTracker;
   int learnDuration = 0;
+  CheckCardListController checkCardListController;
 
   @override
   void initState() {
@@ -31,6 +33,7 @@ class _LearningPageState extends State<LearningPage> {
 
     rooms = roomClient.fetchRooms();
     tracker = trackerClient.fetchTrackers();
+    checkCardListController = CheckCardListController();
   }
 
   @override
@@ -62,6 +65,10 @@ class _LearningPageState extends State<LearningPage> {
                 onComplete: () => print("COMPLETE!"),
               ),
             ),
+            CheckCardList(
+              controller: checkCardListController,
+              titles: ["Test1", "Test2"],
+            ),
           ],
         ),
       ),
@@ -87,6 +94,7 @@ class _LearningPageState extends State<LearningPage> {
             });
           },
           hint: Text("Please select a room"),
+          disabledHint: Text("No rooms found"),
         );
       },
     );
@@ -117,6 +125,7 @@ class _LearningPageState extends State<LearningPage> {
             });
           },
           hint: Text("Please select a tracker"),
+          disabledHint: Text("No tracker available for learning"),
         );
       },
     );

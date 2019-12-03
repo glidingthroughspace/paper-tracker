@@ -34,6 +34,7 @@ class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClient
             return CardList<Tracker>(
               titleObjectMap: titleObjectMap,
               onTap: (tracker) => Navigator.of(context).pushNamed(TrackerPage.Route, arguments: tracker),
+              iconData: Icons.keyboard_arrow_right,
             );
           } else if (snapshot.hasError) {
             return Center(child: Text("${snapshot.error}"));
