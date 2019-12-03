@@ -24,5 +24,5 @@ class CBORDocument {
     cbor::BytesStream bs;
     cbor::Reader reader;
     cbor::DataType nextDataType;
-    char currentKey[MAX_KEY_LENGHT];
+    char currentKey[MAX_KEY_LENGTH];
 };
