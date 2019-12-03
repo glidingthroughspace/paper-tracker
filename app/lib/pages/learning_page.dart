@@ -3,6 +3,8 @@ import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/tracker_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/model/tracker.dart';
+import 'package:paper_tracker/widgets/conditional_builder.dart';
+import 'package:paper_tracker/widgets/countdown_timer.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 
 class LearningPage extends StatefulWidget {
@@ -18,8 +20,10 @@ class _LearningPageState extends State<LearningPage> {
   Future<List<Room>> rooms;
   Future<List<Tracker>> tracker;
 
+  var state = _learningState.Init;
   Room selectedRoom;
   Tracker selectedTracker;
+  int learnDuration = 0;
 
   @override
   void initState() {
@@ -43,11 +47,23 @@ class _LearningPageState extends State<LearningPage> {
             buildRoomDropdown(params),
             buildTrackerDropdown(params),
             SizedBox(height: 15.0),
-            MaterialButton(
-              onPressed: onStartLearning,
-              child: Text("Start learning"),
-              color: Theme.of(context).accentColor,
-              minWidth: MediaQuery.of(context).size.width*0.8,
+            ConditionalBuilder(
+              conditional: state == _learningState.Init,
+              truthy: MaterialButton(
+                onPressed: onStartLearning,
+                child: Text("Start learning"),
+                color: Theme.of(context).accentColor,
+                minWidth: MediaQuery.of(context).size.width * 0.8,
+              ),
+              falsy: SizedBox(
+                height: 30.0,
+                child: CountdownTimer(
+                  duration: Duration(seconds: learnDuration),
+                  backgroundColor: Theme.of(context).cardColor,
+                  color: Theme.of(context).accentColor,
+                  onComplete: () => print("COMPLETE!"),
+                ),
+              ),
             ),
           ],
         ),
@@ -110,11 +126,11 @@ class _LearningPageState extends State<LearningPage> {
   }
 
   void onStartLearning() async {
+    var resp = await trackerClient.startLearning(selectedTracker.id);
     setState(() {
-
+      state = _learningState.Running;
+      learnDuration = resp.learnTimeSec;
     });
-
-    trackerClient.startLearning(selectedTracker.id);
   }
 }
 
@@ -124,3 +140,5 @@ class LearningPageParams {
 
   LearningPageParams({this.roomID, this.trackerID});
 }
+
+enum _learningState { Init, Running, Finished }

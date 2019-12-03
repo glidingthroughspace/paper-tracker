@@ -19,7 +19,7 @@ class DetailContent extends StatelessWidget {
       bottomNavigationBar: ConditionalBuilder(
         conditional: bottomButtons != null,
         truthy: buildBottomNavigation(context),
-        falsy: Text(""),
+        falsy: Container(width: 0, height: 0),
       ),
     );
   }

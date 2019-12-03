@@ -1,7 +1,7 @@
 package communication
 
 type LearningStartResponse struct {
-	LearnTimeSec int `json:"learn_time_sec,omitempty"`
+	LearnTimeSec int `json:"learn_time_sec"`
 }
 
 type LearningStatusResponse struct {

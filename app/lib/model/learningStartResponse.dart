@@ -3,7 +3,7 @@ part 'learningStartResponse.g.dart';
 
 @JsonSerializable()
 class LearningStartResponse {
-  @JsonKey(name: "LearnTimeSec")
+  @JsonKey(name: "learn_time_sec")
   int learnTimeSec;
 
   LearningStartResponse({this.learnTimeSec});
