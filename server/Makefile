@@ -1,6 +1,6 @@
 sources = $(wildcard **/*.go)
 
-.PHONY: clean test mock
+.PHONY: clean test mock paper-tracker
 
 paper-tracker: $(sources)
 	go build -o paper-tracker ./cmd/paper-tracker
@@ -13,6 +13,7 @@ test:
 
 clean:
 	- rm paper-tracker
+	- rm paper-tracker.db
 
 mock:
 	mockgen -source=repositories/tracker_repository.go -package=mock -destination=mock/tracker_repository_mock.go

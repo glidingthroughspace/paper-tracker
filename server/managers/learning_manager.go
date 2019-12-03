@@ -48,6 +48,12 @@ func (mgr *LearningManager) StartLearning(trackerID int) (learnTimeSec int, err 
 		return
 	}
 
+	err = mgr.scanResultRep.DeleteForTracker(trackerID)
+	if err != nil {
+		learnLog.WithField("err", err).Error("Failed to delete scan results for tracker")
+		return
+	}
+
 	go mgr.learningRoutine(trackerID, learnLog)
 
 	learnTimeSec = mgr.learnCount * mgr.sleepBetweenLearnSec
@@ -57,9 +63,9 @@ func (mgr *LearningManager) StartLearning(trackerID int) (learnTimeSec int, err 
 func (mgr *LearningManager) learningRoutine(trackerID int, logger *log.Entry) {
 	defer ginkgo.GinkgoRecover() //FIXME: Leave this in for now as sometimes the unit tests crash in this goroutine
 
-	logger.Trace("Start learning routine")
+	logger.Info("Start learning routine")
 
-	logger.Trace("Set tracker status to learning")
+	logger.Info("Set tracker status to learning")
 	err := GetTrackerManager().SetTrackerStatus(trackerID, models.StatusLearning)
 	if err != nil {
 		return
@@ -67,7 +73,7 @@ func (mgr *LearningManager) learningRoutine(trackerID int, logger *log.Entry) {
 
 	mgr.learningCreateTrackingCmds(trackerID, logger)
 
-	logger.Trace("Set tracker status to learning finished")
+	logger.Info("Set tracker status to learning finished")
 	err = GetTrackerManager().SetTrackerStatus(trackerID, models.StatusLearningFinished)
 	if err != nil {
 		return
@@ -84,11 +90,12 @@ func (mgr *LearningManager) learningCreateTrackingCmds(trackerID int, logger *lo
 	}
 
 	for it := 0; it < mgr.learnCount; it++ {
+		trackCmd.ID = 0
 		GetTrackerManager().AddTrackerCommand(trackCmd)
 
 		time.Sleep(time.Duration(mgr.sleepBetweenLearnSec-1) * time.Second)
 	}
-	logger.Info("Finished creating tracking commands, set tracker status to idle")
+	logger.Info("Finished creating tracking commands")
 }
 
 func (mgr *LearningManager) NewTrackingData(trackerID int, scanRes []*models.ScanResult) (err error) {

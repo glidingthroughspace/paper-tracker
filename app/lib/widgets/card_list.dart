@@ -26,7 +26,6 @@ class CardList<T> extends StatelessWidget {
           contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
           title: Text(
             title,
-            style: TextStyle(color: Colors.white),
           ),
           trailing: Icon(
             Icons.keyboard_arrow_right,

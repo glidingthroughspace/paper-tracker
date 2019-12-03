@@ -1,7 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/model/room.dart';
+import 'package:paper_tracker/pages/learning_page.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/label.dart';
@@ -55,16 +54,13 @@ class _RoomPageState extends State<RoomPage> {
         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
         columnWidths: {0: FractionColumnWidth(0.3)},
         children: [
-          TableRow(
-            children: [
-              TableCell(child: Label("Label: ")),
-              TextFormField(
-                controller: labelEditController,
-                readOnly: !isEditing,
-                style: TextStyle(color: Colors.white),
-              ),
-            ],
-          ),
+          TableRow(children: [
+            TableCell(child: Label("Label: ")),
+            TextFormField(
+              controller: labelEditController,
+              readOnly: !isEditing,
+            ),
+          ]),
           TableRow(children: [
             TableCell(child: Label("Is Learned: ")),
             TableCell(
@@ -74,13 +70,13 @@ class _RoomPageState extends State<RoomPage> {
                   Icon(room.isLearned ? Icons.check : Icons.close, color: Colors.white),
                   MaterialButton(
                     child: Text(room.isLearned ? "Relearn" : "Learn now"),
-                    onPressed: () {},
+                    onPressed: () => Navigator.of(context).pushNamed(LearningPage.Route, arguments: LearningPageParams(roomID: room.id)),
                     color: Theme.of(context).accentColor,
                   ),
                 ],
               ),
             ),
-          ])
+          ]),
         ],
       ),
     );

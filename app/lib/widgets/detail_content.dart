@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:paper_tracker/widgets/conditional_builder.dart';
 
 class DetailContent extends StatelessWidget {
   final IconData iconData;
@@ -12,14 +13,14 @@ class DetailContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
       body: Column(
-        children: [
-          buildTopContent(context),
-          content
-        ],
+        children: [buildTopContent(context), content],
       ),
-      bottomNavigationBar: buildBottomNavigation(context),
+      bottomNavigationBar: ConditionalBuilder(
+        conditional: bottomButtons != null,
+        truthy: buildBottomNavigation(context),
+        falsy: Container(width: 0, height: 0),
+      ),
     );
   }
 
@@ -33,11 +34,7 @@ class DetailContent extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(
-                iconData,
-                color: Theme.of(context).accentColor,
-                size: 40.0,
-              ),
+              Icon(iconData, size: 40.0),
               SizedBox(width: 15.0),
               Expanded(
                 child: AutoSizeText(
@@ -45,7 +42,6 @@ class DetailContent extends StatelessWidget {
                   maxLines: 1,
                   style: TextStyle(
                     fontSize: 45.0,
-                    color: Colors.white,
                   ),
                 ),
               ),
@@ -73,7 +69,7 @@ class DetailContent extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 10.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: bottomButtons,
+            children: bottomButtons != null ? bottomButtons : [],
           ),
         ),
       ),
