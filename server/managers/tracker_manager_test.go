@@ -62,7 +62,7 @@ var _ = Describe("TrackerManager", func() {
 	})
 
 	Context("Test NotifyNewTracker", func() {
-		outTracker := &models.Tracker{Label: "New Tracker"}
+		outTracker := &models.Tracker{Label: "New Tracker", Status: models.StatusIdle}
 
 		It("NotifyNewTracker calls create in rep exactly once", func() {
 			mockTrackerRep.EXPECT().Create(outTracker).Return(nil).Times(1)
