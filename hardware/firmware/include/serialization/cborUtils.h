@@ -5,7 +5,7 @@
 #include <CBOR_parsing.h>
 #include <CBOR_streams.h>
 
-#define MAX_KEY_LENGHT 64
+#define MAX_KEY_LENGTH 64
 
 namespace cbor = ::qindesign::cbor;
 
