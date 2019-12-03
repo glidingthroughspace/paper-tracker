@@ -15,6 +15,7 @@ WIFI::WIFI() {
   // This improves performance. WiFi credentials are hard-coded when flashing,
   // therefore storing them again in flash does not make sense.
   WiFi.persistent(false);
+  WiFi.disconnect();
 }
 
 WIFI::~WIFI() {
@@ -28,6 +29,7 @@ WiFiUDP& WIFI::getUDP() {
 bool WIFI::connect(const char* ssid, const char* password) {
   log("Connecting to WiFi SSID ");
   logln(ssid);
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   return connectLoop();
 }
@@ -57,7 +59,7 @@ bool WIFI::connect(const char* ssid, const char* username, const char* password)
 
 bool WIFI::connectLoop() {
   while(WiFi.status() != WL_CONNECTED) {
-    log('.');
+    log(WiFi.status());
     delay(WIFI_CONNECTION_DELAY);
   }
   logln();

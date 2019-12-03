@@ -11,7 +11,7 @@ namespace cbor = ::qindesign::cbor;
 
 class CBORDocument {
   public:
-    static CBORDocument fromBuffer(uint8_t* buf, size_t buflen);
+    CBORDocument(uint8_t* buf, size_t buflen);
     bool advance();
     bool isWellformedModel();
     char* findNextKey();
@@ -21,7 +21,6 @@ class CBORDocument {
     bool readUnsignedInt(uint8_t& target);
   private:
     bool isAtEOF() const;
-    CBORDocument(cbor::BytesStream, cbor::Reader);
     cbor::BytesStream bs;
     cbor::Reader reader;
     cbor::DataType nextDataType;

@@ -1,13 +1,7 @@
 #include <serialization/cborUtils.h>
 #include <log.h>
 
-CBORDocument CBORDocument::fromBuffer(uint8_t* buf, size_t buflen) {
-  cbor::BytesStream bs{buf, buflen};
-  cbor::Reader reader{bs};
-  return CBORDocument(bs, reader);
-}
-
-CBORDocument::CBORDocument(cbor::BytesStream bs, cbor::Reader reader) : bs{bs}, reader{reader} {
+CBORDocument::CBORDocument(uint8_t* buf, size_t buflen) : bs{buf, buflen}, reader{bs} {
 
 }
 
