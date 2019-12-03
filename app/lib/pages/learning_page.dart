@@ -55,14 +55,11 @@ class _LearningPageState extends State<LearningPage> {
                 color: Theme.of(context).accentColor,
                 minWidth: MediaQuery.of(context).size.width * 0.8,
               ),
-              falsy: SizedBox(
-                height: 30.0,
-                child: CountdownTimer(
-                  duration: Duration(seconds: learnDuration),
-                  backgroundColor: Theme.of(context).cardColor,
-                  color: Theme.of(context).accentColor,
-                  onComplete: () => print("COMPLETE!"),
-                ),
+              falsy: CountdownTimer(
+                duration: Duration(seconds: learnDuration),
+                backgroundColor: Theme.of(context).cardColor,
+                color: Theme.of(context).accentColor,
+                onComplete: () => print("COMPLETE!"),
               ),
             ),
           ],
