@@ -39,7 +39,7 @@ char* CBORDocument::findNextKey() {
     return nullptr;
   }
   auto bytesAvailable = reader.bytesAvailable();
-  if (bytesAvailable > MAX_KEY_LENGHT - 1) {
+  if (bytesAvailable > MAX_KEY_LENGTH - 1) {
     logln("Key is too large to read");
     return nullptr;
   }
