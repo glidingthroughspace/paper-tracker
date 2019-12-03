@@ -4,7 +4,7 @@
 #include <serialization/cborUtils.h>
 
 bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
-  auto cbor = CBORDocument::fromBuffer(buffer, bufferSize);
+  auto cbor = CBORDocument(buffer, bufferSize);
 
   bool parsedType = false;
   bool parsedSleepTime = false; 
@@ -14,20 +14,17 @@ bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
     return false;
   }
 
-  while(!cbor.advance()) {
+  while(cbor.advance()) {
     auto key = cbor.findNextKey();
     if (key == nullptr) {
       logln("Unexpected token in CBOR input, continuing with next token");
       continue;
     }
+
     if (strcmp(key, k_type) == 0) {
-      if (!parseType(cbor))
-        return false;
-      parsedType = true;
+      parsedType = parseType(cbor);
     } else if (strcmp(key, k_sleepTimeSec) == 0) {
-      if (!parseSleepTime(cbor))
-        return false;
-      parsedSleepTime = true;
+      parsedSleepTime = parseSleepTime(cbor);
     } else {
       log("Command data has unknown key ");
       logln(key);

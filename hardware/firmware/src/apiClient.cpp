@@ -20,6 +20,8 @@ bool ApiClient::loop() {
 
 void ApiClient::requestNextCommand(std::function<void(Command&)> callback) {
   logln("Requesting next action from server");
+  // FIXME: It is possible for the server to answer so quickly that the response callback is not
+  // registered yet
   uint16_t messageID = coap.get(serverIP, 5688, "tracker/poll", "trackerid=1");
   storeCallback(messageID, [&] (CoapPacket& packet) {
     if (ApiClient::isErrorResponse(packet)) {
@@ -74,7 +76,7 @@ void ApiClient::storeCallback(uint16_t messageID, coap_callback callback) {
     logln("Sending the message failed");
     return;
   }
-  log("Message has ID");
+  log("Message has ID ");
   logln(messageID);
   callbacks[messageID] = callback;
 }

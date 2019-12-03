@@ -18,14 +18,14 @@
 TinyPICO tinypico = TinyPICO();
 WIFI wifi;
 ScanResult scanResultBuffer[SCAN_RESULT_BUFFER_SIZE];
-ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,43,111));
+ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,43,91));
 
 uint8_t bytes[SCAN_RESULT_BUFFER_SIZE * SCAN_RESULT_SIZE_BYTES + SCAN_RESULT_MESSAGE_OVERHEAD]{0};
 
 void haltIf(bool condition, const char* message);
 void enablePowersavings(void);
 
-void onCommandReceived(Command& command) {
+static void onCommandReceived(Command& command) {
   log("Next Command is ");
   log((uint8_t) command.getType());
   log(" and sleep time in seconds is ");
