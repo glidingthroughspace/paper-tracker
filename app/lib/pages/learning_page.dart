@@ -61,13 +61,12 @@ class _LearningPageState extends State<LearningPage> {
           items: roomList.map((room) => DropdownMenuItem(value: room, child: Text(room.label))).toList(),
           value: selectedRoom,
           isExpanded: true,
-          style: TextStyle(color: Colors.white),
           onChanged: (value) {
             setState(() {
               selectedRoom = value;
             });
           },
-          hint: Text("Please select a room", style: TextStyle(color: Colors.white)),
+          hint: Text("Please select a room"),
         );
       },
     );
@@ -90,14 +89,13 @@ class _LearningPageState extends State<LearningPage> {
                   ))
               .toList(),
           value: selectedTracker,
-          style: TextStyle(color: Colors.white),
           isExpanded: true,
           onChanged: (value) {
             setState(() {
               selectedTracker = value;
             });
           },
-          hint: Text("Please select a tracker", style: TextStyle(color: Colors.white)),
+          hint: Text("Please select a tracker"),
         );
       },
     );

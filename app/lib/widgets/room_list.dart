@@ -34,7 +34,6 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
                 Map.fromIterable(roomList, key: (room) => room.label, value: (room) => room);
 
             return Scaffold(
-              backgroundColor: Theme.of(context).backgroundColor,
               body: CardList<Room>(
                 titleObjectMap: titleObjectMap,
                 onTap: onTapRoom,
@@ -62,7 +61,6 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
 
   Widget buildAddRoomDialog(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Theme.of(context).backgroundColor,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -70,7 +68,6 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
             "Add Room",
             style: TextStyle(
               fontSize: 20.0,
-              color: Colors.white,
             ),
           ),
           Padding(
@@ -83,7 +80,6 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
               labelText: "Room Label",
               enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
               focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
-              labelStyle: TextStyle(color: Colors.white),
             ),
           ),
         ],

@@ -13,14 +13,13 @@ class DetailContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
       body: Column(
         children: [buildTopContent(context), content],
       ),
       bottomNavigationBar: ConditionalBuilder(
         conditional: bottomButtons != null,
         truthy: buildBottomNavigation(context),
-        falsy: Text("Bla"),
+        falsy: Text(""),
       ),
     );
   }
@@ -35,11 +34,7 @@ class DetailContent extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(
-                iconData,
-                color: Theme.of(context).accentColor,
-                size: 40.0,
-              ),
+              Icon(iconData, size: 40.0),
               SizedBox(width: 15.0),
               Expanded(
                 child: AutoSizeText(
@@ -47,7 +42,6 @@ class DetailContent extends StatelessWidget {
                   maxLines: 1,
                   style: TextStyle(
                     fontSize: 45.0,
-                    color: Colors.white,
                   ),
                 ),
               ),

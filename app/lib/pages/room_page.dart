@@ -61,7 +61,6 @@ class _RoomPageState extends State<RoomPage> {
             TextFormField(
               controller: labelEditController,
               readOnly: !isEditing,
-              style: TextStyle(color: Colors.white),
             ),
           ]),
           TableRow(children: [
