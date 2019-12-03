@@ -1,0 +1,23 @@
+# This workflow will run the flutter app's tests and build the APK
+
+name: App
+on: [pull_request, push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Setup Java
+      uses: actions/setup-java@v1
+      with:
+        java-version: '12.x'
+    - name: Test and Build
+      uses: subosito/flutter-action@v1
+      with:
+        channel: 'stable'
+      working-directory: ./app
+      - run: flutter pub get
+      - run: flutter test
+      - run: flutter build apk
