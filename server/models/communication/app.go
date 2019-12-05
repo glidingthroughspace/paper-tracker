@@ -5,6 +5,11 @@ type LearningStartResponse struct {
 }
 
 type LearningStatusResponse struct {
-	Done  bool
-	SSIDs []string
+	Done  bool     `json:"done"`
+	SSIDs []string `json:"ssids"`
+}
+
+type LearningFinishRequest struct {
+	RoomID int      `json:"room_id"`
+	SSIDs  []string `json:"ssids"`
 }

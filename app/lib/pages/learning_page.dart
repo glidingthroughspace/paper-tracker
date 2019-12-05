@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/tracker_client.dart';
@@ -20,6 +22,8 @@ class _LearningPageState extends State<LearningPage> {
   var roomClient = RoomClient();
   Future<List<Room>> rooms;
   Future<List<Tracker>> tracker;
+  bool countdownDone = false;
+  Timer ssidTimer;
 
   var state = _learningState.Init;
   Room selectedRoom;
@@ -37,12 +41,24 @@ class _LearningPageState extends State<LearningPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    ssidTimer?.cancel();
+  }
+
+  @override
   Widget build(BuildContext context) {
     LearningPageParams params = ModalRoute.of(context).settings.arguments;
 
     return DetailContent(
       title: "Learn Room",
       iconData: Icons.school,
+      bottomButtons: [
+        IconButton(
+          icon: Icon(Icons.check),
+          onPressed: state == _learningState.Finished ? onSave : null,
+        ),
+      ],
       content: Container(
         padding: EdgeInsets.all(15.0),
         child: Column(
@@ -50,27 +66,31 @@ class _LearningPageState extends State<LearningPage> {
             buildRoomDropdown(params),
             buildTrackerDropdown(params),
             SizedBox(height: 15.0),
-            ConditionalBuilder(
-              conditional: state == _learningState.Init,
-              truthy: MaterialButton(
-                onPressed: onStartLearning,
-                child: Text("Start learning"),
-                color: Theme.of(context).accentColor,
-                minWidth: MediaQuery.of(context).size.width * 0.8,
-              ),
-              falsy: CountdownTimer(
-                duration: Duration(seconds: learnDuration),
-                backgroundColor: Theme.of(context).cardColor,
-                color: Theme.of(context).accentColor,
-                onComplete: () => print("COMPLETE!"),
-              ),
-            ),
-            CheckCardList(
-              controller: checkCardListController,
-              titles: ["Test1", "Test2"],
-            ),
+            buildButtonOrCountdown(context),
+            SizedBox(height: 15.0),
+            ...buildSSIDList()
           ],
         ),
+      ),
+    );
+  }
+
+  ConditionalBuilder buildButtonOrCountdown(BuildContext context) {
+    return ConditionalBuilder(
+      conditional: state == _learningState.Init,
+      truthy: MaterialButton(
+        onPressed: onStartLearning,
+        child: Text("Start learning"),
+        color: Theme.of(context).accentColor,
+        minWidth: MediaQuery.of(context).size.width * 0.8,
+      ),
+      falsy: CountdownTimer(
+        duration: Duration(seconds: learnDuration),
+        backgroundColor: Theme.of(context).cardColor,
+        color: Theme.of(context).accentColor,
+        onComplete: () {
+          countdownDone = true;
+        },
       ),
     );
   }
@@ -131,12 +151,47 @@ class _LearningPageState extends State<LearningPage> {
     );
   }
 
+  List<Widget> buildSSIDList() {
+    if (state == _learningState.Init) {
+      return [];
+    }
+
+    return [
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          "Found SSIDs:",
+          style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.left,
+        ),
+      ),
+      CheckCardList(
+        controller: checkCardListController,
+      ),
+    ];
+  }
+
   void onStartLearning() async {
     var resp = await trackerClient.startLearning(selectedTracker.id);
     setState(() {
       state = _learningState.Running;
       learnDuration = resp.learnTimeSec;
     });
+    ssidTimer = Timer.periodic(Duration(seconds: 1), getLearnStatus);
+  }
+
+  void getLearnStatus(Timer t) async {
+    var resp = await trackerClient.getLearningStatus(selectedTracker.id);
+    setState(() {
+      checkCardListController.updateFromTitles(resp.ssids);
+      if (resp.done && countdownDone) {
+        state = _learningState.Finished;
+      }
+    });
+  }
+
+  void onSave() {
+
   }
 }
 

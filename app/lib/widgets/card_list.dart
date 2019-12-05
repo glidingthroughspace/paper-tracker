@@ -24,14 +24,23 @@ class CardList<T> extends StatelessWidget {
 }
 
 class CheckCardListController {
-  Map<String, bool> contentMap;
+  Map<String, bool> contentMap = Map();
 
   void flipState(String title) {
     contentMap[title] = !contentMap[title];
   }
 
   void fromTitles(List<String> titles) {
-    contentMap = titles.asMap().map((_, title) => MapEntry(title, false));
+    if (titles != null)
+      contentMap = titles.asMap().map((_, title) => MapEntry(title, false));
+  }
+
+  void updateFromTitles(List<String> titles) {
+    for (var title in titles) {
+      if (!contentMap.containsKey(title)) {
+        contentMap[title] = false;
+      }
+    }
   }
 }
 
@@ -39,7 +48,7 @@ class CheckCardList extends StatefulWidget {
   final List<String> titles;
   final CheckCardListController controller;
 
-  const CheckCardList({Key key, @required this.titles, @required this.controller}) : super(key: key);
+  const CheckCardList({Key key, this.titles, @required this.controller}) : super(key: key);
 
   @override
   _CheckCardListState createState() => _CheckCardListState();
