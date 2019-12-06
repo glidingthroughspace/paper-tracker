@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:paper_tracker/client/api_client.dart';
+import 'package:paper_tracker/model/communication/learningFinishRequest.dart';
 import 'package:paper_tracker/model/communication/learningStartResponse.dart';
 import 'package:paper_tracker/model/communication/learningStatusResponse.dart';
 import 'package:paper_tracker/model/tracker.dart';
@@ -33,6 +34,15 @@ class TrackerClient {
       return LearningStatusResponse.fromJson(json.decode(response.body));
     } else {
       throw Exception("Failed to get learning status");
+    }
+  }
+
+  Future<void> finishLearning(int trackerID, int roomID, List<String> ssids) async {
+    final response = await apiClient.post("/tracker/$trackerID/learn/finish", json.encode(LearningFinishRequest(roomID: roomID, ssids: ssids).toJson()));
+    if (response.statusCode == 200) {
+      return;
+    } else {
+      throw Exception("Failed to finish learning");
     }
   }
 }

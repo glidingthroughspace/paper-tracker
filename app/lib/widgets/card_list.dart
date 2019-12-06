@@ -14,7 +14,10 @@ class CardList<T> extends StatelessWidget {
       color: Colors.white,
       size: 30.0,
     );
-    var listChildren = titleObjectMap.map((label, object) => MapEntry(_buildCard(context, label, icon, object, onTap, 10.0), null)).keys.toList();
+    var listChildren = titleObjectMap
+        .map((label, object) => MapEntry(_buildCard(context, label, icon, object, onTap, 10.0), null))
+        .keys
+        .toList();
     return ListView(
       padding: EdgeInsets.only(top: 15.0),
       children: listChildren,
@@ -31,8 +34,7 @@ class CheckCardListController {
   }
 
   void fromTitles(List<String> titles) {
-    if (titles != null)
-      contentMap = titles.asMap().map((_, title) => MapEntry(title, false));
+    if (titles != null) contentMap = titles.asMap().map((_, title) => MapEntry(title, false));
   }
 
   void updateFromTitles(List<String> titles) {
@@ -41,6 +43,10 @@ class CheckCardListController {
         contentMap[title] = false;
       }
     }
+  }
+
+  List<String> get checked {
+    return contentMap.map((key, value) => value ? MapEntry(key, value) : null).keys.toList();
   }
 }
 
@@ -55,7 +61,6 @@ class CheckCardList extends StatefulWidget {
 }
 
 class _CheckCardListState extends State<CheckCardList> {
-
   @override
   void initState() {
     super.initState();
@@ -64,7 +69,11 @@ class _CheckCardListState extends State<CheckCardList> {
 
   @override
   Widget build(BuildContext context) {
-    var listChildren = widget.controller.contentMap.map((title, checked) => MapEntry(_buildCard(context, title, Checkbox(value: checked, onChanged: null), title, onTap, 0.0), null)).keys.toList();
+    var listChildren = widget.controller.contentMap
+        .map((title, checked) =>
+            MapEntry(_buildCard(context, title, Checkbox(value: checked, onChanged: null), title, onTap, 0.0), null))
+        .keys
+        .toList();
     return ListView(
       padding: EdgeInsets.only(top: 15.0),
       children: listChildren,
@@ -79,7 +88,8 @@ class _CheckCardListState extends State<CheckCardList> {
   }
 }
 
-Card _buildCard<T>(BuildContext context, String title, Widget trailing, T object, void Function(T) onTap, double verticalPadding) {
+Card _buildCard<T>(
+    BuildContext context, String title, Widget trailing, T object, void Function(T) onTap, double verticalPadding) {
   return Card(
     elevation: 8.0,
     margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),

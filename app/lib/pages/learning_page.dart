@@ -190,8 +190,9 @@ class _LearningPageState extends State<LearningPage> {
     });
   }
 
-  void onSave() {
-
+  void onSave() async {
+    ssidTimer.cancel();
+    await trackerClient.finishLearning(selectedTracker.id, selectedRoom.id, checkCardListController.checked);
   }
 }
 
