@@ -94,3 +94,104 @@ bool CBORDocument::readUnsignedInt(uint8_t& target) {
   target = static_cast<uint8_t>(targetBuffer);
   return true;
 }
+
+template <typename T>
+void CBORValue<T>::writeKeyTo(cbor::Writer& cbor) {
+  cbor.beginText(keylen);
+  cbor.writeBytes((uint8_t*)(m_key), keylen);
+}
+
+template <typename T>
+void CBORValue<T>::serializeTo(cbor::Writer& cbor) {
+  log("Cannot serialize value with key ");
+  log(key);
+  logln(" because it is of an unknown type");
+}
+
+// Specializations of the serializeTo method follow
+
+template <>
+void CBORValue<uint8_t>::serializeTo(cbor::Writer& cbor) {
+  writeKeyTo(cbor);
+  cbor.writeUnsignedInt(value);
+}
+
+template <>
+void CBORValue<uint16_t>::serializeTo(cbor::Writer& cbor) {
+  writeKeyTo(cbor);
+  cbor.writeUnsignedInt(value);
+}
+
+template <>
+void CBORValue<uint32_t>::serializeTo(cbor::Writer& cbor) {
+  writeKeyTo(cbor);
+  cbor.writeUnsignedInt(value);
+}
+
+template <>
+void CBORValue<uint64_t>::serializeTo(cbor::Writer& cbor) {
+  writeKeyTo(cbor);
+  cbor.writeUnsignedInt(value);
+}
+
+template <>
+void CBORValue<int>::serializeTo(cbor::Writer& cbor) {
+  writeKeyTo(cbor);
+  cbor.writeInt(value);
+}
+
+template <>
+void CBORValue<const char*>::serializeTo(cbor::Writer& cbor) {
+  writeKeyTo(cbor);
+  auto valuelen = strlen(value);
+  cbor.beginText(valuelen);
+  cbor.writeBytes((uint8_t*)(value), valuelen);
+}
+
+// Generic implementation
+
+template <typename T>
+bool CBORValue<T>::deserializeFrom(CBORDocument& cbor) {
+  log("Cannot deserialize value with key ");
+  log(key);
+  logln(" because it is of an unknown type");
+  return false;
+}
+
+// Specializations
+
+template <>
+bool CBORValue<uint64_t>::deserializeFrom(CBORDocument& cbor) {
+  if (!cbor.readUnsignedInt(value)) {
+    logln("Expected a 64 bit unsigned int when reading sleep time, but got something else");
+    return false;
+  }
+  return true;
+}
+
+template <>
+bool CBORValue<uint32_t>::deserializeFrom(CBORDocument& cbor) {
+  if (!cbor.readUnsignedInt(value)) {
+    logln("Expected a 32 bit unsigned int when reading sleep time, but got something else");
+    return false;
+  }
+  return true;
+}
+
+template <>
+bool CBORValue<uint16_t>::deserializeFrom(CBORDocument& cbor) {
+  if (!cbor.readUnsignedInt(value)) {
+    logln("Expected a 16 bit unsigned int when reading sleep time, but got something else");
+    return false;
+  }
+  return true;
+}
+
+template <>
+bool CBORValue<uint8_t>::deserializeFrom(CBORDocument& cbor) {
+  if (!cbor.readUnsignedInt(value)) {
+    logln("Expected a 8 bit unsigned int when reading sleep time, but got something else");
+    return false;
+  }
+  return true;
+}
