@@ -26,14 +26,10 @@ class _TrackerPageState extends State<TrackerPage> {
     return FutureBuilder(
       future: futureTracker,
       builder: (context, snapshot) {
-        var title = "";
-        if (snapshot.hasData) {
-          Tracker tracker = snapshot.data;
-          title = tracker.label;
-        }
+        Tracker tracker = snapshot.data;
 
         return DetailContent(
-          title: title,
+          title: tracker != null ? tracker.label : "",
           iconData: Tracker.IconData,
           bottomButtons: buildBottomButtons(),
           content: Text("Tracker"),

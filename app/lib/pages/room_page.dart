@@ -17,52 +17,58 @@ class _RoomPageState extends State<RoomPage> {
   var isEditing = false;
   var labelEditController = TextEditingController();
   var roomClient = RoomClient();
+  int roomID;
+  Future<Room> futureRoom;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    roomID = ModalRoute.of(context).settings.arguments;
+    futureRoom = roomClient.getRoomByID(roomID);
+    futureRoom.then((room) => labelEditController.text = room.label);
+  }
 
   @override
   Widget build(BuildContext context) {
-    var roomID = ModalRoute.of(context).settings.arguments;
-    var futureRoom = roomClient.getRoomByID(roomID);
+    futureRoom = roomClient.getRoomByID(roomID);
 
     return FutureBuilder(
       future: futureRoom,
       builder: (context, snapshot) {
-        var title = "";
         Widget content;
+        Room room = snapshot.data;
         if (snapshot.hasData) {
-          Room room = snapshot.data;
-          labelEditController.text = room.label;
-          title = room.label;
           content = buildContent(room);
         } else {
           content = CircularProgressIndicator();
         }
 
         return DetailContent(
-          title: title,
+          title: room != null ? room.label : "",
           iconData: Room.IconData,
-          bottomButtons: buildBottomButtons(),
+          bottomButtons: buildBottomButtons(room),
           content: content,
         );
       },
     );
   }
 
-  List<Widget> buildBottomButtons() {
+  List<Widget> buildBottomButtons(Room room) {
     return [
       ConditionalBuilder(
         conditional: isEditing,
         truthy: IconButton(
           icon: Icon(Icons.save, color: Colors.white),
-          onPressed: () => setEditing(false),
+          onPressed: () => setEditing(room, false),
         ),
         falsy: IconButton(
           icon: Icon(Icons.edit, color: Colors.white),
-          onPressed: () => setEditing(true),
+          onPressed: () => setEditing(room, true),
         ),
       ),
       IconButton(
         icon: Icon(Icons.delete_forever, color: Colors.white),
-        onPressed: () {},
+        onPressed: () => delete(room),
       ),
     ];
   }
@@ -102,10 +108,16 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
-  void setEditing(bool edit) {
-    if (edit == false) {
-      // => Saving
+  void setEditing(Room room, bool edit) async {
+    if (edit == false && room != null) {
+      room.label = labelEditController.text;
+      await roomClient.updateRoom(room);
+      futureRoom = roomClient.getRoomByID(roomID);
     }
     setState(() => isEditing = edit);
+  }
+
+  void delete(Room room) async {
+
   }
 }
