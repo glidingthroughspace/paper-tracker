@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:tuple/tuple.dart';
 
 class CardList<T> extends StatelessWidget {
-  final Map<String, T> titleObjectMap;
+  final List<Tuple2<String, T>> titleObjectList;
   final void Function(T) onTap;
   final IconData iconData;
 
-  CardList({this.titleObjectMap, this.onTap, this.iconData});
+  CardList({this.titleObjectList, this.onTap, this.iconData});
 
   @override
   Widget build(BuildContext context) {
@@ -14,10 +15,8 @@ class CardList<T> extends StatelessWidget {
       color: Colors.white,
       size: 30.0,
     );
-    var listChildren = titleObjectMap
-        .map((label, object) => MapEntry(_buildCard(context, label, icon, object, onTap, 10.0), null))
-        .keys
-        .toList();
+    var listChildren =
+        titleObjectList.map((tuple) => _buildCard(context, tuple.item1, icon, tuple.item2, onTap, 10.0)).toList();
     return ListView(
       padding: EdgeInsets.only(top: 15.0),
       children: listChildren,

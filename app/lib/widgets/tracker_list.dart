@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/pages/tracker_page.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
+import 'package:tuple/tuple.dart';
 
 import '../client/tracker_client.dart';
 import '../model/tracker.dart';
@@ -29,10 +30,10 @@ class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClient
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Tracker> trackerList = snapshot.data;
-            Map<String, Tracker> titleObjectMap =
-                Map.fromIterable(trackerList, key: (tracker) => tracker.label, value: (tracker) => tracker);
+            List<Tuple2<String, Tracker>> titleObjectList =
+                trackerList.map((tracker) => Tuple2(tracker.label, tracker)).toList();
             return CardList<Tracker>(
-              titleObjectMap: titleObjectMap,
+              titleObjectList: titleObjectList,
               onTap: (tracker) => Navigator.of(context).pushNamed(TrackerPage.Route, arguments: tracker.id),
               iconData: Icons.keyboard_arrow_right,
             );

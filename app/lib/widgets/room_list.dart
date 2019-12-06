@@ -3,6 +3,7 @@ import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/pages/room_page.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
+import 'package:tuple/tuple.dart';
 
 class RoomList extends StatefulWidget {
   RoomList({Key key}) : super(key: key);
@@ -28,12 +29,11 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Room> roomList = snapshot.data;
-            Map<String, Room> titleObjectMap =
-                Map.fromIterable(roomList, key: (room) => room.label, value: (room) => room);
+            List<Tuple2<String, Room>> titleObjectList = roomList.map((room) => Tuple2(room.label, room)).toList();
 
             return Scaffold(
               body: CardList<Room>(
-                titleObjectMap: titleObjectMap,
+                titleObjectList: titleObjectList,
                 onTap: onTapRoom,
                 iconData: Icons.keyboard_arrow_right,
               ),
