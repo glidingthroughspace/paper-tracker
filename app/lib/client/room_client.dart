@@ -40,4 +40,10 @@ class RoomClient {
     await getAllRooms(refresh: true);
     return res;
   }
+
+  Future<void> deleteRoom(int id) async {
+    var res = await apiClient.delete("/room/$id");
+    await getAllRooms(refresh: true);
+    return res;
+  }
 }
