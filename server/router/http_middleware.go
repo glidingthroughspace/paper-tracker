@@ -15,6 +15,6 @@ func extractID() gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
-		ctx.Set(ginID, id)
+		ctx.Set(httpParamIDName, id)
 	}
 }

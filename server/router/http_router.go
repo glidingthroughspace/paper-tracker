@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	ginID = "id"
+	httpParamIDName = "id"
 )
 
 type HttpRouter struct {
