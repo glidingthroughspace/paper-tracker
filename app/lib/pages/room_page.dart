@@ -118,6 +118,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void delete(Room room) async {
-
+    await roomClient.deleteRoom(room.id);
+    Navigator.of(context).pop();
   }
 }

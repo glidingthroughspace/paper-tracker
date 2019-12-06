@@ -15,6 +15,7 @@ func (r *HttpRouter) buildAppRoomAPIRoutes() {
 	room.GET("", r.roomListHandler())
 	room.POST("", r.roomCreateHandler())
 	room.PUT("/:id", extractID(), r.roomUpdateHandler())
+	room.DELETE("/:id", extractID(), r.roomDeleteHandler())
 }
 
 func (r *HttpRouter) roomListHandler() gin.HandlerFunc {
@@ -61,6 +62,19 @@ func (r *HttpRouter) roomUpdateHandler() gin.HandlerFunc {
 		room.ID = roomID
 
 		err = managers.GetRoomManager().UpdateRoom(room)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			return
+		}
+		ctx.Status(http.StatusOK)
+	}
+}
+
+func (r *HttpRouter) roomDeleteHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		roomID := ctx.GetInt(httpParamIDName)
+
+		err := managers.GetRoomManager().DeleteRoom(roomID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			return
