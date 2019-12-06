@@ -5,15 +5,30 @@ import 'package:paper_tracker/model/room.dart';
 
 class RoomClient {
   var apiClient = APIClient();
+  static Future<List<Room>> futureRooms;
 
-  Future<List<Room>> fetchRooms() async {
+  Future<List<Room>> getAllRooms({bool refresh = false}) async {
+    if (futureRooms != null && !refresh) {
+      return futureRooms;
+    }
+
     final response = await apiClient.get("/room");
     if (response.statusCode == 200) {
       final rawList = json.decode(response.body) as List;
-      return rawList.map((i) => Room.fromJson(i)).toList();
+      futureRooms = Future.value(rawList.map((i) => Room.fromJson(i)).toList());
+      return futureRooms;
     } else {
       throw Exception("Failed to load trackers");
     }
+  }
+
+  Future<Room> getRoomByID(int id, {bool refresh = false}) async {
+    if (futureRooms == null || refresh) {
+      getAllRooms(refresh: true);
+    }
+
+    var rooms = await futureRooms;
+    return rooms.firstWhere((room) => room.id == id);
   }
 
   Future<void> addRoom(Room room) async {

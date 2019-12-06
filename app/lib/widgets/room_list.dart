@@ -3,6 +3,7 @@ import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/pages/room_page.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
+import 'package:tuple/tuple.dart';
 
 class RoomList extends StatefulWidget {
   RoomList({Key key}) : super(key: key);
@@ -14,29 +15,27 @@ class RoomList extends StatefulWidget {
 class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin {
   var roomLabelEditController = TextEditingController();
   var roomClient = RoomClient();
-  Future<List<Room>> rooms;
 
   @override
   void initState() {
     super.initState();
-    fetchTrackers();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return FutureBuilder(
-        future: rooms,
+        future: roomClient.getAllRooms(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Room> roomList = snapshot.data;
-            Map<String, Room> titleObjectMap =
-                Map.fromIterable(roomList, key: (room) => room.label, value: (room) => room);
+            List<Tuple2<String, Room>> titleObjectList = roomList.map((room) => Tuple2(room.label, room)).toList();
 
             return Scaffold(
               body: CardList<Room>(
-                titleObjectMap: titleObjectMap,
+                titleObjectList: titleObjectList,
                 onTap: onTapRoom,
+                iconData: Icons.keyboard_arrow_right,
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: onAddRoomButton,
@@ -97,19 +96,14 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
     var room = Room(label: roomLabelEditController.text);
     await roomClient.addRoom(room);
 
-    fetchTrackers();
+    await roomClient.getAllRooms(refresh: true);
     Navigator.of(context).pop();
-  }
-
-  void fetchTrackers() {
-    rooms = roomClient.fetchRooms();
   }
 
   @override
   bool get wantKeepAlive => true;
 
   void onTapRoom(Room room) async {
-    await Navigator.of(context).pushNamed(RoomPage.Route, arguments: room);
-    fetchTrackers();
+    await Navigator.of(context).pushNamed(RoomPage.Route, arguments: room.id);
   }
 }

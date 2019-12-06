@@ -128,7 +128,7 @@ func (mgr *LearningManager) newLearningTrackingData(trackerID int, scanRes []*mo
 	return
 }
 
-func (mgr *LearningManager) FinishLearning(trackerID, roomID int) (err error) {
+func (mgr *LearningManager) FinishLearning(trackerID, roomID int, ssids []string) (err error) {
 	finishLearningLog := log.WithFields(log.Fields{"trackerID": trackerID, "roomID": roomID})
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)

@@ -67,6 +67,7 @@ class _AnimatedCountdownTimer extends AnimatedWidget {
             value: animation.value,
           ),
         ),
+        SizedBox(height: 5.0),
         Text("$countdownString"),
       ],
     );

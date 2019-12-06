@@ -15,8 +15,8 @@ Tracker _$TrackerFromJson(Map<String, dynamic> json) {
           : DateTime.parse(json['last_poll'] as String),
       lastSleepTime: json['last_sleep_time'] == null
           ? null
-          : DateTime.parse(json['last_sleep_time'] as String))
-    ..status = _$enumDecodeNullable(_$TrackerStatusEnumMap, json['status']);
+          : DateTime.parse(json['last_sleep_time'] as String),
+      status: _$enumDecodeNullable(_$TrackerStatusEnumMap, json['status']));
 }
 
 Map<String, dynamic> _$TrackerToJson(Tracker instance) => <String, dynamic>{

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:paper_tracker/client/tracker_client.dart';
 import 'package:paper_tracker/model/tracker.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
@@ -12,34 +13,53 @@ class TrackerPage extends StatefulWidget {
 
 class _TrackerPageState extends State<TrackerPage> {
   var isEditing = false;
-  Tracker tracker;
+  var trackerClient = TrackerClient();
 
   @override
   Widget build(BuildContext context) {
-    tracker = ModalRoute.of(context).settings.arguments;
+    var trackerID = ModalRoute
+        .of(context)
+        .settings
+        .arguments;
+    var futureTracker = trackerClient.getTrackerByID(trackerID);
 
-    return DetailContent(
-      title: tracker.label,
-      iconData: Tracker.IconData,
-      bottomButtons: [
-        ConditionalBuilder(
-          conditional: isEditing,
-          truthy: IconButton(
-            icon: Icon(Icons.save, color: Colors.white),
-            onPressed: () => setEditing(false),
-          ),
-          falsy: IconButton(
-            icon: Icon(Icons.edit, color: Colors.white),
-            onPressed: () => setEditing(true),
-          ),
-        ),
-        IconButton(
-          icon: Icon(Icons.delete_forever, color: Colors.white),
-          onPressed: () {},
-        ),
-      ],
-      content: Text("Tracker"),
+    return FutureBuilder(
+      future: futureTracker,
+      builder: (context, snapshot) {
+        var title = "";
+        if (snapshot.hasData) {
+          Tracker tracker = snapshot.data;
+          title = tracker.label;
+        }
+
+        return DetailContent(
+          title: title,
+          iconData: Tracker.IconData,
+          bottomButtons: buildBottomButtons(),
+          content: Text("Tracker"),
+        );
+      },
     );
+  }
+
+  List<Widget> buildBottomButtons() {
+    return [
+      ConditionalBuilder(
+        conditional: isEditing,
+        truthy: IconButton(
+          icon: Icon(Icons.save, color: Colors.white),
+          onPressed: () => setEditing(false),
+        ),
+        falsy: IconButton(
+          icon: Icon(Icons.edit, color: Colors.white),
+          onPressed: () => setEditing(true),
+        ),
+      ),
+      IconButton(
+        icon: Icon(Icons.delete_forever, color: Colors.white),
+        onPressed: () {},
+      ),
+    ];
   }
 
   void setEditing(bool edit) {
