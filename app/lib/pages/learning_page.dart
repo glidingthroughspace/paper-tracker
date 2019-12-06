@@ -20,7 +20,6 @@ class LearningPage extends StatefulWidget {
 class _LearningPageState extends State<LearningPage> {
   var trackerClient = TrackerClient();
   var roomClient = RoomClient();
-  Future<List<Room>> rooms;
   Future<List<Tracker>> tracker;
   bool countdownDone = false;
   Timer ssidTimer;
@@ -35,8 +34,7 @@ class _LearningPageState extends State<LearningPage> {
   void initState() {
     super.initState();
 
-    rooms = roomClient.fetchRooms();
-    tracker = trackerClient.fetchTrackers();
+    tracker = trackerClient.getAllTrackers();
     checkCardListController = CheckCardListController();
   }
 
@@ -97,7 +95,7 @@ class _LearningPageState extends State<LearningPage> {
 
   Widget buildRoomDropdown(LearningPageParams params) {
     return FutureBuilder(
-      future: rooms,
+      future: roomClient.getAllRooms(),
       builder: (context, snapshot) {
         List<Room> roomList = snapshot.hasData ? snapshot.data : [];
         if (snapshot.hasData && selectedRoom == null && params.roomID != null) {
@@ -106,7 +104,7 @@ class _LearningPageState extends State<LearningPage> {
         return DropdownButton(
           icon: Icon(Room.IconData),
           items: roomList.map((room) => DropdownMenuItem(value: room, child: Text(room.label))).toList(),
-          value: selectedRoom,
+          value: snapshot.hasData ? selectedRoom : null,
           isExpanded: true,
           onChanged: (value) {
             setState(() {
@@ -193,6 +191,8 @@ class _LearningPageState extends State<LearningPage> {
   void onSave() async {
     ssidTimer.cancel();
     await trackerClient.finishLearning(selectedTracker.id, selectedRoom.id, checkCardListController.checked);
+    await roomClient.getAllRooms(refresh: true);
+    Navigator.of(context).pop();
   }
 }
 

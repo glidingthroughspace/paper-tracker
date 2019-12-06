@@ -8,15 +8,30 @@ import 'package:paper_tracker/model/tracker.dart';
 
 class TrackerClient {
   var apiClient = APIClient();
+  static Future<List<Tracker>> futureTrackers;
 
-  Future<List<Tracker>> fetchTrackers() async {
+  Future<List<Tracker>> getAllTrackers({bool refresh = false}) async {
+    if (futureTrackers != null && !refresh) {
+      return futureTrackers;
+    }
+
     final response = await apiClient.get("/tracker");
     if (response.statusCode == 200) {
       final rawList = json.decode(response.body) as List;
-      return rawList.map((i) => Tracker.fromJson(i)).toList();
+      futureTrackers = Future.value(rawList.map((i) => Tracker.fromJson(i)).toList());
+      return futureTrackers;
     } else {
       throw Exception("Failed to load trackers");
     }
+  }
+
+  Future<Tracker> getTrackerByID(int id, {bool refresh = false}) async {
+    if (futureTrackers == null || refresh) {
+      getAllTrackers(refresh: true);
+    }
+
+    var rooms = await futureTrackers;
+    return rooms.firstWhere((tracker) => tracker.id == id);
   }
 
   Future<LearningStartResponse> startLearning(int id) async {

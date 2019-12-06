@@ -14,19 +14,17 @@ class RoomList extends StatefulWidget {
 class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin {
   var roomLabelEditController = TextEditingController();
   var roomClient = RoomClient();
-  Future<List<Room>> rooms;
 
   @override
   void initState() {
     super.initState();
-    fetchTrackers();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return FutureBuilder(
-        future: rooms,
+        future: roomClient.getAllRooms(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Room> roomList = snapshot.data;
@@ -98,19 +96,14 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
     var room = Room(label: roomLabelEditController.text);
     await roomClient.addRoom(room);
 
-    fetchTrackers();
+    await roomClient.getAllRooms(refresh: true);
     Navigator.of(context).pop();
-  }
-
-  void fetchTrackers() {
-    rooms = roomClient.fetchRooms();
   }
 
   @override
   bool get wantKeepAlive => true;
 
   void onTapRoom(Room room) async {
-    await Navigator.of(context).pushNamed(RoomPage.Route, arguments: room);
-    fetchTrackers();
+    await Navigator.of(context).pushNamed(RoomPage.Route, arguments: room.id);
   }
 }

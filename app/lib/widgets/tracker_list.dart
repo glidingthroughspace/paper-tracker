@@ -18,7 +18,7 @@ class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClient
   @override
   void initState() {
     super.initState();
-    trackers = TrackerClient().fetchTrackers();
+    trackers = TrackerClient().getAllTrackers();
   }
 
   @override
@@ -33,7 +33,7 @@ class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClient
                 Map.fromIterable(trackerList, key: (tracker) => tracker.label, value: (tracker) => tracker);
             return CardList<Tracker>(
               titleObjectMap: titleObjectMap,
-              onTap: (tracker) => Navigator.of(context).pushNamed(TrackerPage.Route, arguments: tracker),
+              onTap: (tracker) => Navigator.of(context).pushNamed(TrackerPage.Route, arguments: tracker.id),
               iconData: Icons.keyboard_arrow_right,
             );
           } else if (snapshot.hasError) {
