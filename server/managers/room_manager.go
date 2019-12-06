@@ -65,3 +65,12 @@ func (mgr *RoomManager) SetRoomLearned(roomID int, learned bool) (err error) {
 	}
 	return
 }
+
+func (mgr *RoomManager) UpdateRoom(room *models.Room) (err error) {
+	err = mgr.roomRep.Update(room)
+	if err != nil {
+		log.WithFields(log.Fields{"roomID": room.ID, "err": err}).Error("Failed to update room")
+		return
+	}
+	return
+}

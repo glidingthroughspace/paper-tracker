@@ -41,6 +41,11 @@ func (rep *GormRoomRepository) Delete(roomID int) (err error) {
 	return
 }
 
+func (rep *GormRoomRepository) Update(room *models.Room) (err error) {
+	err = databaseConnection.Save(room).Error
+	return
+}
+
 func (rep *GormRoomRepository) SetLearnedByID(roomID int, learned bool) (err error) {
 	err = databaseConnection.Model(&models.Room{}).Where(&models.Room{ID: roomID}).Update("is_learned", learned).Error
 	return
