@@ -1,10 +1,10 @@
 #include <models/command.h>
 
 #include <log.h>
-#include <serialization/cborUtils.h>
+#include <serialization/cbor/CBORParser.h>
 
 bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
-  auto cbor = CBORDocument(buffer, bufferSize);
+  auto cbor = CBORParser(buffer, bufferSize);
 
   bool parsedType = false;
   bool parsedSleepTime = false; 
@@ -41,7 +41,7 @@ CommandType Command::getType() const {
   return static_cast<CommandType>(type.value);
 }
 
-bool Command::parseType(CBORDocument& cbor) {
+bool Command::parseType(CBORParser& cbor) {
   if (!type.deserializeFrom(cbor)) {
     return false;
   }

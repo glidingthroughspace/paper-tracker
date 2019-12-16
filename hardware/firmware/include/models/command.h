@@ -1,6 +1,6 @@
 #pragma once
 
-#include <serialization/cborUtils.h>
+#include <serialization/cbor/CBORValue.h>
 
 enum class CommandType {
 	SEND_TRACKING_INFO = 0,
@@ -11,10 +11,10 @@ enum class CommandType {
 
 class Command {
   private:
-    CBORValue<uint16_t> sleepTimeSec = { "SleepTimeSec", 0 };
-    CBORValue<uint8_t> type = { "Command", static_cast<uint8_t>(CommandType::SLEEP) };
+    CBORUint16 sleepTimeSec{"SleepTimeSec"};
+    CBORUint8 type{"Command"};
     bool isValidType(uint8_t type) const { return (type <= 2); }
-    bool parseType(CBORDocument&);
+    bool parseType(CBORParser&);
   public:
     bool fromCBOR(uint8_t* buffer, size_t bufferSize);
 

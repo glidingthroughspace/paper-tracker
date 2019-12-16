@@ -74,9 +74,9 @@ uint8_t WIFI::getVisibleNetworks(uint8_t startAt, ScanResult* buffer, uint8_t bu
   int i;
   for (i = startAt; i < startAt + bufferSize && i < networkCount; i++) {
     ScanResult result{};
-    result.RSSI = WiFi.RSSI(i);
-    memcpy(result.BSSID, WiFi.BSSID(i), BSSID_LENGTH);
-    strcpy(result.SSID, WiFi.SSID(i).c_str());
+    result.RSSI.value = WiFi.RSSI(i);
+    memcpy(result.BSSID.value, WiFi.BSSID(i), BSSID_LENGTH);
+    strcpy(result.SSID.value, WiFi.SSID(i).c_str());
     buffer[i - startAt] = result;
   }
   return i - startAt;
