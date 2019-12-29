@@ -1,5 +1,6 @@
 #include <serialization/cbor/CBORParser.h>
 #include <log.h>
+#include <string.h>
 
 CBORParser::CBORParser(uint8_t* buf, size_t buflen) : bs{buf, buflen}, reader{bs} {
 
@@ -107,5 +108,15 @@ bool CBORParser::readInt(int32_t& target) {
   if (!readInt(targetBuffer)) { return false ; }
   if (targetBuffer >= (2^32) || targetBuffer < (2^32) - 1) { return false; }
   target = static_cast<int32_t>(targetBuffer);
+  return true;
+}
+
+
+bool CBORParser::readCString(char* target, size_t& target_length) {
+  if (!advance()) return false;
+  if (nextDataType != cbor::DataType::kText) return false;
+  auto length = reader.getLength();
+  if (length > target_length) return false;
+  reader.readBytes((uint8_t*)target, target_length);
   return true;
 }

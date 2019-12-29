@@ -21,4 +21,3 @@ class Command {
     uint16_t getSleepTimeInSeconds() const;
     CommandType getType() const;
 };
-
