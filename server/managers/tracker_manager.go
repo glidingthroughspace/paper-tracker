@@ -76,7 +76,7 @@ func (mgr *TrackerManager) AddTrackerCommand(command *models.Command) (err error
 }
 
 func (mgr *TrackerManager) NotifyNewTracker() (tracker *models.Tracker, err error) {
-	tracker = &models.Tracker{Label: "New Tracker"}
+	tracker = &models.Tracker{Label: "New Tracker", Status: models.StatusIdle}
 	err = mgr.trackerRep.Create(tracker)
 	if err != nil {
 		log.WithField("err", err).Error("Failed to create new tracker")

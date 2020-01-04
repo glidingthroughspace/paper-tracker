@@ -57,7 +57,6 @@ class _ConfigPageState extends State<ConfigPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
       body: Container(
         padding: EdgeInsets.all(30.0),
         child: Column(children: [
@@ -72,13 +71,11 @@ class _ConfigPageState extends State<ConfigPage> {
             padding: EdgeInsets.only(top: 50.0),
           ),
           TextFormField(
-            style: TextStyle(color: Colors.white),
             controller: urlEditController,
             decoration: InputDecoration(
               labelText: "Server URL",
               enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
               focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
-              labelStyle: TextStyle(color: Colors.white),
             ),
             validator: (val) {
               if (val.length == 0) {

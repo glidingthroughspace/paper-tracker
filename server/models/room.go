@@ -1,8 +1,8 @@
 package models
 
 type Room struct {
-	ID           int
-	Label        string
-	IsLearned    bool
-	TrackingData []BSSIDTrackingData
+	ID           int                 `json:"id"`
+	Label        string              `json:"label"`
+	IsLearned    bool                `json:"is_learned"`
+	TrackingData []BSSIDTrackingData `json:"tracking_data"`
 }

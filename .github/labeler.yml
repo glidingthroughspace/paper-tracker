@@ -1,0 +1,8 @@
+area/hardware:
+  - hardware/**/*
+area/app:
+  - app/**/*
+area/backend:
+  - server/**/*
+area/paper:
+  - paper/**/*

@@ -6,10 +6,11 @@ part 'room.g.dart';
 class Room {
  static const IconData = Icons.room;
 
- @JsonKey(name: "ID")
+ @JsonKey(name: "id")
  int id;
- @JsonKey(name: "Label")
+ @JsonKey(name: "label")
  String label;
+ @JsonKey(name: "is_learned")
  bool isLearned;
 
  Room({this.id, this.label, this.isLearned = false});

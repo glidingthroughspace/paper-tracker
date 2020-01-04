@@ -13,9 +13,7 @@ class MainPage extends StatelessWidget {
     return DefaultTabController(
         length: 3,
         child: Scaffold(
-          backgroundColor: Theme.of(context).backgroundColor,
           appBar: AppBar(
-            backgroundColor: Theme.of(context).backgroundColor,
             title: Text("Paper Tracker"),
             bottom: TabBar(
               tabs: [

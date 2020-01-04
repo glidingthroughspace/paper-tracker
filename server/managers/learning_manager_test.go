@@ -35,7 +35,7 @@ var _ = Describe("LearningManager", func() {
 	)
 	const (
 		sleepBetweenLearnSec = 1
-		learnCount           = 2
+		learnCount           = 1
 		wrongID              = 0
 		id                   = 1
 	)
@@ -106,11 +106,13 @@ var _ = Describe("LearningManager", func() {
 
 		It("StartLearning return correct total learn time", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
+			mockScanResultRep.EXPECT().DeleteForTracker(id).Return(nil).Times(1)
 			Expect(manager.StartLearning(id)).To(Equal(learnCount * sleepBetweenLearnSec))
 		})
 
 		It("StartLearning inserts first command", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
+			mockScanResultRep.EXPECT().DeleteForTracker(id).Return(nil).Times(1)
 			cmdCreateCall.MinTimes(1)
 			_, err := manager.StartLearning(id)
 			Expect(err).To(Succeed())
@@ -118,7 +120,7 @@ var _ = Describe("LearningManager", func() {
 		})
 
 		Context("Test learningRoutine", func() {
-			It("learningRoutine sets tracker status to learning and back to idle", func() {
+			It("learningRoutine sets tracker status to learning and learning finished", func() {
 				trackerSetStatusCall.Times(2)
 				manager.learningRoutine(id, testLogger)
 			})
@@ -172,18 +174,18 @@ var _ = Describe("LearningManager", func() {
 
 		It("FinishLearning throws error starting with 'tracker' if tracker does not exist", func() {
 			mockTrackerRep.EXPECT().GetByID(wrongID).Return(nil, recordNotFoundErr).Times(1)
-			Expect(manager.FinishLearning(wrongID, id).Error()).To(HavePrefix("tracker: "))
+			Expect(manager.FinishLearning(wrongID, id, []string{}).Error()).To(HavePrefix("tracker: "))
 		})
 
 		It("FinishLearning throws error if tracker has not status LearningFinished", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
-			Expect(manager.FinishLearning(id, id)).To(HaveOccurred())
+			Expect(manager.FinishLearning(id, id, []string{})).To(HaveOccurred())
 		})
 
 		It("FinishLearning throws error starting with 'room' if room does not exist", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
 			mockRoomRep.EXPECT().GetByID(wrongID).Return(nil, recordNotFoundErr).Times(1)
-			Expect(manager.FinishLearning(id, wrongID).Error()).To(HavePrefix("room: "))
+			Expect(manager.FinishLearning(id, wrongID, []string{}).Error()).To(HavePrefix("room: "))
 		})
 
 		It("FinishLearning sets room.IsLearned to true and tracker status to idle", func() {
@@ -191,7 +193,7 @@ var _ = Describe("LearningManager", func() {
 			mockRoomRep.EXPECT().GetByID(id).Return(outRoom, nil).Times(1)
 			mockRoomRep.EXPECT().SetLearnedByID(id, true).Return(nil).Times(1)
 			mockTrackerRep.EXPECT().SetStatusByID(id, models.StatusIdle).Return(nil).Times(1)
-			Expect(manager.FinishLearning(id, id)).To(Succeed())
+			Expect(manager.FinishLearning(id, id, []string{})).To(Succeed())
 		})
 	})
 

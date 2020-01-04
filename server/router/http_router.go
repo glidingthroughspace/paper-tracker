@@ -7,6 +7,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const (
+	httpParamIDName = "id"
+)
+
 type HttpRouter struct {
 	engine *gin.Engine
 }

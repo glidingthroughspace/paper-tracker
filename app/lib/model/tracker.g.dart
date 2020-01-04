@@ -8,19 +8,48 @@ part of 'tracker.dart';
 
 Tracker _$TrackerFromJson(Map<String, dynamic> json) {
   return Tracker(
-      id: json['ID'] as int,
-      label: json['Label'] as String,
-      lastPoll: json['LastPoll'] == null
+      id: json['id'] as int,
+      label: json['label'] as String,
+      lastPoll: json['last_poll'] == null
           ? null
-          : DateTime.parse(json['LastPoll'] as String),
-      lastSleepTime: json['LastSleepTime'] == null
+          : DateTime.parse(json['last_poll'] as String),
+      lastSleepTime: json['last_sleep_time'] == null
           ? null
-          : DateTime.parse(json['LastSleepTime'] as String));
+          : DateTime.parse(json['last_sleep_time'] as String),
+      status: _$enumDecodeNullable(_$TrackerStatusEnumMap, json['status']));
 }
 
 Map<String, dynamic> _$TrackerToJson(Tracker instance) => <String, dynamic>{
-      'ID': instance.id,
-      'Label': instance.label,
-      'LastPoll': instance.lastPoll?.toIso8601String(),
-      'LastSleepTime': instance.lastSleepTime?.toIso8601String()
+      'id': instance.id,
+      'label': instance.label,
+      'last_poll': instance.lastPoll?.toIso8601String(),
+      'last_sleep_time': instance.lastSleepTime?.toIso8601String(),
+      'status': _$TrackerStatusEnumMap[instance.status]
     };
+
+T _$enumDecode<T>(Map<T, dynamic> enumValues, dynamic source) {
+  if (source == null) {
+    throw ArgumentError('A value must be provided. Supported values: '
+        '${enumValues.values.join(', ')}');
+  }
+  return enumValues.entries
+      .singleWhere((e) => e.value == source,
+          orElse: () => throw ArgumentError(
+              '`$source` is not one of the supported values: '
+              '${enumValues.values.join(', ')}'))
+      .key;
+}
+
+T _$enumDecodeNullable<T>(Map<T, dynamic> enumValues, dynamic source) {
+  if (source == null) {
+    return null;
+  }
+  return _$enumDecode<T>(enumValues, source);
+}
+
+const _$TrackerStatusEnumMap = <TrackerStatus, dynamic>{
+  TrackerStatus.Idle: 1,
+  TrackerStatus.Learning: 2,
+  TrackerStatus.LearningFinished: 3,
+  TrackerStatus.Tracking: 4
+};
