@@ -20,10 +20,10 @@ bool ApiClient::loop() {
 
 void ApiClient::requestNextCommand(std::function<void(Command&)> callback) {
   logln("Requesting next action from server");
-  // FIXME: It is possible for the server to answer so quickly that the response callback is not
-  // registered yet
+  // FIXME: It is (in theory) possible for the server to answer so quickly that the response
+  // callback is not registered yet. This is highly unlikely though.
   uint16_t messageID = coap.get(serverIP, 5688, "tracker/poll", "trackerid=1");
-  storeCallback(messageID, [&] (CoapPacket& packet) {
+  storeCallback(messageID, [callback] (CoapPacket& packet) {
     if (ApiClient::isErrorResponse(packet)) {
       logln("Requesting the next action failed");
       return;
