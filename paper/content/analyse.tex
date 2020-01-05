@@ -10,30 +10,40 @@ passiert. Außerdem kommen Papiere durcheinander.
 
 \section{Soll-Analyse} \label{sec:soll-analyse}
 
+Ziel der Entwicklung und damit dieser Studienarbeit ist das Erarbeiten einer Lösung, mit welcher
+sichtbar gemacht werden kann, in welchem Schritt eines Workflows und an welchem Ort sich ein
+Dokument aktuell befindet.
+
 \section{Anforderungsanalyse} \label{sec:anforderungsanalyse}
 
 Im Folgenden werden die gestellten Anforderungen in funktionale und nichtfunktionale Anforderungen
-unterteilt. 
-\TODO{Evtl. noch eine tatsächliche Anforderungsanalyse durchführen}
+unterteilt.
+\TODO{Evtl. noch eine Anforderungsanalyse mit anderen Leuten durchführen}
 Dabei beschreiben funktionale Anforderungen konkrete Funktionen, die die entwickelte Lösung bieten
 muss, nichtfunktionale Anforderungen hingegegen zeigen Rahmenbedingungen, sowie Anforderungen an die
 technische Umsetzung auf.
 Desweiteren werden den Anforderungen Prioritäten zugewiesen, wobei ein Wert von 0 die höchste
 Priorität, ein Wert von 3 die niedrigste Priorität beschreibt, sodass die Lösung ohne Erfüllung der
 Anforderungen mit Priorität 0 nicht einsetzbar ist und Priorität 3 optionale Funktionalitäten
-beschreibt, die nicht zum Betrieb notwendig sind. 
+beschreibt, die nicht zum Betrieb notwendig sind.
+
 \begin{table}[htbp]
   \renewcommand{\arraystretch}{1.5}
 \centering
 \begin{tabularx}{0.9\textwidth}{lXc}
   \textbf{Name} & \textbf{Beschreibung} & \textbf{Priorität} \\
-  \hline 
+  \hline
   F-1 \label{fa:tracking} & Der Standort von Dokumenten kann raumgenau verfolgt werden & 0 \\
   F-2 \label{fa:workflow} & Der aktuelle Status des mit dem Dokument verbundenen Workflows kann
   nachvollzogen werden & 0 \\
   F-3 \label{fa:neue-workflows} & Neue Workflows können vom Nutzer definiert werden & 2 \\
   F-4 \label{fa:neue-tracker} & Neue Tracker können dem System vom Nutzer hinzugefügt werden & 1 \\
   F-5 \label{fa:raumplan} & Der Raumplan kann vom Nutzer eingelernt werden & 3 \\
+	F-6 \label{fa:benachrichtigung} & Nutzer werden vom System benachrichtigt, wenn die Akkuladung eines
+	Trackers unter einen gegebenen Prozentsatz fällt oder die Batterie ausgetauscht werden muss & 2 \\
+	F-7 \label{fa:optionale-schritte} & Einzelne Schritte von Workflows können optional sein und
+	übersprungen werden & 1 \\
+	F-8 \label{fa:mehrere-orte} & Für einen Schritt im Workflow können mehrere Orte hinterlegt werden & 1 \\
   \midrule
   NF-1 \label{nf:akku} & Die Laufzeit der Tracker im Batteriebetrieb beläuft sich auf mindestens
   eine Woche & 2 \\
@@ -48,6 +58,9 @@ beschreibt, die nicht zum Betrieb notwendig sind.
   und der Größe des Tracking-Bereiches sein & 2 \\
   NF-6 \label{nf:nachvollziehbarkeit} & Zur optimalen Nachvollziehbarkeit von Workflows sollten deren auch
   nach Abschluss nicht gelöscht werden & 2 \\
+	NF-7 \label{nf:datenexport} & Die im System gespeicherten Daten sollen in einem maschinenlesbaren
+	Format exportiert werden können, um Auswertungen über die Effizienz der Workflows durchführen zu
+	können & 2 \\
 \end{tabularx}
 \caption{Funktionale und nichtfunktionale Anforderungen}
 \label{tab:anforderungen}
