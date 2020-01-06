@@ -105,6 +105,20 @@ func (mr *MockRoomRepositoryMockRecorder) SetLearnedByID(roomID, learned interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLearnedByID", reflect.TypeOf((*MockRoomRepository)(nil).SetLearnedByID), roomID, learned)
 }
 
+// Update mocks base method
+func (m *MockRoomRepository) Update(room *models.Room) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", room)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update
+func (mr *MockRoomRepositoryMockRecorder) Update(room interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRoomRepository)(nil).Update), room)
+}
+
 // IsRecordNotFoundError mocks base method
 func (m *MockRoomRepository) IsRecordNotFoundError(err error) bool {
 	m.ctrl.T.Helper()
