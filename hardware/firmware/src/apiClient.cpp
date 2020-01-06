@@ -34,10 +34,6 @@ void ApiClient::requestNextCommand(std::function<void(Command&)> callback) {
       return;
     }
 
-    log("Next Command is ");
-    log((uint8_t) cmd.getType());
-    log(" and sleep time in seconds is ");
-    logln(cmd.getSleepTimeInSeconds());
     callback(cmd);
   });
 }
