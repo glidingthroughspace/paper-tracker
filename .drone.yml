@@ -4,16 +4,16 @@ type: docker
 name: firmware
 
 steps:
-- name: fetch-submodules
-  image: alpine/git
-  commands:
-  - git submodule update --init --recursive
+  - name: fetch-submodules
+    image: alpine/git
+    commands:
+      - git submodule update --init --recursive
 
-- name: build
-  image: petewall/platformio
-  commands:
-  - cp hardware/firmware/include/credentials.example.h hardware/firmware/include/credentials.h
-  - cd hardware/firmware && make
+  - name: build
+    image: petewall/platformio
+    commands:
+      - cp hardware/firmware/include/credentials.example.h hardware/firmware/include/credentials.h
+      - cd hardware/firmware && make
 
 # FIXME: The unit tests currently don't work on the desktop platform.
 # They do however run on actual hardware, which of course is not testable in CI
@@ -28,28 +28,12 @@ type: docker
 name: backend
 
 steps:
-- name: build
-  image: golang
-  commands:
-  - cd server && make
+  - name: build
+    image: golang
+    commands:
+      - cd server && make
 
-- name: test
-  image: golang
-  commands:
-  - cd server && make test
-
----
-kind: pipeline
-type: docker
-name: frontend
-
-steps:
-- name: build
-  image: gableroux/flutter:v1.9.1_hotfix.4
-  commands:
-  - cd app && flutter build apk --release
-
-- name: test
-  image: gableroux/flutter:v1.9.1_hotfix.4
-  commands:
-  - cd app && flutter pub get && flutter test
+  - name: test
+    image: golang
+    commands:
+      - cd server && make test
