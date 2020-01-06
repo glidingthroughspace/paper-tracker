@@ -8,5 +8,6 @@ type RoomRepository interface {
 	GetAll() ([]*models.Room, error)
 	Delete(roomID int) error
 	SetLearnedByID(roomID int, learned bool) error
+	Update(room *models.Room) error
 	IsRecordNotFoundError(err error) bool
 }

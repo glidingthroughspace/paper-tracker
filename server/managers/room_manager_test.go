@@ -105,4 +105,30 @@ var _ = Describe("RoomManager", func() {
 			Expect(manager.SetRoomLearned(id, false)).To(Succeed())
 		})
 	})
+
+	Context("Test UpdateRoom", func() {
+		room := &models.Room{ID: id, Label: "TestRoom"}
+
+		It("UpdateRoom calls rep update exactly once", func() {
+			mockRoomRep.EXPECT().Update(room).Return(nil).Times(1)
+			Expect(manager.UpdateRoom(room)).To(Succeed())
+		})
+
+		It("UpdateRoom should return db error", func() {
+			mockRoomRep.EXPECT().Update(room).Return(testErr).Times(1)
+			Expect(manager.UpdateRoom(room)).To(MatchError(testErr))
+		})
+	})
+
+	Context("Test DeleteRoom", func() {
+		It("DeleteRoom calls rep delete exactly once", func() {
+			mockRoomRep.EXPECT().Delete(id).Return(nil).Times(1)
+			Expect(manager.DeleteRoom(id)).To(Succeed())
+		})
+
+		It("DeleteRoom should return db error", func() {
+			mockRoomRep.EXPECT().Delete(id).Return(testErr).Times(1)
+			Expect(manager.DeleteRoom(id)).To(MatchError(testErr))
+		})
+	})
 })

@@ -28,4 +28,12 @@ class APIClient {
   Future<http.Response> post(String path, String body) async {
     return http.post(await _buildURI(path), body: body);
   }
+
+  Future<http.Response> put(String path, String body) async {
+    return http.put(await _buildURI(path), body: body);
+  }
+
+  Future<http.Response> delete(String path) async {
+    return http.delete(await _buildURI(path));
+  }
 }

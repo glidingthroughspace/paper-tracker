@@ -34,4 +34,16 @@ class RoomClient {
   Future<void> addRoom(Room room) async {
     return apiClient.post("/room", json.encode(room));
   }
+
+  Future<void> updateRoom(Room room) async {
+    var res = await apiClient.put("/room/${room.id}", json.encode(room));
+    await getAllRooms(refresh: true);
+    return res;
+  }
+
+  Future<void> deleteRoom(int id) async {
+    var res = await apiClient.delete("/room/$id");
+    await getAllRooms(refresh: true);
+    return res;
+  }
 }
