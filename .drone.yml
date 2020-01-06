@@ -21,19 +21,3 @@ steps:
 #  image: petewall/platformio
 #  commands:
 #  - cd hardware/firmware && make test-desktop
-
----
-kind: pipeline
-type: docker
-name: backend
-
-steps:
-  - name: build
-    image: golang
-    commands:
-      - cd server && make
-
-  - name: test
-    image: golang
-    commands:
-      - cd server && make test
