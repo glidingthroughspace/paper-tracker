@@ -1,13 +1,13 @@
 #include <Arduino.h>
 #include <WiFiUdp.h>
 #include <IPAddress.h>
-#include <TinyPICO.h>
 
 #include <log.h>
 #include <models/scanResult.h>
 #include <models/trackerResponse.h>
 #include <wifi.h>
 #include <apiClient.h>
+#include <power.h>
 
 #include <credentials.h>
 
@@ -15,7 +15,8 @@
 // FIXME: This number is not correct
 #define SCAN_RESULT_MESSAGE_OVERHEAD 100
 
-TinyPICO tinypico = TinyPICO();
+constexpr uint64_t ONE_SECOND_IN_MICROSECONDS = 1000 * 1000;
+
 WIFI wifi;
 ScanResult scanResultBuffer[SCAN_RESULT_BUFFER_SIZE];
 ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,188,41));
@@ -23,19 +24,42 @@ ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,188,41));
 uint8_t bytes[SCAN_RESULT_BUFFER_SIZE * SCAN_RESULT_SIZE_BYTES + SCAN_RESULT_MESSAGE_OVERHEAD]{0};
 
 void haltIf(bool condition, const char* message);
-void enablePowersavings(void);
 
 static void onCommandReceived(Command& command) {
   log("In Main: Next Command is ");
   log((uint8_t) command.getType());
   log(" and sleep time in seconds is ");
   logln(command.getSleepTimeInSeconds());
+
+  switch (command.getType()) {
+    case CommandType::SLEEP: {
+      Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
+    } break;
+    case CommandType::SEND_TRACKING_INFO: {
+      // TODO: This is probably not right yet
+      logln("Scanning for networks");
+      wifi.scanVisibleNetworks();
+      logln("Scanned for networks");
+      wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
+      TrackerResponse trackerResponse{0};
+      memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
+      trackerResponse.toCBOR(bytes, sizeof(bytes));
+      apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
+    } break;
+    default:
+      logln("Unknown command");
+  }
 }
 
 void setup() {
-  enablePowersavings();
+  Power::enable_powersavings();
   initSerial(115400);
   logln("Starting");
+
+  #ifndef NDEBUG
+  Power::print_wakeup_reason();
+  #endif
+
 
   #ifdef WIFI_USERNAME
   haltIf(!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD), "Failed to connect to WiFi");
@@ -47,13 +71,6 @@ void setup() {
 
   apiClient.requestNextCommand(onCommandReceived);
 
-  // wifi.scanVisibleNetworks();
-  // logln("Scanned for networks");
-  // wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
-  // TrackerResponse trackerResponse{0};
-  // memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
-  // trackerResponse.toCBOR(bytes, sizeof(bytes));
-  // apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
 }
 
 void loop() {
@@ -66,8 +83,4 @@ void haltIf(bool condition, const char* message) {
     logln("Failed to start CoAP client! Stalling Tracker!");
     while(true) {;}
   }
-}
-
-void enablePowersavings(void) {
-  tinypico.DotStar_SetPower(false);
 }
