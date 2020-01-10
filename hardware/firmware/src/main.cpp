@@ -26,7 +26,7 @@ uint8_t bytes[SCAN_RESULT_BUFFER_SIZE * SCAN_RESULT_SIZE_BYTES + SCAN_RESULT_MES
 void haltIf(bool condition, const char* message);
 
 static void onCommandReceived(Command& command) {
-  log("In Main: Next Command is ");
+  log("Next Command is ");
   log((uint8_t) command.getType());
   log(" and sleep time in seconds is ");
   logln(command.getSleepTimeInSeconds());
@@ -39,9 +39,9 @@ static void onCommandReceived(Command& command) {
       // TODO: This is probably not right yet
       logln("Scanning for networks");
       wifi.scanVisibleNetworks();
-      logln("Scanned for networks");
+      logln("Scan done");
       wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
-      TrackerResponse trackerResponse{0};
+      TrackerResponse trackerResponse;
       memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
       trackerResponse.toCBOR(bytes, sizeof(bytes));
       apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
@@ -56,10 +56,7 @@ void setup() {
   initSerial(115400);
   logln("Starting");
 
-  #ifndef NDEBUG
   Power::print_wakeup_reason();
-  #endif
-
 
   #ifdef WIFI_USERNAME
   haltIf(!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD), "Failed to connect to WiFi");

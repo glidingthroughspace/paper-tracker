@@ -2,6 +2,8 @@
 
 #include "./CBORParser.h"
 
+class CBORDocument;
+
 enum class CBORType {
   UnsignedInt = 0,
   SignedInt   = 1,
@@ -20,10 +22,25 @@ enum class CBORType {
 };
 
 /**
+ * Virtual class for objets which are CBOR-serializable.
+ */
+class CBORSerializable {
+  public:
+    /**
+     * Basic CBOR serialization method. Since a CBORDocument is a map, this should directly write
+     * the key(s) and value(s). This should be the preferred way to serialize a CBORValue.
+     */
+    virtual bool toCBOR(CBORDocument&) = 0;
+    CBORSerializable() {};
+};
+
+/**
  * This represents a value that is serializable and deserializable from/to CBOR.
  * This is a virtual class, implementations for concrete types are below this.
  */
 class CBORValue {
+  private:
+    CBORValue() = delete;
   protected:
     CBORType m_type;
     char* m_key;
@@ -105,3 +122,4 @@ class CBORCString : public CBORValue {
     const char* get() const { return m_value; };
     const size_t length() const { return m_length; };
 };
+

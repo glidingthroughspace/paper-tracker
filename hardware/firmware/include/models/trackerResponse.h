@@ -5,21 +5,25 @@
 #endif
 
 #include <models/scanResult.h>
-#include <CBOR.h>
-#include <CBOR_streams.h>
+#include <serialization/cbor/CBORDocument.h>
+#include <serialization/cbor/CBORValue.h>
+#include <serialization/cbor/CBORArray.h>
 
 struct TrackerResponse {
-  uint8_t batteryPercentage;
+  CBORUint8 batteryPercentage{"BatteryPercentage"};
   ScanResult scanResults[SCAN_RESULT_BUFFER_SIZE];
 
   void toCBOR(uint8_t* buffer, size_t bufferSize) {
-    cbor::BytesPrint bp{buffer, bufferSize};
-    cbor::Writer cbor{bp};
-    cbor.writeTag(cbor::kSelfDescribeTag);
-    cbor.writeUnsignedInt(batteryPercentage);
-    cbor.beginArray(SCAN_RESULT_BUFFER_SIZE);
-    for (size_t i = 0; i < SCAN_RESULT_BUFFER_SIZE; i++) {
-      scanResults[i].toCBOR(cbor);
+    // TODO: Proper size for the cbor document
+    StaticCBORDocument<1000> doc;
+    doc.addValue(batteryPercentage);
+
+    StaticCBORArray<SCAN_RESULT_BUFFER_SIZE, ScanResult> scanResultsCBOR{"ScanResults"};
+    for (auto i = 0; i < SCAN_RESULT_BUFFER_SIZE; i++) {
+      scanResultsCBOR[i] = scanResults[i];
     }
+
+    doc.addValue(scanResultsCBOR);
+    memcpy(doc.serialize(), buffer, bufferSize);
   }
 };
