@@ -1,5 +1,7 @@
 package communication
 
+import "paper-tracker/models"
+
 type LearningStartResponse struct {
 	LearnTimeSec int `json:"learn_time_sec"`
 }
@@ -10,6 +12,6 @@ type LearningStatusResponse struct {
 }
 
 type LearningFinishRequest struct {
-	RoomID int      `json:"room_id"`
-	SSIDs  []string `json:"ssids"`
+	RoomID models.RoomID `json:"room_id"`
+	SSIDs  []string      `json:"ssids"`
 }
