@@ -41,10 +41,15 @@ func main() {
 	if err != nil {
 		log.Fatal("Abort: Failed to create room repository")
 	}
+	workflowRep, err := gorm.CreateGormWorkflowRepository()
+	if err != nil {
+		log.Fatal("Abort: Failed to create workflow repository")
+	}
 
 	managers.CreateTrackerManager(trackerRep, cmdRep, *defaultSleepSecPtr)
 	managers.CreateRoomManager(roomRep)
 	managers.CreateLearningManager(scanResultRep, *learnCountPtr, *sleepBetweenLearnSecPtr)
+	managers.CreateWorkflowManager(workflowRep)
 
 	coapRouter := router.NewCoapRouter()
 	httpRouter := router.NewHttpRouter()
