@@ -19,7 +19,7 @@ constexpr uint64_t ONE_SECOND_IN_MICROSECONDS = 1000 * 1000;
 
 WIFI wifi;
 ScanResult scanResultBuffer[SCAN_RESULT_BUFFER_SIZE];
-ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,188,41));
+ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,43,111));
 
 uint8_t bytes[SCAN_RESULT_BUFFER_SIZE * SCAN_RESULT_SIZE_BYTES + SCAN_RESULT_MESSAGE_OVERHEAD]{0};
 
@@ -32,9 +32,9 @@ static void onCommandReceived(Command& command) {
   logln(command.getSleepTimeInSeconds());
 
   switch (command.getType()) {
-    case CommandType::SLEEP: {
+    case CommandType::SLEEP: /*{
       Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
-    } break;
+    } break; */
     case CommandType::SEND_TRACKING_INFO: {
       // TODO: This is probably not right yet
       logln("Scanning for networks");

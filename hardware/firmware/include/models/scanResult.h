@@ -23,8 +23,11 @@ class ScanResult : public CBORSerializable {
     }
 
     bool toCBOR(CBORDocument& cbor) {
-      cbor.addValue(RSSI);
+      logln("serializing bssid");
       cbor.addValue(BSSID);
+      logln("serializing rssi");
+      cbor.addValue(RSSI);
+      logln("serializing ssid");
       cbor.addValue(SSID);
       return true;
     }

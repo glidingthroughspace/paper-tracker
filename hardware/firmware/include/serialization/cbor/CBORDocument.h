@@ -42,7 +42,9 @@ class StaticCBORDocument : public CBORDocument {
       return buf;
     };
     void addValue(CBORValue& value) { value.serializeTo(cbor); };
-    void addValue(CBORSerializable& value) { value.toCBOR(*this); };
+    void addValue(CBORSerializable& value) { 
+      value.toCBOR(*this); 
+    };
   private:
     uint8_t buf[m_size];
 };

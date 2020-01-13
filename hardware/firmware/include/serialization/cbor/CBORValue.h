@@ -1,6 +1,8 @@
 #pragma once
 
 #include "./CBORParser.h"
+#include <log.h>
+#define CAP(val, max) max > val ? max : val
 
 class CBORDocument;
 
@@ -46,6 +48,7 @@ class CBORValue {
     char* m_key;
     size_t m_keylen;
     void writeKeyTo(cbor::Writer& cbor) {
+      logln("Writing key");
       cbor.beginText(m_keylen);
       cbor.writeBytes((uint8_t*) m_key, m_keylen);
     };
@@ -108,7 +111,14 @@ class CBORCString : public CBORValue {
     void serializeTo(cbor::Writer& cbor) {
       writeKeyTo(cbor);
       cbor.beginText(m_length);
-      cbor.writeBytes((uint8_t*)m_value, m_length);
+      logln("Starting to write c string");
+      for (auto i = 0; i < m_length; i++) {
+        log("Writing byte #");
+        log(i);
+        log(", which is ");
+        logln(m_value[i]);
+        cbor.writeByte((uint8_t) m_value[i]);
+      }
     };
     bool deserializeFrom(CBORParser& parser) { return parser.readCString(m_value, m_length); };
     void set(char* value) {
@@ -116,7 +126,8 @@ class CBORCString : public CBORValue {
       m_length = strlen(m_value);
     };
     void set(const char* value) {
-      m_value = strndup(value, CBOR_MAX_STRING_LENGTH);
+      // TODO: This likely is the problem!
+      memcpy(m_value, value, CAP(strlen(value), CBOR_MAX_STRING_LENGTH));
       m_length = strlen(m_value);
     };
     const char* get() const { return m_value; };

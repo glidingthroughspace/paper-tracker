@@ -10,6 +10,7 @@ void Power::print_wakeup_reason() {
   switch(wakeup_reason) {
     case ESP_SLEEP_WAKEUP_TIMER : logln("Wakeup by timer"); break;
     case ESP_SLEEP_WAKEUP_ULP : logln("Wakeup by ULP"); break;
+    default: break;
   }
   #endif
 }

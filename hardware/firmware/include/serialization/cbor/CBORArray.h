@@ -24,8 +24,10 @@ class StaticCBORArray : public CBORArray {
       writeKeyTo(cbor);
       cbor.beginArray(m_size);
       for (auto i = 0; i < m_size; i++) {
+        log("Serializing element ");
+        logln(i);
         // FIXME: Find out the CBOR size somehow
-        StaticCBORDocument<100> document;
+        StaticCBORDocument<200> document;
         document.addValue(arr[i]);
         auto buf = document.serialize();
         auto written = cbor.write(buf, document.size());
@@ -33,6 +35,8 @@ class StaticCBORArray : public CBORArray {
           logln("StaticCBORDocument was too small to serialize CBORSerializable in array!");
           continue;
         }
+        log("Serialized element ");
+        logln(i);
       }
     };
     bool deserializeFrom(CBORParser& parser) {
