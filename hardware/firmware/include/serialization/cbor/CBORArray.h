@@ -27,7 +27,7 @@ class StaticCBORArray : public CBORArray {
         log("Serializing element ");
         logln(i);
         // FIXME: Find out the CBOR size somehow
-        StaticCBORDocument<200> document;
+        StaticCBORDocument<60> document;
         document.addValue(arr[i]);
         auto buf = document.serialize();
         auto written = cbor.write(buf, document.size());

@@ -134,3 +134,21 @@ class CBORCString : public CBORValue {
     const size_t length() const { return m_length; };
 };
 
+class CBORString : public CBORValue {
+  private:
+    String m_value;
+  public:
+    CBORString(char* key) : CBORValue{CBORType::Text, key, strlen(key)} {};
+    void serializeTo(cbor::Writer& cbor) {
+      writeKeyTo(cbor);
+      cbor.beginText(m_value.length());
+      cbor.writeBytes((uint8_t*)m_value.c_str(), m_value.length());
+    };
+    bool deserializeFrom(CBORParser& parser) { return parser.readString(m_value); };
+    void set(const String& value) {
+      m_value = value;
+    };
+    String get() const { return m_value; };
+    const size_t length() const { return m_value.length(); };
+};
+

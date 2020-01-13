@@ -9,9 +9,10 @@
 
 class ScanResult : public CBORSerializable {
   public:
-    CBORInt32 RSSI{"RSSI"};
-    CBORCString BSSID{"BSSID"};
-    CBORCString SSID{"SSID"};
+    CBORInt32 RSSI{"RSSI"};    // 4 byte + 4 byte = 8 byte
+    CBORString BSSID{"BSSID"}; // 5 byte + 17 byte = 22 byte
+    CBORString SSID{"SSID"};   // 4 byte + 16 byte = 20 byte
+                               // = 50 byte
 
     void print() {
       log("SSID: ");

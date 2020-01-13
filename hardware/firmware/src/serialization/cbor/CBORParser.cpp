@@ -120,3 +120,10 @@ bool CBORParser::readCString(char* target, size_t& target_length) {
   reader.readBytes((uint8_t*)target, target_length);
   return true;
 }
+
+bool CBORParser::readString(String& target) {
+  if (!advance()) return false;
+  if (nextDataType != cbor::DataType::kText) return false;
+  target = reader.readString();
+  return true;
+}

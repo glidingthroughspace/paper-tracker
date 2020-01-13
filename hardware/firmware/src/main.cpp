@@ -58,6 +58,15 @@ void setup() {
 
   Power::print_wakeup_reason();
 
+  logln("Scanning for networks");
+  wifi.scanVisibleNetworks();
+  logln("Scan done");
+  wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
+  TrackerResponse trackerResponse;
+  memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
+  trackerResponse.toCBOR(bytes, sizeof(bytes));
+  apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
+
   #ifdef WIFI_USERNAME
   haltIf(!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD), "Failed to connect to WiFi");
   #else
