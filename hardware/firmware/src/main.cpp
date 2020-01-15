@@ -37,7 +37,7 @@ static void onCommandReceived(Command& command) {
     } break;
     case CommandType::SEND_TRACKING_INFO: {
       wifi.getAllVisibleNetworks([] (ScanResult* scan_results, size_t scan_result_count) {
-        TrackerResponse trackerResponse;
+        TrackerResponse<SCAN_RESULT_BUFFER_SIZE> trackerResponse;
         memcpy(scan_results, trackerResponse.scanResults, scan_result_count);
         trackerResponse.toCBOR(bytes, sizeof(bytes));
         apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {
@@ -57,15 +57,6 @@ void setup() {
 
   Power::print_wakeup_reason();
 
-  logln("Scanning for networks");
-  wifi.scanVisibleNetworks();
-  logln("Scan done");
-  wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
-  TrackerResponse trackerResponse;
-  memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
-  trackerResponse.toCBOR(bytes, sizeof(bytes));
-  apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
-
   #ifdef WIFI_USERNAME
   haltIf(!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD), "Failed to connect to WiFi");
   #else
@@ -75,7 +66,6 @@ void setup() {
   haltIf(!apiClient.start(), "Failed to start the API client");
 
   apiClient.requestNextCommand(onCommandReceived);
-
 }
 
 void loop() {

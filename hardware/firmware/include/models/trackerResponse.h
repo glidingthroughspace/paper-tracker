@@ -1,29 +1,28 @@
 #pragma once
 
-#ifndef SCAN_RESULT_BUFFER_SIZE
-#define SCAN_RESULT_BUFFER_SIZE 5 // FIXME: Make this a compile-time parameter
-#endif
-
 #include <models/scanResult.h>
 #include <serialization/cbor/CBORDocument.h>
 #include <serialization/cbor/CBORValue.h>
 #include <serialization/cbor/CBORArray.h>
 
-struct TrackerResponse {
-  CBORUint8 batteryPercentage{"BatteryPercentage"};
-  ScanResult scanResults[SCAN_RESULT_BUFFER_SIZE];
+template <size_t m_scan_result_count>
+class TrackerResponse {
+  public:
+    CBORUint8 batteryPercentage{"BatteryPercentage"};
+    ScanResult scanResults[m_scan_result_count];
 
-  void toCBOR(uint8_t* buffer, size_t bufferSize) {
-    // TODO: Proper size for the cbor document
-    StaticCBORDocument<1000> doc;
-    doc.addValue(batteryPercentage);
+    void toCBOR(uint8_t* buffer, size_t bufferSize) {
+      // TODO: Proper size for the cbor document
+    // ScanResult is about 60 bytes in CBOR, add some leeway
+      StaticCBORDocument<m_scan_result_count * 60 + 30> doc;
+      doc.addValue(batteryPercentage);
 
-    StaticCBORArray<SCAN_RESULT_BUFFER_SIZE, ScanResult> scanResultsCBOR{"ScanResults"};
-    for (auto i = 0; i < SCAN_RESULT_BUFFER_SIZE; i++) {
-      scanResultsCBOR[i] = scanResults[i];
+      StaticCBORArray<m_scan_result_count, ScanResult> scanResultsCBOR{"ScanResults"};
+      for (auto i = 0; i < m_scan_result_count; i++) {
+        scanResultsCBOR[i] = scanResults[i];
+      }
+
+      doc.addValue(scanResultsCBOR);
+      memcpy(doc.serialize(), buffer, bufferSize);
     }
-
-    doc.addValue(scanResultsCBOR);
-    memcpy(doc.serialize(), buffer, bufferSize);
-  }
 };
