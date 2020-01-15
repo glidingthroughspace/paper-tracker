@@ -11,7 +11,9 @@
 
 #include "esp_wpa2.h"
 
-WIFI::WIFI() {
+WIFI::WIFI(size_t scan_result_buffer_size) {
+  m_scan_result_buffer_size = scan_result_buffer_size;
+  m_scan_results_buffer = static_cast<ScanResult*>(malloc(scan_result_buffer_size * sizeof(ScanResult)));
   // This improves performance. WiFi credentials are hard-coded when flashing,
   // therefore storing them again in flash does not make sense.
   WiFi.persistent(false);
@@ -20,6 +22,7 @@ WIFI::WIFI() {
 
 WIFI::~WIFI() {
   WiFi.disconnect();
+  free(m_scan_results_buffer);
 }
 
 WiFiUDP& WIFI::getUDP() {
@@ -90,4 +93,13 @@ uint8_t WIFI::scanVisibleNetworks() {
   logln("Scanning for networks...");
   visibleNetworkCount = WiFi.scanNetworks();
   return visibleNetworkCount;
+}
+
+void WIFI::getAllVisibleNetworks(std::function<void(ScanResult* results, size_t results_length)> callback) {
+  auto network_count = scanVisibleNetworks();
+  size_t i = 0;
+  while (i < network_count) {
+    i += getVisibleNetworks(i, m_scan_results_buffer, m_scan_result_buffer_size);
+    callback(m_scan_results_buffer, m_scan_result_buffer_size);
+  }
 }

@@ -17,7 +17,7 @@
 
 constexpr uint64_t ONE_SECOND_IN_MICROSECONDS = 1000 * 1000;
 
-WIFI wifi;
+WIFI wifi(SCAN_RESULT_BUFFER_SIZE);
 ScanResult scanResultBuffer[SCAN_RESULT_BUFFER_SIZE];
 ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,43,111));
 
@@ -32,19 +32,18 @@ static void onCommandReceived(Command& command) {
   logln(command.getSleepTimeInSeconds());
 
   switch (command.getType()) {
-    case CommandType::SLEEP: /*{
+    case CommandType::SLEEP: {
       Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
-    } break; */
+    } break;
     case CommandType::SEND_TRACKING_INFO: {
-      // TODO: This is probably not right yet
-      logln("Scanning for networks");
-      wifi.scanVisibleNetworks();
-      logln("Scan done");
-      wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
-      TrackerResponse trackerResponse;
-      memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
-      trackerResponse.toCBOR(bytes, sizeof(bytes));
-      apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
+      wifi.getAllVisibleNetworks([] (ScanResult* scan_results, size_t scan_result_count) {
+        TrackerResponse trackerResponse;
+        memcpy(scan_results, trackerResponse.scanResults, scan_result_count);
+        trackerResponse.toCBOR(bytes, sizeof(bytes));
+        apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {
+          logln("Sent scan results to server");
+        });
+      });
     } break;
     default:
       logln("Unknown command");

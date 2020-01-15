@@ -4,12 +4,11 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
-#define SCAN_RESULT_BUFFER_SIZE 5
 #define LOCAL_UDP_PORT 4210
 
 class WIFI {
   public:
-    WIFI();
+    WIFI(size_t scan_results_buffer_size);
     ~WIFI();
 
     /**
@@ -31,10 +30,19 @@ class WIFI {
      */
     uint8_t getVisibleNetworks(uint8_t startAt, ScanResult* buffer, uint8_t bufferSize);
 
+    /**
+     * Retrieves all visible networks in batches (configured in the constructor) and passes each
+     * batch to the given callback. Depending on the batch size and the count of networks in the
+     * area, the callback will be called multiple times.
+     */
+    void getAllVisibleNetworks(std::function<void(ScanResult* results, size_t results_length)>);
+
     WiFiUDP& getUDP();
 
   private:
     WiFiUDP udp;
     bool connectLoop();
     uint8_t visibleNetworkCount;
+    size_t m_scan_result_buffer_size;
+    ScanResult* m_scan_results_buffer;
 };
