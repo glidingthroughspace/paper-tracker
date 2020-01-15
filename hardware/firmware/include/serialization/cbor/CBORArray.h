@@ -8,7 +8,7 @@
 
 class CBORArray : public CBORValue {
   protected: 
-    CBORArray(char* key) : CBORValue{CBORType::Array, key, strlen(key)} {};
+    CBORArray(const char* key) : CBORValue(CBORType::Array, key, strlen(key)) {};
   private:
     CBORArray() = delete;
   public:
@@ -43,7 +43,7 @@ class StaticCBORArray : public CBORArray {
       // TODO: This is a no-op for now. We don't currently need to deserialize arrays
       return false;
     };
-    StaticCBORArray(char* key) : CBORArray{key} {};
+    StaticCBORArray(const char* key) : CBORArray{key} {};
     size_t size() const { return m_size; };
     T& operator[](int index) { return arr[index]; };
 };
