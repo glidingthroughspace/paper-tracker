@@ -50,6 +50,21 @@ package model {
     class Room
     class BSSIDTrackingData
   }
+  
+  class Workflow {
+  	String Label
+    Boolean IsTemplate
+  }
+  
+  class Step {
+  	String Label
+    Time StartedOn
+    Time CompletedOn
+  }
+  together {
+  	class Workflow
+    class Step
+  }
 
   package communication {
     class TrackerResponse {
@@ -79,6 +94,11 @@ package model {
   Command -- CommandType
 
   Room "1" -- "0..*" BSSIDTrackingData
+
+  Workflow -- Step : StartStep
+  Workflow -- Step : CurrentStep
+  Step "1" -- "0..1" Room
+  Step "1" -- "0..2" Step
 
   TrackerResponse <|-- TrackingInformationResponse
   TrackingInformationResponse "1" -- "0..*" ScanResult
