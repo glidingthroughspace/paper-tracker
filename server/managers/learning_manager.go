@@ -115,6 +115,9 @@ func (mgr *LearningManager) NewTrackingData(trackerID int, scanRes []*models.Sca
 		err = mgr.newLearningTrackingData(trackerID, scanRes)
 	case models.StatusTracking:
 		err = errors.New("Not implemented yes") //TODO
+	default:
+		err = errors.New("Unknown tracker status")
+		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unknown tracker status")
 	}
 
 	if err != nil {

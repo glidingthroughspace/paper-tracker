@@ -31,6 +31,16 @@ func (rep *GormWorkflowRepository) GetWorkflowByID(workflowID models.WorkflowID)
 	return
 }
 
+func (rep *GormWorkflowRepository) UpdateWorkflow(workflow *models.Workflow) (err error) {
+	err = databaseConnection.Save(workflow).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) DeleteWorkflow(workflowID models.WorkflowID) (err error) {
+	err = databaseConnection.Delete(&models.Workflow{ID: workflowID}).Error
+	return
+}
+
 func (rep *GormWorkflowRepository) CreateStep(step *models.Step) (err error) {
 	err = databaseConnection.Create(step).Error
 	return
@@ -39,5 +49,15 @@ func (rep *GormWorkflowRepository) CreateStep(step *models.Step) (err error) {
 func (rep *GormWorkflowRepository) GetStepByID(stepID models.StepID) (step *models.Step, err error) {
 	step = &models.Step{}
 	err = databaseConnection.First(step, &models.Step{ID: stepID}).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) UpdateStep(step *models.Step) (err error) {
+	err = databaseConnection.Save(step).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) DeleteStep(stepID models.StepID) (err error) {
+	err = databaseConnection.Delete(&models.Step{ID: stepID}).Error
 	return
 }
