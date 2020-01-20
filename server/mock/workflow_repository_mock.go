@@ -62,6 +62,34 @@ func (mr *MockWorkflowRepositoryMockRecorder) GetWorkflowByID(workflowID interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWorkflowByID", reflect.TypeOf((*MockWorkflowRepository)(nil).GetWorkflowByID), workflowID)
 }
 
+// UpdateWorkflow mocks base method
+func (m *MockWorkflowRepository) UpdateWorkflow(workflow *models.Workflow) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateWorkflow", workflow)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateWorkflow indicates an expected call of UpdateWorkflow
+func (mr *MockWorkflowRepositoryMockRecorder) UpdateWorkflow(workflow interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateWorkflow", reflect.TypeOf((*MockWorkflowRepository)(nil).UpdateWorkflow), workflow)
+}
+
+// DeleteWorkflow mocks base method
+func (m *MockWorkflowRepository) DeleteWorkflow(workflowID models.WorkflowID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteWorkflow", workflowID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteWorkflow indicates an expected call of DeleteWorkflow
+func (mr *MockWorkflowRepositoryMockRecorder) DeleteWorkflow(workflowID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteWorkflow", reflect.TypeOf((*MockWorkflowRepository)(nil).DeleteWorkflow), workflowID)
+}
+
 // CreateStep mocks base method
 func (m *MockWorkflowRepository) CreateStep(step *models.Step) error {
 	m.ctrl.T.Helper()
@@ -89,6 +117,34 @@ func (m *MockWorkflowRepository) GetStepByID(stepID models.StepID) (*models.Step
 func (mr *MockWorkflowRepositoryMockRecorder) GetStepByID(stepID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStepByID", reflect.TypeOf((*MockWorkflowRepository)(nil).GetStepByID), stepID)
+}
+
+// UpdateStep mocks base method
+func (m *MockWorkflowRepository) UpdateStep(step *models.Step) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateStep", step)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateStep indicates an expected call of UpdateStep
+func (mr *MockWorkflowRepositoryMockRecorder) UpdateStep(step interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStep", reflect.TypeOf((*MockWorkflowRepository)(nil).UpdateStep), step)
+}
+
+// DeleteStep mocks base method
+func (m *MockWorkflowRepository) DeleteStep(stepID models.StepID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteStep", stepID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteStep indicates an expected call of DeleteStep
+func (mr *MockWorkflowRepositoryMockRecorder) DeleteStep(stepID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteStep", reflect.TypeOf((*MockWorkflowRepository)(nil).DeleteStep), stepID)
 }
 
 // IsRecordNotFoundError mocks base method
