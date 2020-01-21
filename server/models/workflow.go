@@ -9,16 +9,19 @@ type Workflow struct {
 	ID          WorkflowID `json:"id" gorm:"primary_key;auto_increment"`
 	Label       string     `json:"label"`
 	IsTemplate  bool       `json:"is_template"`
-	StartStep   StepID     `json:"start_step"`
-	CurrentStep StepID     `json:"current_step"`
+	StartStep   StepID     `json:"-"`
+	CurrentStep StepID     `json:"-"`
+	Steps       []*Step    `json:"steps" gorm:"-"`
 }
 
 type Step struct {
-	ID          StepID    `json:"id" gorm:"primary_key;auto_increment"`
-	Label       string    `json:"label"`
-	StartedOn   time.Time `json:"started_on"`
-	CompletedOn time.Time `json:"completed_on"`
-	RoomID      RoomID    `json:"room_id"`
+	ID          StepID             `json:"id" gorm:"primary_key;auto_increment"`
+	Label       string             `json:"label"`
+	StartedOn   time.Time          `json:"started_on"`
+	CompletedOn time.Time          `json:"completed_on"`
+	RoomID      RoomID             `json:"room_id"`
+	FinishStep  bool               `json:"finish_step"`
+	Options     map[string][]*Step `json:"options" gorm:"-"`
 }
 
 type NextStep struct {
