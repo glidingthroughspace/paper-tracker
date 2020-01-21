@@ -61,3 +61,8 @@ func (rep *GormWorkflowRepository) DeleteStep(stepID models.StepID) (err error) 
 	err = databaseConnection.Delete(&models.Step{ID: stepID}).Error
 	return
 }
+
+func (rep *GormWorkflowRepository) CreateNextStep(nextStep *models.NextStep) (err error) {
+	err = databaseConnection.Create(nextStep).Error
+	return
+}

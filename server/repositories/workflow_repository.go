@@ -11,5 +11,6 @@ type WorkflowRepository interface {
 	GetStepByID(stepID models.StepID) (*models.Step, error)
 	UpdateStep(step *models.Step) error
 	DeleteStep(stepID models.StepID) error
+	CreateNextStep(nextStep *models.NextStep) error
 	IsRecordNotFoundError(err error) bool
 }

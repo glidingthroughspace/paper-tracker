@@ -65,3 +65,38 @@ func (mgr *WorkflowManager) CreateWorkflowStart(workflowID models.WorkflowID, st
 	}
 	return
 }
+
+func (mgr *WorkflowManager) AddStep(prevStepID models.StepID, decisionLabel string, step *models.Step) (err error) {
+	addStepLog := log.WithFields(log.Fields{"prevStepID": prevStepID, "step": step})
+
+	step.ID = 0
+	err = mgr.workflowRep.CreateStep(step)
+	if err != nil {
+		addStepLog.WithField("err", err).Error("Failed to create step to add step")
+		return
+	}
+
+	_, err = mgr.workflowRep.GetStepByID(prevStepID)
+	if mgr.workflowRep.IsRecordNotFoundError(err) {
+		addStepLog.WithField("err", err).Warn("Previous step not found to add step")
+		mgr.workflowRep.DeleteStep(step.ID)
+		return
+	} else if err != nil {
+		addStepLog.WithField("err", err).Error("Failed to get previous step to add step")
+		mgr.workflowRep.DeleteStep(step.ID)
+		return
+	}
+
+	nextStep := &models.NextStep{
+		PrevID:        prevStepID,
+		NextID:        step.ID,
+		DecisionLabel: decisionLabel,
+	}
+	err = mgr.workflowRep.CreateNextStep(nextStep)
+	if err != nil {
+		addStepLog.WithField("err", err).Error("Failed to get insert nextStep to add step")
+		mgr.workflowRep.DeleteStep(step.ID)
+		return
+	}
+	return
+}
