@@ -96,7 +96,7 @@ uint8_t WIFI::scanVisibleNetworks() {
 
 std::vector<ScanResult> WIFI::getAllVisibleNetworks() {
   scanVisibleNetworks();
-  std::vector<ScanResult> scanResults(visibleNetworkCount);
+  std::vector<ScanResult> scanResults(0);
   for (auto i = 0; i < visibleNetworkCount; i++) {
     scanResults.emplace_back(WiFi.RSSI(i), WiFi.BSSIDstr(i), WiFi.SSID(i));
   }

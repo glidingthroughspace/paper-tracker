@@ -19,6 +19,8 @@ class ScanResult {
     }
 
     void toCBOR(CBORDocument& cbor) {
+			logln("Serializing scan result:");
+			print();
       cbor.begin_map(3);
 			RSSI.serialize_to(cbor);
 			BSSID.serialize_to(cbor);
