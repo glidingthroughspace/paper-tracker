@@ -1,5 +1,5 @@
-#include <serialization/cbor/CBORParser.h>
-#include <log.h>
+#include <serialization/cbor/CBORParser.hpp>
+#include <log.hpp>
 #include <string.h>
 
 CBORParser::CBORParser(uint8_t* buf, size_t buflen) : bs{buf, buflen}, reader{bs} {

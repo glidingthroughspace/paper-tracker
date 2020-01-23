@@ -1,7 +1,10 @@
-#include <wifi.h>
-#include <log.h>
-#include <stdio.h>
-#include <string.h>
+#include <wifi.hpp>
+
+#include <log.hpp>
+#include <power.hpp>
+
+#include <cstdio>
+#include <cstring>
 
 #ifndef NDEBUG
 #define WIFI_CONNECTION_DELAY 250
@@ -11,18 +14,15 @@
 
 #include "esp_wpa2.h"
 
-WIFI::WIFI(size_t scan_result_buffer_size) {
-  m_scan_result_buffer_size = scan_result_buffer_size;
-  m_scan_results_buffer = static_cast<ScanResult*>(malloc(scan_result_buffer_size * sizeof(ScanResult)));
+WIFI::WIFI() {
   // This improves performance. WiFi credentials are hard-coded when flashing,
   // therefore storing them again in flash does not make sense.
   WiFi.persistent(false);
-  WiFi.disconnect();
+  WiFi.disconnect(true);
 }
 
 WIFI::~WIFI() {
   WiFi.disconnect();
-  free(m_scan_results_buffer);
 }
 
 WiFiUDP& WIFI::getUDP() {
@@ -42,47 +42,43 @@ bool WIFI::connect(const char* ssid, const char* username, const char* password)
   log(ssid);
   log(" with user ");
   logln(username);
+  WiFi.mode(WIFI_STA);
+
   esp_wifi_sta_wpa2_ent_set_identity((uint8_t*)username, strlen(username));
   esp_wifi_sta_wpa2_ent_set_username((uint8_t*)username, strlen(username));
   esp_wifi_sta_wpa2_ent_set_password((uint8_t*)password, strlen(password));
 
   esp_wpa2_config_t config = WPA2_CONFIG_INIT_DEFAULT();
-  WiFi.mode(WIFI_STA);
 
-  logln("Initialized wifi config");
   if (esp_wifi_sta_wpa2_ent_enable(&config)) {
     logln("Failed to enable WPA2");
     return false;
   }
 
+  logln("Initialized wifi config");
   WiFi.begin(ssid);
-
   return connectLoop();
 }
 
 bool WIFI::connectLoop() {
+	unsigned int counter = 0;
   while(WiFi.status() != WL_CONNECTED) {
     log(WiFi.status());
     delay(WIFI_CONNECTION_DELAY);
+		counter++;
+		// TODO: We might increase this timeout after field-tests
+		// Try for 10 seconds
+		if (counter > 10000 / WIFI_CONNECTION_DELAY) {
+			logln();
+			logln("Connection failed, trying again in 10 seconds");
+			Power::deep_sleep_for_seconds(10);
+		}
   }
   logln();
   log("Connected, IP address is: ");
   logln(WiFi.localIP());
   udp.begin(LOCAL_UDP_PORT);
   return true;
-}
-
-uint8_t WIFI::getVisibleNetworks(uint8_t startAt, ScanResult* buffer, uint8_t bufferSize) {
-  const uint8_t networkCount = getVisibleNetworkCount();
-  int i;
-  for (i = startAt; i < startAt + bufferSize && i < networkCount; i++) {
-    ScanResult result{};
-    result.RSSI.value = WiFi.RSSI(i);
-    result.BSSID.set(WiFi.BSSIDstr(i));
-    result.SSID.set(WiFi.SSID(i));
-    buffer[i - startAt] = result;
-  }
-  return i - startAt;
 }
 
 uint8_t WIFI::getVisibleNetworkCount() const {
@@ -92,14 +88,17 @@ uint8_t WIFI::getVisibleNetworkCount() const {
 uint8_t WIFI::scanVisibleNetworks() {
   logln("Scanning for networks...");
   visibleNetworkCount = WiFi.scanNetworks();
+	log("Found ");
+	log(visibleNetworkCount);
+	logln(" networks in reach");
   return visibleNetworkCount;
 }
 
-void WIFI::getAllVisibleNetworks(std::function<void(ScanResult* results, size_t results_length)> callback) {
-  auto network_count = scanVisibleNetworks();
-  size_t i = 0;
-  while (i < network_count) {
-    i += getVisibleNetworks(i, m_scan_results_buffer, m_scan_result_buffer_size);
-    callback(m_scan_results_buffer, m_scan_result_buffer_size);
+std::vector<ScanResult> WIFI::getAllVisibleNetworks() {
+  scanVisibleNetworks();
+  std::vector<ScanResult> scanResults(visibleNetworkCount);
+  for (auto i = 0; i < visibleNetworkCount; i++) {
+    scanResults.emplace_back(WiFi.RSSI(i), WiFi.BSSIDstr(i), WiFi.SSID(i));
   }
+  return scanResults;
 }

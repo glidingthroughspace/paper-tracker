@@ -1,4 +1,4 @@
-#include <log.h>
+#include <log.hpp>
 
 void initSerial(const unsigned long baudRate) {
   #ifndef NDEBUG

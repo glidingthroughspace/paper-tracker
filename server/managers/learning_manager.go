@@ -116,6 +116,12 @@ func (mgr *LearningManager) NewTrackingData(trackerID int, scanRes []*models.Sca
 	case models.StatusTracking:
 		err = errors.New("Not implemented yes") //TODO
 	}
+
+	if err != nil {
+		fmt.Println(err)
+		log.Error(err)
+	}
+
 	return
 }
 

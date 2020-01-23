@@ -1,6 +1,6 @@
-#include <power.h>
+#include <power.hpp>
 
-#include <log.h>
+#include <log.hpp>
 
 TinyPICO Power::tinypico = TinyPICO();
 

@@ -1,0 +1,11 @@
+clang
+%c -std=c11
+%cpp -std=c++14
+%h -x
+%h c++-header
+-I/home/pascal/.platformio/packages/framework-arduinoespressif32/libraries/
+-I/home/pascal/.platformio/packages/framework-arduinoespressif32/cores/esp32/
+-Iinclude/
+-Ilib/libcbor/
+-Ilib/utils/
+-I.pio/libdeps/tinypico/**

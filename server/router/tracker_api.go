@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"paper-tracker/managers"
 	"paper-tracker/models/communication"
 
@@ -57,6 +58,9 @@ func (r *CoapRouter) trackerTrackingData() coap.HandlerFunc {
 
 		resp := &communication.TrackingCmdResponse{}
 		err = dec.Decode(resp)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		err = managers.GetLearningManager().NewTrackingData(trackerID, resp.ScanResults)
 		if err != nil {

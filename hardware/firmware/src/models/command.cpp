@@ -1,13 +1,13 @@
-#include <models/command.h>
+#include <models/command.hpp>
 
-#include <log.h>
-#include <serialization/cbor/CBORParser.h>
+#include <log.hpp>
+#include <serialization/cbor/CBORParser.hpp>
 
 bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
   auto cbor = CBORParser(buffer, bufferSize);
 
   bool parsedType = false;
-  bool parsedSleepTime = false; 
+  bool parsedSleepTime = false;
 
   if (!cbor.isWellformedModel()) {
     logln("Malformed CBOR data while parsing Command");

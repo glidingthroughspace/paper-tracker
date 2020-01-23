@@ -1,6 +1,7 @@
 #pragma once
 
-#include <serialization/cbor/CBORValue.h>
+#include <serialization/cbor/CBORValue.hpp>
+#include <serialization/cbor/CBORParser.hpp>
 
 enum class CommandType {
 	SEND_TRACKING_INFO = 0,
