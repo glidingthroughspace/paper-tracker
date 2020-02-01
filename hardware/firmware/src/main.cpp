@@ -15,7 +15,7 @@
 constexpr uint64_t ONE_SECOND_IN_MICROSECONDS = 1000 * 1000;
 
 WIFI wifi;
-ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,43,91));
+ApiClient apiClient(&wifi.getUDP(), IPAddress(192,168,43,153));
 
 void haltIf(bool condition, const char* message);
 
@@ -42,7 +42,7 @@ static void onCommandReceived(Command& command) {
 				log(" ");
 			}
 			logln();
-			apiClient.writeTrackingData(cborDocument.bytes(), cborDocument.size(), [] () {
+			apiClient.writeTrackingData(cborDocument.serialize(), [] () {
           logln("Sent scan results to server");
 			});
 			} break;
