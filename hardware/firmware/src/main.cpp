@@ -18,10 +18,11 @@ WIFI wifi;
 ApiClient apiClient(&wifi.getUDP(), IPAddress(192,168,43,153));
 
 void haltIf(bool condition, const char* message);
+void sendScanResultsInChunks(std::vector<ScanResult>&);
 
 static void onCommandReceived(Command& command) {
   log("Next Command is ");
-  log((uint8_t) command.getType());
+  log(command.getTypeString());
   log(" and sleep time in seconds is ");
   logln(command.getSleepTimeInSeconds());
 
@@ -31,22 +32,12 @@ static void onCommandReceived(Command& command) {
     } break;
     case CommandType::SEND_TRACKING_INFO: {
       auto scanResults = wifi.getAllVisibleNetworks();
-      TrackerResponse trackerResponse{100, scanResults};
-			CBORDocument cborDocument;
-      trackerResponse.toCBOR(cborDocument);
-			auto bytes = cborDocument.bytes();
-			auto size = cborDocument.size();
-			logln();
-			for (auto i = 0; i < size; i++) {
-				log(bytes[i]);
-				log(" ");
-			}
-			logln();
-			apiClient.writeTrackingData(cborDocument.serialize(), [] () {
-          logln("Sent scan results to server");
-			});
-			} break;
+			sendScanResultsInChunks(scanResults);
+			Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
+		} break;
     default:
+			// We already sleep & reset the tracker when deserializing the command, so this should never
+			// be reached.
       logln("Unknown command");
   }
 }
@@ -73,10 +64,30 @@ void loop() {
   apiClient.loop();
 }
 
+void sendScanResultsInChunks(std::vector<ScanResult>& scanResults) {
+	constexpr size_t batchSize = 10;
+	for (auto i = 0; i < scanResults.size(); i+=batchSize) {
+		auto begin = scanResults.begin() + i;
+		auto end = (i + batchSize > scanResults.size()) ? scanResults.end() : scanResults.begin() + i + batchSize;
+		std::vector<ScanResult> batch(begin, end);
+
+		TrackerResponse trackerResponse{100, batch};
+		CBORDocument cborDocument;
+		trackerResponse.toCBOR(cborDocument);
+		auto bytes = cborDocument.bytes();
+		auto size = cborDocument.size();
+		logln();
+		logln();
+		apiClient.writeTrackingData(cborDocument.serialize(), [] () {
+				logln("Sent scan results to server");
+		});
+	}
+}
+
 void haltIf(bool condition, const char* message) {
   if (condition) {
     // TODO: Maybe blink the LED?
-    logln("Failed to start CoAP client! Stalling Tracker!");
+    logln("Setup action failed, stalling tracker!");
     while(true) {;}
   }
 }

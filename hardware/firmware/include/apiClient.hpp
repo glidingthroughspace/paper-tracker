@@ -9,7 +9,7 @@
 #include <vector>
 #include <functional>
 
-typedef std::function<void(coap::Packet&)> coap_callback;
+using coap_callback = std::function<void(coap::Packet&)>;
 
 class ApiClient {
   public:

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <serialization/cbor/CBORValue.hpp>
 #include <serialization/cbor/CBORParser.hpp>
 
@@ -18,7 +20,9 @@ class Command {
     bool parseType(CBORParser&);
   public:
     bool fromCBOR(uint8_t* buffer, size_t bufferSize);
+    bool fromCBOR(std::vector<uint8_t>);
 
     uint16_t getSleepTimeInSeconds() const;
     CommandType getType() const;
+		const char* getTypeString() const;
 };

@@ -98,7 +98,6 @@ uint16_t Client::send_packet(Packet& packet, IPAddress ip) {
 	// make the option header
 	uint16_t running_delta = 0;
 	for (auto i = 0; i < packet.options.size(); i++)  {
-		Serial.printf("Option #%d is %d with size %d\n", i, packet.options[i].number, packet.options[i].length);
 		uint32_t optdelta;
 		uint8_t len, delta;
 
@@ -138,12 +137,16 @@ uint16_t Client::send_packet(Packet& packet, IPAddress ip) {
 		buffer.insert(buffer.end(), packet.payload.begin(), packet.payload.end());
 	}
 
-	Serial.printf("Packet has size: %d\n", buffer.size());
-
 	// send the packet
-	udp->beginPacket(ip, port);
-	udp->write(buffer.data(), buffer.size());
-	udp->endPacket();
+	if (udp->beginPacket(ip, port) == 0) {
+		return 0;
+	}
+	if (udp->write(buffer.data(), buffer.size()) < buffer.size()) {
+		return 0;
+	}
+	if (udp->endPacket() == 0) {
+		return 0;
+	}
 
 	return packet.messageid;
 }
@@ -195,7 +198,7 @@ bool Client::loop() {
 
 			if (p+1 < end && *p == 0xFF) {
 				std::vector<uint8_t> payload;
-				payload.insert(payload.end(), (p + 1), (p + (end - (p + 1))));
+				payload.insert(payload.end(), (p + 1), end);
 				packet.payload = std::move(payload);
 			} else {
 				packet.payload = {};
@@ -203,7 +206,6 @@ bool Client::loop() {
 		}
 
 		if (packet.type == (uint8_t)PacketType::ACK) {
-			// call response function
 			resp(packet, udp->remoteIP(), udp->remotePort());
 		}  else {
 			// This unexpected

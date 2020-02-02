@@ -13,7 +13,7 @@ ApiClient::ApiClient(WiFiUDP* udp, IPAddress serverIP)
 
 bool ApiClient::start() {
   coap.set_callback(coap_response_callback);
-  return coap.start();
+  return coap.start(5688);
 }
 
 bool ApiClient::loop() {
@@ -32,7 +32,7 @@ void ApiClient::requestNextCommand(std::function<void(Command&)> callback) {
 			return;
     }
     Command cmd;
-    if (!cmd.fromCBOR(packet.payload.data(), packet.payload.size())) {
+    if (!cmd.fromCBOR(packet.payload)) {
       logln("Could not deserialize next command, going to sleep for 10 seconds");
 			Power::deep_sleep_for_seconds(10);
       return;
