@@ -36,7 +36,7 @@ class CBORValue {
     const char* m_key;
     size_t m_keylen;
     void write_key_to(CBORDocument& cbor);
-		CBORValue(CBORType type, const char* key, size_t keylength) : m_type{type}, m_key{key}, m_keylen{keylength} {};
+    CBORValue(CBORType type, const char* key, size_t keylength) : m_type{type}, m_key{key}, m_keylen{keylength} {};
   public:
     const char* key() const { return m_key; };
     CBORType type() const { return m_type; };

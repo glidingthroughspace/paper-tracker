@@ -6,8 +6,8 @@
 
 class ScanResult {
   public:
-		ScanResult(): RSSI{"RSSI"}, BSSID{"BSSID"}, SSID{"SSID"} {};
-		ScanResult(int32_t rssi, const String& bssid, const String& ssid): RSSI{"RSSI", rssi}, BSSID{"BSSID", bssid}, SSID{"SSID", ssid} {};
+    ScanResult(): RSSI{"RSSI"}, BSSID{"BSSID"}, SSID{"SSID"} {};
+    ScanResult(int32_t rssi, const String& bssid, const String& ssid): RSSI{"RSSI", rssi}, BSSID{"BSSID", bssid}, SSID{"SSID", ssid} {};
 
     void print() {
       log("SSID: ");
@@ -19,14 +19,14 @@ class ScanResult {
     }
 
     void toCBOR(CBORDocument& cbor) {
-			logln("Serializing scan result:");
-			print();
+      logln("Serializing scan result:");
+      print();
       cbor.begin_map(3);
-			RSSI.serialize_to(cbor);
-			BSSID.serialize_to(cbor);
-			SSID.serialize_to(cbor);
+      RSSI.serialize_to(cbor);
+      BSSID.serialize_to(cbor);
+      SSID.serialize_to(cbor);
     }
-	private:
+  private:
     CBORInt32 RSSI;
     CBORString BSSID;
     CBORString SSID;

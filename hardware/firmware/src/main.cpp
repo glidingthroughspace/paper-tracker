@@ -32,12 +32,12 @@ static void onCommandReceived(Command& command) {
     } break;
     case CommandType::SEND_TRACKING_INFO: {
       auto scanResults = wifi.getAllVisibleNetworks();
-			sendScanResultsInChunks(scanResults);
-			Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
-		} break;
+      sendScanResultsInChunks(scanResults);
+      Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
+    } break;
     default:
-			// We already sleep & reset the tracker when deserializing the command, so this should never
-			// be reached.
+      // We already sleep & reset the tracker when deserializing the command, so this should never
+      // be reached.
       logln("Unknown command");
   }
 }
@@ -65,23 +65,23 @@ void loop() {
 }
 
 void sendScanResultsInChunks(std::vector<ScanResult>& scanResults) {
-	constexpr size_t batchSize = 10;
-	for (auto i = 0; i < scanResults.size(); i+=batchSize) {
-		auto begin = scanResults.begin() + i;
-		auto end = (i + batchSize > scanResults.size()) ? scanResults.end() : scanResults.begin() + i + batchSize;
-		std::vector<ScanResult> batch(begin, end);
+  constexpr size_t batchSize = 10;
+  for (auto i = 0; i < scanResults.size(); i+=batchSize) {
+    auto begin = scanResults.begin() + i;
+    auto end = (i + batchSize > scanResults.size()) ? scanResults.end() : scanResults.begin() + i + batchSize;
+    std::vector<ScanResult> batch(begin, end);
 
-		TrackerResponse trackerResponse{100, batch};
-		CBORDocument cborDocument;
-		trackerResponse.toCBOR(cborDocument);
-		auto bytes = cborDocument.bytes();
-		auto size = cborDocument.size();
-		logln();
-		logln();
-		apiClient.writeTrackingData(cborDocument.serialize(), [] () {
-				logln("Sent scan results to server");
-		});
-	}
+    TrackerResponse trackerResponse{100, batch};
+    CBORDocument cborDocument;
+    trackerResponse.toCBOR(cborDocument);
+    auto bytes = cborDocument.bytes();
+    auto size = cborDocument.size();
+    logln();
+    logln();
+    apiClient.writeTrackingData(cborDocument.serialize(), [] () {
+        logln("Sent scan results to server");
+    });
+  }
 }
 
 void haltIf(bool condition, const char* message) {

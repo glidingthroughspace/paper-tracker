@@ -28,13 +28,13 @@ void ApiClient::requestNextCommand(std::function<void(Command&)> callback) {
   storeCallback(messageID, [callback] (coap::Packet& packet) {
     if (ApiClient::isErrorResponse(packet)) {
       logln("Requesting the next action failed, going to sleep for 10 seconds");
-			Power::deep_sleep_for_seconds(10);
-			return;
+      Power::deep_sleep_for_seconds(10);
+      return;
     }
     Command cmd;
     if (!cmd.fromCBOR(packet.payload)) {
       logln("Could not deserialize next command, going to sleep for 10 seconds");
-			Power::deep_sleep_for_seconds(10);
+      Power::deep_sleep_for_seconds(10);
       return;
     }
 

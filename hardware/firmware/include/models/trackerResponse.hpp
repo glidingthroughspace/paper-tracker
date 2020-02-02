@@ -9,8 +9,8 @@
 class TrackerResponse {
   public:
     TrackerResponse(uint8_t batteryPercentage, std::vector<ScanResult> scanResults);
-		void toCBOR(CBORDocument&);
-	private:
+    void toCBOR(CBORDocument&);
+  private:
     CBORUint8 m_battery_percentage;
     std::vector<ScanResult> m_scan_results;
 };

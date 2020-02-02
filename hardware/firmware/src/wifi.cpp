@@ -61,18 +61,18 @@ bool WIFI::connect(const char* ssid, const char* username, const char* password)
 }
 
 bool WIFI::connectLoop() {
-	unsigned int counter = 0;
+  unsigned int counter = 0;
   while(WiFi.status() != WL_CONNECTED) {
     log(WiFi.status());
     delay(WIFI_CONNECTION_DELAY);
-		counter++;
-		// TODO: We might increase this timeout after field-tests
-		// Try for 10 seconds
-		if (counter > 10000 / WIFI_CONNECTION_DELAY) {
-			logln();
-			logln("Connection failed, trying again in 10 seconds");
-			Power::deep_sleep_for_seconds(10);
-		}
+    counter++;
+    // TODO: We might increase this timeout after field-tests
+    // Try for 10 seconds
+    if (counter > 10000 / WIFI_CONNECTION_DELAY) {
+      logln();
+      logln("Connection failed, trying again in 10 seconds");
+      Power::deep_sleep_for_seconds(10);
+    }
   }
   logln();
   log("Connected, IP address is: ");
@@ -88,9 +88,9 @@ uint8_t WIFI::getVisibleNetworkCount() const {
 uint8_t WIFI::scanVisibleNetworks() {
   logln("Scanning for networks...");
   visibleNetworkCount = WiFi.scanNetworks();
-	log("Found ");
-	log(visibleNetworkCount);
-	logln(" networks in reach");
+  log("Found ");
+  log(visibleNetworkCount);
+  logln(" networks in reach");
   return visibleNetworkCount;
 }
 

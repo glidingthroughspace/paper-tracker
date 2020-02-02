@@ -6,9 +6,9 @@
 #include <serialization/cbor/CBORParser.hpp>
 
 enum class CommandType {
-	SEND_TRACKING_INFO = 0,
-	SIGNAL_LOCATION    = 1,
-	SLEEP              = 2,
+  SEND_TRACKING_INFO = 0,
+  SIGNAL_LOCATION    = 1,
+  SLEEP              = 2,
   INVALID            = 255,
 };
 
@@ -24,5 +24,5 @@ class Command {
 
     uint16_t getSleepTimeInSeconds() const;
     CommandType getType() const;
-		const char* getTypeString() const;
+    const char* getTypeString() const;
 };

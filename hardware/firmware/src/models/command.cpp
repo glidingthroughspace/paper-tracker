@@ -34,7 +34,7 @@ bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
 }
 
 bool Command::fromCBOR(std::vector<uint8_t> data) {
-	return fromCBOR(data.data(), data.size());
+  return fromCBOR(data.data(), data.size());
 }
 
 uint16_t Command::getSleepTimeInSeconds() const {
@@ -58,14 +58,14 @@ bool Command::parseType(CBORParser& cbor) {
 }
 
 const char* Command::getTypeString() const {
-	switch (type.value) {
-		case (uint8_t)CommandType::SEND_TRACKING_INFO:
-			return "SendTrackingInfo";
-		case (uint8_t)CommandType::SIGNAL_LOCATION:
-			return "SignalLocation";
-		case (uint8_t)CommandType::SLEEP:
-			return "Sleep";
-		default:
-			return "INVALID";
-	}
+  switch (type.value) {
+    case (uint8_t)CommandType::SEND_TRACKING_INFO:
+      return "SendTrackingInfo";
+    case (uint8_t)CommandType::SIGNAL_LOCATION:
+      return "SignalLocation";
+    case (uint8_t)CommandType::SLEEP:
+      return "Sleep";
+    default:
+      return "INVALID";
+  }
 }
