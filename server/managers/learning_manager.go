@@ -118,7 +118,6 @@ func (mgr *LearningManager) NewTrackingData(trackerID int, scanRes []*models.Sca
 	}
 
 	if err != nil {
-		fmt.Println(err)
 		log.Error(err)
 	}
 

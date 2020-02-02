@@ -2,7 +2,6 @@ package router
 
 import (
 	"errors"
-	"fmt"
 	"paper-tracker/models/communication"
 	"strconv"
 	"strings"
@@ -63,7 +62,6 @@ func (r *CoapRouter) writeCBOR(w coap.ResponseWriter, status coap.COAPCode, body
 }
 
 func (r *CoapRouter) writeError(w coap.ResponseWriter, code coap.COAPCode, err error) error {
-	fmt.Println(err)
 	return r.writeCBOR(w, code, &communication.ErrorResponse{Error: err.Error()})
 }
 

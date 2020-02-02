@@ -50,8 +50,6 @@ func (r *CoapRouter) trackerPollHandler() coap.HandlerFunc {
 			return
 		}
 
-		log.Println(cmd)
-
 		r.writeCBOR(w, coap.Content, cmd)
 	}
 }
