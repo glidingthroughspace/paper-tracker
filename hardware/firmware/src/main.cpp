@@ -2,32 +2,27 @@
 #include <WiFiUdp.h>
 #include <IPAddress.h>
 
-#include <log.h>
-#include <models/scanResult.h>
-#include <models/trackerResponse.h>
-#include <wifi.h>
-#include <apiClient.h>
-#include <power.h>
+#include <log.hpp>
+#include <models/scanResult.hpp>
+#include <models/trackerResponse.hpp>
+#include <serialization/cbor/CBORDocument.hpp>
+#include <wifi.hpp>
+#include <apiClient.hpp>
+#include <power.hpp>
 
-#include <credentials.h>
-
-#define SCAN_RESULT_BUFFER_SIZE 5
-// FIXME: This number is not correct
-#define SCAN_RESULT_MESSAGE_OVERHEAD 100
+#include <credentials.hpp>
 
 constexpr uint64_t ONE_SECOND_IN_MICROSECONDS = 1000 * 1000;
 
 WIFI wifi;
-ScanResult scanResultBuffer[SCAN_RESULT_BUFFER_SIZE];
-ApiClient apiClient(wifi.getUDP(), IPAddress(192,168,188,41));
-
-uint8_t bytes[SCAN_RESULT_BUFFER_SIZE * SCAN_RESULT_SIZE_BYTES + SCAN_RESULT_MESSAGE_OVERHEAD]{0};
+ApiClient apiClient(&wifi.getUDP(), IPAddress(192,168,43,153));
 
 void haltIf(bool condition, const char* message);
+void sendScanResultsInChunks(std::vector<ScanResult>&);
 
 static void onCommandReceived(Command& command) {
-  log("In Main: Next Command is ");
-  log((uint8_t) command.getType());
+  log("Next Command is ");
+  log(command.getTypeString());
   log(" and sleep time in seconds is ");
   logln(command.getSleepTimeInSeconds());
 
@@ -36,17 +31,13 @@ static void onCommandReceived(Command& command) {
       Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
     } break;
     case CommandType::SEND_TRACKING_INFO: {
-      // TODO: This is probably not right yet
-      logln("Scanning for networks");
-      wifi.scanVisibleNetworks();
-      logln("Scanned for networks");
-      wifi.getVisibleNetworks(0, scanResultBuffer, SCAN_RESULT_BUFFER_SIZE);
-      TrackerResponse trackerResponse{0};
-      memcpy(scanResultBuffer, trackerResponse.scanResults, SCAN_RESULT_BUFFER_SIZE);
-      trackerResponse.toCBOR(bytes, sizeof(bytes));
-      apiClient.writeTrackingData(bytes, sizeof(bytes), [] () {});
+      auto scanResults = wifi.getAllVisibleNetworks();
+      sendScanResultsInChunks(scanResults);
+      Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
     } break;
     default:
+      // We already sleep & reset the tracker when deserializing the command, so this should never
+      // be reached.
       logln("Unknown command");
   }
 }
@@ -56,10 +47,7 @@ void setup() {
   initSerial(115400);
   logln("Starting");
 
-  #ifndef NDEBUG
   Power::print_wakeup_reason();
-  #endif
-
 
   #ifdef WIFI_USERNAME
   haltIf(!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD), "Failed to connect to WiFi");
@@ -70,17 +58,36 @@ void setup() {
   haltIf(!apiClient.start(), "Failed to start the API client");
 
   apiClient.requestNextCommand(onCommandReceived);
-
 }
 
 void loop() {
   apiClient.loop();
 }
 
+void sendScanResultsInChunks(std::vector<ScanResult>& scanResults) {
+  constexpr size_t batchSize = 10;
+  for (auto i = 0; i < scanResults.size(); i+=batchSize) {
+    auto begin = scanResults.begin() + i;
+    auto end = (i + batchSize > scanResults.size()) ? scanResults.end() : scanResults.begin() + i + batchSize;
+    std::vector<ScanResult> batch(begin, end);
+
+    TrackerResponse trackerResponse{100, batch};
+    CBORDocument cborDocument;
+    trackerResponse.toCBOR(cborDocument);
+    auto bytes = cborDocument.bytes();
+    auto size = cborDocument.size();
+    logln();
+    logln();
+    apiClient.writeTrackingData(cborDocument.serialize(), [] () {
+        logln("Sent scan results to server");
+    });
+  }
+}
+
 void haltIf(bool condition, const char* message) {
   if (condition) {
     // TODO: Maybe blink the LED?
-    logln("Failed to start CoAP client! Stalling Tracker!");
+    logln("Setup action failed, stalling tracker!");
     while(true) {;}
   }
 }

@@ -3,6 +3,6 @@ package models
 type ScanResult struct {
 	TrackerID int `codec:"-"`
 	SSID      string
-	BSSID     int
+	BSSID     string
 	RSSID     int
 }

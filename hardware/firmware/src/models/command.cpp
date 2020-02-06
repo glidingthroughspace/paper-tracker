@@ -1,13 +1,13 @@
-#include <models/command.h>
+#include <models/command.hpp>
 
-#include <log.h>
-#include <serialization/cbor/CBORParser.h>
+#include <log.hpp>
+#include <serialization/cbor/CBORParser.hpp>
 
 bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
   auto cbor = CBORParser(buffer, bufferSize);
 
   bool parsedType = false;
-  bool parsedSleepTime = false; 
+  bool parsedSleepTime = false;
 
   if (!cbor.isWellformedModel()) {
     logln("Malformed CBOR data while parsing Command");
@@ -33,6 +33,10 @@ bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
   return parsedType && parsedSleepTime;
 }
 
+bool Command::fromCBOR(std::vector<uint8_t> data) {
+  return fromCBOR(data.data(), data.size());
+}
+
 uint16_t Command::getSleepTimeInSeconds() const {
   return sleepTimeSec.value;
 }
@@ -51,4 +55,17 @@ bool Command::parseType(CBORParser& cbor) {
     return false;
   }
   return true;
+}
+
+const char* Command::getTypeString() const {
+  switch (type.value) {
+    case (uint8_t)CommandType::SEND_TRACKING_INFO:
+      return "SendTrackingInfo";
+    case (uint8_t)CommandType::SIGNAL_LOCATION:
+      return "SignalLocation";
+    case (uint8_t)CommandType::SLEEP:
+      return "Sleep";
+    default:
+      return "INVALID";
+  }
 }

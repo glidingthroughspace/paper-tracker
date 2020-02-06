@@ -1,6 +1,7 @@
 #pragma once
 
 #include <TinyPICO.h>
+#include <cstdint>
 
 class Power {
   public:

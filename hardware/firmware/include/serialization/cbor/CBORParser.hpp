@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Arduino.h>
+
 #include <CBOR.h>
 #include <CBOR_parsing.h>
 #include <CBOR_streams.h>
@@ -21,6 +23,7 @@ class CBORParser {
     bool readInt(int64_t& target);
     bool readInt(int32_t& target);
     bool readCString(char* target, size_t& target_length);
+    bool readString(String& target);
   private:
     bool isAtEOF() const;
     cbor::BytesStream bs;

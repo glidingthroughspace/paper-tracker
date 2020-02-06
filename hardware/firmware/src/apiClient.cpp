@@ -1,17 +1,19 @@
-#include <apiClient.h>
+#include <apiClient.hpp>
 
-#include <log.h>
+#include <log.hpp>
+#include <power.hpp>
+#include <types.hpp>
 
 std::map<uint16_t, coap_callback> ApiClient::callbacks;
 
-ApiClient::ApiClient(WiFiUDP& udp, IPAddress serverIP) 
+ApiClient::ApiClient(WiFiUDP* udp, IPAddress serverIP)
   : coap(udp), serverIP(serverIP) {
 
 }
 
 bool ApiClient::start() {
-  coap.response(coap_response_callback);
-  return coap.start();
+  coap.set_callback(coap_response_callback);
+  return coap.start(5688);
 }
 
 bool ApiClient::loop() {
@@ -22,15 +24,17 @@ void ApiClient::requestNextCommand(std::function<void(Command&)> callback) {
   logln("Requesting next action from server");
   // FIXME: It is (in theory) possible for the server to answer so quickly that the response
   // callback is not registered yet. This is highly unlikely though.
-  uint16_t messageID = coap.get(serverIP, 5688, "tracker/poll", "trackerid=1");
-  storeCallback(messageID, [callback] (CoapPacket& packet) {
+  uint16_t messageID = coap.get(serverIP, "tracker/poll", std::vector<const char*>{"trackerid=1"});
+  storeCallback(messageID, [callback] (coap::Packet& packet) {
     if (ApiClient::isErrorResponse(packet)) {
-      logln("Requesting the next action failed");
+      logln("Requesting the next action failed, going to sleep for 10 seconds");
+      Power::deep_sleep_for_seconds(10);
       return;
     }
     Command cmd;
-    if (!cmd.fromCBOR(packet.payload, packet.payloadlen)) {
-      logln("Could not deserialize next command");
+    if (!cmd.fromCBOR(packet.payload)) {
+      logln("Could not deserialize next command, going to sleep for 10 seconds");
+      Power::deep_sleep_for_seconds(10);
       return;
     }
 
@@ -39,23 +43,30 @@ void ApiClient::requestNextCommand(std::function<void(Command&)> callback) {
 }
 
 
-void ApiClient::writeTrackingData(uint8_t* scanResults, size_t scanResultLen, std::function<void(void)> callback) {
+void ApiClient::writeTrackingData(std::vector<uint8_t> scanResults, std::function<void(void)> callback) {
   logln("Posting scan results to server");
   log("Sending ");
-  log(scanResultLen);
+  log(scanResults.size());
   logln(" scan result bytes");
-  auto msgID = coap.post(serverIP, 5688, "tracker/tracking", scanResults, scanResultLen, "trackerid=1");
-  log("Message ID is ");
-  logln(msgID);
+  auto msgID = coap.post(serverIP, "tracker/tracking", std::vector<const char*>{"trackerid=1"}, scanResults, ContentType::APPLICATION_CBOR);
+  storeCallback(msgID, [callback] (coap::Packet& packet) {
+    if (ApiClient::isErrorResponse(packet)) {
+      logln("Failed to send tracking data");
+      logln(packet.code);
+      return;
+    }
+    logln("Got response");
+
+    callback();
+  });
 }
 
-void ApiClient::coap_response_callback(CoapPacket &packet, IPAddress ip, int port) {
+void ApiClient::coap_response_callback(coap::Packet& packet, IPAddress ip, int port) {
   logln("Got a CoAP response, payload is: ");
-  
-  char p[packet.payloadlen + 1];
-  memcpy(p, packet.payload, packet.payloadlen);
-  p[packet.payloadlen] = '\0';
-  
+
+  char p[packet.payload.size() + 1];
+  memcpy(p, packet.payload.data(), packet.payload.size());
+  p[packet.payload.size()] = '\0';
   logln(p);
 
   auto it = callbacks.find(packet.messageid);
@@ -77,6 +88,6 @@ void ApiClient::storeCallback(uint16_t messageID, coap_callback callback) {
   callbacks[messageID] = callback;
 }
 
-bool ApiClient::isErrorResponse(const CoapPacket& response) {
+bool ApiClient::isErrorResponse(const coap::Packet& response) {
   return response.code > RESPONSE_CODE(2, 31);
 }
