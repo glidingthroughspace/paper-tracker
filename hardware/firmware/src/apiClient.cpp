@@ -3,6 +3,7 @@
 #include <log.hpp>
 #include <power.hpp>
 #include <types.hpp>
+#include <string.h>
 
 std::map<uint16_t, coap_callback> ApiClient::callbacks;
 
@@ -20,11 +21,16 @@ bool ApiClient::loop() {
   return coap.loop();
 }
 
-void ApiClient::requestNextCommand(std::function<void(Command&)> callback) {
+void ApiClient::requestTrackerID(std::function<void(uint16_t)> callback) {
+  // FIXME: Implementation
+  callback(1);
+}
+
+void ApiClient::requestNextCommand(uint16_t trackerID, std::function<void(Command&)> callback) {
   logln("Requesting next action from server");
   // FIXME: It is (in theory) possible for the server to answer so quickly that the response
   // callback is not registered yet. This is highly unlikely though.
-  uint16_t messageID = coap.get(serverIP, "tracker/poll", std::vector<const char*>{"trackerid=1"});
+  uint16_t messageID = coap.get(serverIP, "tracker/poll", getTrackerIDQueryParam(trackerID));
   storeCallback(messageID, [callback] (coap::Packet& packet) {
     if (ApiClient::isErrorResponse(packet)) {
       logln("Requesting the next action failed, going to sleep for 10 seconds");
@@ -43,12 +49,12 @@ void ApiClient::requestNextCommand(std::function<void(Command&)> callback) {
 }
 
 
-void ApiClient::writeTrackingData(std::vector<uint8_t> scanResults, std::function<void(void)> callback) {
+void ApiClient::writeTrackingData(uint16_t trackerID, std::vector<uint8_t> scanResults, std::function<void(void)> callback) {
   logln("Posting scan results to server");
   log("Sending ");
   log(scanResults.size());
   logln(" scan result bytes");
-  auto msgID = coap.post(serverIP, "tracker/tracking", std::vector<const char*>{"trackerid=1"}, scanResults, ContentType::APPLICATION_CBOR);
+  auto msgID = coap.post(serverIP, "tracker/tracking", getTrackerIDQueryParam(trackerID), scanResults, ContentType::APPLICATION_CBOR);
   storeCallback(msgID, [callback] (coap::Packet& packet) {
     if (ApiClient::isErrorResponse(packet)) {
       logln("Failed to send tracking data");
@@ -90,4 +96,12 @@ void ApiClient::storeCallback(uint16_t messageID, coap_callback callback) {
 
 bool ApiClient::isErrorResponse(const coap::Packet& response) {
   return response.code > RESPONSE_CODE(2, 31);
+}
+
+std::vector<char*> ApiClient::getTrackerIDQueryParam(uint16_t trackerID) {
+  std::vector<char*> queryParams;
+  char param[15];
+  snprintf(param, 15, "trackerid=%d", trackerID);
+  queryParams.push_back(param);
+  return queryParams;
 }
