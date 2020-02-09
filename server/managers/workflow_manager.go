@@ -66,10 +66,12 @@ func (mgr *WorkflowManager) CreateWorkflowStart(workflowID models.WorkflowID, st
 	return
 }
 
+// TODO: Fix adding in between to steps
 func (mgr *WorkflowManager) AddStep(prevStepID models.StepID, decisionLabel string, step *models.Step) (err error) {
 	addStepLog := log.WithFields(log.Fields{"prevStepID": prevStepID, "step": step})
 
 	step.ID = 0
+
 	err = mgr.workflowRep.CreateStep(step)
 	if err != nil {
 		addStepLog.WithField("err", err).Error("Failed to create step to add step")
@@ -98,5 +100,71 @@ func (mgr *WorkflowManager) AddStep(prevStepID models.StepID, decisionLabel stri
 		mgr.workflowRep.DeleteStep(step.ID)
 		return
 	}
+
+	return
+}
+
+func (mgr *WorkflowManager) GetWorkflow(workflowID models.WorkflowID) (workflow *models.Workflow, err error) {
+	getWorkflowLog := log.WithField("workflowID", workflowID)
+
+	workflow, err = mgr.workflowRep.GetWorkflowByID(workflowID)
+	if mgr.workflowRep.IsRecordNotFoundError(err) {
+		getWorkflowLog.Warn("Workflow not found")
+		return
+	} else if err != nil {
+		getWorkflowLog.WithField("err", err).Error("Failed to get workflow")
+		return
+	}
+
+	workflow.Steps, err = mgr.getStepsFromStart(workflow.StartStep, getWorkflowLog)
+	if err != nil {
+		getWorkflowLog.WithField("err", err).Error("Failed to get steps")
+		return
+	}
+
+	return
+}
+
+func (mgr *WorkflowManager) getStepsFromStart(startStepID models.StepID, getLog *log.Entry) (steps []*models.Step, err error) {
+	getStepsFromStartLog := getLog.WithField("startStepID", startStepID)
+	steps = make([]*models.Step, 0)
+	currentStepID := startStepID
+
+	for currentStepID > 0 {
+		currentStep, err := mgr.workflowRep.GetStepByID(startStepID)
+		if mgr.workflowRep.IsRecordNotFoundError(err) {
+			getStepsFromStartLog.Warn("StartStep not found")
+			break
+		} else if err != nil {
+			getStepsFromStartLog.WithField("err", err).Error("Failed to get startStep")
+			break
+		}
+
+		steps = append(steps, currentStep)
+
+		currentStepID, err = mgr.workflowRep.GetLinearNextStepID(currentStepID)
+		if mgr.workflowRep.IsRecordNotFoundError(err) {
+			getStepsFromStartLog.Info("No next linear step")
+		} else if err != nil {
+			getStepsFromStartLog.WithField("err", err).Warn("Failed to get next linear step ID")
+		}
+	}
+
+	for _, step := range steps {
+		decisions, err := mgr.workflowRep.GetDecisions(step.ID)
+		if err != nil {
+			getStepsFromStartLog.WithFields(log.Fields{"err": err, "stepID": step.ID}).Warn("Failed to get decisions for step")
+			continue
+		}
+		step.Options = make(map[string][]*models.Step)
+		for _, decision := range decisions {
+			step.Options[decision.DecisionLabel], err = mgr.getStepsFromStart(decision.NextID, getLog)
+			if err != nil {
+				getStepsFromStartLog.WithFields(log.Fields{"err": err, "decision": decision}).Error("Failed to get steps for decision")
+				continue
+			}
+		}
+	}
+
 	return
 }

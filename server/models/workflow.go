@@ -20,7 +20,6 @@ type Step struct {
 	StartedOn   time.Time          `json:"started_on"`
 	CompletedOn time.Time          `json:"completed_on"`
 	RoomID      RoomID             `json:"room_id"`
-	FinishStep  bool               `json:"finish_step"`
 	Options     map[string][]*Step `json:"options" gorm:"-"`
 }
 
