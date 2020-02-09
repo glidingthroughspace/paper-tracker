@@ -76,9 +76,9 @@ class Client {
     bool start(unsigned int port = DEFAULT_PORT);
     void set_callback(Callback c);
 
-    uint16_t get(IPAddress ip, const char* url, std::vector<const char*> queryParameters = {});
-    uint16_t post(IPAddress ip, const char* url, std::vector<const char*> queryParameters = {}, std::vector<uint8_t> payload = {}, ContentType content_type = ContentType::NONE);
-    uint16_t send(IPAddress ip, Method method, const char* url, std::vector<const char*> queryParameters = {}, std::vector<uint8_t> payload = {}, ContentType content_type = ContentType::NONE);
+    uint16_t get(IPAddress ip, const char* url, std::vector<char*> queryParameters = {});
+    uint16_t post(IPAddress ip, const char* url, std::vector<char*> queryParameters = {}, std::vector<uint8_t> payload = {}, ContentType content_type = ContentType::NONE);
+    uint16_t send(IPAddress ip, Method method, const char* url, std::vector<char*> queryParameters = {}, std::vector<uint8_t> payload = {}, ContentType content_type = ContentType::NONE);
 
     bool loop();
 };
