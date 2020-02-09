@@ -13,29 +13,26 @@
 
 #include <credentials.hpp>
 
-constexpr uint64_t ONE_SECOND_IN_MICROSECONDS = 1000 * 1000;
-
 WIFI wifi;
 ApiClient apiClient(&wifi.getUDP(), IPAddress(192,168,43,153));
 
 void haltIf(bool condition, const char* message);
 void sendScanResultsInChunks(std::vector<ScanResult>&);
+bool hasTrackerID();
 
 static void onCommandReceived(Command& command) {
-  log("Next Command is ");
-  log(command.getTypeString());
-  log(" and sleep time in seconds is ");
-  logln(command.getSleepTimeInSeconds());
+  command.print();
 
   switch (command.getType()) {
-    case CommandType::SLEEP: {
+    case CommandType::SLEEP:
       Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
-    } break;
+      break;
     case CommandType::SEND_TRACKING_INFO: {
-      auto scanResults = wifi.getAllVisibleNetworks();
-      sendScanResultsInChunks(scanResults);
-      Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
-    } break;
+        auto scanResults = wifi.getAllVisibleNetworks();
+        sendScanResultsInChunks(scanResults);
+        Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
+      }
+      break;
     default:
       // We already sleep & reset the tracker when deserializing the command, so this should never
       // be reached.
@@ -58,8 +55,7 @@ void setup() {
 
   haltIf(!apiClient.start(), "Failed to start the API client");
 
-  bool needsTrackerID = (Storage::exists(Storage::Value::TRACKER_ID) == false);
-  if (needsTrackerID) {
+  if (!hasTrackerID()) {
     logln("This tracker does not have an ID yet");
     apiClient.requestTrackerID([] (uint16_t newID) {
       Storage::set(Storage::Value::TRACKER_ID, newID);
@@ -72,6 +68,10 @@ void setup() {
 
 void loop() {
   apiClient.loop();
+}
+
+bool hasTrackerID() {
+  return Storage::get(Storage::Value::TRACKER_ID);
 }
 
 void sendScanResultsInChunks(std::vector<ScanResult>& scanResults) {
