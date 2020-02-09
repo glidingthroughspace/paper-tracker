@@ -4,6 +4,7 @@ import "paper-tracker/models"
 
 type WorkflowRepository interface {
 	CreateWorkflow(workflow *models.Workflow) error
+	GetAllWorkflows() ([]*models.Workflow, error)
 	GetWorkflowByID(workflowID models.WorkflowID) (*models.Workflow, error)
 	UpdateWorkflow(workflow *models.Workflow) error
 	DeleteWorkflow(workflowID models.WorkflowID) error

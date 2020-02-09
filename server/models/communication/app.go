@@ -15,3 +15,9 @@ type LearningFinishRequest struct {
 	RoomID models.RoomID `json:"room_id"`
 	SSIDs  []string      `json:"ssids"`
 }
+
+type CreateStepRequest struct {
+	PrevStepID    models.StepID `json:"prev_step_id"`
+	DecisionLabel string        `json:"decision_label"`
+	Step          *models.Step  `json:"step"`
+}

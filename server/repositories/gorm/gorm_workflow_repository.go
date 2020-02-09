@@ -5,6 +5,7 @@ import "paper-tracker/models"
 func init() {
 	databaseModels = append(databaseModels, &models.Workflow{})
 	databaseModels = append(databaseModels, &models.Step{})
+	databaseModels = append(databaseModels, &models.NextStep{})
 }
 
 type GormWorkflowRepository struct{}
@@ -22,6 +23,11 @@ func (rep *GormWorkflowRepository) IsRecordNotFoundError(err error) bool {
 
 func (rep *GormWorkflowRepository) CreateWorkflow(workflow *models.Workflow) (err error) {
 	err = databaseConnection.Create(workflow).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) GetAllWorkflows() (workflows []*models.Workflow, err error) {
+	err = databaseConnection.Find(&workflows).Error
 	return
 }
 
