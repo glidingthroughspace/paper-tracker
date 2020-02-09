@@ -25,4 +25,5 @@ class Command {
     uint16_t getSleepTimeInSeconds() const;
     CommandType getType() const;
     const char* getTypeString() const;
+    void print() const;
 };
