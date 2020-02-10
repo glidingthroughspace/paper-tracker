@@ -115,6 +115,9 @@ func (mgr *LearningManager) NewTrackingData(trackerID int, scanRes []*models.Sca
 		err = mgr.newLearningTrackingData(trackerID, scanRes)
 	case models.StatusTracking:
 		err = errors.New("Not implemented yes") //TODO
+	default:
+		err = errors.New("Unknown tracker status")
+		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unknown tracker status")
 	}
 
 	if err != nil {
@@ -133,7 +136,7 @@ func (mgr *LearningManager) newLearningTrackingData(trackerID int, scanRes []*mo
 	return
 }
 
-func (mgr *LearningManager) FinishLearning(trackerID, roomID int, ssids []string) (err error) {
+func (mgr *LearningManager) FinishLearning(trackerID int, roomID models.RoomID, ssids []string) (err error) {
 	finishLearningLog := log.WithFields(log.Fields{"trackerID": trackerID, "roomID": roomID})
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)

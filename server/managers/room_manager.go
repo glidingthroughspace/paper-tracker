@@ -39,7 +39,7 @@ func (mgr *RoomManager) CreateRoom(room *models.Room) (err error) {
 	return
 }
 
-func (mgr *RoomManager) GetRoomByID(roomID int) (room *models.Room, err error) {
+func (mgr *RoomManager) GetRoomByID(roomID models.RoomID) (room *models.Room, err error) {
 	room, err = mgr.roomRep.GetByID(roomID)
 	if err != nil {
 		log.WithFields(log.Fields{"roomID": roomID, "err": err}).Error("Failed to get room")
@@ -57,7 +57,7 @@ func (mgr *RoomManager) GetAllRooms() (rooms []*models.Room, err error) {
 	return
 }
 
-func (mgr *RoomManager) SetRoomLearned(roomID int, learned bool) (err error) {
+func (mgr *RoomManager) SetRoomLearned(roomID models.RoomID, learned bool) (err error) {
 	err = mgr.roomRep.SetLearnedByID(roomID, learned)
 	if err != nil {
 		log.WithFields(log.Fields{"roomID": roomID, "learned": learned, "err": err}).Error("Failed to set room learned")
@@ -75,7 +75,7 @@ func (mgr *RoomManager) UpdateRoom(room *models.Room) (err error) {
 	return
 }
 
-func (mgr *RoomManager) DeleteRoom(roomID int) (err error) {
+func (mgr *RoomManager) DeleteRoom(roomID models.RoomID) (err error) {
 	err = mgr.roomRep.Delete(roomID)
 	if err != nil {
 		log.WithFields(log.Fields{"roomID": roomID, "err": err}).Error("Failed to delete room")

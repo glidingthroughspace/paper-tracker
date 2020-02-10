@@ -48,7 +48,7 @@ func (mr *MockRoomRepositoryMockRecorder) Create(room interface{}) *gomock.Call 
 }
 
 // GetByID mocks base method
-func (m *MockRoomRepository) GetByID(roomID int) (*models.Room, error) {
+func (m *MockRoomRepository) GetByID(roomID models.RoomID) (*models.Room, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByID", roomID)
 	ret0, _ := ret[0].(*models.Room)
@@ -78,7 +78,7 @@ func (mr *MockRoomRepositoryMockRecorder) GetAll() *gomock.Call {
 }
 
 // Delete mocks base method
-func (m *MockRoomRepository) Delete(roomID int) error {
+func (m *MockRoomRepository) Delete(roomID models.RoomID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", roomID)
 	ret0, _ := ret[0].(error)
@@ -92,7 +92,7 @@ func (mr *MockRoomRepositoryMockRecorder) Delete(roomID interface{}) *gomock.Cal
 }
 
 // SetLearnedByID mocks base method
-func (m *MockRoomRepository) SetLearnedByID(roomID int, learned bool) error {
+func (m *MockRoomRepository) SetLearnedByID(roomID models.RoomID, learned bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetLearnedByID", roomID, learned)
 	ret0, _ := ret[0].(error)

@@ -50,7 +50,7 @@ func (r *HttpRouter) roomCreateHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) roomUpdateHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		roomID := ctx.GetInt(httpParamIDName)
+		roomID := models.RoomID(ctx.GetInt(httpParamIDName))
 
 		room := &models.Room{}
 		err := ctx.BindJSON(room)
@@ -72,7 +72,7 @@ func (r *HttpRouter) roomUpdateHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) roomDeleteHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		roomID := ctx.GetInt(httpParamIDName)
+		roomID := models.RoomID(ctx.GetInt(httpParamIDName))
 
 		err := managers.GetRoomManager().DeleteRoom(roomID)
 		if err != nil {

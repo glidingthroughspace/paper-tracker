@@ -32,4 +32,5 @@ func (r *HttpRouter) Serve(addr string, wg *sync.WaitGroup) {
 func (r *HttpRouter) buildRoutes() {
 	r.buildAppRoomAPIRoutes()
 	r.buildAppTrackerAPIRoutes()
+	r.buildAppWorkflowAPIRoutes()
 }

@@ -1,5 +1,5 @@
 package communication
 
 type ErrorResponse struct {
-	Error string `json:"error,omitempty"`
+	Error string `json:"error"`
 }
