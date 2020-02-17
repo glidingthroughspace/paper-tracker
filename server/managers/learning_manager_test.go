@@ -70,12 +70,12 @@ var _ = Describe("LearningManager", func() {
 		trackerLearningFinished = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearningFinished}
 
 		scanRes = []*models.ScanResult{
-			&models.ScanResult{SSID: "Test0", BSSID: "aa:bb:cc:dd:ee:ff", RSSID: -50},
-			&models.ScanResult{SSID: "Test1", BSSID: "aa:bb:cc:dd:ee:ff", RSSID: -40},
+			&models.ScanResult{SSID: "Test0", BSSID: "aa:bb:cc:dd:ee:ff", RSSI: -50},
+			&models.ScanResult{SSID: "Test1", BSSID: "aa:bb:cc:dd:ee:ff", RSSI: -40},
 		}
 		scanResWithID = []*models.ScanResult{
-			&models.ScanResult{TrackerID: id, SSID: "Test0", BSSID: "aa:bb:cc:dd:ee:ff", RSSID: -50},
-			&models.ScanResult{TrackerID: id, SSID: "Test1", BSSID: "aa:bb:cc:dd:ee:ff", RSSID: -40},
+			&models.ScanResult{TrackerID: id, SSID: "Test0", BSSID: "aa:bb:cc:dd:ee:ff", RSSI: -50},
+			&models.ScanResult{TrackerID: id, SSID: "Test1", BSSID: "aa:bb:cc:dd:ee:ff", RSSI: -40},
 		}
 		scanResSSIDs = []string{"Test0", "Test1"}
 	})
