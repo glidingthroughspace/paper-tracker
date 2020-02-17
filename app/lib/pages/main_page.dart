@@ -4,6 +4,7 @@ import 'package:paper_tracker/model/tracker.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/widgets/room_list.dart';
 import 'package:paper_tracker/widgets/tracker_list.dart';
+import 'package:paper_tracker/widgets/workflow_list.dart';
 
 class MainPage extends StatelessWidget {
   static const Route = "/main";
@@ -34,7 +35,7 @@ class MainPage extends StatelessWidget {
           ),
           body: TabBarView(
             children: [
-              Text("Workflows"),
+              WorkflowList(),
               RoomList(),
               TrackerList(),
             ],
