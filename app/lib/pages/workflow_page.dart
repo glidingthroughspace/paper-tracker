@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/workflow_client.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
@@ -13,6 +14,7 @@ class WorkflowPage extends StatefulWidget {
 
 class _WorkflowPageState extends State<WorkflowPage> {
   var workflowClient = WorkflowClient();
+  var roomClient = RoomClient();
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +41,7 @@ class _WorkflowPageState extends State<WorkflowPage> {
       padding: EdgeInsets.all(15.0),
       child: WorkflowStepsList(
         steps: workflow.steps,
+        roomClient: roomClient,
       ),
     );
   }

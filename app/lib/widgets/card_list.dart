@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:paper_tracker/client/room_client.dart';
+import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:tuple/tuple.dart';
 
@@ -91,8 +93,9 @@ class _CheckCardListState extends State<CheckCardList> {
 
 class WorkflowStepsList extends StatefulWidget {
   final List<WFStep> steps;
+  final RoomClient roomClient;
 
-  const WorkflowStepsList({Key key, @required this.steps}) : super(key: key);
+  const WorkflowStepsList({Key key, @required this.steps, @required this.roomClient}) : super(key: key);
 
   @override
   _WorkflowStepsListState createState() => _WorkflowStepsListState();
@@ -121,7 +124,16 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
       ),
       Row(
         children: [
-          Text(step.roomID.toString()),
+          FutureBuilder(
+            future: widget.roomClient.getRoomByID(step.roomID),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                Room room = snapshot.data;
+                return Text("Room: ${room.label}");
+              }
+              return Text("Room: ");
+            },
+          ),
         ],
       )
     ];
