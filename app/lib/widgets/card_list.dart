@@ -112,12 +112,52 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
     );
   }
 
+  Widget buildContent(WFStep step) {
+    List<Row> children = [
+      Row(
+        children: [
+          Text(step.label),
+        ],
+      ),
+      Row(
+        children: [
+          Text(step.roomID.toString()),
+        ],
+      )
+    ];
+
+    if (step.options.isNotEmpty) {
+      var texts = step.options.keys.map((label) => Text(label)).toList();
+      var isSelected = step.options.keys.map((label) => selectedDecisionMap[step.id] == label).toList();
+      children.add(Row(
+        children: [
+          ToggleButtons(
+            children: texts,
+            isSelected: isSelected,
+            constraints: BoxConstraints.expand(width: 100, height: 40),
+            onPressed: (it) {
+              setState(() {
+                selectedDecisionMap[step.id] = texts.elementAt(it).data;
+              });
+            },
+          ),
+        ],
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      ));
+    }
+
+    return Column(
+      children: children,
+    );
+  }
+
   List<Widget> getChildrenListFromSteps(List<WFStep> steps, int indentation) {
     var listChildren = List<Widget>();
     for (WFStep step in steps) {
-      listChildren.add(_buildCard(context, Text(step.label), null, step, null, 0.0, indentation));
-
       var nestedSteps = getNestedSteps(step);
+
+      listChildren.add(_buildCard(context, buildContent(step), null, step, null, 0.0, indentation));
+
       if (nestedSteps != null) {
         listChildren.addAll(getChildrenListFromSteps(nestedSteps, indentation + 1));
       }
@@ -150,7 +190,7 @@ Card _buildCard<T>(BuildContext context, Widget content, Widget trailing, T obje
         contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: verticalPadding),
         title: content,
         trailing: trailing,
-        onTap: () => onTap(object),
+        onTap: onTap != null ? () => onTap(object) : null,
       ),
     ),
   );
