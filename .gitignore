@@ -363,7 +363,7 @@ $RECYCLE.BIN/
 
 # End of https://www.gitignore.io/api/latex,linux,vim,windows,osx
 
-credentials.h
+credentials.h*
 
 .vscode
 # Lock files for libreoffice
