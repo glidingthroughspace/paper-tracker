@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <Preferences.h>
 
 /**
  * This class is a wrapper around the Arduino EEPROM library.
@@ -10,12 +11,12 @@
  */
 class Storage {
   public:
-    // Note that a value takes up 2 bytes, so every value's index must increase by 2;
-    enum class Value {
-      TRACKER_ID = 0,
-    };
+    static constexpr const char* TRACKER_ID = "trackerid";
   public:
-    static uint16_t get(Value);
-    static bool exists(Value);
-    static bool set(Value, uint16_t);
+    // TODO: Make this private
+    static Preferences* instance;
+    static Preferences* prefs();
+    static uint16_t get(const char* key);
+    static bool exists(const char* key);
+    static bool set(const char* key, uint16_t);
 };
