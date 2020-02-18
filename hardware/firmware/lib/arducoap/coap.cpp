@@ -60,7 +60,9 @@ uint16_t Client::send(IPAddress ip, Method method, const char* url, std::vector<
 
   // Set the URI-Query option
   if (queryParameters.size() > 0) {
+    Serial.println("Adding Query parameters to request:");
     for (auto it = queryParameters.begin(); it < queryParameters.end(); ++it) {
+      Serial.println(*it);
       packet.addOption(OptionNumber::URI_QUERY, strlen(*it), (uint8_t*)*it);
     }
   }

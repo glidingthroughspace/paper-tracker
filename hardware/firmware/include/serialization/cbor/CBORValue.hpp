@@ -84,6 +84,18 @@ struct CBORUint8 : public CBORValue {
   }
 };
 
+struct CBORInt16 : public CBORValue {
+  CBORInt16(const char* key) : CBORValue(CBORType::SignedInt, key, strlen(key)) {};
+  CBORInt16(const char* key, int16_t value) : CBORValue(CBORType::SignedInt, key, strlen(key)), value{value} {};
+  int16_t value;
+  void serialize_to(CBORDocument& cbor);
+  bool deserializeFrom(CBORParser& parser) { return parser.readInt(value); };
+  size_t serialized_size_bytes() {
+    // TODO: Calculate actual size, this is only the maximum size
+    return 3;
+  }
+};
+
 struct CBORInt32 : public CBORValue {
   CBORInt32(const char* key) : CBORValue(CBORType::SignedInt, key, strlen(key)) {};
   CBORInt32(const char* key, int32_t value) : CBORValue(CBORType::SignedInt, key, strlen(key)), value{value} {};

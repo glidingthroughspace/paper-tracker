@@ -28,6 +28,11 @@ void CBORInt32::serialize_to(CBORDocument& cbor) {
   cbor.write_int(value);
 }
 
+void CBORInt16::serialize_to(CBORDocument& cbor) {
+  write_key_to(cbor);
+  cbor.write_int(value);
+}
+
 void CBORString::serialize_to(CBORDocument& cbor) {
   write_key_to(cbor);
   cbor.begin_text(m_value.length());
