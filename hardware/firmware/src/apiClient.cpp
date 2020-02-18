@@ -5,6 +5,8 @@
 #include <types.hpp>
 #include <string.h>
 
+#include <models/newIDResponse.hpp>
+
 std::map<uint16_t, coap_callback> ApiClient::callbacks;
 
 ApiClient::ApiClient(WiFiUDP* udp, IPAddress serverIP)
@@ -21,16 +23,32 @@ bool ApiClient::loop() {
   return coap.loop();
 }
 
-void ApiClient::requestTrackerID(std::function<void(uint16_t)> callback) {
-  // FIXME: Implementation
-  callback(1);
+void ApiClient::requestTrackerID(std::function<void(int16_t)> callback) {
+  logln("Requesting new tracker ID from server");
+  auto message_id = coap.post(serverIP, "tracker/new");
+  storeCallback(message_id, [callback] (coap::Packet& packet) {
+    if (ApiClient::isErrorResponse(packet)) {
+      logln("Requesting a new tracker ID failed. Cannot continue operation, sleeping 10 seconds");
+      Power::deep_sleep_for_seconds(10);
+      return;
+    }
+    NewIDResponse nid;
+    if (!nid.fromCBOR(packet.payload)) {
+      logln("Could not deserialize new tracker ID. Cannot continue operation, sleeping 10 seconds");
+      Power::deep_sleep_for_seconds(10);
+      return;
+    }
+    callback(nid.getID());
+  });
 }
 
 void ApiClient::requestNextCommand(uint16_t trackerID, std::function<void(Command&)> callback) {
   logln("Requesting next action from server");
   // FIXME: It is (in theory) possible for the server to answer so quickly that the response
   // callback is not registered yet. This is highly unlikely though.
-  uint16_t messageID = coap.get(serverIP, "tracker/poll", getTrackerIDQueryParam(trackerID));
+  char param[15];
+  auto qp = getTrackerIDQueryParam(param, 15, trackerID);
+  uint16_t messageID = coap.get(serverIP, "tracker/poll", qp);
   storeCallback(messageID, [callback] (coap::Packet& packet) {
     if (ApiClient::isErrorResponse(packet)) {
       logln("Requesting the next action failed, going to sleep for 10 seconds");
@@ -54,7 +72,9 @@ void ApiClient::writeTrackingData(uint16_t trackerID, std::vector<uint8_t> scanR
   log("Sending ");
   log(scanResults.size());
   logln(" scan result bytes");
-  auto msgID = coap.post(serverIP, "tracker/tracking", getTrackerIDQueryParam(trackerID), scanResults, ContentType::APPLICATION_CBOR);
+  char param[15];
+  auto qp = getTrackerIDQueryParam(param, 15, trackerID);
+  auto msgID = coap.post(serverIP, "tracker/tracking", qp, scanResults, ContentType::APPLICATION_CBOR);
   storeCallback(msgID, [callback] (coap::Packet& packet) {
     if (ApiClient::isErrorResponse(packet)) {
       logln("Failed to send tracking data");
@@ -74,6 +94,15 @@ void ApiClient::coap_response_callback(coap::Packet& packet, IPAddress ip, int p
   memcpy(p, packet.payload.data(), packet.payload.size());
   p[packet.payload.size()] = '\0';
   logln(p);
+
+#if 1
+  Serial.println();
+  for (auto c : packet.payload) {
+    Serial.print(c);
+    Serial.print(" ");
+  }
+  Serial.println();
+#endif
 
   auto it = callbacks.find(packet.messageid);
   if (it == callbacks.end()) {
@@ -98,10 +127,13 @@ bool ApiClient::isErrorResponse(const coap::Packet& response) {
   return response.code > RESPONSE_CODE(2, 31);
 }
 
-std::vector<char*> ApiClient::getTrackerIDQueryParam(uint16_t trackerID) {
+std::vector<char*> ApiClient::getTrackerIDQueryParam(char* buffer, size_t bufferlen, uint16_t trackerID) {
   std::vector<char*> queryParams;
-  char param[15];
-  snprintf(param, 15, "trackerid=%d", trackerID);
-  queryParams.push_back(param);
+  snprintf(buffer, bufferlen, "trackerid=%d", trackerID);
+  queryParams.push_back(buffer);
+  logln("Quey parameters:");
+  for (auto qp : queryParams) {
+    logln(qp);
+  }
   return queryParams;
 }

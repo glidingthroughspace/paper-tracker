@@ -32,3 +32,7 @@ bool Storage::set(const char* key, uint16_t value) {
   prefs()->putUInt(key, value);
   return true;
 }
+
+void Storage::clear() {
+  prefs()->clear();
+}

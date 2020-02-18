@@ -17,7 +17,7 @@ class ApiClient {
     bool loop();
     bool start();
     void requestNextCommand(uint16_t trackerID, std::function<void(Command&)> callback);
-    void requestTrackerID(std::function<void(uint16_t)> callback);
+    void requestTrackerID(std::function<void(int16_t)> callback);
     static bool isErrorResponse(const coap::Packet& packet);
     void writeTrackingData(uint16_t trackerID, std::vector<uint8_t> scanResults, std::function<void(void)> callback);
   private:
@@ -26,5 +26,5 @@ class ApiClient {
     coap::Client coap;
     IPAddress serverIP;
     static void coap_response_callback(coap::Packet &packet, IPAddress ip, int port);
-    std::vector<char*> getTrackerIDQueryParam(uint16_t trackerID);
+    std::vector<char*> getTrackerIDQueryParam(char* buffer, size_t bufferlen, uint16_t trackerID);
 };

@@ -19,4 +19,5 @@ class Storage {
     static uint16_t get(const char* key);
     static bool exists(const char* key);
     static bool set(const char* key, uint16_t);
+    static void clear();
 };

@@ -55,7 +55,7 @@ void setup() {
 
   haltIf(!apiClient.start(), "Failed to start the API client");
 
-  logln(Storage::get(Storage::TRACKER_ID));
+  Storage::clear();
   if (!hasTrackerID()) {
     logln("This tracker does not have an ID yet");
     apiClient.requestTrackerID([] (uint16_t newID) {

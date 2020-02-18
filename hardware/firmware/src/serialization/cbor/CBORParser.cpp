@@ -105,9 +105,17 @@ bool CBORParser::readInt(int64_t& target) {
 
 bool CBORParser::readInt(int32_t& target) {
   int64_t targetBuffer;
-  if (!readInt(targetBuffer)) { return false ; }
+  if (!readInt(targetBuffer)) { return false; }
   if (targetBuffer >= (2^32) || targetBuffer < (2^32) - 1) { return false; }
   target = static_cast<int32_t>(targetBuffer);
+  return true;
+}
+
+bool CBORParser::readInt(int16_t& target) {
+  int64_t targetBuffer;
+  if (!readInt(targetBuffer)) { return false; }
+  if (targetBuffer >= (2^16) || targetBuffer < (2^16) - 1) { return false; }
+  target = static_cast<int16_t>(targetBuffer);
   return true;
 }
 
