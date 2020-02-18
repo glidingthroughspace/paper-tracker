@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/workflow_client.dart';
 import 'package:paper_tracker/model/workflow.dart';
+import 'package:paper_tracker/pages/workflow_page.dart';
 import 'package:tuple/tuple.dart';
 
 import 'card_list.dart';
@@ -27,12 +28,13 @@ class _WorkflowListState extends State<WorkflowList> with AutomaticKeepAliveClie
           return Scaffold(
             body: CardList<Workflow>(
               titleObjectList: titleObjectList,
-              onTap: null,
+              onTap: onTapWorkflow,
               iconData: Icons.keyboard_arrow_right,
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: null,
               child: Icon(Icons.add),
+              heroTag: "workflowAddButton",
             ),
           );
         } else if (snapshot.hasError) {
@@ -47,4 +49,8 @@ class _WorkflowListState extends State<WorkflowList> with AutomaticKeepAliveClie
 
   @override
   bool get wantKeepAlive => true;
+
+  void onTapWorkflow(Workflow workflow) async {
+    await Navigator.of(context).pushNamed(WorkflowPage.Route, arguments: workflow.id);
+  }
 }

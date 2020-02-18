@@ -40,6 +40,7 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
               floatingActionButton: FloatingActionButton(
                 onPressed: onAddRoomButton,
                 child: Icon(Icons.add),
+                heroTag: "roomAddButton",
               ),
             );
           } else if (snapshot.hasError) {

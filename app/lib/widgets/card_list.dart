@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:paper_tracker/model/workflow.dart';
 import 'package:tuple/tuple.dart';
 
 class CardList<T> extends StatelessWidget {
@@ -15,8 +16,9 @@ class CardList<T> extends StatelessWidget {
       color: Colors.white,
       size: 30.0,
     );
-    var listChildren =
-        titleObjectList.map((tuple) => _buildCard(context, tuple.item1, icon, tuple.item2, onTap, 10.0)).toList();
+    var listChildren = titleObjectList
+        .map((tuple) => _buildCard(context, Text(tuple.item1), icon, tuple.item2, onTap, 10.0, 0))
+        .toList();
     return ListView(
       padding: EdgeInsets.only(top: 15.0),
       children: listChildren,
@@ -69,8 +71,8 @@ class _CheckCardListState extends State<CheckCardList> {
   @override
   Widget build(BuildContext context) {
     var listChildren = widget.controller.contentMap
-        .map((title, checked) =>
-            MapEntry(_buildCard(context, title, Checkbox(value: checked, onChanged: null), title, onTap, 0.0), null))
+        .map((title, checked) => MapEntry(
+            _buildCard(context, Text(title), Checkbox(value: checked, onChanged: null), title, onTap, 0.0, 0), null))
         .keys
         .toList();
     return ListView(
@@ -87,18 +89,66 @@ class _CheckCardListState extends State<CheckCardList> {
   }
 }
 
-Card _buildCard<T>(
-    BuildContext context, String title, Widget trailing, T object, void Function(T) onTap, double verticalPadding) {
+class WorkflowStepsList extends StatefulWidget {
+  final List<WFStep> steps;
+
+  const WorkflowStepsList({Key key, @required this.steps}) : super(key: key);
+
+  @override
+  _WorkflowStepsListState createState() => _WorkflowStepsListState();
+}
+
+class _WorkflowStepsListState extends State<WorkflowStepsList> {
+  var selectedDecisionMap = Map<int, String>();
+
+  @override
+  Widget build(BuildContext context) {
+    var listChildren = getChildrenListFromSteps(widget.steps, 0);
+
+    return ListView(
+      padding: EdgeInsets.only(top: 15.0),
+      children: listChildren,
+      shrinkWrap: true,
+    );
+  }
+
+  List<Widget> getChildrenListFromSteps(List<WFStep> steps, int indentation) {
+    var listChildren = List<Widget>();
+    for (WFStep step in steps) {
+      listChildren.add(_buildCard(context, Text(step.label), null, step, null, 0.0, indentation));
+
+      var nestedSteps = getNestedSteps(step);
+      if (nestedSteps != null) {
+        listChildren.addAll(getChildrenListFromSteps(nestedSteps, indentation + 1));
+      }
+    }
+
+    return listChildren;
+  }
+
+  List<WFStep> getNestedSteps(WFStep step) {
+    if (step.options.isEmpty) {
+      return null;
+    }
+
+    if (!selectedDecisionMap.containsKey(step.id)) {
+      selectedDecisionMap[step.id] = step.options.keys.elementAt(0);
+    }
+
+    return step.options[selectedDecisionMap[step.id]];
+  }
+}
+
+Card _buildCard<T>(BuildContext context, Widget content, Widget trailing, T object, void Function(T) onTap,
+    double verticalPadding, int leftMarginFactor) {
   return Card(
     elevation: 8.0,
-    margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+    margin: EdgeInsets.only(left: 10.0 * (leftMarginFactor + 1), right: 10.0, top: 6.0, bottom: 6.0),
     child: Container(
       decoration: BoxDecoration(color: Theme.of(context).cardColor),
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: verticalPadding),
-        title: Text(
-          title,
-        ),
+        title: content,
         trailing: trailing,
         onTap: () => onTap(object),
       ),

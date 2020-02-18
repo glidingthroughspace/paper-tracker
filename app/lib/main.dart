@@ -5,6 +5,7 @@ import 'package:paper_tracker/pages/learning_page.dart';
 import 'package:paper_tracker/pages/main_page.dart';
 import 'package:paper_tracker/pages/room_page.dart';
 import 'package:paper_tracker/pages/tracker_page.dart';
+import 'package:paper_tracker/pages/workflow_page.dart';
 
 void main() => runApp(PaperTrackerApp());
 
@@ -24,11 +25,11 @@ class PaperTrackerApp extends StatelessWidget {
       indicatorColor: purple,
       textSelectionHandleColor: purple,
       floatingActionButtonTheme: ThemeData.dark().floatingActionButtonTheme.copyWith(
-        backgroundColor: purple,
-      ),
+            backgroundColor: purple,
+          ),
       iconTheme: ThemeData.dark().iconTheme.copyWith(
-        color: purple,
-      ),
+            color: purple,
+          ),
       dialogBackgroundColor: darkBackground,
     );
 
@@ -43,6 +44,7 @@ class PaperTrackerApp extends StatelessWidget {
         RoomPage.Route: (context) => RoomPage(),
         TrackerPage.Route: (context) => TrackerPage(),
         LearningPage.Route: (context) => LearningPage(),
+        WorkflowPage.Route: (context) => WorkflowPage()
       },
     );
   }

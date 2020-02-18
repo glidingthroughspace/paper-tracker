@@ -17,10 +17,7 @@ class _TrackerPageState extends State<TrackerPage> {
 
   @override
   Widget build(BuildContext context) {
-    var trackerID = ModalRoute
-        .of(context)
-        .settings
-        .arguments;
+    var trackerID = ModalRoute.of(context).settings.arguments;
     var futureTracker = trackerClient.getTrackerByID(trackerID);
 
     return FutureBuilder(

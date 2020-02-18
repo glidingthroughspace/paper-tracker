@@ -23,7 +23,7 @@ class WorkflowClient {
     }
   }
 
-  Future<Workflow> getRoomByID(int id, {bool refresh = false}) async {
+  Future<Workflow> getWorkflowByID(int id, {bool refresh = false}) async {
     if (futureWorkflows == null || refresh) {
       getAllWorkflows(refresh: true);
     }
