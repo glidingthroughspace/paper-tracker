@@ -1,28 +1,34 @@
 #include <storage.hpp>
 
+#include <log.hpp>
 #include <EEPROM.h>
+#include <Preferences.h>
 
 // Offset to be able to move all values to a new location to circumvent wear and the aid in
 // development. All values are relative to this location.
 constexpr int EEPROM_OFFSET = 0x00;
 
-uint16_t Storage::get(Value value) {
-  auto msb = EEPROM.read(EEPROM_OFFSET + (uint8_t)value);
-  auto lsb = EEPROM.read(EEPROM_OFFSET + (uint8_t)value + 1);
-  return (msb << 8) + lsb;
-}
+Preferences* Storage::instance = nullptr;
 
-bool Storage::exists(Value value) {
-  return (Storage::get(value) != 0xFFFF);
-}
-
-bool Storage::set(Value value, uint16_t newValue) {
-  // Since reading does not wear the EEPROM, but writing does, check if the current value equals the
-  // new value first.
-  if (Storage::get(value) == newValue) {
-    return false;
+Preferences* Storage::prefs() {
+  if (instance == nullptr) {
+    instance = new Preferences();
+    instance->begin("paptrack", false);
   }
-  EEPROM.write(EEPROM_OFFSET + (uint8_t)value, (newValue) >> 8);
-  EEPROM.write(EEPROM_OFFSET + (uint8_t)value + 1, (newValue) & 0xFF);
+  return instance;
+}
+
+uint16_t Storage::get(const char* key) {
+  return (uint16_t) prefs()->getUInt(key, 0);
+}
+
+bool Storage::exists(const char* key) {
+  // Since we only support 16 bit ints, but prefs uses 32 bits, a value can never be the default
+  // value, if it ever has been set.
+  return (prefs()->getUInt(key, 0xFFFFFFFF) != 0xFFFFFFFF);
+}
+
+bool Storage::set(const char* key, uint16_t value) {
+  prefs()->putUInt(key, value);
   return true;
 }
