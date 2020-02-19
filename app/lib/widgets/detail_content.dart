@@ -7,8 +7,9 @@ class DetailContent extends StatelessWidget {
   final String title;
   final Widget content;
   final List<Widget> bottomButtons;
+  final bool disableBackNav;
 
-  DetailContent({this.iconData, this.title, this.content, this.bottomButtons});
+  DetailContent({this.iconData, this.title, this.content, this.bottomButtons, this.disableBackNav});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +53,7 @@ class DetailContent extends StatelessWidget {
           left: 15.0,
           top: 60.0,
           child: InkWell(
-            onTap: () => Navigator.of(context).pop(),
+            onTap: disableBackNav ? null : () => Navigator.of(context).pop(),
             child: Icon(Icons.arrow_back, color: Colors.white),
           ),
         ),

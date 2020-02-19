@@ -7,9 +7,14 @@ import 'package:tuple/tuple.dart';
 class CardList<T> extends StatelessWidget {
   final List<Tuple2<String, T>> titleObjectList;
   final void Function(T) onTap;
+  final Future<void> Function() onRefresh;
   final IconData iconData;
 
-  CardList({this.titleObjectList, this.onTap, this.iconData});
+  CardList(
+      {@required this.titleObjectList,
+      @required this.onTap,
+      @required this.iconData,
+      @required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +24,15 @@ class CardList<T> extends StatelessWidget {
       size: 30.0,
     );
     var listChildren = titleObjectList
-        .map((tuple) => _buildCard(context, Text(tuple.item1), icon, tuple.item2, onTap, 10.0, 0))
+        .map((tuple) => _buildCard(
+            context, Text(tuple.item1), icon, tuple.item2, onTap, 10.0, 0))
         .toList();
-    return ListView(
-      padding: EdgeInsets.only(top: 15.0),
-      children: listChildren,
-      shrinkWrap: true,
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView(
+        padding: EdgeInsets.only(top: 15.0),
+        children: listChildren,
+      ),
     );
   }
 }
@@ -37,7 +45,8 @@ class CheckCardListController {
   }
 
   void fromTitles(List<String> titles) {
-    if (titles != null) contentMap = titles.asMap().map((_, title) => MapEntry(title, false));
+    if (titles != null)
+      contentMap = titles.asMap().map((_, title) => MapEntry(title, false));
   }
 
   void updateFromTitles(List<String> titles) {
@@ -49,7 +58,10 @@ class CheckCardListController {
   }
 
   List<String> get checked {
-    return contentMap.map((key, value) => value ? MapEntry(key, value) : null).keys.toList();
+    return contentMap
+        .map((key, value) => value ? MapEntry(key, value) : null)
+        .keys
+        .toList();
   }
 }
 
@@ -57,7 +69,8 @@ class CheckCardList extends StatefulWidget {
   final List<String> titles;
   final CheckCardListController controller;
 
-  const CheckCardList({Key key, this.titles, @required this.controller}) : super(key: key);
+  const CheckCardList({Key key, this.titles, @required this.controller})
+      : super(key: key);
 
   @override
   _CheckCardListState createState() => _CheckCardListState();
@@ -74,7 +87,15 @@ class _CheckCardListState extends State<CheckCardList> {
   Widget build(BuildContext context) {
     var listChildren = widget.controller.contentMap
         .map((title, checked) => MapEntry(
-            _buildCard(context, Text(title), Checkbox(value: checked, onChanged: null), title, onTap, 0.0, 0), null))
+            _buildCard(
+                context,
+                Text(title),
+                Checkbox(value: checked, onChanged: null),
+                title,
+                onTap,
+                0.0,
+                0),
+            null))
         .keys
         .toList();
     return ListView(
@@ -95,7 +116,9 @@ class WorkflowStepsList extends StatefulWidget {
   final List<WFStep> steps;
   final RoomClient roomClient;
 
-  const WorkflowStepsList({Key key, @required this.steps, @required this.roomClient}) : super(key: key);
+  const WorkflowStepsList(
+      {Key key, @required this.steps, @required this.roomClient})
+      : super(key: key);
 
   @override
   _WorkflowStepsListState createState() => _WorkflowStepsListState();
@@ -140,7 +163,9 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
 
     if (step.options.isNotEmpty) {
       var texts = step.options.keys.map((label) => Text(label)).toList();
-      var isSelected = step.options.keys.map((label) => selectedDecisionMap[step.id] == label).toList();
+      var isSelected = step.options.keys
+          .map((label) => selectedDecisionMap[step.id] == label)
+          .toList();
       children.add(Row(
         children: [
           ToggleButtons(
@@ -168,10 +193,12 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
     for (WFStep step in steps) {
       var nestedSteps = getNestedSteps(step);
 
-      listChildren.add(_buildCard(context, buildContent(step), null, step, null, 0.0, indentation));
+      listChildren.add(_buildCard(
+          context, buildContent(step), null, step, null, 0.0, indentation));
 
       if (nestedSteps != null) {
-        listChildren.addAll(getChildrenListFromSteps(nestedSteps, indentation + 1));
+        listChildren
+            .addAll(getChildrenListFromSteps(nestedSteps, indentation + 1));
       }
     }
 
@@ -191,15 +218,26 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
   }
 }
 
-Card _buildCard<T>(BuildContext context, Widget content, Widget trailing, T object, void Function(T) onTap,
-    double verticalPadding, int leftMarginFactor) {
+Card _buildCard<T>(
+    BuildContext context,
+    Widget content,
+    Widget trailing,
+    T object,
+    void Function(T) onTap,
+    double verticalPadding,
+    int leftMarginFactor) {
   return Card(
     elevation: 8.0,
-    margin: EdgeInsets.only(left: 10.0 * (leftMarginFactor + 1), right: 10.0, top: 6.0, bottom: 6.0),
+    margin: EdgeInsets.only(
+        left: 10.0 * (leftMarginFactor + 1),
+        right: 10.0,
+        top: 6.0,
+        bottom: 6.0),
     child: Container(
       decoration: BoxDecoration(color: Theme.of(context).cardColor),
       child: ListTile(
-        contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: verticalPadding),
+        contentPadding:
+            EdgeInsets.symmetric(horizontal: 20.0, vertical: verticalPadding),
         title: content,
         trailing: trailing,
         onTap: onTap != null ? () => onTap(object) : null,

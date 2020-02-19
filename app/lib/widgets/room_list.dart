@@ -12,7 +12,8 @@ class RoomList extends StatefulWidget {
   _RoomListState createState() => _RoomListState();
 }
 
-class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin {
+class _RoomListState extends State<RoomList>
+    with AutomaticKeepAliveClientMixin {
   var roomLabelEditController = TextEditingController();
   var roomClient = RoomClient();
 
@@ -29,13 +30,15 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Room> roomList = snapshot.data;
-            List<Tuple2<String, Room>> titleObjectList = roomList.map((room) => Tuple2(room.label, room)).toList();
+            List<Tuple2<String, Room>> titleObjectList =
+                roomList.map((room) => Tuple2(room.label, room)).toList();
 
             return Scaffold(
               body: CardList<Room>(
                 titleObjectList: titleObjectList,
                 onTap: onTapRoom,
                 iconData: Icons.keyboard_arrow_right,
+                onRefresh: onRefresh,
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: onAddRoomButton,
@@ -50,6 +53,12 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
           // By default, show a loading spinner.
           return Center(child: CircularProgressIndicator());
         });
+  }
+
+  Future<void> onRefresh() async {
+    setState(() {
+      roomClient.getAllRooms(refresh: true);
+    });
   }
 
   void onAddRoomButton() async {
@@ -78,8 +87,10 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
             autofocus: true,
             decoration: InputDecoration(
               labelText: "Room Label",
-              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
-              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Theme.of(context).accentColor)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Theme.of(context).accentColor)),
             ),
           ),
         ],

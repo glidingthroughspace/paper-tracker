@@ -11,7 +11,8 @@ class WorkflowList extends StatefulWidget {
   _WorkflowListState createState() => _WorkflowListState();
 }
 
-class _WorkflowListState extends State<WorkflowList> with AutomaticKeepAliveClientMixin {
+class _WorkflowListState extends State<WorkflowList>
+    with AutomaticKeepAliveClientMixin {
   var workflowClient = WorkflowClient();
 
   @override
@@ -22,14 +23,16 @@ class _WorkflowListState extends State<WorkflowList> with AutomaticKeepAliveClie
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<Workflow> workflowList = snapshot.data;
-          List<Tuple2<String, Workflow>> titleObjectList =
-              workflowList.map((workflow) => Tuple2(workflow.label, workflow)).toList();
+          List<Tuple2<String, Workflow>> titleObjectList = workflowList
+              .map((workflow) => Tuple2(workflow.label, workflow))
+              .toList();
 
           return Scaffold(
             body: CardList<Workflow>(
               titleObjectList: titleObjectList,
               onTap: onTapWorkflow,
               iconData: Icons.keyboard_arrow_right,
+              onRefresh: onRefresh,
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: null,
@@ -47,10 +50,17 @@ class _WorkflowListState extends State<WorkflowList> with AutomaticKeepAliveClie
     );
   }
 
+  Future<void> onRefresh() async {
+    setState(() {
+      workflowClient.getAllWorkflows(refresh: true);
+    });
+  }
+
   @override
   bool get wantKeepAlive => true;
 
   void onTapWorkflow(Workflow workflow) async {
-    await Navigator.of(context).pushNamed(WorkflowPage.Route, arguments: workflow.id);
+    await Navigator.of(context)
+        .pushNamed(WorkflowPage.Route, arguments: workflow.id);
   }
 }

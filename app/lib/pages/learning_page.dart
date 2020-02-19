@@ -49,6 +49,7 @@ class _LearningPageState extends State<LearningPage> {
     LearningPageParams params = ModalRoute.of(context).settings.arguments;
 
     return DetailContent(
+      disableBackNav: state == _learningState.Running,
       title: "Learn Room",
       iconData: Icons.school,
       bottomButtons: [
@@ -106,7 +107,7 @@ class _LearningPageState extends State<LearningPage> {
           items: roomList.map((room) => DropdownMenuItem(value: room, child: Text(room.label))).toList(),
           value: snapshot.hasData ? selectedRoom : null,
           isExpanded: true,
-          onChanged: (value) {
+          onChanged: state != _learningState.Init ? null : (value) {
             setState(() {
               selectedRoom = value;
             });
@@ -137,7 +138,7 @@ class _LearningPageState extends State<LearningPage> {
               .toList(),
           value: selectedTracker,
           isExpanded: true,
-          onChanged: (value) {
+          onChanged: state != _learningState.Init ? null : (value) {
             setState(() {
               selectedTracker = value;
             });
