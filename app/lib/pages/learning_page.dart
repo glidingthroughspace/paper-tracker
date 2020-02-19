@@ -100,14 +100,22 @@ class _LearningPageState extends State<LearningPage> {
       builder: (context, snapshot) {
         List<Room> roomList = snapshot.hasData ? snapshot.data : [];
         if (snapshot.hasData && selectedRoom == null && params.roomID != null) {
-          selectedRoom = roomList.firstWhere((room) => room.id == params.roomID);
+          selectedRoom =
+              roomList.firstWhere((room) => room.id == params.roomID);
         }
+        if (state != _learningState.Init) {
+          roomList = roomList.where((room) => room == selectedRoom).toList();
+        }
+
         return DropdownButton(
           icon: Icon(Room.IconData),
-          items: roomList.map((room) => DropdownMenuItem(value: room, child: Text(room.label))).toList(),
+          items: roomList
+              .map((room) =>
+                  DropdownMenuItem(value: room, child: Text(room.label)))
+              .toList(),
           value: snapshot.hasData ? selectedRoom : null,
           isExpanded: true,
-          onChanged: state != _learningState.Init ? null : (value) {
+          onChanged: (value) {
             setState(() {
               selectedRoom = value;
             });
@@ -124,8 +132,17 @@ class _LearningPageState extends State<LearningPage> {
       future: tracker,
       builder: (context, snapshot) {
         List<Tracker> trackerList = snapshot.hasData ? snapshot.data : [];
-        if (snapshot.hasData && selectedTracker == null && params.trackerID != null) {
-          selectedTracker = trackerList.firstWhere((tracker) => tracker.id == params.trackerID);
+        if (snapshot.hasData &&
+            selectedTracker == null &&
+            params.trackerID != null) {
+          selectedTracker = trackerList
+              .firstWhere((tracker) => tracker.id == params.trackerID);
+        }
+
+        if (state != _learningState.Init) {
+          trackerList = trackerList
+              .where((tracker) => tracker == selectedTracker)
+              .toList();
         }
         return DropdownButton(
           icon: Icon(Tracker.IconData),
@@ -138,7 +155,7 @@ class _LearningPageState extends State<LearningPage> {
               .toList(),
           value: selectedTracker,
           isExpanded: true,
-          onChanged: state != _learningState.Init ? null : (value) {
+          onChanged: (value) {
             setState(() {
               selectedTracker = value;
             });
@@ -191,7 +208,8 @@ class _LearningPageState extends State<LearningPage> {
 
   void onSave() async {
     ssidTimer.cancel();
-    await trackerClient.finishLearning(selectedTracker.id, selectedRoom.id, checkCardListController.checked);
+    await trackerClient.finishLearning(
+        selectedTracker.id, selectedRoom.id, checkCardListController.checked);
     await roomClient.getAllRooms(refresh: true);
     Navigator.of(context).pop();
   }

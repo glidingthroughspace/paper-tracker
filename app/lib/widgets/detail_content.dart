@@ -9,7 +9,12 @@ class DetailContent extends StatelessWidget {
   final List<Widget> bottomButtons;
   final bool disableBackNav;
 
-  DetailContent({this.iconData, this.title, this.content, this.bottomButtons, this.disableBackNav});
+  DetailContent(
+      {this.iconData,
+      this.title,
+      this.content,
+      this.bottomButtons,
+      this.disableBackNav = false});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +36,8 @@ class DetailContent extends StatelessWidget {
         Container(
           color: Theme.of(context).cardColor,
           width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.only(left: 50.0, right: 10.0, top: 80.0, bottom: 30.0),
+          padding:
+              EdgeInsets.only(left: 50.0, right: 10.0, top: 80.0, bottom: 30.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
