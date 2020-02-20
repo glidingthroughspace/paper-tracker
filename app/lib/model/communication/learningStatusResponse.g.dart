@@ -9,10 +9,14 @@ part of 'learningStatusResponse.dart';
 LearningStatusResponse _$LearningStatusResponseFromJson(
     Map<String, dynamic> json) {
   return LearningStatusResponse(
-      done: json['done'] as bool,
-      ssids: (json['ssids'] as List)?.map((e) => e as String)?.toList());
+    done: json['done'] as bool,
+    ssids: (json['ssids'] as List)?.map((e) => e as String)?.toList(),
+  );
 }
 
 Map<String, dynamic> _$LearningStatusResponseToJson(
         LearningStatusResponse instance) =>
-    <String, dynamic>{'done': instance.done, 'ssids': instance.ssids};
+    <String, dynamic>{
+      'done': instance.done,
+      'ssids': instance.ssids,
+    };

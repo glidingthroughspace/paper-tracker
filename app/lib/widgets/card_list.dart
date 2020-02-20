@@ -102,7 +102,7 @@ class _CheckCardListState extends State<CheckCardList> {
 class WorkflowStepsList extends StatefulWidget {
   final List<WFStep> steps;
   final RoomClient roomClient;
-  final void Function(int prevStepID) onStepAdd;
+  final void Function(WFStep prevStep) onStepAdd;
 
   const WorkflowStepsList({Key key, @required this.steps, @required this.roomClient, this.onStepAdd}) : super(key: key);
 
@@ -189,7 +189,7 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
         _buildCard(
           context,
           Center(child: Icon(Icons.add)),
-          object: steps.last.id,
+          object: steps.last,
           onTap: widget.onStepAdd,
           leftMarginFactor: indentation,
         ),

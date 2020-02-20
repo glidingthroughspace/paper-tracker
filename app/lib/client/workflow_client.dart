@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:paper_tracker/model/communication/createStepRequest.dart';
 import 'package:paper_tracker/model/workflow.dart';
 
 import 'api_client.dart';
@@ -30,5 +31,9 @@ class WorkflowClient {
 
     var workflows = await futureWorkflows;
     return workflows.firstWhere((workflow) => workflow.id == id);
+  }
+
+  Future<void> addStep(int workflowID, CreateStepRequest stepRequest) async {
+    return apiClient.post("/workflow/$workflowID/step", json.encode(stepRequest));
   }
 }

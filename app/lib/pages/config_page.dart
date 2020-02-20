@@ -20,7 +20,7 @@ class _ConfigPageState extends State<ConfigPage> {
       builder: (context) {
         return WillPopScope(
           onWillPop: () async => false,
-          child: SimpleDialog(children: <Widget>[
+          child: SimpleDialog(children: [
             Center(
               child: Column(children: [
                 CircularProgressIndicator(),
@@ -90,8 +90,7 @@ class _ConfigPageState extends State<ConfigPage> {
           ),
           Text(
             "Paper Tracker Config",
-            style:
-                TextStyle(color: Theme.of(context).accentColor, fontSize: 30.0),
+            style: TextStyle(color: Theme.of(context).accentColor, fontSize: 30.0),
           ),
           Padding(
             padding: EdgeInsets.only(top: 50.0),
@@ -100,10 +99,8 @@ class _ConfigPageState extends State<ConfigPage> {
             controller: urlEditController,
             decoration: InputDecoration(
               labelText: "Server URL",
-              enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Theme.of(context).accentColor)),
-              focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Theme.of(context).accentColor)),
+              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
+              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
             ),
             validator: (val) {
               if (val.length == 0) {

@@ -9,6 +9,7 @@ import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/countdown_timer.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
+import 'package:paper_tracker/widgets/room_dropdown.dart';
 
 class LearningPage extends StatefulWidget {
   static const Route = "/learning";
@@ -25,17 +26,16 @@ class _LearningPageState extends State<LearningPage> {
   Timer ssidTimer;
 
   var state = _learningState.Init;
-  Room selectedRoom;
   Tracker selectedTracker;
   int learnDuration = 0;
-  CheckCardListController checkCardListController;
+  var checkCardListController = CheckCardListController();
+  var roomDropdownController = RoomDropdownController();
 
   @override
   void initState() {
     super.initState();
 
     tracker = trackerClient.getAllTrackers();
-    checkCardListController = CheckCardListController();
   }
 
   @override
@@ -47,6 +47,7 @@ class _LearningPageState extends State<LearningPage> {
   @override
   Widget build(BuildContext context) {
     LearningPageParams params = ModalRoute.of(context).settings.arguments;
+    roomDropdownController.defaultID = params.roomID;
 
     return DetailContent(
       disableBackNav: state == _learningState.Running,
@@ -62,7 +63,7 @@ class _LearningPageState extends State<LearningPage> {
         padding: EdgeInsets.all(15.0),
         child: Column(
           children: [
-            buildRoomDropdown(params),
+            buildRoomDropdown(),
             buildTrackerDropdown(params),
             SizedBox(height: 15.0),
             buildButtonOrCountdown(context),
@@ -70,6 +71,23 @@ class _LearningPageState extends State<LearningPage> {
             ...buildSSIDList()
           ],
         ),
+      ),
+    );
+  }
+
+  ConditionalBuilder buildRoomDropdown() {
+    return ConditionalBuilder(
+      conditional: state == _learningState.Init,
+      truthy: RoomDropdown(roomClient: roomClient, controller: roomDropdownController),
+      falsy: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            roomDropdownController.selectedRoom != null ? roomDropdownController.selectedRoom.label : "",
+            style: TextStyle(fontSize: 18.0),
+          ),
+          Icon(Room.IconData, size: 25.0),
+        ],
       ),
     );
   }
@@ -94,55 +112,18 @@ class _LearningPageState extends State<LearningPage> {
     );
   }
 
-  Widget buildRoomDropdown(LearningPageParams params) {
-    return FutureBuilder(
-      future: roomClient.getAllRooms(),
-      builder: (context, snapshot) {
-        List<Room> roomList = snapshot.hasData ? snapshot.data : [];
-        if (snapshot.hasData && selectedRoom == null && params.roomID != null) {
-          selectedRoom =
-              roomList.firstWhere((room) => room.id == params.roomID);
-        }
-        if (state != _learningState.Init) {
-          roomList = roomList.where((room) => room == selectedRoom).toList();
-        }
-
-        return DropdownButton(
-          icon: Icon(Room.IconData),
-          items: roomList
-              .map((room) =>
-                  DropdownMenuItem(value: room, child: Text(room.label)))
-              .toList(),
-          value: snapshot.hasData ? selectedRoom : null,
-          isExpanded: true,
-          onChanged: (value) {
-            setState(() {
-              selectedRoom = value;
-            });
-          },
-          hint: Text("Please select a room"),
-          disabledHint: Text("No rooms found"),
-        );
-      },
-    );
-  }
-
   Widget buildTrackerDropdown(LearningPageParams params) {
+    // TODO: To own widget
     return FutureBuilder(
       future: tracker,
       builder: (context, snapshot) {
         List<Tracker> trackerList = snapshot.hasData ? snapshot.data : [];
-        if (snapshot.hasData &&
-            selectedTracker == null &&
-            params.trackerID != null) {
-          selectedTracker = trackerList
-              .firstWhere((tracker) => tracker.id == params.trackerID);
+        if (snapshot.hasData && selectedTracker == null && params.trackerID != null) {
+          selectedTracker = trackerList.firstWhere((tracker) => tracker.id == params.trackerID);
         }
 
         if (state != _learningState.Init) {
-          trackerList = trackerList
-              .where((tracker) => tracker == selectedTracker)
-              .toList();
+          trackerList = trackerList.where((tracker) => tracker == selectedTracker).toList();
         }
         return DropdownButton(
           icon: Icon(Tracker.IconData),
@@ -209,7 +190,7 @@ class _LearningPageState extends State<LearningPage> {
   void onSave() async {
     ssidTimer.cancel();
     await trackerClient.finishLearning(
-        selectedTracker.id, selectedRoom.id, checkCardListController.checked);
+        selectedTracker.id, roomDropdownController.selectedRoom.id, checkCardListController.checked);
     await roomClient.getAllRooms(refresh: true);
     Navigator.of(context).pop();
   }

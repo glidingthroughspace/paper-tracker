@@ -5,6 +5,8 @@ import 'package:paper_tracker/pages/room_page.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:tuple/tuple.dart';
 
+import 'label.dart';
+
 class RoomList extends StatefulWidget {
   RoomList({Key key}) : super(key: key);
 
@@ -12,8 +14,7 @@ class RoomList extends StatefulWidget {
   _RoomListState createState() => _RoomListState();
 }
 
-class _RoomListState extends State<RoomList>
-    with AutomaticKeepAliveClientMixin {
+class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin {
   var roomLabelEditController = TextEditingController();
   var roomClient = RoomClient();
 
@@ -30,8 +31,7 @@ class _RoomListState extends State<RoomList>
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Room> roomList = snapshot.data;
-            List<Tuple2<String, Room>> titleObjectList =
-                roomList.map((room) => Tuple2(room.label, room)).toList();
+            List<Tuple2<String, Room>> titleObjectList = roomList.map((room) => Tuple2(room.label, room)).toList();
 
             return Scaffold(
               body: CardList<Room>(
@@ -73,12 +73,7 @@ class _RoomListState extends State<RoomList>
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            "Add Room",
-            style: TextStyle(
-              fontSize: 20.0,
-            ),
-          ),
+          Label("Add Room"),
           Padding(
             padding: EdgeInsets.only(top: 10.0),
           ),
@@ -87,15 +82,13 @@ class _RoomListState extends State<RoomList>
             autofocus: true,
             decoration: InputDecoration(
               labelText: "Room Label",
-              enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Theme.of(context).accentColor)),
-              focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Theme.of(context).accentColor)),
+              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
+              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
             ),
           ),
         ],
       ),
-      actions: <Widget>[
+      actions: [
         FlatButton(
           child: Text("Create"),
           onPressed: () => addRoom(),
@@ -107,8 +100,9 @@ class _RoomListState extends State<RoomList>
   void addRoom() async {
     var room = Room(label: roomLabelEditController.text);
     await roomClient.addRoom(room);
-
     await roomClient.getAllRooms(refresh: true);
+
+    setState(() {});
     Navigator.of(context).pop();
   }
 

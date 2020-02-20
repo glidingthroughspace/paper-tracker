@@ -96,7 +96,8 @@ class _RoomPageState extends State<RoomPage> {
                   Icon(room.isLearned ? Icons.check : Icons.close, color: Colors.white),
                   MaterialButton(
                     child: Text(room.isLearned ? "Relearn" : "Learn now"),
-                    onPressed: () => Navigator.of(context).pushNamed(LearningPage.Route, arguments: LearningPageParams(roomID: room.id)),
+                    onPressed: () => Navigator.of(context)
+                        .pushNamed(LearningPage.Route, arguments: LearningPageParams(roomID: room.id)),
                     color: Theme.of(context).accentColor,
                   ),
                 ],
@@ -112,13 +113,14 @@ class _RoomPageState extends State<RoomPage> {
     if (edit == false && room != null) {
       room.label = labelEditController.text;
       await roomClient.updateRoom(room);
-      futureRoom = roomClient.getRoomByID(roomID);
+      futureRoom = roomClient.getRoomByID(roomID, refresh: true);
     }
     setState(() => isEditing = edit);
   }
 
   void delete(Room room) async {
     await roomClient.deleteRoom(room.id);
+    await roomClient.getAllRooms(refresh: true);
     Navigator.of(context).pop();
   }
 }
