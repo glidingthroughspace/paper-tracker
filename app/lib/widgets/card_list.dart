@@ -148,17 +148,28 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
     ];
 
     if (step.options.isNotEmpty) {
-      var texts = step.options.keys.map((label) => Text(label)).toList();
+      var buttonContents = List<Widget>.of(step.options.keys.map((label) => Text(label)));
       var isSelected = step.options.keys.map((label) => selectedDecisionMap[step.id] == label).toList();
+
+      if (step.options.length < 2) {
+        buttonContents.add(Icon(Icons.add));
+        isSelected.add(false);
+      }
+
       children.add(Row(
         children: [
           ToggleButtons(
-            children: texts,
+            children: buttonContents,
             isSelected: isSelected,
             constraints: BoxConstraints.expand(width: 100, height: 40),
             onPressed: (it) {
               setState(() {
-                selectedDecisionMap[step.id] = texts.elementAt(it).data;
+                if (buttonContents.elementAt(it) is Text) {
+                  Text text = buttonContents.elementAt(it);
+                  selectedDecisionMap[step.id] = text.data;
+                } else {
+                  widget.onStepAdd(step);
+                }
               });
             },
           ),
