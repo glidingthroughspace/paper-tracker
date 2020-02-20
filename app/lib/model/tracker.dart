@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:paper_tracker/widgets/dropdown.dart';
 
 part 'tracker.g.dart';
 
 @JsonSerializable()
-class Tracker {
+class Tracker implements DropdownCapable {
   static const IconData = Icons.track_changes;
 
   @JsonKey(name: "id")

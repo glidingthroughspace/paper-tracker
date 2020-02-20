@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:paper_tracker/widgets/dropdown.dart';
 
 part 'room.g.dart';
 
 @JsonSerializable()
-class Room {
+class Room implements DropdownCapable {
   static const IconData = Icons.room;
 
   @JsonKey(name: "id")

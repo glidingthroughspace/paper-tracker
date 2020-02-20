@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/workflow_client.dart';
 import 'package:paper_tracker/model/communication/createStepRequest.dart';
+import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
-import 'package:paper_tracker/widgets/room_dropdown.dart';
+import 'package:paper_tracker/widgets/dropdown.dart';
 
 class WorkflowPage extends StatefulWidget {
   static const Route = "/workflow";
@@ -21,7 +22,7 @@ class _WorkflowPageState extends State<WorkflowPage> {
   int workflowID;
   var stepLabelEditController = TextEditingController();
   var stepDecisionLabelEditController = TextEditingController();
-  var roomDropdownController = RoomDropdownController();
+  var roomDropdownController = DropdownController();
 
   @override
   Widget build(BuildContext context) {
@@ -96,9 +97,11 @@ class _WorkflowPageState extends State<WorkflowPage> {
 
     children.addAll([
       Padding(padding: EdgeInsets.only(top: 10.0)),
-      RoomDropdown(
-        roomClient: roomClient,
+      Dropdown(
+        getItems: roomClient.getAllRooms,
         controller: roomDropdownController,
+        hintName: "room",
+        icon: Room.IconData,
       ),
     ]);
 
@@ -122,7 +125,7 @@ class _WorkflowPageState extends State<WorkflowPage> {
       previousStepID: prevStep.id,
       step: WFStep(
         label: stepLabelEditController.text,
-        roomID: roomDropdownController.selectedRoom.id,
+        roomID: roomDropdownController.selectedItem.id,
       ),
     );
     await workflowClient.addStep(workflowID, createStepRequest);

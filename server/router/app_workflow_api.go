@@ -23,6 +23,7 @@ func (r *HttpRouter) workflowListHandler() gin.HandlerFunc {
 		workflows, err := managers.GetWorkflowManager().GetAllWorkflows()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("WorkflowList request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, workflows)
@@ -42,6 +43,7 @@ func (r *HttpRouter) workflowCreateHandler() gin.HandlerFunc {
 		err = managers.GetWorkflowManager().CreateWorkflow(workflow)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("WorkflowCreate request failed")
 			return
 		}
 		ctx.Status(http.StatusOK)
@@ -63,6 +65,7 @@ func (r *HttpRouter) workflowCreateStartHandler() gin.HandlerFunc {
 		err = managers.GetWorkflowManager().CreateWorkflowStart(workflowID, step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("WorkflowCreateStart request failed")
 			return
 		}
 		ctx.Status(http.StatusOK)
@@ -82,6 +85,7 @@ func (r *HttpRouter) workflowCreateStepHandler() gin.HandlerFunc {
 		err = managers.GetWorkflowManager().AddStep(stepRequest.PrevStepID, stepRequest.DecisionLabel, stepRequest.Step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("WorkflowCreateStep request failed")
 			return
 		}
 		ctx.Status(http.StatusOK)
