@@ -19,7 +19,7 @@ class WorkflowClient {
       futureWorkflows = Future.value(rawList.map((i) => Workflow.fromJson(i)).toList());
       return futureWorkflows;
     } else {
-      throw Exception("Failed to load trackers");
+      throw Exception("Failed to load workflows");
     }
   }
 

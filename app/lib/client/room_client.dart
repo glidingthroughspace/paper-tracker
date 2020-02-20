@@ -18,7 +18,7 @@ class RoomClient {
       futureRooms = Future.value(rawList.map((i) => Room.fromJson(i)).toList());
       return futureRooms;
     } else {
-      throw Exception("Failed to load trackers");
+      throw Exception("Failed to load client");
     }
   }
 
