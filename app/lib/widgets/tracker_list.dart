@@ -13,8 +13,7 @@ class TrackerList extends StatefulWidget {
   _TrackerListState createState() => _TrackerListState();
 }
 
-class _TrackerListState extends State<TrackerList>
-    with AutomaticKeepAliveClientMixin {
+class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClientMixin {
   var trackerClient = TrackerClient();
 
   @override
@@ -30,13 +29,11 @@ class _TrackerListState extends State<TrackerList>
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Tracker> trackerList = snapshot.data;
-            List<Tuple2<String, Tracker>> titleObjectList = trackerList
-                .map((tracker) => Tuple2(tracker.label, tracker))
-                .toList();
+            List<Tuple2<String, Tracker>> titleObjectList =
+                trackerList.map((tracker) => Tuple2(tracker.label, tracker)).toList();
             return CardList<Tracker>(
               titleObjectList: titleObjectList,
-              onTap: (tracker) => Navigator.of(context)
-                  .pushNamed(TrackerPage.Route, arguments: tracker.id),
+              onTap: (tracker) => Navigator.of(context).pushNamed(TrackerPage.Route, arguments: tracker.id),
               iconData: Icons.keyboard_arrow_right,
               onRefresh: onRefresh,
             );

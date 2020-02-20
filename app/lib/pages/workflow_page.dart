@@ -42,6 +42,7 @@ class _WorkflowPageState extends State<WorkflowPage> {
       child: WorkflowStepsList(
         steps: workflow.steps,
         roomClient: roomClient,
+        onStepAdd: (prevID) => print("Add new step with previous '$prevID'"),
       ),
     );
   }
