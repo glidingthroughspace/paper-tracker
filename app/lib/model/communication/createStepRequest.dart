@@ -9,11 +9,15 @@ class CreateStepRequest {
   int previousStepID;
   @JsonKey(name: "decision_label")
   String decisionLabel;
-  @JsonKey(name: "step")
+  @JsonKey(name: "step", toJson: _stepToJSON)
   WFStep step;
 
   CreateStepRequest({this.previousStepID, this.decisionLabel, this.step});
 
   factory CreateStepRequest.fromJson(Map<String, dynamic> json) => _$CreateStepRequestFromJson(json);
   Map<String, dynamic> toJson() => _$CreateStepRequestToJson(this);
+}
+
+dynamic _stepToJSON(WFStep step) {
+  return step.toJSON();
 }

@@ -184,7 +184,7 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
       }
     }
 
-    if (widget.onStepAdd != null) {
+    if (widget.onStepAdd != null && steps.length > 0) {
       listChildren.add(
         _buildCard(
           context,

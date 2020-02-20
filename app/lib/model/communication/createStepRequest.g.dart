@@ -20,5 +20,5 @@ Map<String, dynamic> _$CreateStepRequestToJson(CreateStepRequest instance) =>
     <String, dynamic>{
       'prev_step_id': instance.previousStepID,
       'decision_label': instance.decisionLabel,
-      'step': instance.step,
+      'step': _stepToJSON(instance.step),
     };
