@@ -56,6 +56,8 @@ class _WorkflowPageState extends State<WorkflowPage> {
   }
 
   void onAddStep(WFStep prev) {
+    stepLabelEditController.text = "";
+    stepDecisionLabelEditController.text = "";
     showDialog(
       context: context,
       child: buildAddStepDialog(prev),
@@ -81,7 +83,7 @@ class _WorkflowPageState extends State<WorkflowPage> {
       ),
     ];
 
-    if (step.options.length < 2) {
+    if (step != null && step.options.length < 2) {
       children.addAll([
         Padding(padding: EdgeInsets.only(top: 10.0)),
         TextFormField(
@@ -120,15 +122,23 @@ class _WorkflowPageState extends State<WorkflowPage> {
   }
 
   void addStep(WFStep prevStep) async {
-    var createStepRequest = CreateStepRequest(
-      decisionLabel: stepDecisionLabelEditController.text,
-      previousStepID: prevStep.id,
-      step: WFStep(
+    if (prevStep != null) {
+      var createStepRequest = CreateStepRequest(
+        decisionLabel: stepDecisionLabelEditController.text,
+        previousStepID: prevStep.id,
+        step: WFStep(
+          label: stepLabelEditController.text,
+          roomID: roomDropdownController.selectedItem.id,
+        ),
+      );
+      await workflowClient.addStep(workflowID, createStepRequest);
+    } else {
+      var step = WFStep(
         label: stepLabelEditController.text,
         roomID: roomDropdownController.selectedItem.id,
-      ),
-    );
-    await workflowClient.addStep(workflowID, createStepRequest);
+      );
+      await workflowClient.addStartStep(workflowID, step);
+    }
     await workflowClient.getAllWorkflows(refresh: true);
 
     setState(() {});

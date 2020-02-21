@@ -195,12 +195,12 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
       }
     }
 
-    if (widget.onStepAdd != null && steps.length > 0) {
+    if (widget.onStepAdd != null) {
       listChildren.add(
         _buildCard(
           context,
           Center(child: Icon(Icons.add)),
-          object: steps.last,
+          object: steps.length > 0 ? steps.last : null,
           onTap: widget.onStepAdd,
           leftMarginFactor: indentation,
         ),

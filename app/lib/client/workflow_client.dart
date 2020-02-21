@@ -33,7 +33,11 @@ class WorkflowClient {
     return workflows.firstWhere((workflow) => workflow.id == id);
   }
 
+  Future<void> addStartStep(int workflowID, WFStep step) async {
+    return apiClient.post("/workflow/$workflowID/start", json.encode(step.toJSON()));
+  }
+
   Future<void> addStep(int workflowID, CreateStepRequest stepRequest) async {
-    return apiClient.post("/workflow/$workflowID/step", json.encode(stepRequest));
+    return apiClient.post("/workflow/$workflowID/step", json.encode(stepRequest.toJson()));
   }
 }

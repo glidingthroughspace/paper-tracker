@@ -32,11 +32,11 @@ class RoomClient {
   }
 
   Future<void> addRoom(Room room) async {
-    return apiClient.post("/room", json.encode(room));
+    return apiClient.post("/room", json.encode(room.toJson()));
   }
 
   Future<void> updateRoom(Room room) async {
-    return apiClient.put("/room/${room.id}", json.encode(room));
+    return apiClient.put("/room/${room.id}", json.encode(room.toJson()));
   }
 
   Future<void> deleteRoom(int id) async {

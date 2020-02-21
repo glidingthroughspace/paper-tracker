@@ -41,9 +41,19 @@ WFStep _$WFStepFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$WFStepToJson(WFStep instance) => <String, dynamic>{
-      'id': instance.id,
-      'label': instance.label,
-      'room_id': instance.roomID,
-      'options': instance.options,
-    };
+Map<String, dynamic> _$WFStepToJson(WFStep instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'label': instance.label,
+    'room_id': instance.roomID,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('options', instance.options);
+  return val;
+}
