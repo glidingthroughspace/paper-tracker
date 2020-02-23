@@ -34,12 +34,12 @@ var _ = Describe("LearningManager", func() {
 		testErr           = errors.New("error")
 	)
 	const (
-		sleepBetweenLearnSec               = 1
-		learnCount                         = 1
-		wrongID                            = 0
-		wrongRoomID          models.RoomID = 0
-		id                                 = 1
-		roomID               models.RoomID = 1
+		sleepBetweenLearnSec                  = 1
+		learnCount                            = 1
+		wrongID              models.TrackerID = 0
+		wrongRoomID          models.RoomID    = 0
+		id                   models.TrackerID = 1
+		roomID               models.RoomID    = 1
 	)
 
 	BeforeEach(func() {
