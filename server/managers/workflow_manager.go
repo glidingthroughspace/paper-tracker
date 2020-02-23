@@ -29,9 +29,9 @@ func GetWorkflowManager() *WorkflowManager {
 	return workflowManager
 }
 
-func (mgr *WorkflowManager) CreateWorkflow(workflow *models.Workflow) (err error) {
+func (mgr *WorkflowManager) CreateTemplate(workflow *models.WorkflowTemplate) (err error) {
 	workflow.ID = 0
-	err = mgr.workflowRep.CreateWorkflow(workflow)
+	err = mgr.workflowRep.CreateTemplate(workflow)
 	if err != nil {
 		log.WithFields(log.Fields{"workflow": workflow, "err": err}).Error("Failed to create workflow")
 		return
@@ -39,7 +39,7 @@ func (mgr *WorkflowManager) CreateWorkflow(workflow *models.Workflow) (err error
 	return
 }
 
-func (mgr *WorkflowManager) CreateWorkflowStart(workflowID models.WorkflowID, step *models.Step) (err error) {
+func (mgr *WorkflowManager) CreateTemplateStart(workflowID models.WorkflowTemplateID, step *models.Step) (err error) {
 	workflowStartLog := log.WithFields(log.Fields{"workflowID": workflowID, "step": step})
 
 	step.ID = 0
@@ -49,7 +49,7 @@ func (mgr *WorkflowManager) CreateWorkflowStart(workflowID models.WorkflowID, st
 		return
 	}
 
-	workflow, err := mgr.workflowRep.GetWorkflowByID(workflowID)
+	workflow, err := mgr.workflowRep.GetTemplateByID(workflowID)
 	if err != nil {
 		workflowStartLog.WithField("err", err).Error("Failed to get workflow to create start")
 		mgr.workflowRep.DeleteStep(step.ID)
@@ -57,7 +57,7 @@ func (mgr *WorkflowManager) CreateWorkflowStart(workflowID models.WorkflowID, st
 	}
 
 	workflow.StartStep = step.ID
-	err = mgr.workflowRep.UpdateWorkflow(workflow)
+	err = mgr.workflowRep.UpdateTemplate(workflow)
 	if err != nil {
 		workflowStartLog.WithField("err", err).Error("Failed to update workflow to create start")
 		mgr.workflowRep.DeleteStep(step.ID)
@@ -67,7 +67,7 @@ func (mgr *WorkflowManager) CreateWorkflowStart(workflowID models.WorkflowID, st
 }
 
 // TODO: Fix adding in between to steps
-func (mgr *WorkflowManager) AddStep(prevStepID models.StepID, decisionLabel string, step *models.Step) (err error) {
+func (mgr *WorkflowManager) AddTemplateStep(prevStepID models.StepID, decisionLabel string, step *models.Step) (err error) {
 	addStepLog := log.WithFields(log.Fields{"prevStepID": prevStepID, "step": step})
 
 	step.ID = 0
@@ -103,16 +103,16 @@ func (mgr *WorkflowManager) AddStep(prevStepID models.StepID, decisionLabel stri
 	return
 }
 
-func (mgr *WorkflowManager) GetAllWorkflows() (workflows []*models.Workflow, err error) {
-	rawWorkflows, err := mgr.workflowRep.GetAllWorkflows()
+func (mgr *WorkflowManager) GetAllTemplates() (workflows []*models.WorkflowTemplate, err error) {
+	rawWorkflows, err := mgr.workflowRep.GetAllTemplates()
 	if err != nil {
 		log.WithField("err", err).Error("Failed to get all raw workflows")
 		return
 	}
 
-	workflows = make([]*models.Workflow, len(rawWorkflows))
+	workflows = make([]*models.WorkflowTemplate, len(rawWorkflows))
 	for it, raw := range rawWorkflows {
-		workflows[it], err = mgr.GetWorkflow(raw.ID)
+		workflows[it], err = mgr.GetTemplate(raw.ID)
 		if err != nil {
 			log.WithFields(log.Fields{"err": err, "rawID": raw.ID}).Error("Failed to get workflow for list")
 			continue
@@ -121,10 +121,10 @@ func (mgr *WorkflowManager) GetAllWorkflows() (workflows []*models.Workflow, err
 	return
 }
 
-func (mgr *WorkflowManager) GetWorkflow(workflowID models.WorkflowID) (workflow *models.Workflow, err error) {
+func (mgr *WorkflowManager) GetTemplate(workflowID models.WorkflowTemplateID) (workflow *models.WorkflowTemplate, err error) {
 	getWorkflowLog := log.WithField("workflowID", workflowID)
 
-	workflow, err = mgr.workflowRep.GetWorkflowByID(workflowID)
+	workflow, err = mgr.workflowRep.GetTemplateByID(workflowID)
 	if mgr.workflowRep.IsRecordNotFoundError(err) {
 		getWorkflowLog.Warn("Workflow not found")
 		return

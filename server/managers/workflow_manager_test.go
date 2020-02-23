@@ -42,36 +42,36 @@ var _ = Describe("TrackerManager", func() {
 	})
 
 	Context("Test CreateWorkflow", func() {
-		workflow := &models.Workflow{ID: 0, Label: "TestWorkflow"}
+		workflow := &models.WorkflowTemplate{ID: 0, Label: "TestWorkflow"}
 
 		It("CreateWorkflow calls repo create exactly once", func() {
-			mockWorkflowRep.EXPECT().CreateWorkflow(workflow).Return(nil).Times(1)
-			Expect(manager.CreateWorkflow(workflow)).To(Succeed())
+			mockWorkflowRep.EXPECT().CreateTemplate(workflow).Return(nil).Times(1)
+			Expect(manager.CreateTemplate(workflow)).To(Succeed())
 		})
 
 		It("CreateWorkflow return db error", func() {
-			mockWorkflowRep.EXPECT().CreateWorkflow(workflow).Return(testErr).AnyTimes()
-			Expect(manager.CreateWorkflow(workflow)).To(MatchError(testErr))
+			mockWorkflowRep.EXPECT().CreateTemplate(workflow).Return(testErr).AnyTimes()
+			Expect(manager.CreateTemplate(workflow)).To(MatchError(testErr))
 		})
 
 		It("CreateWorkflow sets ID to 0", func() {
 			workflow.ID = 1
-			mockWorkflowRep.EXPECT().CreateWorkflow(workflow).Return(nil).AnyTimes()
-			manager.CreateWorkflow(workflow)
+			mockWorkflowRep.EXPECT().CreateTemplate(workflow).Return(nil).AnyTimes()
+			manager.CreateTemplate(workflow)
 			Expect(workflow.ID).To(BeEquivalentTo(0))
 		})
 	})
 
 	Context("Test CreateWorkflowStart", func() {
-		workflow := &models.Workflow{ID: 1, Label: "TestWorkflow"}
+		workflow := &models.WorkflowTemplate{ID: 1, Label: "TestWorkflow"}
 		step := &models.Step{ID: 1, Label: "TestStep"}
 
 		It("CreateWorkflowStart calls repo create exactly once, gets workflow and inserts startstep", func() {
 			mockWorkflowRep.EXPECT().CreateStep(step).Return(nil).Times(1)
-			mockWorkflowRep.EXPECT().GetWorkflowByID(workflow.ID).Return(workflow, nil).Times(1)
-			mockWorkflowRep.EXPECT().UpdateWorkflow(workflow).Return(nil).Times(1)
+			mockWorkflowRep.EXPECT().GetTemplateByID(workflow.ID).Return(workflow, nil).Times(1)
+			mockWorkflowRep.EXPECT().UpdateTemplate(workflow).Return(nil).Times(1)
 
-			Expect(manager.CreateWorkflowStart(workflow.ID, step)).To(Succeed())
+			Expect(manager.CreateTemplateStart(workflow.ID, step)).To(Succeed())
 		})
 
 		//TODO: Add more tests

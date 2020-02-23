@@ -3,11 +3,11 @@ package repositories
 import "paper-tracker/models"
 
 type WorkflowRepository interface {
-	CreateWorkflow(workflow *models.Workflow) error
-	GetAllWorkflows() ([]*models.Workflow, error)
-	GetWorkflowByID(workflowID models.WorkflowID) (*models.Workflow, error)
-	UpdateWorkflow(workflow *models.Workflow) error
-	DeleteWorkflow(workflowID models.WorkflowID) error
+	CreateTemplate(workflow *models.WorkflowTemplate) error
+	GetAllTemplates() ([]*models.WorkflowTemplate, error)
+	GetTemplateByID(workflowID models.WorkflowTemplateID) (*models.WorkflowTemplate, error)
+	UpdateTemplate(workflow *models.WorkflowTemplate) error
+	DeleteTemplate(workflowID models.WorkflowTemplateID) error
 	CreateStep(step *models.Step) error
 	GetStepByID(stepID models.StepID) (*models.Step, error)
 	UpdateStep(step *models.Step) error

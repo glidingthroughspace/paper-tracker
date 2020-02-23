@@ -2,16 +2,14 @@ package models
 
 import "time"
 
-type WorkflowID int
+type WorkflowTemplateID int
 type StepID int
 
-type Workflow struct {
-	ID          WorkflowID `json:"id" gorm:"primary_key;auto_increment"`
-	Label       string     `json:"label"`
-	IsTemplate  bool       `json:"is_template"`
-	StartStep   StepID     `json:"-"`
-	CurrentStep StepID     `json:"-"`
-	Steps       []*Step    `json:"steps" gorm:"-"`
+type WorkflowTemplate struct {
+	ID        WorkflowTemplateID `json:"id" gorm:"primary_key;auto_increment"`
+	Label     string             `json:"label"`
+	StartStep StepID             `json:"-"`
+	Steps     []*Step            `json:"steps" gorm:"-"`
 }
 
 type Step struct {

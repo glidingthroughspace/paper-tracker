@@ -12,15 +12,17 @@ import (
 
 func (r *HttpRouter) buildAppWorkflowAPIRoutes() {
 	workflow := r.engine.Group("/workflow")
-	workflow.GET("", r.workflowListHandler())
-	workflow.POST("", r.workflowCreateHandler())
-	workflow.POST("/:id/start", extractID(), r.workflowCreateStartHandler())
-	workflow.POST("/:id/step", extractID(), r.workflowCreateStepHandler())
+
+	template := workflow.Group("/template")
+	template.GET("", r.workflowTemplateListHandler())
+	template.POST("", r.workflowTemplateCreateHandler())
+	template.POST("/:id/start", extractID(), r.workflowTemplateCreateStartHandler())
+	template.POST("/:id/step", extractID(), r.workflowTemplateCreateStepHandler())
 }
 
-func (r *HttpRouter) workflowListHandler() gin.HandlerFunc {
+func (r *HttpRouter) workflowTemplateListHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		workflows, err := managers.GetWorkflowManager().GetAllWorkflows()
+		workflows, err := managers.GetWorkflowManager().GetAllTemplates()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowList request failed")
@@ -30,9 +32,9 @@ func (r *HttpRouter) workflowListHandler() gin.HandlerFunc {
 	}
 }
 
-func (r *HttpRouter) workflowCreateHandler() gin.HandlerFunc {
+func (r *HttpRouter) workflowTemplateCreateHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		workflow := &models.Workflow{}
+		workflow := &models.WorkflowTemplate{}
 		err := ctx.BindJSON(workflow)
 		if err != nil {
 			log.WithField("err", err).Error("Failed to unmarshal json to workflow")
@@ -40,7 +42,7 @@ func (r *HttpRouter) workflowCreateHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = managers.GetWorkflowManager().CreateWorkflow(workflow)
+		err = managers.GetWorkflowManager().CreateTemplate(workflow)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowCreate request failed")
@@ -50,9 +52,9 @@ func (r *HttpRouter) workflowCreateHandler() gin.HandlerFunc {
 	}
 }
 
-func (r *HttpRouter) workflowCreateStartHandler() gin.HandlerFunc {
+func (r *HttpRouter) workflowTemplateCreateStartHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		workflowID := models.WorkflowID(ctx.GetInt(httpParamIDName))
+		workflowID := models.WorkflowTemplateID(ctx.GetInt(httpParamIDName))
 
 		step := &models.Step{}
 		err := ctx.BindJSON(step)
@@ -62,7 +64,7 @@ func (r *HttpRouter) workflowCreateStartHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = managers.GetWorkflowManager().CreateWorkflowStart(workflowID, step)
+		err = managers.GetWorkflowManager().CreateTemplateStart(workflowID, step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowCreateStart request failed")
@@ -72,7 +74,7 @@ func (r *HttpRouter) workflowCreateStartHandler() gin.HandlerFunc {
 	}
 }
 
-func (r *HttpRouter) workflowCreateStepHandler() gin.HandlerFunc {
+func (r *HttpRouter) workflowTemplateCreateStepHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		stepRequest := &communication.CreateStepRequest{}
 		err := ctx.BindJSON(stepRequest)
@@ -82,7 +84,7 @@ func (r *HttpRouter) workflowCreateStepHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = managers.GetWorkflowManager().AddStep(stepRequest.PrevStepID, stepRequest.DecisionLabel, stepRequest.Step)
+		err = managers.GetWorkflowManager().AddTemplateStep(stepRequest.PrevStepID, stepRequest.DecisionLabel, stepRequest.Step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowCreateStep request failed")
