@@ -188,7 +188,49 @@ func (mgr *WorkflowManager) getStepsFromStart(startStepID models.StepID, getLog 
 	return
 }
 
-func (mgr WorkflowManager) StartExecution(exec *models.WorkflowExec) (err error) {
+func (mgr *WorkflowManager) GetAllExec() (execs []*models.WorkflowExec, err error) {
+	rawExecs, err := mgr.workflowRep.GetAllExec()
+	if err != nil {
+		log.WithField("err", err).Error("Failed to get all execs")
+		return
+	}
+
+	execs = make([]*models.WorkflowExec, len(rawExecs))
+	for it, rawExec := range rawExecs {
+		execs[it], err = mgr.GetExec(rawExec.ID)
+		if err != nil {
+			log.WithFields(log.Fields{"err": err, "rawID": rawExec.ID}).Error("Failed to get workflow exec for list")
+			continue
+		}
+	}
+
+	return
+}
+
+func (mgr *WorkflowManager) GetExec(execID models.WorkflowExecID) (exec *models.WorkflowExec, err error) {
+	execLog := log.WithField("execID", execID)
+
+	exec, err = mgr.workflowRep.GetExecByID(execID)
+	if err != nil {
+		execLog.WithField("err", err).Error("Failed to get workflow exec")
+		return
+	}
+
+	infos, err := mgr.workflowRep.GetExecStepInfoForExecID(exec.ID)
+	if err != nil {
+		execLog.WithField("err", err).Error("Failed to get infos for exec")
+		return
+	}
+
+	exec.StepInfos = make(map[models.StepID]*models.ExecStepInfo, len(infos))
+	for _, info := range infos {
+		exec.StepInfos[info.StepID] = info
+	}
+
+	return
+}
+
+func (mgr *WorkflowManager) StartExecution(exec *models.WorkflowExec) (err error) {
 	startExecLog := log.WithField("exec", exec)
 
 	tracker, err := GetTrackerManager().GetTrackerByID(exec.TrackerID)
@@ -224,13 +266,40 @@ func (mgr WorkflowManager) StartExecution(exec *models.WorkflowExec) (err error)
 		return
 	}
 
+	err = GetTrackerManager().SetTrackerStatus(exec.TrackerID, models.StatusTracking)
+	if err != nil {
+		startExecLog.WithField("err", err).Error("Failed to set tracker to status tracking - error ignored for now")
+		err = nil
+	}
+
+	startInfo := &models.ExecStepInfo{
+		ExecID:    exec.ID,
+		StepID:    template.StartStep,
+		StartedOn: time.Now(),
+	}
+	err = mgr.workflowRep.CreateExecStepInfo(startInfo)
+	if err != nil {
+		startExecLog.WithFields(log.Fields{"info": startInfo, "err": err}).Error("Failed to create info for start step - error ignored for now")
+		err = nil
+	}
+
 	for stepID, info := range exec.StepInfos {
+		if stepID == template.StartStep {
+			startInfo.Decision = info.Decision
+			err = mgr.workflowRep.UpdateExecStepInfo(startInfo)
+			if err != nil {
+				startExecLog.WithFields(log.Fields{"info": startInfo, "err": err}).Error("Failed to update info for start step - error ignored for now")
+				err = nil
+			}
+			continue
+		}
 		info.ExecID = exec.ID
 		info.StepID = stepID
-		if stepID == template.StartStep {
-			info.StartedOn = time.Now()
+		err = mgr.workflowRep.CreateExecStepInfo(info)
+		if err != nil {
+			startExecLog.WithFields(log.Fields{"info": info, "err": err}).Error("Failed to create exec info - error ignored for now")
+			err = nil
 		}
-		mgr.workflowRep.CreateExecStepInfo(info)
 	}
 
 	return

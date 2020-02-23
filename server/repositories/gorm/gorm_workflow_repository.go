@@ -6,6 +6,8 @@ func init() {
 	databaseModels = append(databaseModels, &models.WorkflowTemplate{})
 	databaseModels = append(databaseModels, &models.Step{})
 	databaseModels = append(databaseModels, &models.NextStep{})
+	databaseModels = append(databaseModels, &models.WorkflowExec{})
+	databaseModels = append(databaseModels, &models.ExecStepInfo{})
 }
 
 type GormWorkflowRepository struct{}
@@ -119,6 +121,11 @@ func (rep *GormWorkflowRepository) CreateExecStepInfo(execStepInfo *models.ExecS
 func (rep *GormWorkflowRepository) GetExecStepInfoByID(execID models.WorkflowExecID, stepID models.StepID) (execStepInfo *models.ExecStepInfo, err error) {
 	execStepInfo = &models.ExecStepInfo{}
 	err = databaseConnection.First(execStepInfo, &models.ExecStepInfo{ExecID: execID, StepID: stepID}).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) GetExecStepInfoForExecID(execID models.WorkflowExecID) (infos []*models.ExecStepInfo, err error) {
+	err = databaseConnection.Find(&infos, &models.ExecStepInfo{ExecID: execID}).Error
 	return
 }
 

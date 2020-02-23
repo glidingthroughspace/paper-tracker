@@ -22,6 +22,7 @@ type WorkflowRepository interface {
 	DeleteExec(execID models.WorkflowExecID) error
 	CreateExecStepInfo(execStepInfo *models.ExecStepInfo) error
 	GetExecStepInfoByID(execID models.WorkflowExecID, stepID models.StepID) (*models.ExecStepInfo, error)
+	GetExecStepInfoForExecID(execID models.WorkflowExecID) ([]*models.ExecStepInfo, error)
 	UpdateExecStepInfo(execStepInfo *models.ExecStepInfo) error
 	DeleteExecStepInfo(execID models.WorkflowExecID, stepID models.StepID) error
 	IsRecordNotFoundError(err error) bool

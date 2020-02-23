@@ -18,6 +18,10 @@ func (r *HttpRouter) buildAppWorkflowAPIRoutes() {
 	template.POST("", r.workflowTemplateCreateHandler())
 	template.POST("/:id/start", extractID(), r.workflowTemplateCreateStartHandler())
 	template.POST("/:id/step", extractID(), r.workflowTemplateCreateStepHandler())
+
+	exec := workflow.Group("/exec")
+	exec.GET("", r.workflowExecListHandler())
+	exec.POST("/start", r.workflowExecStartHandler())
 }
 
 func (r *HttpRouter) workflowTemplateListHandler() gin.HandlerFunc {
@@ -88,6 +92,38 @@ func (r *HttpRouter) workflowTemplateCreateStepHandler() gin.HandlerFunc {
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowCreateStep request failed")
+			return
+		}
+		ctx.Status(http.StatusOK)
+	}
+}
+
+func (r *HttpRouter) workflowExecListHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		execs, err := managers.GetWorkflowManager().GetAllExec()
+		if err != nil {
+			log.WithField("err", err).Warn("Failed to get all workflow execs")
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			return
+		}
+		ctx.JSON(http.StatusOK, execs)
+	}
+}
+
+func (r *HttpRouter) workflowExecStartHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		exec := &models.WorkflowExec{}
+		err := ctx.BindJSON(exec)
+		if err != nil {
+			log.WithField("err", err).Error("Failed to unmarshal json to workflow execution")
+			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		err = managers.GetWorkflowManager().StartExecution(exec)
+		if err != nil {
+			log.WithFields(log.Fields{"exec": exec, "err": err}).Warn("Failed to start workflow execution")
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
 		ctx.Status(http.StatusOK)
