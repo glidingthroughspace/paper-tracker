@@ -38,27 +38,27 @@ func (r *HttpRouter) workflowTemplateListHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) workflowTemplateCreateHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		workflow := &models.WorkflowTemplate{}
-		err := ctx.BindJSON(workflow)
+		template := &models.WorkflowTemplate{}
+		err := ctx.BindJSON(template)
 		if err != nil {
-			log.WithField("err", err).Error("Failed to unmarshal json to workflow")
+			log.WithField("err", err).Error("Failed to unmarshal json to workflow template")
 			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
 
-		err = managers.GetWorkflowManager().CreateTemplate(workflow)
+		err = managers.GetWorkflowManager().CreateTemplate(template)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("WorkflowCreate request failed")
+			log.WithField("err", err).Warn("WorkflowTemplateCreate request failed")
 			return
 		}
-		ctx.Status(http.StatusOK)
+		ctx.JSON(http.StatusOK, template)
 	}
 }
 
 func (r *HttpRouter) workflowTemplateCreateStartHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		workflowID := models.WorkflowTemplateID(ctx.GetInt(httpParamIDName))
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamIDName))
 
 		step := &models.Step{}
 		err := ctx.BindJSON(step)
@@ -68,13 +68,13 @@ func (r *HttpRouter) workflowTemplateCreateStartHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = managers.GetWorkflowManager().CreateTemplateStart(workflowID, step)
+		err = managers.GetWorkflowManager().CreateTemplateStart(templateID, step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("WorkflowCreateStart request failed")
+			log.WithField("err", err).Warn("WorkflowTemplateCreateStart request failed")
 			return
 		}
-		ctx.Status(http.StatusOK)
+		ctx.JSON(http.StatusOK, step)
 	}
 }
 
@@ -91,10 +91,10 @@ func (r *HttpRouter) workflowTemplateCreateStepHandler() gin.HandlerFunc {
 		err = managers.GetWorkflowManager().AddTemplateStep(stepRequest.PrevStepID, stepRequest.DecisionLabel, stepRequest.Step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("WorkflowCreateStep request failed")
+			log.WithField("err", err).Warn("WorkflowTemplateCreateStep request failed")
 			return
 		}
-		ctx.Status(http.StatusOK)
+		ctx.JSON(http.StatusOK, stepRequest.Step)
 	}
 }
 
@@ -126,6 +126,6 @@ func (r *HttpRouter) workflowExecStartHandler() gin.HandlerFunc {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
-		ctx.Status(http.StatusOK)
+		ctx.JSON(http.StatusOK, exec)
 	}
 }

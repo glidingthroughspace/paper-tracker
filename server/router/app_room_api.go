@@ -46,7 +46,7 @@ func (r *HttpRouter) roomCreateHandler() gin.HandlerFunc {
 			log.WithField("err", err).Warn("RoomCreate request failed")
 			return
 		}
-		ctx.Status(http.StatusOK)
+		ctx.JSON(http.StatusOK, room)
 	}
 }
 
@@ -69,7 +69,7 @@ func (r *HttpRouter) roomUpdateHandler() gin.HandlerFunc {
 			log.WithField("err", err).Warn("RoomUpdate request failed")
 			return
 		}
-		ctx.Status(http.StatusOK)
+		ctx.JSON(http.StatusOK, room)
 	}
 }
 
