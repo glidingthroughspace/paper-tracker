@@ -206,6 +206,135 @@ func (mr *MockWorkflowRepositoryMockRecorder) GetDecisions(stepID interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDecisions", reflect.TypeOf((*MockWorkflowRepository)(nil).GetDecisions), stepID)
 }
 
+// CreateExec mocks base method
+func (m *MockWorkflowRepository) CreateExec(exec *models.WorkflowExec) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateExec", exec)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateExec indicates an expected call of CreateExec
+func (mr *MockWorkflowRepositoryMockRecorder) CreateExec(exec interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateExec", reflect.TypeOf((*MockWorkflowRepository)(nil).CreateExec), exec)
+}
+
+// GetAllExec mocks base method
+func (m *MockWorkflowRepository) GetAllExec() ([]*models.WorkflowExec, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllExec")
+	ret0, _ := ret[0].([]*models.WorkflowExec)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllExec indicates an expected call of GetAllExec
+func (mr *MockWorkflowRepositoryMockRecorder) GetAllExec() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllExec", reflect.TypeOf((*MockWorkflowRepository)(nil).GetAllExec))
+}
+
+// GetExecByID mocks base method
+func (m *MockWorkflowRepository) GetExecByID(execID models.WorkflowExecID) (*models.WorkflowExec, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetExecByID", execID)
+	ret0, _ := ret[0].(*models.WorkflowExec)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetExecByID indicates an expected call of GetExecByID
+func (mr *MockWorkflowRepositoryMockRecorder) GetExecByID(execID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExecByID", reflect.TypeOf((*MockWorkflowRepository)(nil).GetExecByID), execID)
+}
+
+// UpdateExec mocks base method
+func (m *MockWorkflowRepository) UpdateExec(exec *models.WorkflowExec) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateExec", exec)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateExec indicates an expected call of UpdateExec
+func (mr *MockWorkflowRepositoryMockRecorder) UpdateExec(exec interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateExec", reflect.TypeOf((*MockWorkflowRepository)(nil).UpdateExec), exec)
+}
+
+// DeleteExec mocks base method
+func (m *MockWorkflowRepository) DeleteExec(execID models.WorkflowExecID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteExec", execID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteExec indicates an expected call of DeleteExec
+func (mr *MockWorkflowRepositoryMockRecorder) DeleteExec(execID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteExec", reflect.TypeOf((*MockWorkflowRepository)(nil).DeleteExec), execID)
+}
+
+// CreateExecStepInfo mocks base method
+func (m *MockWorkflowRepository) CreateExecStepInfo(execStepInfo *models.ExecStepInfo) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateExecStepInfo", execStepInfo)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateExecStepInfo indicates an expected call of CreateExecStepInfo
+func (mr *MockWorkflowRepositoryMockRecorder) CreateExecStepInfo(execStepInfo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateExecStepInfo", reflect.TypeOf((*MockWorkflowRepository)(nil).CreateExecStepInfo), execStepInfo)
+}
+
+// GetExecStepInfoByID mocks base method
+func (m *MockWorkflowRepository) GetExecStepInfoByID(execID models.WorkflowExecID, stepID models.StepID) (*models.ExecStepInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetExecStepInfoByID", execID, stepID)
+	ret0, _ := ret[0].(*models.ExecStepInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetExecStepInfoByID indicates an expected call of GetExecStepInfoByID
+func (mr *MockWorkflowRepositoryMockRecorder) GetExecStepInfoByID(execID, stepID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExecStepInfoByID", reflect.TypeOf((*MockWorkflowRepository)(nil).GetExecStepInfoByID), execID, stepID)
+}
+
+// UpdateExecStepInfo mocks base method
+func (m *MockWorkflowRepository) UpdateExecStepInfo(execStepInfo *models.ExecStepInfo) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateExecStepInfo", execStepInfo)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateExecStepInfo indicates an expected call of UpdateExecStepInfo
+func (mr *MockWorkflowRepositoryMockRecorder) UpdateExecStepInfo(execStepInfo interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateExecStepInfo", reflect.TypeOf((*MockWorkflowRepository)(nil).UpdateExecStepInfo), execStepInfo)
+}
+
+// DeleteExecStepInfo mocks base method
+func (m *MockWorkflowRepository) DeleteExecStepInfo(execID models.WorkflowExecID, stepID models.StepID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteExecStepInfo", execID, stepID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteExecStepInfo indicates an expected call of DeleteExecStepInfo
+func (mr *MockWorkflowRepositoryMockRecorder) DeleteExecStepInfo(execID, stepID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteExecStepInfo", reflect.TypeOf((*MockWorkflowRepository)(nil).DeleteExecStepInfo), execID, stepID)
+}
+
 // IsRecordNotFoundError mocks base method
 func (m *MockWorkflowRepository) IsRecordNotFoundError(err error) bool {
 	m.ctrl.T.Helper()

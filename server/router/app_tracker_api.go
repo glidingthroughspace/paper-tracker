@@ -2,6 +2,7 @@ package router
 
 import (
 	"paper-tracker/managers"
+	"paper-tracker/models"
 	"paper-tracker/models/communication"
 
 	"net/http"
@@ -35,7 +36,7 @@ func (r *HttpRouter) trackerListHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) trackerLearnStartHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		trackerID := ctx.GetInt(httpParamIDName)
+		trackerID := models.TrackerID(ctx.GetInt(httpParamIDName))
 
 		learnTime, err := managers.GetLearningManager().StartLearning(trackerID)
 		if err != nil {
@@ -49,7 +50,7 @@ func (r *HttpRouter) trackerLearnStartHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) trackerLearnStatusHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		trackerID := ctx.GetInt(httpParamIDName)
+		trackerID := models.TrackerID(ctx.GetInt(httpParamIDName))
 
 		done, ssids, err := managers.GetLearningManager().GetLearningStatus(trackerID)
 		if err != nil {
@@ -63,7 +64,7 @@ func (r *HttpRouter) trackerLearnStatusHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) trackerLearnFinishHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		trackerID := ctx.GetInt(httpParamIDName)
+		trackerID := models.TrackerID(ctx.GetInt(httpParamIDName))
 
 		req := &communication.LearningFinishRequest{}
 		err := ctx.BindJSON(req)

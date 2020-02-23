@@ -2,8 +2,10 @@ package models
 
 import "time"
 
+type TrackerID int
+
 type Tracker struct {
-	ID            int           `json:"id" gorm:"primary_key;auto_increment"`
+	ID            TrackerID     `json:"id" gorm:"primary_key;auto_increment"`
 	Label         string        `json:"label" codec:"-"`
 	LastPoll      time.Time     `json:"last_poll" codec:"-"`
 	LastSleepTime time.Time     `json:"last_sleep_time" codec:"-"`

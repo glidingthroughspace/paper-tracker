@@ -84,3 +84,50 @@ func (rep *GormWorkflowRepository) GetDecisions(stepID models.StepID) (decisions
 	err = databaseConnection.Where("prev_id = ? AND decision_label <> \"\"", stepID).Find(&decisions).Error
 	return
 }
+
+func (rep *GormWorkflowRepository) CreateExec(exec *models.WorkflowExec) (err error) {
+	err = databaseConnection.Create(exec).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) GetAllExec() (execs []*models.WorkflowExec, err error) {
+	err = databaseConnection.Find(&execs).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) GetExecByID(execID models.WorkflowExecID) (exec *models.WorkflowExec, err error) {
+	exec = &models.WorkflowExec{}
+	err = databaseConnection.First(exec, &models.WorkflowExec{ID: execID}).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) UpdateExec(exec *models.WorkflowExec) (err error) {
+	err = databaseConnection.Update(exec).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) DeleteExec(execID models.WorkflowExecID) (err error) {
+	err = databaseConnection.Delete(&models.WorkflowExec{ID: execID}).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) CreateExecStepInfo(execStepInfo *models.ExecStepInfo) (err error) {
+	err = databaseConnection.Create(execStepInfo).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) GetExecStepInfoByID(execID models.WorkflowExecID, stepID models.StepID) (execStepInfo *models.ExecStepInfo, err error) {
+	execStepInfo = &models.ExecStepInfo{}
+	err = databaseConnection.First(execStepInfo, &models.ExecStepInfo{ExecID: execID, StepID: stepID}).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) UpdateExecStepInfo(execStepInfo *models.ExecStepInfo) (err error) {
+	err = databaseConnection.Update(execStepInfo).Error
+	return
+}
+
+func (rep *GormWorkflowRepository) DeleteExecStepInfo(execID models.WorkflowExecID, stepID models.StepID) (err error) {
+	err = databaseConnection.Delete(&models.ExecStepInfo{ExecID: execID, StepID: stepID}).Error
+	return
+}

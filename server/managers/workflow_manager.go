@@ -1,8 +1,10 @@
 package managers
 
 import (
+	"errors"
 	"paper-tracker/models"
 	"paper-tracker/repositories"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -121,10 +123,10 @@ func (mgr *WorkflowManager) GetAllTemplates() (workflows []*models.WorkflowTempl
 	return
 }
 
-func (mgr *WorkflowManager) GetTemplate(workflowID models.WorkflowTemplateID) (workflow *models.WorkflowTemplate, err error) {
-	getWorkflowLog := log.WithField("workflowID", workflowID)
+func (mgr *WorkflowManager) GetTemplate(templateID models.WorkflowTemplateID) (workflow *models.WorkflowTemplate, err error) {
+	getWorkflowLog := log.WithField("workflowID", templateID)
 
-	workflow, err = mgr.workflowRep.GetTemplateByID(workflowID)
+	workflow, err = mgr.workflowRep.GetTemplateByID(templateID)
 	if mgr.workflowRep.IsRecordNotFoundError(err) {
 		getWorkflowLog.Warn("Workflow not found")
 		return
@@ -181,6 +183,54 @@ func (mgr *WorkflowManager) getStepsFromStart(startStepID models.StepID, getLog 
 				continue
 			}
 		}
+	}
+
+	return
+}
+
+func (mgr WorkflowManager) StartExecution(exec *models.WorkflowExec) (err error) {
+	startExecLog := log.WithField("exec", exec)
+
+	tracker, err := GetTrackerManager().GetTrackerByID(exec.TrackerID)
+	if err != nil {
+		startExecLog.WithField("err", err).Warn("Failed to get tracker for starting execution")
+		return
+	}
+
+	if tracker.Status != models.StatusIdle {
+		startExecLog.Warn("Tracker not in idle for starting execution")
+		err = errors.New("tracker not in idle mode")
+		return
+	}
+
+	template, err := mgr.GetTemplate(exec.TemplateID)
+	if err != nil {
+		startExecLog.WithField("err", err).Warn("Failed to get template for starting execution")
+		return
+	}
+
+	if template.StartStep == models.StepID(0) {
+		startExecLog.Warn("Workflow template does not have any steps for starting execution")
+		err = errors.New("template does not have any steps")
+		return
+	}
+
+	exec.Completed = false
+	exec.CurrentStepID = template.StartStep
+	exec.StartedOn = time.Now()
+	err = mgr.workflowRep.CreateExec(exec)
+	if err != nil {
+		startExecLog.WithField("err", err).Warn("Failed to create workflow exec")
+		return
+	}
+
+	for stepID, info := range exec.StepInfos {
+		info.ExecID = exec.ID
+		info.StepID = stepID
+		if stepID == template.StartStep {
+			info.StartedOn = time.Now()
+		}
+		mgr.workflowRep.CreateExecStepInfo(info)
 	}
 
 	return

@@ -30,7 +30,7 @@ func (rep *GormTrackerRepository) GetAll() (trackers []*models.Tracker, err erro
 	return
 }
 
-func (rep *GormTrackerRepository) GetByID(trackerID int) (tracker *models.Tracker, err error) {
+func (rep *GormTrackerRepository) GetByID(trackerID models.TrackerID) (tracker *models.Tracker, err error) {
 	tracker = &models.Tracker{}
 	err = databaseConnection.First(tracker, &models.Tracker{ID: trackerID}).Error
 	return
@@ -41,7 +41,7 @@ func (rep *GormTrackerRepository) Update(tracker *models.Tracker) (err error) {
 	return
 }
 
-func (rep *GormTrackerRepository) SetStatusByID(trackerID int, status models.TrackerStatus) (err error) {
+func (rep *GormTrackerRepository) SetStatusByID(trackerID models.TrackerID, status models.TrackerStatus) (err error) {
 	err = databaseConnection.Model(&models.Tracker{}).Where(&models.Tracker{ID: trackerID}).Updates(&models.Tracker{Status: status}).Error
 	return
 }
