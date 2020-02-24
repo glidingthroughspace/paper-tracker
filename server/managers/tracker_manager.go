@@ -66,6 +66,33 @@ func (mgr *TrackerManager) SetTrackerStatus(trackerID models.TrackerID, status m
 	return
 }
 
+func (mgr *TrackerManager) UpdateTracker(trackerID models.TrackerID, label string) (tracker *models.Tracker, err error) {
+	setLabelLog := log.WithFields(log.Fields{"trackerID": trackerID, "label": label})
+
+	tracker, err = mgr.trackerRep.GetByID(trackerID)
+	if err != nil {
+		setLabelLog.WithField("err", err).Error("Failed to get tracker")
+		return
+	}
+
+	tracker.Label = label
+	err = mgr.trackerRep.Update(tracker)
+	if err != nil {
+		log.WithField("err", err).Error("Failed to set label of tracker")
+		return
+	}
+	return
+}
+
+func (mgr *TrackerManager) DeleteTracker(trackerID models.TrackerID) (err error) {
+	err = mgr.trackerRep.Delete(trackerID)
+	if err != nil {
+		log.WithFields(log.Fields{"trackerID": trackerID, "err": err}).Error("Failed to delete tracker")
+		return
+	}
+	return
+}
+
 func (mgr *TrackerManager) AddTrackerCommand(command *models.Command) (err error) {
 	err = mgr.cmdRep.Create(command)
 	if err != nil {

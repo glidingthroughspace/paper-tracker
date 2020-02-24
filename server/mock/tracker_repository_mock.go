@@ -105,6 +105,20 @@ func (mr *MockTrackerRepositoryMockRecorder) SetStatusByID(trackerID, status int
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetStatusByID", reflect.TypeOf((*MockTrackerRepository)(nil).SetStatusByID), trackerID, status)
 }
 
+// Delete mocks base method
+func (m *MockTrackerRepository) Delete(trackerID models.TrackerID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", trackerID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete
+func (mr *MockTrackerRepositoryMockRecorder) Delete(trackerID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockTrackerRepository)(nil).Delete), trackerID)
+}
+
 // IsRecordNotFoundError mocks base method
 func (m *MockTrackerRepository) IsRecordNotFoundError(err error) bool {
 	m.ctrl.T.Helper()

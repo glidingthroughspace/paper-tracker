@@ -6,7 +6,7 @@ import 'package:paper_tracker/pages/main_page.dart';
 import 'package:paper_tracker/pages/room_page.dart';
 import 'package:paper_tracker/pages/start_exec_page.dart';
 import 'package:paper_tracker/pages/tracker_page.dart';
-import 'package:paper_tracker/pages/workflow_page.dart';
+import 'package:paper_tracker/pages/workflow_template_page.dart';
 
 void main() => runApp(PaperTrackerApp());
 

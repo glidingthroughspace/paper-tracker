@@ -100,7 +100,10 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
     children.addAll([
       Padding(padding: EdgeInsets.only(top: 10.0)),
       Dropdown(
-        getItems: roomClient.getAllRooms,
+        getItems: () async {
+          var rooms = await roomClient.getAllRooms();
+          return rooms.where((room) => room.isLearned).toList();
+        },
         controller: roomDropdownController,
         hintName: "room",
         icon: Room.IconData,

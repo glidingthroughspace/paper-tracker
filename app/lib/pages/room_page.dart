@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/pages/learning_page.dart';
+import 'package:paper_tracker/utils.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/label.dart';
@@ -87,6 +88,7 @@ class _RoomPageState extends State<RoomPage> {
               readOnly: !isEditing,
             ),
           ]),
+          getTableSpacing(10.0),
           TableRow(children: [
             TableCell(child: Label("Is Learned: ")),
             TableCell(
@@ -113,7 +115,7 @@ class _RoomPageState extends State<RoomPage> {
     if (edit == false && room != null) {
       room.label = labelEditController.text;
       await roomClient.updateRoom(room);
-      futureRoom = roomClient.getRoomByID(roomID, refresh: true);
+      await roomClient.getAllRooms(refresh: true);
     }
     setState(() => isEditing = edit);
   }
