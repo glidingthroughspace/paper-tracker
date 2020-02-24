@@ -8,5 +8,6 @@ type TrackerRepository interface {
 	GetByID(trackerID models.TrackerID) (*models.Tracker, error)
 	Update(tracker *models.Tracker) error
 	SetStatusByID(trackerID models.TrackerID, status models.TrackerStatus) error
+	Delete(trackerID models.TrackerID) error
 	IsRecordNotFoundError(err error) bool
 }

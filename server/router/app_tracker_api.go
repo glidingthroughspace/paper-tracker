@@ -14,6 +14,8 @@ import (
 func (r *HttpRouter) buildAppTrackerAPIRoutes() {
 	tracker := r.engine.Group("/tracker")
 	tracker.GET("", r.trackerListHandler())
+	tracker.PUT("/:id", extractID(), r.trackerUpdateHandler())
+	tracker.DELETE("/:id", extractID(), r.trackerDeleteHandler())
 
 	trackerLearn := tracker.Group("/:id/learn", extractID())
 	trackerLearn.POST("/start", r.trackerLearnStartHandler())
@@ -31,6 +33,42 @@ func (r *HttpRouter) trackerListHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, trackers)
+	}
+}
+
+func (r *HttpRouter) trackerUpdateHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		trackerID := models.TrackerID(ctx.GetInt(httpParamIDName))
+
+		tracker := &models.Tracker{}
+		err := ctx.BindJSON(tracker)
+		if err != nil {
+			log.WithField("err", err).Error("Failed to unmarshal json to tracker")
+			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		tracker, err = managers.GetTrackerManager().UpdateTracker(trackerID, tracker.Label)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("TrackerUpdate request failed")
+			return
+		}
+		ctx.JSON(http.StatusOK, tracker)
+	}
+}
+
+func (r *HttpRouter) trackerDeleteHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		trackerID := models.TrackerID(ctx.GetInt(httpParamIDName))
+
+		err := managers.GetTrackerManager().DeleteTracker(trackerID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("TrackerDelete request failed")
+			return
+		}
+		ctx.Status(http.StatusOK)
 	}
 }
 

@@ -45,3 +45,8 @@ func (rep *GormTrackerRepository) SetStatusByID(trackerID models.TrackerID, stat
 	err = databaseConnection.Model(&models.Tracker{}).Where(&models.Tracker{ID: trackerID}).Updates(&models.Tracker{Status: status}).Error
 	return
 }
+
+func (rep *GormTrackerRepository) Delete(trackerID models.TrackerID) (err error) {
+	err = databaseConnection.Delete(&models.Tracker{ID: trackerID}).Error
+	return
+}
