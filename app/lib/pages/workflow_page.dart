@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
-import 'package:paper_tracker/client/workflow_client.dart';
+import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/communication/createStepRequest.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/model/workflow.dart';
@@ -8,15 +8,15 @@ import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/dropdown.dart';
 
-class WorkflowPage extends StatefulWidget {
-  static const Route = "/workflow";
+class WorkflowTemplatePage extends StatefulWidget {
+  static const Route = "/workflow/template";
 
   @override
-  _WorkflowPageState createState() => _WorkflowPageState();
+  _WorkflowTemplatePageState createState() => _WorkflowTemplatePageState();
 }
 
-class _WorkflowPageState extends State<WorkflowPage> {
-  var workflowClient = WorkflowClient();
+class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
+  var workflowClient = WorkflowTemplateClient();
   var roomClient = RoomClient();
 
   int workflowID;
@@ -27,16 +27,16 @@ class _WorkflowPageState extends State<WorkflowPage> {
   @override
   Widget build(BuildContext context) {
     workflowID = ModalRoute.of(context).settings.arguments;
-    var futureWorkflow = workflowClient.getWorkflowByID(workflowID);
+    var futureWorkflow = workflowClient.getTemplateByID(workflowID);
 
     return FutureBuilder(
       future: futureWorkflow,
       builder: (context, snapshot) {
-        Workflow workflow = snapshot.data;
+        WorkflowTemplate workflow = snapshot.data;
 
         return DetailContent(
           title: workflow != null ? workflow.label : "",
-          iconData: Workflow.IconData,
+          iconData: WorkflowTemplate.IconData,
           bottomButtons: [],
           content: workflow != null ? buildContent(workflow) : Container(),
         );
@@ -44,7 +44,7 @@ class _WorkflowPageState extends State<WorkflowPage> {
     );
   }
 
-  Widget buildContent(Workflow workflow) {
+  Widget buildContent(WorkflowTemplate workflow) {
     return Container(
       padding: EdgeInsets.all(15.0),
       child: WorkflowStepsList(
@@ -139,7 +139,7 @@ class _WorkflowPageState extends State<WorkflowPage> {
       );
       await workflowClient.addStartStep(workflowID, step);
     }
-    await workflowClient.getAllWorkflows(refresh: true);
+    await workflowClient.getAllTemplates(refresh: true);
 
     setState(() {});
     Navigator.of(context).pop();

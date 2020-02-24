@@ -19,7 +19,7 @@ class MainPage extends StatelessWidget {
             bottom: TabBar(
               tabs: [
                 Tab(
-                  icon: Icon(Workflow.IconData),
+                  icon: Icon(WorkflowTemplate.IconData),
                   text: "Workflows",
                 ),
                 Tab(

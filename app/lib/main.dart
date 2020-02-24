@@ -44,7 +44,7 @@ class PaperTrackerApp extends StatelessWidget {
         RoomPage.Route: (context) => RoomPage(),
         TrackerPage.Route: (context) => TrackerPage(),
         LearningPage.Route: (context) => LearningPage(),
-        WorkflowPage.Route: (context) => WorkflowPage()
+        WorkflowTemplatePage.Route: (context) => WorkflowTemplatePage()
       },
     );
   }
