@@ -88,8 +88,7 @@ Map<String, dynamic> _$WorkflowExecToJson(WorkflowExec instance) =>
       'started_on': instance.startedOn?.toIso8601String(),
       'completed_on': instance.completedOn?.toIso8601String(),
       'current_step_id': instance.currentStepID,
-      'step_infos':
-          instance.stepInfos?.map((k, e) => MapEntry(k.toString(), e)),
+      'step_infos': _stepInfosToJSON(instance.stepInfos),
     };
 
 ExecStepInfo _$ExecStepInfoFromJson(Map<String, dynamic> json) {

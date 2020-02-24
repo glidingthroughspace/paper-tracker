@@ -31,4 +31,8 @@ class WorkflowExecClient {
     var execs = await futureExecs;
     return execs.firstWhere((exec) => exec.id == id);
   }
+
+  Future<void> startExec(WorkflowExec exec) async {
+    return apiClient.post("/workflow/exec/start", json.encode(exec.toJSON()));
+  }
 }

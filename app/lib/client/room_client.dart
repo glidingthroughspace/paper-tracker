@@ -24,7 +24,7 @@ class RoomClient {
 
   Future<Room> getRoomByID(int id, {bool refresh = false}) async {
     if (futureRooms == null || refresh) {
-      getAllRooms(refresh: true);
+      await getAllRooms(refresh: true);
     }
 
     var rooms = await futureRooms;

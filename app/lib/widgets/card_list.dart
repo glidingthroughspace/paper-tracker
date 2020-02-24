@@ -99,19 +99,41 @@ class _CheckCardListState extends State<CheckCardList> {
   }
 }
 
+class WorkflowStepsListController {
+  var selectedDecisionMap = Map<int, String>();
+}
+
 class WorkflowStepsList extends StatefulWidget {
   final List<WFStep> steps;
   final RoomClient roomClient;
   final void Function(WFStep prevStep) onStepAdd;
+  final WorkflowStepsListController controller;
+  final bool primaryScroll;
 
-  const WorkflowStepsList({Key key, @required this.steps, @required this.roomClient, this.onStepAdd}) : super(key: key);
+  const WorkflowStepsList(
+      {Key key,
+      @required this.steps,
+      @required this.roomClient,
+      this.onStepAdd,
+      this.controller,
+      this.primaryScroll = true})
+      : super(key: key);
 
   @override
   _WorkflowStepsListState createState() => _WorkflowStepsListState();
 }
 
 class _WorkflowStepsListState extends State<WorkflowStepsList> {
-  var selectedDecisionMap = Map<int, String>();
+  Map<int, String> selectedDecisionMap;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.controller != null)
+      selectedDecisionMap = widget.controller.selectedDecisionMap;
+    else
+      selectedDecisionMap = Map<int, String>();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +143,7 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
       padding: EdgeInsets.only(top: 15.0),
       children: listChildren,
       shrinkWrap: true,
+      primary: widget.primaryScroll,
     );
   }
 
@@ -156,6 +179,7 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
         isSelected.add(false);
       }
 
+      children.add(Row(children: [Padding(padding: EdgeInsets.only(top: 10.0))]));
       children.add(Row(
         children: [
           ToggleButtons(
@@ -188,7 +212,7 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
     for (WFStep step in steps) {
       var nestedSteps = getNestedSteps(step);
 
-      listChildren.add(_buildCard(context, buildContent(step), leftMarginFactor: indentation));
+      listChildren.add(_buildCard(context, buildContent(step), leftMarginFactor: indentation, verticalPadding: 5.0));
 
       if (nestedSteps != null) {
         listChildren.addAll(getChildrenListFromSteps(nestedSteps, indentation + 1));

@@ -104,7 +104,7 @@ func (rep *GormWorkflowRepository) GetExecByID(execID models.WorkflowExecID) (ex
 }
 
 func (rep *GormWorkflowRepository) UpdateExec(exec *models.WorkflowExec) (err error) {
-	err = databaseConnection.Update(exec).Error
+	err = databaseConnection.Save(exec).Error
 	return
 }
 
@@ -130,7 +130,7 @@ func (rep *GormWorkflowRepository) GetExecStepInfoForExecID(execID models.Workfl
 }
 
 func (rep *GormWorkflowRepository) UpdateExecStepInfo(execStepInfo *models.ExecStepInfo) (err error) {
-	err = databaseConnection.Update(execStepInfo).Error
+	err = databaseConnection.Save(execStepInfo).Error
 	return
 }
 

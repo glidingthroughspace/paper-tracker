@@ -56,7 +56,7 @@ class WorkflowExec {
   DateTime completedOn;
   @JsonKey(name: "current_step_id")
   int currentStepID;
-  @JsonKey(name: "step_infos")
+  @JsonKey(name: "step_infos", toJson: _stepInfosToJSON)
   Map<int, ExecStepInfo> stepInfos;
 
   WorkflowExec(
@@ -72,6 +72,10 @@ class WorkflowExec {
 
   factory WorkflowExec.fromJson(Map<String, dynamic> json) => _$WorkflowExecFromJson(json);
   Map<String, dynamic> toJSON() => _$WorkflowExecToJson(this);
+}
+
+dynamic _stepInfosToJSON(Map<int, ExecStepInfo> stepInfos) {
+  return stepInfos?.map((k, e) => MapEntry(k.toString(), e.toJSON()));
 }
 
 @JsonSerializable()
