@@ -1,12 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:paper_tracker/widgets/dropdown.dart';
 
 part 'workflow.g.dart';
 
 @JsonSerializable()
 class WorkflowTemplate extends DropdownCapable {
-  static const IconData = Icons.rotate_left;
+  static const IconData = MdiIcons.clipboardFileOutline;
+  static const CompletedIconData = MdiIcons.clipboardCheckOutline;
 
   @JsonKey(name: "id")
   int id;
@@ -15,7 +16,7 @@ class WorkflowTemplate extends DropdownCapable {
   @JsonKey(name: "steps")
   List<WFStep> steps;
 
-  WorkflowTemplate({this.id});
+  WorkflowTemplate({this.id, this.label, this.steps});
 
   factory WorkflowTemplate.fromJson(Map<String, dynamic> json) => _$WorkflowTemplateFromJson(json);
   Map<String, dynamic> toJson() => _$WorkflowTemplateToJson(this);
@@ -40,6 +41,8 @@ class WFStep {
 
 @JsonSerializable()
 class WorkflowExec {
+  static const IconData = MdiIcons.clipboardTextPlayOutline;
+
   @JsonKey(name: "id")
   int id;
   @JsonKey(name: "label")

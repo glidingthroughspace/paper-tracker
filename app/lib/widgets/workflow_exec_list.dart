@@ -6,12 +6,12 @@ import 'package:tuple/tuple.dart';
 
 import 'card_list.dart';
 
-class WorkflowList extends StatefulWidget {
+class WorkflowExecList extends StatefulWidget {
   @override
-  _WorkflowListState createState() => _WorkflowListState();
+  _WorkflowExecListState createState() => _WorkflowExecListState();
 }
 
-class _WorkflowListState extends State<WorkflowList> with AutomaticKeepAliveClientMixin {
+class _WorkflowExecListState extends State<WorkflowExecList> with AutomaticKeepAliveClientMixin {
   var execClient = WorkflowExecClient();
 
   @override

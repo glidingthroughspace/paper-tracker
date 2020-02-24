@@ -40,4 +40,8 @@ class WorkflowTemplateClient {
   Future<void> addStep(int templateID, CreateStepRequest stepRequest) async {
     return apiClient.post("/workflow/template/$templateID/step", json.encode(stepRequest.toJson()));
   }
+
+  Future<void> createTemplate(WorkflowTemplate template) async {
+    return apiClient.post("/workflow/template", json.encode(template.toJson()));
+  }
 }
