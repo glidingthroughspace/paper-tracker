@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:paper_tracker/widgets/dropdown.dart';
 
 part 'workflow.g.dart';
 
 @JsonSerializable()
-class WorkflowTemplate {
+class WorkflowTemplate extends DropdownCapable {
   static const IconData = Icons.rotate_left;
 
   @JsonKey(name: "id")

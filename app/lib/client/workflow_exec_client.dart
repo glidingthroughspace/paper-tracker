@@ -8,7 +8,7 @@ class WorkflowExecClient {
   var apiClient = APIClient();
   static Future<List<WorkflowExec>> futureExecs;
 
-  Future<List<WorkflowExec>> getAllWorkflows({bool refresh = false}) async {
+  Future<List<WorkflowExec>> getAllExecs({bool refresh = false}) async {
     if (futureExecs != null && !refresh) {
       return futureExecs;
     }
@@ -25,7 +25,7 @@ class WorkflowExecClient {
 
   Future<WorkflowExec> getWorkflowByID(int id, {bool refresh = false}) async {
     if (futureExecs == null || refresh) {
-      getAllWorkflows(refresh: true);
+      getAllExecs(refresh: true);
     }
 
     var execs = await futureExecs;

@@ -18,6 +18,7 @@ class Dropdown extends StatefulWidget {
   final String hintName;
   final IconData icon;
   final bool itemFixed;
+  final void Function(VoidCallback) setState;
 
   const Dropdown(
       {Key key,
@@ -25,7 +26,8 @@ class Dropdown extends StatefulWidget {
       @required this.controller,
       this.hintName = "",
       this.icon = Icons.adb,
-      this.itemFixed = false})
+      this.itemFixed = false,
+      this.setState})
       : super(key: key);
 
   @override
@@ -60,6 +62,7 @@ class _DropdownState extends State<Dropdown> {
           onChanged: (value) {
             setState(() {
               widget.controller.selectedItem = value;
+              if (widget.setState != null) widget.setState(() {});
             });
           },
           hint: Text("Please select a ${widget.hintName}"),

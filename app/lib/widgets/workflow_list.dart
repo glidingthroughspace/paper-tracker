@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:paper_tracker/client/workflow_template_client.dart';
+import 'package:paper_tracker/client/workflow_exec_client.dart';
 import 'package:paper_tracker/model/workflow.dart';
-import 'package:paper_tracker/pages/workflow_page.dart';
+import 'package:paper_tracker/pages/start_exec_page.dart';
 import 'package:tuple/tuple.dart';
 
 import 'card_list.dart';
@@ -12,30 +12,30 @@ class WorkflowList extends StatefulWidget {
 }
 
 class _WorkflowListState extends State<WorkflowList> with AutomaticKeepAliveClientMixin {
-  var workflowClient = WorkflowTemplateClient();
+  var execClient = WorkflowExecClient();
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return FutureBuilder(
-      future: workflowClient.getAllTemplates(),
+      future: execClient.getAllExecs(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          List<WorkflowTemplate> workflowList = snapshot.data;
-          List<Tuple2<String, WorkflowTemplate>> titleObjectList =
-              workflowList.map((workflow) => Tuple2(workflow.label, workflow)).toList();
+          List<WorkflowExec> execList = snapshot.data;
+          List<Tuple2<String, WorkflowExec>> titleObjectList =
+              execList.map((exec) => Tuple2(exec.label, exec)).toList();
 
           return Scaffold(
-            body: CardList<WorkflowTemplate>(
+            body: CardList<WorkflowExec>(
               titleObjectList: titleObjectList,
-              onTap: onTapWorkflow,
+              onTap: onTapExec,
               iconData: Icons.keyboard_arrow_right,
               onRefresh: onRefresh,
             ),
             floatingActionButton: FloatingActionButton(
-              onPressed: null,
+              onPressed: onStartExec,
               child: Icon(Icons.add),
-              heroTag: "workflowAddButton",
+              heroTag: "execAddButton",
             ),
           );
         } else if (snapshot.hasError) {
@@ -50,14 +50,18 @@ class _WorkflowListState extends State<WorkflowList> with AutomaticKeepAliveClie
 
   Future<void> onRefresh() async {
     setState(() {
-      workflowClient.getAllTemplates(refresh: true);
+      execClient.getAllExecs(refresh: true);
     });
   }
 
   @override
   bool get wantKeepAlive => true;
 
-  void onTapWorkflow(WorkflowTemplate workflow) async {
-    await Navigator.of(context).pushNamed(WorkflowTemplatePage.Route, arguments: workflow.id);
+  void onTapExec(WorkflowExec exec) async {
+    //await Navigator.of(context).pushNamed(WorkflowTemplatePage.Route, arguments: workflow.id);
+  }
+
+  void onStartExec() async {
+    await Navigator.of(context).pushNamed(StartExecPage.Route);
   }
 }
