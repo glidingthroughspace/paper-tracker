@@ -14,19 +14,18 @@ class TrackerList extends StatefulWidget {
 }
 
 class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClientMixin {
-  Future<List<Tracker>> trackers;
+  var trackerClient = TrackerClient();
 
   @override
   void initState() {
     super.initState();
-    trackers = TrackerClient().getAllTrackers();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return FutureBuilder(
-        future: trackers,
+        future: trackerClient.getAllTrackers(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Tracker> trackerList = snapshot.data;
@@ -36,6 +35,7 @@ class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClient
               titleObjectList: titleObjectList,
               onTap: (tracker) => Navigator.of(context).pushNamed(TrackerPage.Route, arguments: tracker.id),
               iconData: Icons.keyboard_arrow_right,
+              onRefresh: onRefresh,
             );
           } else if (snapshot.hasError) {
             return Center(child: Text("${snapshot.error}"));
@@ -44,6 +44,12 @@ class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClient
           // By default, show a loading spinner.
           return Center(child: CircularProgressIndicator());
         });
+  }
+
+  Future<void> onRefresh() async {
+    setState(() {
+      trackerClient.getAllTrackers(refresh: true);
+    });
   }
 
   @override

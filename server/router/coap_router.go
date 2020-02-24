@@ -2,6 +2,7 @@ package router
 
 import (
 	"errors"
+	"paper-tracker/models"
 	"paper-tracker/models/communication"
 	"strconv"
 	"strings"
@@ -81,18 +82,19 @@ func (r *CoapRouter) parseQuery(req *coap.Request) (paramMap map[string]*string)
 	return
 }
 
-func (r *CoapRouter) extractTrackerID(req *coap.Request) (trackerID int, err error) {
+func (r *CoapRouter) extractTrackerID(req *coap.Request) (trackerID models.TrackerID, err error) {
 	params := r.parseQuery(req)
 	trackerIDStr, ok := params["trackerid"]
 	if !(ok && trackerIDStr != nil) {
 		err = errors.New("trackerid not found in query")
 		return
 	}
-	trackerID, err = strconv.Atoi(*trackerIDStr)
+	trackerIDInt, err := strconv.Atoi(*trackerIDStr)
 	if err != nil {
 		err = errors.New("trackerid is not an integer")
 		return
 	}
+	trackerID = models.TrackerID(trackerIDInt)
 
 	return
 }

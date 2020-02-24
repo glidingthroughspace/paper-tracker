@@ -22,9 +22,9 @@ var _ = Describe("TrackerManager", func() {
 		testErr           = errors.New("error")
 	)
 	const (
-		sleepTimeSec = 5
-		wrongID      = 0
-		id           = 1
+		sleepTimeSec                  = 5
+		wrongID      models.TrackerID = 0
+		id           models.TrackerID = 1
 	)
 
 	BeforeEach(func() {
@@ -77,9 +77,9 @@ var _ = Describe("TrackerManager", func() {
 	})
 
 	Context("Test PollCommand", func() {
-		id := 1
+		commandID := models.CommandID(1)
 		outTracker := &models.Tracker{ID: id, Label: "New Tracker"}
-		outCmd := &models.Command{ID: 1, TrackerID: id, Command: models.CmdSendTrackingInformation, SleepTimeSec: 10}
+		outCmd := &models.Command{ID: commandID, TrackerID: id, Command: models.CmdSendTrackingInformation, SleepTimeSec: 10}
 
 		It("PollCommand returns correct sleep if no command in DB", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(outTracker, nil).Times(1)
@@ -93,14 +93,14 @@ var _ = Describe("TrackerManager", func() {
 		It("PollCommand returns correct command from DB and deletes it", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(outTracker, nil).Times(1)
 			mockCommandRep.EXPECT().GetNextCommand(id).Return(outCmd, nil).MinTimes(1)
-			mockCommandRep.EXPECT().Delete(id).Return(nil).Times(1)
+			mockCommandRep.EXPECT().Delete(commandID).Return(nil).Times(1)
 			Expect(manager.PollCommand(id)).To(Equal(outCmd))
 		})
 
 		It("PollCommand returns zero sleep time if there are commands remaining", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(outTracker, nil).Times(1)
 			mockCommandRep.EXPECT().GetNextCommand(id).Return(outCmd, nil).Times(2)
-			mockCommandRep.EXPECT().Delete(id).Return(nil).Times(1)
+			mockCommandRep.EXPECT().Delete(commandID).Return(nil).Times(1)
 			Expect(manager.PollCommand(id)).To(PointTo(MatchFields(IgnoreExtras, Fields{
 				"SleepTimeSec": BeEquivalentTo(0),
 			})))

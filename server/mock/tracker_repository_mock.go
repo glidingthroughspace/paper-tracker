@@ -63,7 +63,7 @@ func (mr *MockTrackerRepositoryMockRecorder) GetAll() *gomock.Call {
 }
 
 // GetByID mocks base method
-func (m *MockTrackerRepository) GetByID(trackerID int) (*models.Tracker, error) {
+func (m *MockTrackerRepository) GetByID(trackerID models.TrackerID) (*models.Tracker, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByID", trackerID)
 	ret0, _ := ret[0].(*models.Tracker)
@@ -92,7 +92,7 @@ func (mr *MockTrackerRepositoryMockRecorder) Update(tracker interface{}) *gomock
 }
 
 // SetStatusByID mocks base method
-func (m *MockTrackerRepository) SetStatusByID(trackerID int, status models.TrackerStatus) error {
+func (m *MockTrackerRepository) SetStatusByID(trackerID models.TrackerID, status models.TrackerStatus) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetStatusByID", trackerID, status)
 	ret0, _ := ret[0].(error)

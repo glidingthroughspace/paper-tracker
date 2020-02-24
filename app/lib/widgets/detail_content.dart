@@ -7,14 +7,21 @@ class DetailContent extends StatelessWidget {
   final String title;
   final Widget content;
   final List<Widget> bottomButtons;
+  final bool disableBackNav;
 
-  DetailContent({this.iconData, this.title, this.content, this.bottomButtons});
+  DetailContent({this.iconData, this.title, this.content, this.bottomButtons, this.disableBackNav = false});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [buildTopContent(context), content],
+      body: ScrollConfiguration(
+        behavior: NoGlowScrollBehavior(),
+        child: SingleChildScrollView(
+          physics: ClampingScrollPhysics(),
+          child: Column(
+            children: [buildTopContent(context), content],
+          ),
+        ),
       ),
       bottomNavigationBar: ConditionalBuilder(
         conditional: bottomButtons != null,
@@ -30,7 +37,7 @@ class DetailContent extends StatelessWidget {
         Container(
           color: Theme.of(context).cardColor,
           width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.only(left: 50.0, right: 10.0, top: 80.0, bottom: 30.0),
+          padding: EdgeInsets.only(left: 50.0, right: 20.0, top: 80.0, bottom: 30.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -52,7 +59,7 @@ class DetailContent extends StatelessWidget {
           left: 15.0,
           top: 60.0,
           child: InkWell(
-            onTap: () => Navigator.of(context).pop(),
+            onTap: disableBackNav ? null : () => Navigator.of(context).pop(),
             child: Icon(Icons.arrow_back, color: Colors.white),
           ),
         ),
@@ -74,5 +81,12 @@ class DetailContent extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class NoGlowScrollBehavior extends ScrollBehavior {
+  @override
+  Widget buildViewportChrome(BuildContext context, Widget child, AxisDirection axisDirection) {
+    return child;
   }
 }

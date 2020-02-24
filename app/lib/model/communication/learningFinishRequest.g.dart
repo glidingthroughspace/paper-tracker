@@ -9,10 +9,14 @@ part of 'learningFinishRequest.dart';
 LearningFinishRequest _$LearningFinishRequestFromJson(
     Map<String, dynamic> json) {
   return LearningFinishRequest(
-      roomID: json['room_id'] as int,
-      ssids: (json['ssids'] as List)?.map((e) => e as String)?.toList());
+    roomID: json['room_id'] as int,
+    ssids: (json['ssids'] as List)?.map((e) => e as String)?.toList(),
+  );
 }
 
 Map<String, dynamic> _$LearningFinishRequestToJson(
         LearningFinishRequest instance) =>
-    <String, dynamic>{'room_id': instance.roomID, 'ssids': instance.ssids};
+    <String, dynamic>{
+      'room_id': instance.roomID,
+      'ssids': instance.ssids,
+    };

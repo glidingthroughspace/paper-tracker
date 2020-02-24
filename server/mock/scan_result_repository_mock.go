@@ -48,7 +48,7 @@ func (mr *MockScanResultRepositoryMockRecorder) CreateAll(scanRes interface{}) *
 }
 
 // GetAllForTracker mocks base method
-func (m *MockScanResultRepository) GetAllForTracker(trackerID int) ([]*models.ScanResult, error) {
+func (m *MockScanResultRepository) GetAllForTracker(trackerID models.TrackerID) ([]*models.ScanResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllForTracker", trackerID)
 	ret0, _ := ret[0].([]*models.ScanResult)
@@ -63,7 +63,7 @@ func (mr *MockScanResultRepositoryMockRecorder) GetAllForTracker(trackerID inter
 }
 
 // DeleteForTracker mocks base method
-func (m *MockScanResultRepository) DeleteForTracker(trackerID int) error {
+func (m *MockScanResultRepository) DeleteForTracker(trackerID models.TrackerID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteForTracker", trackerID)
 	ret0, _ := ret[0].(error)

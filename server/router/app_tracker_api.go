@@ -2,6 +2,7 @@ package router
 
 import (
 	"paper-tracker/managers"
+	"paper-tracker/models"
 	"paper-tracker/models/communication"
 
 	"net/http"
@@ -26,6 +27,7 @@ func (r *HttpRouter) trackerListHandler() gin.HandlerFunc {
 		trackers, err := managers.GetTrackerManager().GetAllTrackers()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("TrackerList request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, trackers)
@@ -34,11 +36,12 @@ func (r *HttpRouter) trackerListHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) trackerLearnStartHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		trackerID := ctx.GetInt(httpParamIDName)
+		trackerID := models.TrackerID(ctx.GetInt(httpParamIDName))
 
 		learnTime, err := managers.GetLearningManager().StartLearning(trackerID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("TrackerLearnStart request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, &communication.LearningStartResponse{LearnTimeSec: learnTime})
@@ -47,11 +50,12 @@ func (r *HttpRouter) trackerLearnStartHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) trackerLearnStatusHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		trackerID := ctx.GetInt(httpParamIDName)
+		trackerID := models.TrackerID(ctx.GetInt(httpParamIDName))
 
 		done, ssids, err := managers.GetLearningManager().GetLearningStatus(trackerID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("TrackerLearnStatus request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, &communication.LearningStatusResponse{Done: done, SSIDs: ssids})
@@ -60,7 +64,7 @@ func (r *HttpRouter) trackerLearnStatusHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) trackerLearnFinishHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		trackerID := ctx.GetInt(httpParamIDName)
+		trackerID := models.TrackerID(ctx.GetInt(httpParamIDName))
 
 		req := &communication.LearningFinishRequest{}
 		err := ctx.BindJSON(req)
@@ -73,6 +77,7 @@ func (r *HttpRouter) trackerLearnFinishHandler() gin.HandlerFunc {
 		err = managers.GetLearningManager().FinishLearning(trackerID, req.RoomID, req.SSIDs)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("TrackerLearnFinish request failed")
 			return
 		}
 		ctx.Status(http.StatusOK)

@@ -1,8 +1,10 @@
 package managers
 
 import (
+	"errors"
 	"paper-tracker/models"
 	"paper-tracker/repositories"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -29,9 +31,9 @@ func GetWorkflowManager() *WorkflowManager {
 	return workflowManager
 }
 
-func (mgr *WorkflowManager) CreateWorkflow(workflow *models.Workflow) (err error) {
+func (mgr *WorkflowManager) CreateTemplate(workflow *models.WorkflowTemplate) (err error) {
 	workflow.ID = 0
-	err = mgr.workflowRep.CreateWorkflow(workflow)
+	err = mgr.workflowRep.CreateTemplate(workflow)
 	if err != nil {
 		log.WithFields(log.Fields{"workflow": workflow, "err": err}).Error("Failed to create workflow")
 		return
@@ -39,7 +41,7 @@ func (mgr *WorkflowManager) CreateWorkflow(workflow *models.Workflow) (err error
 	return
 }
 
-func (mgr *WorkflowManager) CreateWorkflowStart(workflowID models.WorkflowID, step *models.Step) (err error) {
+func (mgr *WorkflowManager) CreateTemplateStart(workflowID models.WorkflowTemplateID, step *models.Step) (err error) {
 	workflowStartLog := log.WithFields(log.Fields{"workflowID": workflowID, "step": step})
 
 	step.ID = 0
@@ -49,7 +51,7 @@ func (mgr *WorkflowManager) CreateWorkflowStart(workflowID models.WorkflowID, st
 		return
 	}
 
-	workflow, err := mgr.workflowRep.GetWorkflowByID(workflowID)
+	workflow, err := mgr.workflowRep.GetTemplateByID(workflowID)
 	if err != nil {
 		workflowStartLog.WithField("err", err).Error("Failed to get workflow to create start")
 		mgr.workflowRep.DeleteStep(step.ID)
@@ -57,7 +59,7 @@ func (mgr *WorkflowManager) CreateWorkflowStart(workflowID models.WorkflowID, st
 	}
 
 	workflow.StartStep = step.ID
-	err = mgr.workflowRep.UpdateWorkflow(workflow)
+	err = mgr.workflowRep.UpdateTemplate(workflow)
 	if err != nil {
 		workflowStartLog.WithField("err", err).Error("Failed to update workflow to create start")
 		mgr.workflowRep.DeleteStep(step.ID)
@@ -67,7 +69,7 @@ func (mgr *WorkflowManager) CreateWorkflowStart(workflowID models.WorkflowID, st
 }
 
 // TODO: Fix adding in between to steps
-func (mgr *WorkflowManager) AddStep(prevStepID models.StepID, decisionLabel string, step *models.Step) (err error) {
+func (mgr *WorkflowManager) AddTemplateStep(prevStepID models.StepID, decisionLabel string, step *models.Step) (err error) {
 	addStepLog := log.WithFields(log.Fields{"prevStepID": prevStepID, "step": step})
 
 	step.ID = 0
@@ -103,16 +105,16 @@ func (mgr *WorkflowManager) AddStep(prevStepID models.StepID, decisionLabel stri
 	return
 }
 
-func (mgr *WorkflowManager) GetAllWorkflows() (workflows []*models.Workflow, err error) {
-	rawWorkflows, err := mgr.workflowRep.GetAllWorkflows()
+func (mgr *WorkflowManager) GetAllTemplates() (workflows []*models.WorkflowTemplate, err error) {
+	rawWorkflows, err := mgr.workflowRep.GetAllTemplates()
 	if err != nil {
 		log.WithField("err", err).Error("Failed to get all raw workflows")
 		return
 	}
 
-	workflows = make([]*models.Workflow, len(rawWorkflows))
+	workflows = make([]*models.WorkflowTemplate, len(rawWorkflows))
 	for it, raw := range rawWorkflows {
-		workflows[it], err = mgr.GetWorkflow(raw.ID)
+		workflows[it], err = mgr.GetTemplate(raw.ID)
 		if err != nil {
 			log.WithFields(log.Fields{"err": err, "rawID": raw.ID}).Error("Failed to get workflow for list")
 			continue
@@ -121,10 +123,10 @@ func (mgr *WorkflowManager) GetAllWorkflows() (workflows []*models.Workflow, err
 	return
 }
 
-func (mgr *WorkflowManager) GetWorkflow(workflowID models.WorkflowID) (workflow *models.Workflow, err error) {
-	getWorkflowLog := log.WithField("workflowID", workflowID)
+func (mgr *WorkflowManager) GetTemplate(templateID models.WorkflowTemplateID) (workflow *models.WorkflowTemplate, err error) {
+	getWorkflowLog := log.WithField("workflowID", templateID)
 
-	workflow, err = mgr.workflowRep.GetWorkflowByID(workflowID)
+	workflow, err = mgr.workflowRep.GetTemplateByID(templateID)
 	if mgr.workflowRep.IsRecordNotFoundError(err) {
 		getWorkflowLog.Warn("Workflow not found")
 		return
@@ -180,6 +182,123 @@ func (mgr *WorkflowManager) getStepsFromStart(startStepID models.StepID, getLog 
 				getStepsFromStartLog.WithFields(log.Fields{"err": err, "decision": decision}).Error("Failed to get steps for decision")
 				continue
 			}
+		}
+	}
+
+	return
+}
+
+func (mgr *WorkflowManager) GetAllExec() (execs []*models.WorkflowExec, err error) {
+	rawExecs, err := mgr.workflowRep.GetAllExec()
+	if err != nil {
+		log.WithField("err", err).Error("Failed to get all execs")
+		return
+	}
+
+	execs = make([]*models.WorkflowExec, len(rawExecs))
+	for it, rawExec := range rawExecs {
+		execs[it], err = mgr.GetExec(rawExec.ID)
+		if err != nil {
+			log.WithFields(log.Fields{"err": err, "rawID": rawExec.ID}).Error("Failed to get workflow exec for list")
+			continue
+		}
+	}
+
+	return
+}
+
+func (mgr *WorkflowManager) GetExec(execID models.WorkflowExecID) (exec *models.WorkflowExec, err error) {
+	execLog := log.WithField("execID", execID)
+
+	exec, err = mgr.workflowRep.GetExecByID(execID)
+	if err != nil {
+		execLog.WithField("err", err).Error("Failed to get workflow exec")
+		return
+	}
+
+	infos, err := mgr.workflowRep.GetExecStepInfoForExecID(exec.ID)
+	if err != nil {
+		execLog.WithField("err", err).Error("Failed to get infos for exec")
+		return
+	}
+
+	exec.StepInfos = make(map[models.StepID]*models.ExecStepInfo, len(infos))
+	for _, info := range infos {
+		exec.StepInfos[info.StepID] = info
+	}
+
+	return
+}
+
+func (mgr *WorkflowManager) StartExecution(exec *models.WorkflowExec) (err error) {
+	startExecLog := log.WithField("exec", exec)
+
+	tracker, err := GetTrackerManager().GetTrackerByID(exec.TrackerID)
+	if err != nil {
+		startExecLog.WithField("err", err).Warn("Failed to get tracker for starting execution")
+		return
+	}
+
+	if tracker.Status != models.StatusIdle {
+		startExecLog.Warn("Tracker not in idle for starting execution")
+		err = errors.New("tracker not in idle mode")
+		return
+	}
+
+	template, err := mgr.GetTemplate(exec.TemplateID)
+	if err != nil {
+		startExecLog.WithField("err", err).Warn("Failed to get template for starting execution")
+		return
+	}
+
+	if template.StartStep == models.StepID(0) {
+		startExecLog.Warn("Workflow template does not have any steps for starting execution")
+		err = errors.New("template does not have any steps")
+		return
+	}
+
+	exec.Completed = false
+	exec.CurrentStepID = template.StartStep
+	exec.StartedOn = time.Now()
+	err = mgr.workflowRep.CreateExec(exec)
+	if err != nil {
+		startExecLog.WithField("err", err).Warn("Failed to create workflow exec")
+		return
+	}
+
+	err = GetTrackerManager().SetTrackerStatus(exec.TrackerID, models.StatusTracking)
+	if err != nil {
+		startExecLog.WithField("err", err).Error("Failed to set tracker to status tracking - error ignored for now")
+		err = nil
+	}
+
+	startInfo := &models.ExecStepInfo{
+		ExecID:    exec.ID,
+		StepID:    template.StartStep,
+		StartedOn: time.Now(),
+	}
+	err = mgr.workflowRep.CreateExecStepInfo(startInfo)
+	if err != nil {
+		startExecLog.WithFields(log.Fields{"info": startInfo, "err": err}).Error("Failed to create info for start step - error ignored for now")
+		err = nil
+	}
+
+	for stepID, info := range exec.StepInfos {
+		if stepID == template.StartStep {
+			startInfo.Decision = info.Decision
+			err = mgr.workflowRep.UpdateExecStepInfo(startInfo)
+			if err != nil {
+				startExecLog.WithFields(log.Fields{"info": startInfo, "err": err}).Error("Failed to update info for start step - error ignored for now")
+				err = nil
+			}
+			continue
+		}
+		info.ExecID = exec.ID
+		info.StepID = stepID
+		err = mgr.workflowRep.CreateExecStepInfo(info)
+		if err != nil {
+			startExecLog.WithFields(log.Fields{"info": info, "err": err}).Error("Failed to create exec info - error ignored for now")
+			err = nil
 		}
 	}
 

@@ -25,13 +25,13 @@ func (rep *GormCommandRepository) Create(command *models.Command) (err error) {
 	return
 }
 
-func (rep *GormCommandRepository) GetNextCommand(trackerID int) (cmd *models.Command, err error) {
+func (rep *GormCommandRepository) GetNextCommand(trackerID models.TrackerID) (cmd *models.Command, err error) {
 	cmd = &models.Command{}
 	err = databaseConnection.Where(&models.Command{TrackerID: trackerID}).Order("created_at asc").First(cmd).Error
 	return
 }
 
-func (rep *GormCommandRepository) Delete(trackerID int) (err error) {
-	err = databaseConnection.Delete(&models.Command{ID: trackerID}).Error
+func (rep *GormCommandRepository) Delete(commandID models.CommandID) (err error) {
+	err = databaseConnection.Delete(&models.Command{ID: commandID}).Error
 	return
 }

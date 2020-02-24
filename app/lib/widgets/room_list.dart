@@ -5,6 +5,8 @@ import 'package:paper_tracker/pages/room_page.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:tuple/tuple.dart';
 
+import 'label.dart';
+
 class RoomList extends StatefulWidget {
   RoomList({Key key}) : super(key: key);
 
@@ -36,10 +38,12 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
                 titleObjectList: titleObjectList,
                 onTap: onTapRoom,
                 iconData: Icons.keyboard_arrow_right,
+                onRefresh: onRefresh,
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: onAddRoomButton,
                 child: Icon(Icons.add),
+                heroTag: "roomAddButton",
               ),
             );
           } else if (snapshot.hasError) {
@@ -49,6 +53,12 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
           // By default, show a loading spinner.
           return Center(child: CircularProgressIndicator());
         });
+  }
+
+  Future<void> onRefresh() async {
+    setState(() {
+      roomClient.getAllRooms(refresh: true);
+    });
   }
 
   void onAddRoomButton() async {
@@ -63,12 +73,7 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            "Add Room",
-            style: TextStyle(
-              fontSize: 20.0,
-            ),
-          ),
+          Label("Add Room"),
           Padding(
             padding: EdgeInsets.only(top: 10.0),
           ),
@@ -83,7 +88,7 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
           ),
         ],
       ),
-      actions: <Widget>[
+      actions: [
         FlatButton(
           child: Text("Create"),
           onPressed: () => addRoom(),
@@ -95,8 +100,9 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
   void addRoom() async {
     var room = Room(label: roomLabelEditController.text);
     await roomClient.addRoom(room);
-
     await roomClient.getAllRooms(refresh: true);
+
+    setState(() {});
     Navigator.of(context).pop();
   }
 
