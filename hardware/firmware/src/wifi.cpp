@@ -12,6 +12,8 @@
 #define WIFI_CONNECTION_DELAY 10
 #endif
 
+constexpr auto CONNECTION_TIMEOUT_SECONDS = 15;
+
 #include "esp_wpa2.h"
 
 WIFI::WIFI() {
@@ -68,9 +70,9 @@ bool WIFI::connectLoop() {
     counter++;
     // TODO: We might increase this timeout after field-tests
     // Try for 10 seconds
-    if (counter > 10000 / WIFI_CONNECTION_DELAY) {
+    if (counter > (CONNECTION_TIMEOUT_SECONDS * 1000) / WIFI_CONNECTION_DELAY) {
       logln();
-      logln("Connection failed, trying again in 10 seconds");
+      logln("Connection timeout reached");
       Power::deep_sleep_for_seconds(10);
     }
   }

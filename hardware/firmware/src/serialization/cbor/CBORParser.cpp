@@ -137,3 +137,10 @@ bool CBORParser::readString(String& target) {
   target = reader.readString();
   return true;
 }
+
+bool CBORParser::readBool(bool& target) {
+  if (!advance()) return false;
+  if (nextDataType != cbor::DataType::kBoolean) return false;
+  target = reader.getBoolean();
+  return true;
+}

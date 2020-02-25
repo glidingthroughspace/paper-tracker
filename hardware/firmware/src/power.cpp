@@ -4,6 +4,12 @@
 
 TinyPICO Power::tinypico = TinyPICO();
 
+// The battery voltage to consider as 0% charged. Anything lower than that will return negative (or
+// rolled over) battery percentages. This is taken from the battery's specification.
+constexpr float min_battery_voltage = 3.0;
+// Maximum voltage considered as 100% battery
+constexpr float max_battery_voltage = 4.25;
+
 void Power::print_wakeup_reason() {
   #ifndef NDEBUG
   auto wakeup_reason = esp_sleep_get_wakeup_cause();
@@ -27,4 +33,17 @@ void Power::deep_sleep_for_seconds(const uint64_t seconds) {
 
 uint64_t Power::seconds_to_microseconds(const uint64_t seconds) {
   return seconds * 1000 * 1000;
+}
+
+uint8_t Power::get_battery_percentage() {
+  auto voltage = tinypico.GetBatteryVoltage();
+  uint8_t percentage = (uint8_t)((voltage - min_battery_voltage) / (max_battery_voltage - min_battery_voltage)) * 100;
+  if (percentage > 100) {
+    percentage = 0;
+  }
+  return percentage;
+}
+
+bool Power::is_charging() {
+  return tinypico.IsChargingBattery();
 }

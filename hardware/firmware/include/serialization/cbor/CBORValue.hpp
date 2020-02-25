@@ -128,3 +128,16 @@ class CBORString : public CBORValue {
     const size_t length() const { return m_value.length(); };
 };
 
+class CBORBool : public CBORValue {
+  public:
+    CBORBool(const char* key) : CBORValue(CBORType::Boolean, key, strlen(key)) {};
+    CBORBool(const char* key, bool value) : CBORValue(CBORType::Boolean, key, strlen(key)), value{value} {};
+    bool value;
+    void serialize_to(CBORDocument& cbor);
+    bool deserializeFrom(CBORParser& parser) { return parser.readBool(value); };
+    size_t serialized_size_bytes() {
+      // FIXME: Use actual size
+      return 9;
+    }
+};
+
