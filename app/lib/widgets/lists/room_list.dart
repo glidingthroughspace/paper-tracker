@@ -5,7 +5,7 @@ import 'package:paper_tracker/pages/room_page.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:tuple/tuple.dart';
 
-import 'label.dart';
+import '../label.dart';
 
 class RoomList extends StatefulWidget {
   RoomList({Key key}) : super(key: key);
@@ -14,18 +14,12 @@ class RoomList extends StatefulWidget {
   _RoomListState createState() => _RoomListState();
 }
 
-class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin {
+class _RoomListState extends State<RoomList> {
   var roomLabelEditController = TextEditingController();
   var roomClient = RoomClient();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    super.build(context);
     return FutureBuilder(
         future: roomClient.getAllRooms(),
         builder: (context, snapshot) {
@@ -105,9 +99,6 @@ class _RoomListState extends State<RoomList> with AutomaticKeepAliveClientMixin 
     setState(() {});
     Navigator.of(context).pop();
   }
-
-  @override
-  bool get wantKeepAlive => true;
 
   void onTapRoom(Room room) async {
     await Navigator.of(context).pushNamed(RoomPage.Route, arguments: room.id);

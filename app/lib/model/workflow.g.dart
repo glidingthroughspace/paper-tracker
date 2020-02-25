@@ -9,12 +9,12 @@ part of 'workflow.dart';
 WorkflowTemplate _$WorkflowTemplateFromJson(Map<String, dynamic> json) {
   return WorkflowTemplate(
     id: json['id'] as int,
-  )
-    ..label = json['label'] as String
-    ..steps = (json['steps'] as List)
+    label: json['label'] as String,
+    steps: (json['steps'] as List)
         ?.map((e) =>
             e == null ? null : WFStep.fromJson(e as Map<String, dynamic>))
-        ?.toList();
+        ?.toList(),
+  );
 }
 
 Map<String, dynamic> _$WorkflowTemplateToJson(WorkflowTemplate instance) =>

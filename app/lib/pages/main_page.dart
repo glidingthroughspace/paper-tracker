@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/model/tracker.dart';
 import 'package:paper_tracker/model/workflow.dart';
-import 'package:paper_tracker/widgets/room_list.dart';
-import 'package:paper_tracker/widgets/tracker_list.dart';
-import 'package:paper_tracker/widgets/workflow_exec_list.dart';
-import 'package:paper_tracker/widgets/workflow_template_list.dart';
+import 'package:paper_tracker/widgets/lists/room_list.dart';
+import 'package:paper_tracker/widgets/lists/tracker_list.dart';
+import 'package:paper_tracker/widgets/lists/workflow_exec_list.dart';
+import 'package:paper_tracker/widgets/lists/workflow_template_list.dart';
 
 class MainPage extends StatelessWidget {
   static const Route = "/main";

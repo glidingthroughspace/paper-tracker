@@ -19,6 +19,10 @@ class Tracker implements DropdownCapable {
   DateTime lastSleepTime;
   @JsonKey(name: "status")
   TrackerStatus status;
+  @JsonKey(name: "battery_percentage")
+  int batteryPercentage;
+  @JsonKey(name: "is_charging", defaultValue: false)
+  bool isCharging;
 
   Tracker({this.id, this.label, this.lastPoll, this.lastSleepTime, this.status});
 

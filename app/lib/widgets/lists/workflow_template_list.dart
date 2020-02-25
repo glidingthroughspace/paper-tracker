@@ -4,21 +4,20 @@ import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/pages/workflow_template_page.dart';
 import 'package:tuple/tuple.dart';
 
-import 'card_list.dart';
-import 'label.dart';
+import '../card_list.dart';
+import '../label.dart';
 
 class WorkflowTemplateList extends StatefulWidget {
   @override
   _WorkflowTemplateListState createState() => _WorkflowTemplateListState();
 }
 
-class _WorkflowTemplateListState extends State<WorkflowTemplateList> with AutomaticKeepAliveClientMixin {
+class _WorkflowTemplateListState extends State<WorkflowTemplateList> {
   var templateClient = WorkflowTemplateClient();
   var templateLabelEditController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return FutureBuilder(
       future: templateClient.getAllTemplates(),
       builder: (context, snapshot) {
@@ -100,9 +99,6 @@ class _WorkflowTemplateListState extends State<WorkflowTemplateList> with Automa
     setState(() {});
     Navigator.of(context).pop();
   }
-
-  @override
-  bool get wantKeepAlive => true;
 
   void onTapWorkflow(WorkflowTemplate workflow) async {
     await Navigator.of(context).pushNamed(WorkflowTemplatePage.Route, arguments: workflow.id);
