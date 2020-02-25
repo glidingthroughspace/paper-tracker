@@ -34,7 +34,7 @@ class CardList<T> extends StatelessWidget {
 }
 
 class CheckCardListController {
-  Map<String, bool> contentMap = Map();
+  var contentMap = Map<String, bool>();
 
   void flipState(String title) {
     contentMap[title] = !contentMap[title];
@@ -53,7 +53,7 @@ class CheckCardListController {
   }
 
   List<String> get checked {
-    return contentMap.map((key, value) => value ? MapEntry(key, value) : null).keys.toList();
+    return contentMap.map((key, value) => value ? MapEntry(key, value) : MapEntry(null, null)).keys.where((element) => element != null).toList();
   }
 }
 
