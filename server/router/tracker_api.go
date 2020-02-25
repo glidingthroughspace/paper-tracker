@@ -76,6 +76,12 @@ func (r *CoapRouter) trackerTrackingData() coap.HandlerFunc {
 			reqLogger.WithField("err", err).Warning("Coap router: Failed decode tracking data")
 		}
 
+		err = managers.GetTrackerManager().UpdateFromResponse(trackerID, resp.TrackerCmdResponse)
+		if err != nil {
+			reqLogger.WithField("err", err).Error("Failed to update tracker from response - ignore for request")
+			err = nil
+		}
+
 		err = managers.GetLearningManager().NewTrackingData(trackerID, resp.ScanResults)
 		if err != nil {
 			r.writeError(w, coap.InternalServerError, err)

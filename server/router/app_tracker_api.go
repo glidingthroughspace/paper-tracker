@@ -48,7 +48,7 @@ func (r *HttpRouter) trackerUpdateHandler() gin.HandlerFunc {
 			return
 		}
 
-		tracker, err = managers.GetTrackerManager().UpdateTracker(trackerID, tracker.Label)
+		tracker, err = managers.GetTrackerManager().UpdateTrackerLabel(trackerID, tracker.Label)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("TrackerUpdate request failed")
