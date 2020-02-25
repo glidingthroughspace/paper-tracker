@@ -1,6 +1,8 @@
 #include <models/trackerResponse.hpp>
 
-TrackerResponse::TrackerResponse(uint8_t batteryPercentage, std::vector<ScanResult> scanResults): m_battery_percentage{"battery_percentage", batteryPercentage} {
+TrackerResponse::TrackerResponse(uint8_t batteryPercentage, bool isCharging, std::vector<ScanResult> scanResults) {
+  m_battery_percentage.value = batteryPercentage;
+  m_is_charging.value = isCharging;
   m_scan_results = std::move(scanResults);
 }
 

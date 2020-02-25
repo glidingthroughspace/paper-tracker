@@ -25,6 +25,7 @@ class CBORParser {
     bool readInt(int16_t& target);
     bool readCString(char* target, size_t& target_length);
     bool readString(String& target);
+    bool readBool(bool& target);
   private:
     bool isAtEOF() const;
     cbor::BytesStream bs;
