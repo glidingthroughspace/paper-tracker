@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/pages/workflow_template_page.dart';
+import 'package:paper_tracker/widgets/card_list.dart';
+import 'package:paper_tracker/widgets/dialogs/add_template_dialog.dart';
 import 'package:tuple/tuple.dart';
-
-import '../card_list.dart';
-import '../label.dart';
 
 class WorkflowTemplateList extends StatefulWidget {
   @override
@@ -58,36 +57,7 @@ class _WorkflowTemplateListState extends State<WorkflowTemplateList> {
   void onAddTemplateButton() async {
     return showDialog(
       context: context,
-      builder: buildAddTemplateDialog,
-    );
-  }
-
-  Widget buildAddTemplateDialog(BuildContext context) {
-    return AlertDialog(
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Label("Add Workflow Template"),
-          Padding(
-            padding: EdgeInsets.only(top: 10.0),
-          ),
-          TextFormField(
-            controller: templateLabelEditController,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: "Workflow Template Label",
-              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
-              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        FlatButton(
-          child: Text("Create"),
-          onPressed: () => addTemplate(),
-        ),
-      ],
+      child: AddTemplateDialog(labelController: templateLabelEditController, addTemplate: addTemplate),
     );
   }
 

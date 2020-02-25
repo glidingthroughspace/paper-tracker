@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/tracker_client.dart';
@@ -48,7 +49,9 @@ class _LearningPageState extends State<LearningPage> {
         bottomButtons: [
           IconButton(
             icon: Icon(Icons.check),
-            onPressed: state == _learningState.Finished ? onSave : null,
+            onPressed: state == _learningState.Finished && (checkCardListController.checked.isNotEmpty || !kReleaseMode)
+                ? onSave
+                : null,
           ),
         ],
         content: Container(

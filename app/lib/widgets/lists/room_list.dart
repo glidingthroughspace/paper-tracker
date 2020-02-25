@@ -3,9 +3,8 @@ import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/pages/room_page.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
+import 'package:paper_tracker/widgets/dialogs/add_room_dialog.dart';
 import 'package:tuple/tuple.dart';
-
-import '../label.dart';
 
 class RoomList extends StatefulWidget {
   RoomList({Key key}) : super(key: key);
@@ -58,36 +57,7 @@ class _RoomListState extends State<RoomList> {
   void onAddRoomButton() async {
     return showDialog(
       context: context,
-      builder: buildAddRoomDialog,
-    );
-  }
-
-  Widget buildAddRoomDialog(BuildContext context) {
-    return AlertDialog(
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Label("Add Room"),
-          Padding(
-            padding: EdgeInsets.only(top: 10.0),
-          ),
-          TextFormField(
-            controller: roomLabelEditController,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: "Room Label",
-              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
-              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        FlatButton(
-          child: Text("Create"),
-          onPressed: () => addRoom(),
-        ),
-      ],
+      child: AddRoomDialog(labelController: roomLabelEditController, addRoom: addRoom),
     );
   }
 
