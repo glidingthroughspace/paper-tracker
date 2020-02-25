@@ -38,3 +38,8 @@ void CBORString::serialize_to(CBORDocument& cbor) {
   cbor.begin_text(m_value.length());
   cbor.write_bytes(m_value.c_str(), m_value.length());
 }
+
+void CBORBool::serialize_to(CBORDocument& cbor) {
+  write_key_to(cbor);
+  cbor.write_bool(value);
+}

@@ -31,6 +31,7 @@ class CBORDocument {
     void write_bytes(uint8_t* bytes, size_t size);
     void write_int(int64_t value);
     void write_uint(uint64_t value);
+    void write_bool(bool value);
     uint8_t* bytes();
     size_t size() const;
   private:
