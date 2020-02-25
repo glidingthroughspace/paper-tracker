@@ -12,10 +12,10 @@
 class Storage {
   public:
     static constexpr const char* TRACKER_ID = "trackerid";
-  public:
-    // TODO: Make this private
+  private:
     static Preferences* instance;
     static Preferences* prefs();
+  public:
     static uint16_t get(const char* key);
     static bool exists(const char* key);
     static bool set(const char* key, uint16_t);
