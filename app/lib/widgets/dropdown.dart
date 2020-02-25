@@ -49,9 +49,12 @@ class _DropdownState extends State<Dropdown> {
       future: widget.getItems(),
       builder: (context, snapshot) {
         List<DropdownCapable> itemList = snapshot.hasData ? snapshot.data : [];
-        if (snapshot.hasData && widget.controller.selectedItem == null && widget.controller.defaultID != null) {
+        if (widget.controller.selectedItem == null && widget.controller.defaultID != null) {
           widget.controller.selectedItem =
-              itemList.firstWhere((room) => room.id == widget.controller.defaultID, orElse: null);
+              itemList.firstWhere((item) => item.id == widget.controller.defaultID, orElse: () => null);
+        } else if (widget.controller.selectedItem != null) {
+          widget.controller.selectedItem =
+              itemList.firstWhere((item) => item.id == widget.controller.selectedItem.id, orElse: () => null);
         }
 
         return DropdownButton(
