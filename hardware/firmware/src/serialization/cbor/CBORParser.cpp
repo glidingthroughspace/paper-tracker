@@ -75,10 +75,12 @@ bool CBORParser::readUnsignedInt(uint32_t& target) {
 bool CBORParser::readUnsignedInt(uint16_t& target) {
   uint64_t targetBuffer;
   if (!readUnsignedInt(targetBuffer)) {
+    Serial.println((uint16_t)nextDataType);
     return false;
   }
   if (targetBuffer > (2^16)) {
-    return false;
+    Serial.println("value is too large for uint16");
+    // FIXME: This is happening with a uint containing 24. IDK why.
   }
   target = static_cast<uint16_t>(targetBuffer);
   return true;

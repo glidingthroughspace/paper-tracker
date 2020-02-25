@@ -6,8 +6,8 @@
 
 class ScanResult {
   public:
-    ScanResult(): RSSI{"RSSI"}, BSSID{"BSSID"}, SSID{"SSID"} {};
-    ScanResult(int32_t rssi, const String& bssid, const String& ssid): RSSI{"RSSI", rssi}, BSSID{"BSSID", bssid}, SSID{"SSID", ssid} {};
+    ScanResult(): RSSI{"rssi"}, BSSID{"bssid"}, SSID{"ssid"} {};
+    ScanResult(int32_t rssi, const String& bssid, const String& ssid): RSSI{"rssi", rssi}, BSSID{"bssid", bssid}, SSID{"ssid", ssid} {};
 
     void print() {
       log("SSID: ");
