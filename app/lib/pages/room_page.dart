@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/pages/learning_page.dart';
+import 'package:paper_tracker/utils.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/label.dart';
@@ -87,6 +88,7 @@ class _RoomPageState extends State<RoomPage> {
               readOnly: !isEditing,
             ),
           ]),
+          getTableSpacing(10.0),
           TableRow(children: [
             TableCell(child: Label("Is Learned: ")),
             TableCell(
@@ -96,7 +98,8 @@ class _RoomPageState extends State<RoomPage> {
                   Icon(room.isLearned ? Icons.check : Icons.close, color: Colors.white),
                   MaterialButton(
                     child: Text(room.isLearned ? "Relearn" : "Learn now"),
-                    onPressed: () => Navigator.of(context).pushNamed(LearningPage.Route, arguments: LearningPageParams(roomID: room.id)),
+                    onPressed: () => Navigator.of(context)
+                        .pushNamed(LearningPage.Route, arguments: LearningPageParams(roomID: room.id)),
                     color: Theme.of(context).accentColor,
                   ),
                 ],
@@ -112,13 +115,14 @@ class _RoomPageState extends State<RoomPage> {
     if (edit == false && room != null) {
       room.label = labelEditController.text;
       await roomClient.updateRoom(room);
-      futureRoom = roomClient.getRoomByID(roomID);
+      await roomClient.getAllRooms(refresh: true);
     }
     setState(() => isEditing = edit);
   }
 
   void delete(Room room) async {
     await roomClient.deleteRoom(room.id);
+    await roomClient.getAllRooms(refresh: true);
     Navigator.of(context).pop();
   }
 }

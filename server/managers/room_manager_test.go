@@ -20,7 +20,7 @@ var _ = Describe("RoomManager", func() {
 		testErr = errors.New("error")
 	)
 	const (
-		id = 1
+		id models.RoomID = 1
 	)
 
 	BeforeEach(func() {

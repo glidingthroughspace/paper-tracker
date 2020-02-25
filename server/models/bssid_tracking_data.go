@@ -1,9 +1,9 @@
 package models
 
 type BSSIDTrackingData struct {
-	BSSID   int
-	Minimum int
-	Maximum int
-	Median  int
-	Average float32
+	BSSID   int     `json:"bssid"`
+	Minimum int     `json:"minimum"`
+	Maximum int     `json:"maximum"`
+	Median  int     `json:"median"`
+	Average float32 `json:"average"`
 }

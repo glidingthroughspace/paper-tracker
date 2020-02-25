@@ -18,13 +18,13 @@ class RoomClient {
       futureRooms = Future.value(rawList.map((i) => Room.fromJson(i)).toList());
       return futureRooms;
     } else {
-      throw Exception("Failed to load trackers");
+      throw Exception("Failed to load client");
     }
   }
 
   Future<Room> getRoomByID(int id, {bool refresh = false}) async {
     if (futureRooms == null || refresh) {
-      getAllRooms(refresh: true);
+      await getAllRooms(refresh: true);
     }
 
     var rooms = await futureRooms;
@@ -32,18 +32,14 @@ class RoomClient {
   }
 
   Future<void> addRoom(Room room) async {
-    return apiClient.post("/room", json.encode(room));
+    return apiClient.post("/room", json.encode(room.toJson()));
   }
 
   Future<void> updateRoom(Room room) async {
-    var res = await apiClient.put("/room/${room.id}", json.encode(room));
-    await getAllRooms(refresh: true);
-    return res;
+    return apiClient.put("/room/${room.id}", json.encode(room.toJson()));
   }
 
   Future<void> deleteRoom(int id) async {
-    var res = await apiClient.delete("/room/$id");
-    await getAllRooms(refresh: true);
-    return res;
+    return apiClient.delete("/room/$id");
   }
 }

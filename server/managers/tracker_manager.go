@@ -39,7 +39,7 @@ func GetTrackerManager() *TrackerManager {
 	return trackerManager
 }
 
-func (mgr *TrackerManager) GetTrackerByID(trackerID int) (tracker *models.Tracker, err error) {
+func (mgr *TrackerManager) GetTrackerByID(trackerID models.TrackerID) (tracker *models.Tracker, err error) {
 	tracker, err = mgr.trackerRep.GetByID(trackerID)
 	if err != nil {
 		log.WithFields(log.Fields{"trackerID": trackerID, "err": err}).Error("Tracker not found")
@@ -57,10 +57,37 @@ func (mgr *TrackerManager) GetAllTrackers() (trackers []*models.Tracker, err err
 	return
 }
 
-func (mgr *TrackerManager) SetTrackerStatus(trackerID int, status models.TrackerStatus) (err error) {
+func (mgr *TrackerManager) SetTrackerStatus(trackerID models.TrackerID, status models.TrackerStatus) (err error) {
 	err = mgr.trackerRep.SetStatusByID(trackerID, status)
 	if err != nil {
 		log.WithFields(log.Fields{"trackerID": trackerID, "status": status, "err": err}).Error("Failed to set status of tracker")
+		return
+	}
+	return
+}
+
+func (mgr *TrackerManager) UpdateTracker(trackerID models.TrackerID, label string) (tracker *models.Tracker, err error) {
+	setLabelLog := log.WithFields(log.Fields{"trackerID": trackerID, "label": label})
+
+	tracker, err = mgr.trackerRep.GetByID(trackerID)
+	if err != nil {
+		setLabelLog.WithField("err", err).Error("Failed to get tracker")
+		return
+	}
+
+	tracker.Label = label
+	err = mgr.trackerRep.Update(tracker)
+	if err != nil {
+		log.WithField("err", err).Error("Failed to set label of tracker")
+		return
+	}
+	return
+}
+
+func (mgr *TrackerManager) DeleteTracker(trackerID models.TrackerID) (err error) {
+	err = mgr.trackerRep.Delete(trackerID)
+	if err != nil {
+		log.WithFields(log.Fields{"trackerID": trackerID, "err": err}).Error("Failed to delete tracker")
 		return
 	}
 	return
@@ -85,7 +112,7 @@ func (mgr *TrackerManager) NotifyNewTracker() (tracker *models.Tracker, err erro
 	return
 }
 
-func (mgr *TrackerManager) PollCommand(trackerID int) (cmd *models.Command, err error) {
+func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.Command, err error) {
 	pollLog := log.WithField("trackerID", trackerID)
 
 	_, err = mgr.trackerRep.GetByID(trackerID)

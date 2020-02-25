@@ -1,8 +1,8 @@
 package models
 
 type ScanResult struct {
-	TrackerID int `codec:"-"`
-	SSID      string
-	BSSID     string
-	RSSID     int
+	TrackerID TrackerID `codec:"-" json:"tracker_id"`
+	SSID      string    `json:"ssid"`
+	BSSID     string    `json:"bssid"`
+	RSSI      int       `json:"rssi"`
 }

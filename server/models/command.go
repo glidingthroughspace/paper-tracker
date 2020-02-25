@@ -2,12 +2,14 @@ package models
 
 import "time"
 
+type CommandID int
+
 type Command struct {
-	ID           int `codec:"-"`
-	TrackerID    int `codec:"-"`
-	Command      CommandType
-	SleepTimeSec int
-	CreatedAt    time.Time `codec:"-"`
+	ID           CommandID   `codec:"-" gorm:"primary_key;auto_increment" json:"id"`
+	TrackerID    TrackerID   `codec:"-" json:"tracker_id"`
+	Command      CommandType `json:"command"`
+	SleepTimeSec int         `json:"sleep_time_sec"`
+	CreatedAt    time.Time   `codec:"-" json:"created_at"`
 }
 
 type CommandType int8

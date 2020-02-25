@@ -23,6 +23,7 @@ func (r *HttpRouter) roomListHandler() gin.HandlerFunc {
 		rooms, err := managers.GetRoomManager().GetAllRooms()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("RoomList request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, rooms)
@@ -42,15 +43,16 @@ func (r *HttpRouter) roomCreateHandler() gin.HandlerFunc {
 		err = managers.GetRoomManager().CreateRoom(room)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("RoomCreate request failed")
 			return
 		}
-		ctx.Status(http.StatusOK)
+		ctx.JSON(http.StatusOK, room)
 	}
 }
 
 func (r *HttpRouter) roomUpdateHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		roomID := ctx.GetInt(httpParamIDName)
+		roomID := models.RoomID(ctx.GetInt(httpParamIDName))
 
 		room := &models.Room{}
 		err := ctx.BindJSON(room)
@@ -64,19 +66,21 @@ func (r *HttpRouter) roomUpdateHandler() gin.HandlerFunc {
 		err = managers.GetRoomManager().UpdateRoom(room)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("RoomUpdate request failed")
 			return
 		}
-		ctx.Status(http.StatusOK)
+		ctx.JSON(http.StatusOK, room)
 	}
 }
 
 func (r *HttpRouter) roomDeleteHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		roomID := ctx.GetInt(httpParamIDName)
+		roomID := models.RoomID(ctx.GetInt(httpParamIDName))
 
 		err := managers.GetRoomManager().DeleteRoom(roomID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("RoomDelete request failed")
 			return
 		}
 		ctx.Status(http.StatusOK)

@@ -48,7 +48,7 @@ func (mr *MockCommandRepositoryMockRecorder) Create(command interface{}) *gomock
 }
 
 // GetNextCommand mocks base method
-func (m *MockCommandRepository) GetNextCommand(trackerID int) (*models.Command, error) {
+func (m *MockCommandRepository) GetNextCommand(trackerID models.TrackerID) (*models.Command, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetNextCommand", trackerID)
 	ret0, _ := ret[0].(*models.Command)
@@ -63,17 +63,17 @@ func (mr *MockCommandRepositoryMockRecorder) GetNextCommand(trackerID interface{
 }
 
 // Delete mocks base method
-func (m *MockCommandRepository) Delete(trackerID int) error {
+func (m *MockCommandRepository) Delete(commandID models.CommandID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", trackerID)
+	ret := m.ctrl.Call(m, "Delete", commandID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete
-func (mr *MockCommandRepositoryMockRecorder) Delete(trackerID interface{}) *gomock.Call {
+func (mr *MockCommandRepositoryMockRecorder) Delete(commandID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockCommandRepository)(nil).Delete), trackerID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockCommandRepository)(nil).Delete), commandID)
 }
 
 // IsRecordNotFoundError mocks base method

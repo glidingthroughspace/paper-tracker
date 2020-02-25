@@ -25,7 +25,7 @@ func (rep *GormRoomRepository) Create(room *models.Room) (err error) {
 	return
 }
 
-func (rep *GormRoomRepository) GetByID(roomID int) (room *models.Room, err error) {
+func (rep *GormRoomRepository) GetByID(roomID models.RoomID) (room *models.Room, err error) {
 	room = &models.Room{}
 	err = databaseConnection.First(room, &models.Room{ID: roomID}).Error
 	return
@@ -36,7 +36,7 @@ func (rep *GormRoomRepository) GetAll() (rooms []*models.Room, err error) {
 	return
 }
 
-func (rep *GormRoomRepository) Delete(roomID int) (err error) {
+func (rep *GormRoomRepository) Delete(roomID models.RoomID) (err error) {
 	err = databaseConnection.Delete(&models.Room{ID: roomID}).Error
 	return
 }
@@ -46,7 +46,7 @@ func (rep *GormRoomRepository) Update(room *models.Room) (err error) {
 	return
 }
 
-func (rep *GormRoomRepository) SetLearnedByID(roomID int, learned bool) (err error) {
+func (rep *GormRoomRepository) SetLearnedByID(roomID models.RoomID, learned bool) (err error) {
 	err = databaseConnection.Model(&models.Room{}).Where(&models.Room{ID: roomID}).Update("is_learned", learned).Error
 	return
 }

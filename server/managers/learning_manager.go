@@ -37,7 +37,7 @@ func GetLearningManager() *LearningManager {
 	return learningManager
 }
 
-func (mgr *LearningManager) StartLearning(trackerID int) (learnTimeSec int, err error) {
+func (mgr *LearningManager) StartLearning(trackerID models.TrackerID) (learnTimeSec int, err error) {
 	learnLog := log.WithField("trackerID", trackerID)
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
@@ -60,7 +60,7 @@ func (mgr *LearningManager) StartLearning(trackerID int) (learnTimeSec int, err 
 	return
 }
 
-func (mgr *LearningManager) learningRoutine(trackerID int, logger *log.Entry) {
+func (mgr *LearningManager) learningRoutine(trackerID models.TrackerID, logger *log.Entry) {
 	defer ginkgo.GinkgoRecover() //FIXME: Leave this in for now as sometimes the unit tests crash in this goroutine
 
 	logger.Info("Start learning routine")
@@ -80,7 +80,7 @@ func (mgr *LearningManager) learningRoutine(trackerID int, logger *log.Entry) {
 	}
 }
 
-func (mgr *LearningManager) learningCreateTrackingCmds(trackerID int, logger *log.Entry) {
+func (mgr *LearningManager) learningCreateTrackingCmds(trackerID models.TrackerID, logger *log.Entry) {
 	logger.Info("Start creating tracking commands")
 
 	trackCmd := &models.Command{
@@ -98,7 +98,7 @@ func (mgr *LearningManager) learningCreateTrackingCmds(trackerID int, logger *lo
 	logger.Info("Finished creating tracking commands")
 }
 
-func (mgr *LearningManager) NewTrackingData(trackerID int, scanRes []*models.ScanResult) (err error) {
+func (mgr *LearningManager) NewTrackingData(trackerID models.TrackerID, scanRes []*models.ScanResult) (err error) {
 	trackingDataLog := log.WithField("trackerID", trackerID)
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
@@ -115,6 +115,9 @@ func (mgr *LearningManager) NewTrackingData(trackerID int, scanRes []*models.Sca
 		err = mgr.newLearningTrackingData(trackerID, scanRes)
 	case models.StatusTracking:
 		err = errors.New("Not implemented yes") //TODO
+	default:
+		err = errors.New("Unknown tracker status")
+		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unknown tracker status")
 	}
 
 	if err != nil {
@@ -124,7 +127,7 @@ func (mgr *LearningManager) NewTrackingData(trackerID int, scanRes []*models.Sca
 	return
 }
 
-func (mgr *LearningManager) newLearningTrackingData(trackerID int, scanRes []*models.ScanResult) (err error) {
+func (mgr *LearningManager) newLearningTrackingData(trackerID models.TrackerID, scanRes []*models.ScanResult) (err error) {
 	for _, scan := range scanRes {
 		scan.TrackerID = trackerID
 	}
@@ -133,7 +136,7 @@ func (mgr *LearningManager) newLearningTrackingData(trackerID int, scanRes []*mo
 	return
 }
 
-func (mgr *LearningManager) FinishLearning(trackerID, roomID int, ssids []string) (err error) {
+func (mgr *LearningManager) FinishLearning(trackerID models.TrackerID, roomID models.RoomID, ssids []string) (err error) {
 	finishLearningLog := log.WithFields(log.Fields{"trackerID": trackerID, "roomID": roomID})
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
@@ -173,7 +176,7 @@ func (mgr *LearningManager) FinishLearning(trackerID, roomID int, ssids []string
 	return
 }
 
-func (mgr *LearningManager) GetLearningStatus(trackerID int) (done bool, ssids []string, err error) {
+func (mgr *LearningManager) GetLearningStatus(trackerID models.TrackerID) (done bool, ssids []string, err error) {
 	learningStatusLog := log.WithField("trackerID", trackerID)
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)

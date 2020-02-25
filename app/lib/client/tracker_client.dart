@@ -53,11 +53,20 @@ class TrackerClient {
   }
 
   Future<void> finishLearning(int trackerID, int roomID, List<String> ssids) async {
-    final response = await apiClient.post("/tracker/$trackerID/learn/finish", json.encode(LearningFinishRequest(roomID: roomID, ssids: ssids).toJson()));
+    final response = await apiClient.post(
+        "/tracker/$trackerID/learn/finish", json.encode(LearningFinishRequest(roomID: roomID, ssids: ssids).toJson()));
     if (response.statusCode == 200) {
       return;
     } else {
       throw Exception("Failed to finish learning");
     }
+  }
+
+  Future<void> updateTracker(Tracker tracker) async {
+    return apiClient.put("/tracker/${tracker.id}", json.encode(tracker.toJson()));
+  }
+
+  Future<void> deleteTracker(int trackerID) async {
+    return apiClient.delete("/tracker/$trackerID");
   }
 }

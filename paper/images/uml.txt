@@ -9,14 +9,14 @@ package model {
     Time LastPoll <no cbor>
     Time LastSleepTime <no cbor>
   }
-  
+
   enum TrackerStatus {
     Idle = 1
     Learning = 2
     Tracking = 3
   }
   hide TrackerStatus methods
-  
+
   class Command {
     UInt16 ID
     UInt16 SleepTimeSec
@@ -27,7 +27,7 @@ package model {
     SendTrackingInformation = 0
     SignalLocation = 1
     Sleep = 2
-  }  
+  }
   hide CommandType methods
   together {
     class Command
@@ -38,7 +38,7 @@ package model {
     UInt16 ID
     String Label
   }
-  
+
   class BSSIDTrackingData {
     String BSSID
     Int Minimum
@@ -50,12 +50,12 @@ package model {
     class Room
     class BSSIDTrackingData
   }
-  
+
   class Workflow {
   	String Label
     Boolean IsTemplate
   }
-  
+
   class Step {
   	String Label
     Time StartedOn
@@ -77,7 +77,7 @@ package model {
     class ScanResult {
       String SSID
       String BSSID
-      Int32 RSSID
+      Int32 RSSI
     }
 
     class ErrorResponse {

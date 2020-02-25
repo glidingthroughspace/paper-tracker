@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:paper_tracker/widgets/dropdown.dart';
 
 part 'tracker.g.dart';
 
 @JsonSerializable()
-class Tracker {
+class Tracker implements DropdownCapable {
   static const IconData = Icons.track_changes;
 
   @JsonKey(name: "id")
@@ -34,4 +36,26 @@ enum TrackerStatus {
   LearningFinished,
   @JsonValue(4)
   Tracking
+}
+
+extension TrackerStatusExtension on TrackerStatus {
+  String get label {
+    if (this == TrackerStatus.LearningFinished) return "Finishing learning";
+
+    return this.toString().substring(this.toString().indexOf('.') + 1);
+  }
+
+  IconData get icon {
+    switch (this) {
+      case TrackerStatus.Idle:
+        return MdiIcons.progressClock;
+      case TrackerStatus.Learning:
+        return Icons.school;
+      case TrackerStatus.LearningFinished:
+        return Icons.school;
+      case TrackerStatus.Tracking:
+        return Icons.track_changes;
+    }
+    return Icons.adb;
+  }
 }

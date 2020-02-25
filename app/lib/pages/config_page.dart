@@ -15,8 +15,33 @@ class _ConfigPageState extends State<ConfigPage> {
   final config = Config();
 
   void onSubmit() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: SimpleDialog(children: [
+            Center(
+              child: Column(children: [
+                CircularProgressIndicator(),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Connecting to server...",
+                )
+              ]),
+            )
+          ]),
+        );
+      },
+    );
+
     await config.setServerURL(urlEditController.text);
     var serverAvailable = await APIClient().isAvailable();
+
+    Navigator.of(context).pop();
+
     if (serverAvailable) {
       Navigator.of(context).pushReplacementNamed(MainPage.Route);
     } else {
