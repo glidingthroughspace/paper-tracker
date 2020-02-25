@@ -14,7 +14,7 @@
 #include <credentials.hpp>
 
 WIFI wifi;
-ApiClient apiClient(&wifi.getUDP(), IPAddress(172,16,15,230));
+ApiClient apiClient(&wifi.getUDP(), SERVER_IP);
 
 void haltIf(bool condition, const char* message);
 void sendScanResultsInChunks(std::vector<ScanResult>&);
