@@ -4,19 +4,18 @@ import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/pages/start_exec_page.dart';
 import 'package:tuple/tuple.dart';
 
-import 'card_list.dart';
+import '../card_list.dart';
 
 class WorkflowExecList extends StatefulWidget {
   @override
   _WorkflowExecListState createState() => _WorkflowExecListState();
 }
 
-class _WorkflowExecListState extends State<WorkflowExecList> with AutomaticKeepAliveClientMixin {
+class _WorkflowExecListState extends State<WorkflowExecList> {
   var execClient = WorkflowExecClient();
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return FutureBuilder(
       future: execClient.getAllExecs(),
       builder: (context, snapshot) {
@@ -53,9 +52,6 @@ class _WorkflowExecListState extends State<WorkflowExecList> with AutomaticKeepA
       execClient.getAllExecs(refresh: true);
     });
   }
-
-  @override
-  bool get wantKeepAlive => true;
 
   void onTapExec(WorkflowExec exec) async {
     //await Navigator.of(context).pushNamed(WorkflowTemplatePage.Route, arguments: workflow.id);

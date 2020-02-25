@@ -5,13 +5,14 @@ import "time"
 type TrackerID int
 
 type Tracker struct {
-	ID            TrackerID     `json:"id" gorm:"primary_key;auto_increment"`
-	Label         string        `json:"label" codec:"-"`
-	LastPoll      time.Time     `json:"last_poll" codec:"-"`
-	LastSleepTime time.Time     `json:"last_sleep_time" codec:"-"`
-	LastLocations []Room        `json:"last_locations" codec:"-"`
-	LastLocation  *Room         `json:"last_location" codec:"-"`
-	Status        TrackerStatus `json:"status" codec:"-"`
+	ID                TrackerID     `json:"id" gorm:"primary_key;auto_increment"`
+	Label             string        `json:"label" codec:"-"`
+	LastPoll          time.Time     `json:"last_poll" codec:"-"`
+	LastSleepTime     time.Time     `json:"last_sleep_time" codec:"-"`
+	LastLocation      *Room         `json:"last_location" codec:"-"`
+	Status            TrackerStatus `json:"status" codec:"-"`
+	BatteryPercentage int           `json:"battery_percentage"`
+	IsCharging        bool          `json:"is_charging"`
 }
 
 type TrackerStatus int8

@@ -58,7 +58,7 @@ class _StartExecPageState extends State<StartExecPage> {
       Dropdown(
         controller: trackerDropdownController,
         getItems: () async {
-          var allTrackers = await trackerClient.getAllTrackers();
+          var allTrackers = await trackerClient.getAllTrackers(refresh: true);
           return allTrackers.where((tracker) => tracker.status == TrackerStatus.Idle).toList();
         },
         hintName: "available tracker",
@@ -68,7 +68,7 @@ class _StartExecPageState extends State<StartExecPage> {
       Padding(padding: EdgeInsets.only(top: 5.0)),
       Dropdown(
         controller: templateDropdownController,
-        getItems: templateClient.getAllTemplates,
+        getItems: () => templateClient.getAllTemplates(refresh: true),
         hintName: "workflow",
         icon: WorkflowTemplate.IconData,
         setState: setState,

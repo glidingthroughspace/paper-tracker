@@ -2,6 +2,7 @@ package managers
 
 import (
 	"paper-tracker/models"
+	"paper-tracker/models/communication"
 	"paper-tracker/repositories"
 
 	log "github.com/sirupsen/logrus"
@@ -66,7 +67,7 @@ func (mgr *TrackerManager) SetTrackerStatus(trackerID models.TrackerID, status m
 	return
 }
 
-func (mgr *TrackerManager) UpdateTracker(trackerID models.TrackerID, label string) (tracker *models.Tracker, err error) {
+func (mgr *TrackerManager) UpdateTrackerLabel(trackerID models.TrackerID, label string) (tracker *models.Tracker, err error) {
 	setLabelLog := log.WithFields(log.Fields{"trackerID": trackerID, "label": label})
 
 	tracker, err = mgr.trackerRep.GetByID(trackerID)
@@ -142,5 +143,24 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 		cmd.SleepTimeSec = 0
 	}
 
+	return
+}
+
+func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp communication.TrackerCmdResponse) (err error) {
+	updateLog := log.WithFields(log.Fields{"trackerID": trackerID, "resp": resp})
+
+	tracker, err := mgr.trackerRep.GetByID(trackerID)
+	if err != nil {
+		updateLog.WithField("err", err).Error("Failed to get tracker with id")
+		return
+	}
+
+	tracker.BatteryPercentage = resp.BatteryPercentage
+	tracker.IsCharging = resp.IsCharging
+	err = mgr.trackerRep.Update(tracker)
+	if err != nil {
+		updateLog.WithField("err", err).Error("Failed to update tracker")
+		return
+	}
 	return
 }

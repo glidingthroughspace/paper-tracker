@@ -17,7 +17,9 @@ Tracker _$TrackerFromJson(Map<String, dynamic> json) {
         ? null
         : DateTime.parse(json['last_sleep_time'] as String),
     status: _$enumDecodeNullable(_$TrackerStatusEnumMap, json['status']),
-  );
+  )
+    ..batteryPercentage = json['battery_percentage'] as int
+    ..isCharging = json['is_charging'] as bool ?? false;
 }
 
 Map<String, dynamic> _$TrackerToJson(Tracker instance) => <String, dynamic>{
@@ -26,6 +28,8 @@ Map<String, dynamic> _$TrackerToJson(Tracker instance) => <String, dynamic>{
       'last_poll': instance.lastPoll?.toIso8601String(),
       'last_sleep_time': instance.lastSleepTime?.toIso8601String(),
       'status': _$TrackerStatusEnumMap[instance.status],
+      'battery_percentage': instance.batteryPercentage,
+      'is_charging': instance.isCharging,
     };
 
 T _$enumDecode<T>(

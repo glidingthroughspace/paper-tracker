@@ -3,8 +3,8 @@ import 'package:paper_tracker/pages/tracker_page.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:tuple/tuple.dart';
 
-import '../client/tracker_client.dart';
-import '../model/tracker.dart';
+import '../../client/tracker_client.dart';
+import '../../model/tracker.dart';
 
 class TrackerList extends StatefulWidget {
   TrackerList({Key key}) : super(key: key);
@@ -13,17 +13,11 @@ class TrackerList extends StatefulWidget {
   _TrackerListState createState() => _TrackerListState();
 }
 
-class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClientMixin {
+class _TrackerListState extends State<TrackerList> {
   var trackerClient = TrackerClient();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    super.build(context);
     return FutureBuilder(
         future: trackerClient.getAllTrackers(),
         builder: (context, snapshot) {
@@ -51,7 +45,4 @@ class _TrackerListState extends State<TrackerList> with AutomaticKeepAliveClient
       trackerClient.getAllTrackers(refresh: true);
     });
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

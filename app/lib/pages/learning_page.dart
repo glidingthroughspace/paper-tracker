@@ -70,7 +70,7 @@ class _LearningPageState extends State<LearningPage> {
 
   Widget buildRoomDropdown() {
     return Dropdown(
-      getItems: roomClient.getAllRooms,
+      getItems: () => roomClient.getAllRooms(refresh: true),
       controller: roomDropdownController,
       hintName: "room",
       icon: Room.IconData,
@@ -101,7 +101,7 @@ class _LearningPageState extends State<LearningPage> {
   Widget buildTrackerDropdown() {
     return Dropdown(
       getItems: () async {
-        var allTrackers = await trackerClient.getAllTrackers();
+        var allTrackers = await trackerClient.getAllTrackers(refresh: true);
         return allTrackers.where((tracker) => tracker.status == TrackerStatus.Idle).toList();
       },
       controller: trackerDropdownController,

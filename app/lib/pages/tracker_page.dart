@@ -60,51 +60,79 @@ class _TrackerPageState extends State<TrackerPage> {
         defaultVerticalAlignment: TableCellVerticalAlignment.middle,
         columnWidths: {0: FractionColumnWidth(0.3)},
         children: [
-          TableRow(children: [
-            TableCell(child: Label("Label: ")),
-            TableCell(
-              child: TextFormField(
-                controller: labelEditController,
-                readOnly: !isEditing,
-              ),
-            ),
-          ]),
+          buildLabelRow(),
           getTableSpacing(10.0),
-          TableRow(
-            children: [
-              TableCell(child: Label("Status: ")),
-              TableCell(
-                child: Row(
-                  children: [
-                    Icon(tracker.status.icon),
-                    Padding(padding: EdgeInsets.only(left: 10.0)),
-                    Label(tracker.status.label),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          buildBatteryRow(tracker),
           getTableSpacing(10.0),
-          TableRow(
-            children: [
-              TableCell(child: Label("Learn Room: ")),
-              TableCell(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    MaterialButton(
-                      child: Text("Learn"),
-                      onPressed: tracker.status == TrackerStatus.Idle ? () => onLearnButton(tracker.id) : null,
-                      color: Theme.of(context).accentColor,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          buildStatusRow(tracker),
+          getTableSpacing(10.0),
+          buildLearnRow(tracker),
         ],
       ),
     );
+  }
+
+  TableRow buildLearnRow(Tracker tracker) {
+    return TableRow(
+      children: [
+        TableCell(child: Label("Learn Room: ")),
+        TableCell(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              MaterialButton(
+                child: Text("Learn"),
+                onPressed: tracker.status == TrackerStatus.Idle ? () => onLearnButton(tracker.id) : null,
+                color: Theme.of(context).accentColor,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  TableRow buildStatusRow(Tracker tracker) {
+    return TableRow(
+      children: [
+        TableCell(child: Label("Status: ")),
+        TableCell(
+          child: Row(
+            children: [
+              Icon(tracker.status.icon),
+              Padding(padding: EdgeInsets.only(left: 10.0)),
+              Label(tracker.status.label),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  TableRow buildLabelRow() {
+    return TableRow(children: [
+      TableCell(child: Label("Label: ")),
+      TableCell(
+        child: TextFormField(
+          controller: labelEditController,
+          readOnly: !isEditing,
+        ),
+      ),
+    ]);
+  }
+
+  TableRow buildBatteryRow(Tracker tracker) {
+    return TableRow(children: [
+      TableCell(child: Label("Battery: ")),
+      TableCell(
+        child: Row(
+          children: [
+            Label(tracker.isCharging ? "Charging - " : ""),
+            Label(tracker.batteryPercentage != null ? "${tracker.batteryPercentage}%" : "Unknown"),
+          ],
+        ),
+      ),
+    ]);
   }
 
   void onLearnButton(int trackerID) {
