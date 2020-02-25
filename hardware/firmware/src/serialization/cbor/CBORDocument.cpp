@@ -39,6 +39,10 @@ void CBORDocument::write_int(int64_t value) {
   m_cbor.writeInt(value);
 }
 
+void CBORDocument::write_bool(bool value) {
+  m_cbor.writeBoolean(value);
+}
+
 uint8_t* CBORDocument::bytes() {
   return m_buffer.data();
 }
