@@ -69,3 +69,10 @@ const char* Command::getTypeString() const {
       return "INVALID";
   }
 }
+
+void Command::print() const {
+  log("Command is ");
+  log(getTypeString());
+  log(" and sleep time in seconds is ");
+  logln(getSleepTimeInSeconds());
+}

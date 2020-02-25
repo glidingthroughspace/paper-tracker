@@ -15,15 +15,15 @@ void Client::set_callback(Callback c) {
   resp = c;
 }
 
-uint16_t Client::get(IPAddress ip, const char* url, std::vector<const char*> queryParameters) {
+uint16_t Client::get(IPAddress ip, const char* url, std::vector<char*> queryParameters) {
   return send(ip, Method::GET, url, queryParameters);
 }
 
-uint16_t Client::post(IPAddress ip, const char *url, std::vector<const char*> queryParameters, std::vector<uint8_t> payload, ContentType content_type) {
+uint16_t Client::post(IPAddress ip, const char *url, std::vector<char*> queryParameters, std::vector<uint8_t> payload, ContentType content_type) {
   return send(ip, Method::POST, url, queryParameters, payload, content_type);
 }
 
-uint16_t Client::send(IPAddress ip, Method method, const char* url, std::vector<const char*> queryParameters, std::vector<uint8_t> payload, ContentType content_type) {
+uint16_t Client::send(IPAddress ip, Method method, const char* url, std::vector<char*> queryParameters, std::vector<uint8_t> payload, ContentType content_type) {
 
   // Packet intitialization
   Packet packet;

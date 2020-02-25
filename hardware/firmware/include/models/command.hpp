@@ -14,8 +14,8 @@ enum class CommandType {
 
 class Command {
   private:
-    CBORUint16 sleepTimeSec{"SleepTimeSec"};
-    CBORUint8 type{"Command"};
+    CBORUint16 sleepTimeSec{"sleep_time_sec"};
+    CBORUint8 type{"command"};
     bool isValidType(uint8_t type) const { return (type <= 2); }
     bool parseType(CBORParser&);
   public:
@@ -25,4 +25,5 @@ class Command {
     uint16_t getSleepTimeInSeconds() const;
     CommandType getType() const;
     const char* getTypeString() const;
+    void print() const;
 };

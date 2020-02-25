@@ -22,6 +22,7 @@ class CBORParser {
     bool readUnsignedInt(uint8_t& target);
     bool readInt(int64_t& target);
     bool readInt(int32_t& target);
+    bool readInt(int16_t& target);
     bool readCString(char* target, size_t& target_length);
     bool readString(String& target);
   private:
