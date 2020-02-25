@@ -1,7 +1,7 @@
 {
 	"_type": "export",
 	"__export_format": 4,
-	"__export_date": "2020-02-24T13:40:09.564Z",
+	"__export_date": "2020-02-25T05:22:15.870Z",
 	"__export_source": "insomnia.desktop.app:v7.1.1",
 	"resources": [
 		{
@@ -344,6 +344,61 @@
 			"name": "Tracker",
 			"parentId": "wrk_ae044d20be6d4e04afd7886eaea7cdd4",
 			"_type": "request_group"
+		},
+		{
+			"_id": "req_e7aac4bda8b3412c838d8285d615278b",
+			"authentication": {},
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n\t\"label\": \"New Tracker Name\"\n}"
+			},
+			"created": 1582555759849,
+			"description": "",
+			"headers": [
+				{
+					"id": "pair_5d467439c5834a4897a9d82debdc3f26",
+					"name": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"isPrivate": false,
+			"metaSortKey": -1581249171515.5,
+			"method": "PUT",
+			"modified": 1582555781256,
+			"name": "Tracker Update",
+			"parameters": [],
+			"parentId": "fld_92d4a18e79224c19bacfb6507fec12a7",
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingFollowRedirects": "global",
+			"settingRebuildPath": true,
+			"settingSendCookies": true,
+			"settingStoreCookies": true,
+			"url": "{{ base_url  }}/tracker/1",
+			"_type": "request"
+		},
+		{
+			"_id": "req_f18834221f194b8ba8b9c4f6ca7f079b",
+			"authentication": {},
+			"body": {},
+			"created": 1582555790347,
+			"description": "",
+			"headers": [],
+			"isPrivate": false,
+			"metaSortKey": -1581249171509.25,
+			"method": "DELETE",
+			"modified": 1582555798512,
+			"name": "Tracker Delete",
+			"parameters": [],
+			"parentId": "fld_92d4a18e79224c19bacfb6507fec12a7",
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingFollowRedirects": "global",
+			"settingRebuildPath": true,
+			"settingSendCookies": true,
+			"settingStoreCookies": true,
+			"url": "{{ base_url  }}/tracker/1",
+			"_type": "request"
 		},
 		{
 			"_id": "env_5f50bd84484965d6738941ef2d38e90ee6bd7812",
