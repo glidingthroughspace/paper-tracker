@@ -84,7 +84,7 @@ void sendScanResultsInChunks(std::vector<ScanResult>& scanResults) {
     auto end = (i + batchSize > scanResults.size()) ? scanResults.end() : scanResults.begin() + i + batchSize;
     std::vector<ScanResult> batch(begin, end);
 
-    TrackerResponse trackerResponse{100, batch};
+    TrackerResponse trackerResponse{Power::get_battery_percentage(), batch};
     CBORDocument cborDocument;
     trackerResponse.toCBOR(cborDocument);
     apiClient.writeTrackingData(Storage::get(Storage::TRACKER_ID), cborDocument.serialize(), [] () {
