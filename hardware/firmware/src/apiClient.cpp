@@ -95,15 +95,6 @@ void ApiClient::coap_response_callback(coap::Packet& packet, IPAddress ip, int p
   p[packet.payload.size()] = '\0';
   logln(p);
 
-#if 1
-  Serial.println();
-  for (auto c : packet.payload) {
-    Serial.print(c);
-    Serial.print(" ");
-  }
-  Serial.println();
-#endif
-
   auto it = callbacks.find(packet.messageid);
   if (it == callbacks.end()) {
     log("No callback registered for message with ID ");
