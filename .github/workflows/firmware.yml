@@ -1,0 +1,27 @@
+name: Firmware
+on:
+  pull_request:
+  push:
+    paths: hardware/firmware/**
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Get PlatformIO
+      run: |
+        wget https://raw.githubusercontent.com/platformio/platformio/develop/scripts/get-platformio.py
+        python get-platformio.py
+    - name: Build
+      run: |
+        cp include/credentials.example.hpp include/credentials.hpp
+        make
+      working-directory: ./hardware/firmware
+
+# FIXME: The unit tests currently don't work on the desktop platform.
+# They do however run on actual hardware, which of course is not testable in CI
+#    - name: Test
+#      run: make test-desktop
+#      working-directory: ./server
