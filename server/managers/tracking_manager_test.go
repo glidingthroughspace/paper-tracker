@@ -47,6 +47,26 @@ var _ = Describe("TrackingManager", func() {
 		})
 	})
 
+	Context("Test getMin", func() {
+		It("Returns the number if only one is given", func() {
+			Expect(getMin(1)).To(Equal(1))
+		})
+
+		It("Returns the minumum of multiple numbers", func() {
+			Expect(getMin(1, 3, 4, -23, 21)).To(Equal(-23))
+		})
+	})
+
+	Context("Test getMax", func() {
+		It("Returns the number if only one is given", func() {
+			Expect(getMax(1)).To(Equal(1))
+		})
+
+		It("Returns the maximum of multiple numbers", func() {
+			Expect(getMax(1, 3, 4, -23, 21)).To(Equal(21))
+		})
+	})
+
 	Context("Test ConsolidateScanResults", func() {
 		It("Consolidates ScanResults for a single BSSID", func() {
 			rssis := []int{-31, -12, -80, -99}
@@ -68,7 +88,7 @@ var _ = Describe("TrackingManager", func() {
 				{BSSID: "EE:DD:CC:BB:AA", Minimum: getMin(rssis2...), Maximum: getMax(rssis2...), Median: getMedian(rssis2...), Mean: getMean(rssis2...)},
 			}
 
-			Expect(manager.ConsolidateScanResults(append(scanResults1, scanResults2...))).To(Equal(expected))
+			Expect(manager.ConsolidateScanResults(append(scanResults1, scanResults2...))).Should(ConsistOf(expected))
 		})
 	})
 })
