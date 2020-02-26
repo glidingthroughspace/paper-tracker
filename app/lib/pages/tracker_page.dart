@@ -51,7 +51,7 @@ class _TrackerPageState extends State<TrackerPage> {
           iconData: Tracker.IconData,
           bottomButtons: buildBottomButtons(tracker),
           content: content,
-          onRefresh: () async => print("Tracker Refresh"),
+          onRefresh: refreshTracker,
         );
       },
     );
@@ -199,8 +199,8 @@ class _TrackerPageState extends State<TrackerPage> {
     }
     setState(() {
       isEditing = edit;
-      futureTracker = trackerClient.getTrackerByID(tracker.id, refresh: true);
     });
+    refreshTracker();
   }
 
   void delete(Tracker tracker) async {
@@ -211,8 +211,13 @@ class _TrackerPageState extends State<TrackerPage> {
 
   void onLearnCancelButton(int trackerID) async {
     await trackerClient.cancelLearning(trackerID);
+    refreshTracker();
+  }
+
+  Future<void> refreshTracker() async {
     setState(() {
       futureTracker = trackerClient.getTrackerByID(trackerID, refresh: true);
+      futureTracker.then((tracker) => labelEditController.text = tracker.label);
     });
   }
 }

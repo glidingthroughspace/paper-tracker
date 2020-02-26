@@ -47,7 +47,7 @@ class _RoomPageState extends State<RoomPage> {
           iconData: Room.IconData,
           bottomButtons: buildBottomButtons(room),
           content: content,
-          onRefresh: () async => print("Refresh!"),
+          onRefresh: refreshRoom,
         );
       },
     );
@@ -117,13 +117,20 @@ class _RoomPageState extends State<RoomPage> {
     }
     setState(() {
       isEditing = edit;
-      futureRoom = roomClient.getRoomByID(room.id, refresh: true);
     });
+    refreshRoom();
   }
 
   void delete(Room room) async {
     await roomClient.deleteRoom(room.id);
     await roomClient.getAllRooms(refresh: true);
     Navigator.of(context).pop();
+  }
+
+  Future<void> refreshRoom() async {
+    setState(() {
+      futureRoom = roomClient.getRoomByID(roomID, refresh: true);
+      futureRoom.then((room) => labelEditController.text = room.label);
+    });
   }
 }

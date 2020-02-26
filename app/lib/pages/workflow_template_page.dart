@@ -16,21 +16,27 @@ class WorkflowTemplatePage extends StatefulWidget {
 }
 
 class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
-  var workflowClient = WorkflowTemplateClient();
+  var templateClient = WorkflowTemplateClient();
   var roomClient = RoomClient();
 
-  int workflowID;
   var stepLabelEditController = TextEditingController();
   var stepDecisionLabelEditController = TextEditingController();
   var roomDropdownController = DropdownController();
+  int templateID;
+  Future<WorkflowTemplate> futureTemplate;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    templateID = ModalRoute.of(context).settings.arguments;
+    futureTemplate = templateClient.getTemplateByID(templateID);
+    //futureWorkflow.then((template) => labelEditController.text = template.label);
+  }
 
   @override
   Widget build(BuildContext context) {
-    workflowID = ModalRoute.of(context).settings.arguments;
-    var futureWorkflow = workflowClient.getTemplateByID(workflowID);
-
     return FutureBuilder(
-      future: futureWorkflow,
+      future: futureTemplate,
       builder: (context, snapshot) {
         WorkflowTemplate workflow = snapshot.data;
 
@@ -39,6 +45,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
           iconData: WorkflowTemplate.IconData,
           bottomButtons: [],
           content: workflow != null ? buildContent(workflow) : Container(),
+          onRefresh: refreshTemplate,
         );
       },
     );
@@ -51,6 +58,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
         steps: workflow.steps,
         roomClient: roomClient,
         onStepAdd: onAddStep,
+        primaryScroll: false,
       ),
     );
   }
@@ -134,17 +142,24 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
           roomID: roomDropdownController.selectedItem.id,
         ),
       );
-      await workflowClient.addStep(workflowID, createStepRequest);
+      await templateClient.addStep(templateID, createStepRequest);
     } else {
       var step = WFStep(
         label: stepLabelEditController.text,
         roomID: roomDropdownController.selectedItem.id,
       );
-      await workflowClient.addStartStep(workflowID, step);
+      await templateClient.addStartStep(templateID, step);
     }
-    await workflowClient.getAllTemplates(refresh: true);
+    await templateClient.getAllTemplates(refresh: true);
 
     setState(() {});
     Navigator.of(context).pop();
+  }
+
+  Future<void> refreshTemplate() async {
+    setState(() {
+      futureTemplate = templateClient.getTemplateByID(templateID, refresh: true);
+      //futureWorkflow.then((template) => labelEditController.text = template.label);
+    });
   }
 }

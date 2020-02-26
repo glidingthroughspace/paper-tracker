@@ -15,15 +15,13 @@ class DetailContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var scrollConfigChild = SingleChildScrollView(
+    var scrollConfigChild = CustomScrollView(
       physics: AlwaysScrollableScrollPhysics(),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [buildTopContent(context), Flexible(fit: FlexFit.loose, child: content)],
+      slivers: [
+        SliverList(
+          delegate: SliverChildListDelegate([buildTopContent(context), content]),
         ),
-      ),
+      ],
     );
 
     return Scaffold(
