@@ -27,7 +27,6 @@ class _TrackerPageState extends State<TrackerPage> {
 
   @override
   void didChangeDependencies() {
-    print("change dependencies");
     super.didChangeDependencies();
     trackerID = ModalRoute.of(context).settings.arguments;
     futureTracker = trackerClient.getTrackerByID(trackerID);
@@ -36,7 +35,6 @@ class _TrackerPageState extends State<TrackerPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("future: $futureTracker");
     return FutureBuilder(
       future: futureTracker,
       builder: (context, snapshot) {
@@ -53,6 +51,7 @@ class _TrackerPageState extends State<TrackerPage> {
           iconData: Tracker.IconData,
           bottomButtons: buildBottomButtons(tracker),
           content: content,
+          onRefresh: refreshTracker,
         );
       },
     );
@@ -197,9 +196,11 @@ class _TrackerPageState extends State<TrackerPage> {
     if (edit == false && tracker != null) {
       tracker.label = labelEditController.text;
       await trackerClient.updateTracker(tracker);
-      await trackerClient.getAllTrackers(refresh: true);
     }
-    setState(() => isEditing = edit);
+    setState(() {
+      isEditing = edit;
+    });
+    refreshTracker();
   }
 
   void delete(Tracker tracker) async {
@@ -210,8 +211,13 @@ class _TrackerPageState extends State<TrackerPage> {
 
   void onLearnCancelButton(int trackerID) async {
     await trackerClient.cancelLearning(trackerID);
+    refreshTracker();
+  }
+
+  Future<void> refreshTracker() async {
     setState(() {
       futureTracker = trackerClient.getTrackerByID(trackerID, refresh: true);
+      futureTracker.then((tracker) => labelEditController.text = tracker.label);
     });
   }
 }

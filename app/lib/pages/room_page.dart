@@ -31,8 +31,6 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   Widget build(BuildContext context) {
-    futureRoom = roomClient.getRoomByID(roomID);
-
     return FutureBuilder(
       future: futureRoom,
       builder: (context, snapshot) {
@@ -49,6 +47,7 @@ class _RoomPageState extends State<RoomPage> {
           iconData: Room.IconData,
           bottomButtons: buildBottomButtons(room),
           content: content,
+          onRefresh: refreshRoom,
         );
       },
     );
@@ -115,14 +114,23 @@ class _RoomPageState extends State<RoomPage> {
     if (edit == false && room != null) {
       room.label = labelEditController.text;
       await roomClient.updateRoom(room);
-      await roomClient.getAllRooms(refresh: true);
     }
-    setState(() => isEditing = edit);
+    setState(() {
+      isEditing = edit;
+    });
+    refreshRoom();
   }
 
   void delete(Room room) async {
     await roomClient.deleteRoom(room.id);
     await roomClient.getAllRooms(refresh: true);
     Navigator.of(context).pop();
+  }
+
+  Future<void> refreshRoom() async {
+    setState(() {
+      futureRoom = roomClient.getRoomByID(roomID, refresh: true);
+      futureRoom.then((room) => labelEditController.text = room.label);
+    });
   }
 }
