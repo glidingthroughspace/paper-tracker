@@ -21,6 +21,7 @@ func (r *HttpRouter) buildAppTrackerAPIRoutes() {
 	trackerLearn.POST("/start", r.trackerLearnStartHandler())
 	trackerLearn.GET("/status", r.trackerLearnStatusHandler())
 	trackerLearn.POST("/finish", r.trackerLearnFinishHandler())
+	trackerLearn.POST("/cancel", r.trackerLearnCancelHandler())
 
 }
 
@@ -114,9 +115,22 @@ func (r *HttpRouter) trackerLearnFinishHandler() gin.HandlerFunc {
 
 		err = managers.GetLearningManager().FinishLearning(trackerID, req.RoomID, req.SSIDs)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("TrackerLearnFinish request failed")
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			return
+		}
+		ctx.Status(http.StatusOK)
+	}
+}
+
+func (r *HttpRouter) trackerLearnCancelHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		trackerID := models.TrackerID(ctx.GetInt(httpParamIDName))
+
+		err := managers.GetLearningManager().CancelLearning(trackerID)
+		if err != nil {
+			log.WithField("err", err).Warn("TrackerLearnCancel request failed")
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 		}
 		ctx.Status(http.StatusOK)
 	}

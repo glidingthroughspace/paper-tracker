@@ -71,16 +71,21 @@ func (mgr *LearningManager) learningRoutine(trackerID models.TrackerID, logger *
 		return
 	}
 
-	mgr.learningCreateTrackingCmds(trackerID, logger)
+	canceled := mgr.learningCreateTrackingCmds(trackerID, logger)
 
-	logger.Info("Set tracker status to learning finished")
-	err = GetTrackerManager().SetTrackerStatus(trackerID, models.StatusLearningFinished)
-	if err != nil {
-		return
+	if !canceled {
+		logger.Info("Set tracker status to learning finished")
+		err = GetTrackerManager().SetTrackerStatus(trackerID, models.StatusLearningFinished)
+		if err != nil {
+			return
+		}
+	} else {
+		logger.Info("Tracker learning got canceled")
 	}
 }
 
-func (mgr *LearningManager) learningCreateTrackingCmds(trackerID models.TrackerID, logger *log.Entry) {
+// Returns whether the learning was canceled
+func (mgr *LearningManager) learningCreateTrackingCmds(trackerID models.TrackerID, logger *log.Entry) bool {
 	logger.Info("Start creating tracking commands")
 
 	trackCmd := &models.Command{
@@ -90,41 +95,19 @@ func (mgr *LearningManager) learningCreateTrackingCmds(trackerID models.TrackerI
 	}
 
 	for it := 0; it < mgr.learnCount; it++ {
+		tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
+		if err == nil && tracker.Status != models.StatusLearning {
+			return true
+		}
+
 		trackCmd.ID = 0
 		GetTrackerManager().AddTrackerCommand(trackCmd)
 
 		time.Sleep(time.Duration(mgr.sleepBetweenLearnSec-1) * time.Second)
 	}
 	logger.Info("Finished creating tracking commands")
-}
 
-func (mgr *LearningManager) NewTrackingData(trackerID models.TrackerID, scanRes []*models.ScanResult) (err error) {
-	trackingDataLog := log.WithField("trackerID", trackerID)
-
-	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
-	if err != nil {
-		trackingDataLog.WithField("err", err).Error("Failed to get tracker with tracker ID")
-		return
-	}
-
-	switch tracker.Status {
-	case models.StatusIdle, models.StatusLearningFinished:
-		err = errors.New("No tracking data expected")
-		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unexpected tracking data")
-	case models.StatusLearning:
-		err = mgr.newLearningTrackingData(trackerID, scanRes)
-	case models.StatusTracking:
-		err = errors.New("Not implemented yes") //TODO
-	default:
-		err = errors.New("Unknown tracker status")
-		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unknown tracker status")
-	}
-
-	if err != nil {
-		log.Error(err)
-	}
-
-	return
+	return false
 }
 
 func (mgr *LearningManager) newLearningTrackingData(trackerID models.TrackerID, scanRes []*models.ScanResult) (err error) {
@@ -211,5 +194,16 @@ func (mgr *LearningManager) GetLearningStatus(trackerID models.TrackerID) (done 
 		it++
 	}
 
+	return
+}
+
+func (mgr *LearningManager) CancelLearning(trackerID models.TrackerID) (err error) {
+	cancelLearningLog := log.WithField("trackerID", trackerID)
+
+	err = GetTrackerManager().SetTrackerStatus(trackerID, models.StatusIdle)
+	if err != nil {
+		cancelLearningLog.WithField("err", err).Error("Failed to set tracker status to idle while canceling learning - ignore for now")
+		err = nil
+	}
 	return
 }

@@ -9,7 +9,7 @@ type Tracker struct {
 	Label             string        `json:"label" codec:"-"`
 	LastPoll          time.Time     `json:"last_poll" codec:"-"`
 	LastSleepTime     time.Time     `json:"last_sleep_time" codec:"-"`
-	LastLocation      *Room         `json:"last_location" codec:"-"`
+	LastRoom          RoomID        `json:"last_room" codec:"-"`
 	Status            TrackerStatus `json:"status" codec:"-"`
 	BatteryPercentage int           `json:"battery_percentage" codec:"-"`
 	IsCharging        bool          `json:"is_charging" codec:"-"`
