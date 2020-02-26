@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/api_client.dart';
 import 'package:paper_tracker/config.dart';
 import 'package:paper_tracker/pages/main_page.dart';
+import 'package:paper_tracker/widgets/dialogs/confirm_icon_text_dialog.dart';
+import 'package:paper_tracker/widgets/dialogs/waiting_text_dialog.dart';
 
 class ConfigPage extends StatefulWidget {
   static const Route = "/config";
@@ -15,27 +17,7 @@ class _ConfigPageState extends State<ConfigPage> {
   final config = Config();
 
   void onSubmit() async {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return WillPopScope(
-          onWillPop: () async => false,
-          child: SimpleDialog(children: [
-            Center(
-              child: Column(children: [
-                CircularProgressIndicator(),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  "Connecting to server...",
-                )
-              ]),
-            )
-          ]),
-        );
-      },
-    );
+    showDialog(context: context, child: WaitingTextDialog(text: "Connecting to server..."));
 
     await config.setServerURL(urlEditController.text);
     var serverAvailable = await APIClient().isAvailable();
@@ -46,22 +28,7 @@ class _ConfigPageState extends State<ConfigPage> {
       Navigator.of(context).pushReplacementNamed(MainPage.Route);
     } else {
       return showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Row(children: [
-                Icon(Icons.warning),
-                Padding(padding: EdgeInsets.only(left: 10.0)),
-                Text("Server not available"),
-              ]),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text("OK"),
-                  onPressed: () => Navigator.of(context).pop(),
-                )
-              ],
-            );
-          });
+          context: context, child: ConfirmIconTextDialog(text: "Server not available", icon: Icons.warning));
     }
   }
 

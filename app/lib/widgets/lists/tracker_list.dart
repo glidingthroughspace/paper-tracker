@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:paper_tracker/client/tracker_client.dart';
+import 'package:paper_tracker/model/tracker.dart';
 import 'package:paper_tracker/pages/tracker_page.dart';
 import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:tuple/tuple.dart';
-
-import '../../client/tracker_client.dart';
-import '../../model/tracker.dart';
 
 class TrackerList extends StatefulWidget {
   TrackerList({Key key}) : super(key: key);

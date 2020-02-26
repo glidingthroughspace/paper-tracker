@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/workflow_exec_client.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/pages/start_exec_page.dart';
+import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:tuple/tuple.dart';
-
-import '../card_list.dart';
 
 class WorkflowExecList extends StatefulWidget {
   @override
