@@ -18,6 +18,9 @@ var _ = Describe("TrackerManager", func() {
 		mockCtrl       *gomock.Controller
 		manager        *TrackerManager
 
+		trackerIdle             *models.Tracker
+		trackerLearningFinished *models.Tracker
+
 		recordNotFoundErr = errors.New("record not found")
 		testErr           = errors.New("error")
 	)
@@ -34,6 +37,9 @@ var _ = Describe("TrackerManager", func() {
 		mockTrackerRep = mock.NewMockTrackerRepository(mockCtrl)
 		mockCommandRep = mock.NewMockCommandRepository(mockCtrl)
 		manager = CreateTrackerManager(mockTrackerRep, mockCommandRep, sleepTimeSec)
+
+		trackerIdle = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusIdle}
+		trackerLearningFinished = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearningFinished}
 
 		gormNotFound := func(err error) bool {
 			return err == recordNotFoundErr
@@ -130,6 +136,18 @@ var _ = Describe("TrackerManager", func() {
 		It("AddTrackerCommand should return db error", func() {
 			mockCommandRep.EXPECT().Create(cmd).Return(testErr).Times(1)
 			Expect(manager.AddTrackerCommand(cmd)).To(MatchError(testErr))
+		})
+	})
+
+	Context("Test NewTrackingData", func() {
+		It("NewTrackingData throws error for tracker with status LearningFinished", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
+			Expect(manager.NewTrackingData(id, nil)).To(HaveOccurred())
+		})
+
+		It("NewTrackingData throws error for tracker with status Idle", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
+			Expect(manager.NewTrackingData(id, nil)).To(HaveOccurred())
 		})
 	})
 })
