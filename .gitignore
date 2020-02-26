@@ -371,3 +371,4 @@ credentials.h*
 # Lock files for libreoffice
 .~lock.*
 .ccls
+compile_commands.json
