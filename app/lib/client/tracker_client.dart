@@ -27,7 +27,7 @@ class TrackerClient {
 
   Future<Tracker> getTrackerByID(int id, {bool refresh = false}) async {
     if (futureTrackers == null || refresh) {
-      getAllTrackers(refresh: true);
+      await getAllTrackers(refresh: true);
     }
 
     var rooms = await futureTrackers;
@@ -60,6 +60,10 @@ class TrackerClient {
     } else {
       throw Exception("Failed to finish learning");
     }
+  }
+
+  Future<void> cancelLearning(int trackerID) async {
+    return apiClient.post("/tracker/$trackerID/learn/cancel", null);
   }
 
   Future<void> updateTracker(Tracker tracker) async {

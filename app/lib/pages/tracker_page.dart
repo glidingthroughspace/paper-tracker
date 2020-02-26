@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/tracker_client.dart';
+import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/model/tracker.dart';
 import 'package:paper_tracker/utils.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
@@ -18,12 +20,14 @@ class TrackerPage extends StatefulWidget {
 class _TrackerPageState extends State<TrackerPage> {
   var isEditing = false;
   var trackerClient = TrackerClient();
+  var roomClient = RoomClient();
   var labelEditController = TextEditingController();
   int trackerID;
   Future<Tracker> futureTracker;
 
   @override
   void didChangeDependencies() {
+    print("change dependencies");
     super.didChangeDependencies();
     trackerID = ModalRoute.of(context).settings.arguments;
     futureTracker = trackerClient.getTrackerByID(trackerID);
@@ -32,6 +36,7 @@ class _TrackerPageState extends State<TrackerPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("future: $futureTracker");
     return FutureBuilder(
       future: futureTracker,
       builder: (context, snapshot) {
@@ -62,11 +67,14 @@ class _TrackerPageState extends State<TrackerPage> {
         children: [
           buildLabelRow(),
           getTableSpacing(10.0),
+          buildRoomRow(tracker),
+          getTableSpacing(10.0),
           buildBatteryRow(tracker),
           getTableSpacing(10.0),
           buildStatusRow(tracker),
           getTableSpacing(10.0),
           buildLearnRow(tracker),
+          getTableSpacing(10.0),
         ],
       ),
     );
@@ -78,13 +86,22 @@ class _TrackerPageState extends State<TrackerPage> {
         TableCell(child: Label("Learn Room: ")),
         TableCell(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               MaterialButton(
                 child: Text("Learn"),
                 onPressed: tracker.status == TrackerStatus.Idle ? () => onLearnButton(tracker.id) : null,
                 color: Theme.of(context).accentColor,
+                disabledColor: Theme.of(context).cardColor,
               ),
+              MaterialButton(
+                child: Text("Cancel Learning"),
+                onPressed: tracker.status == TrackerStatus.Learning || tracker.status == TrackerStatus.LearningFinished
+                    ? () => onLearnCancelButton(tracker.id)
+                    : null,
+                color: Theme.of(context).accentColor,
+                disabledColor: Theme.of(context).cardColor,
+              )
             ],
           ),
         ),
@@ -135,6 +152,23 @@ class _TrackerPageState extends State<TrackerPage> {
     ]);
   }
 
+  TableRow buildRoomRow(Tracker tracker) {
+    return TableRow(children: [
+      TableCell(child: Label("Last room: ")),
+      TableCell(
+          child: FutureBuilder(
+        future: roomClient.getRoomByID(tracker.lastRoom),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            Room room = snapshot.data;
+            return Label(room.label);
+          }
+          return Label("Unknown");
+        },
+      )),
+    ]);
+  }
+
   void onLearnButton(int trackerID) {
     Navigator.of(context).pushNamed(LearningPage.Route, arguments: LearningPageParams(trackerID: trackerID));
   }
@@ -172,5 +206,12 @@ class _TrackerPageState extends State<TrackerPage> {
     await trackerClient.deleteTracker(tracker.id);
     await trackerClient.getAllTrackers(refresh: true);
     Navigator.of(context).pop();
+  }
+
+  void onLearnCancelButton(int trackerID) async {
+    await trackerClient.cancelLearning(trackerID);
+    setState(() {
+      futureTracker = trackerClient.getTrackerByID(trackerID, refresh: true);
+    });
   }
 }
