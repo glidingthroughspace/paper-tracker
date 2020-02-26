@@ -16,6 +16,12 @@ class _CountdownTimerState extends State<CountdownTimer> with SingleTickerProvid
   Animation<double> animation;
 
   @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     controller = AnimationController(
@@ -46,7 +52,6 @@ class _AnimatedCountdownTimer extends AnimatedWidget {
 
   _AnimatedCountdownTimer({Key key, Animation<double> animation, this.backgroundColor, this.color, this.duration})
       : super(key: key, listenable: animation);
-
 
   String get countdownString {
     final animation = listenable as Animation<double>;

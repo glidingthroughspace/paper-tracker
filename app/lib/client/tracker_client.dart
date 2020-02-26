@@ -62,6 +62,10 @@ class TrackerClient {
     }
   }
 
+  Future<void> cancelLearning(int trackerID) async {
+    return apiClient.post("/tracker/$trackerID/learn/cancel", null);
+  }
+
   Future<void> updateTracker(Tracker tracker) async {
     return apiClient.put("/tracker/${tracker.id}", json.encode(tracker.toJson()));
   }
