@@ -11,8 +11,8 @@ type Tracker struct {
 	LastSleepTime     time.Time     `json:"last_sleep_time" codec:"-"`
 	LastLocation      *Room         `json:"last_location" codec:"-"`
 	Status            TrackerStatus `json:"status" codec:"-"`
-	BatteryPercentage int           `json:"battery_percentage"`
-	IsCharging        bool          `json:"is_charging"`
+	BatteryPercentage int           `json:"battery_percentage" codec:"-"`
+	IsCharging        bool          `json:"is_charging" codec:"-"`
 }
 
 type TrackerStatus int8
