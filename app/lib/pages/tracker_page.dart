@@ -210,7 +210,6 @@ class _TrackerPageState extends State<TrackerPage> {
 
   void onLearnCancelButton(int trackerID) async {
     await trackerClient.cancelLearning(trackerID);
-    await trackerClient.getAllTrackers(refresh: true);
     setState(() {
       futureTracker = trackerClient.getTrackerByID(trackerID, refresh: true);
     });

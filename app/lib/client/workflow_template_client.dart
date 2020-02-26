@@ -26,7 +26,7 @@ class WorkflowTemplateClient {
 
   Future<WorkflowTemplate> getTemplateByID(int id, {bool refresh = false}) async {
     if (futureTemplates == null || refresh) {
-      getAllTemplates(refresh: true);
+      await getAllTemplates(refresh: true);
     }
 
     var templates = await futureTemplates;

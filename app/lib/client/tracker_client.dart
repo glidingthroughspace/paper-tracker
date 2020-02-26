@@ -27,7 +27,7 @@ class TrackerClient {
 
   Future<Tracker> getTrackerByID(int id, {bool refresh = false}) async {
     if (futureTrackers == null || refresh) {
-      getAllTrackers(refresh: true);
+      await getAllTrackers(refresh: true);
     }
 
     var rooms = await futureTrackers;
