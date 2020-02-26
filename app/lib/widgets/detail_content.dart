@@ -8,20 +8,28 @@ class DetailContent extends StatelessWidget {
   final Widget content;
   final List<Widget> bottomButtons;
   final bool disableBackNav;
+  final Future<void> Function() onRefresh;
 
-  DetailContent({this.iconData, this.title, this.content, this.bottomButtons, this.disableBackNav = false});
+  DetailContent(
+      {this.iconData, this.title, this.content, this.bottomButtons, this.disableBackNav = false, this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
+    var scrollConfigChild = SingleChildScrollView(
+      physics: AlwaysScrollableScrollPhysics(),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [buildTopContent(context), Flexible(fit: FlexFit.loose, child: content)],
+        ),
+      ),
+    );
+
     return Scaffold(
       body: ScrollConfiguration(
         behavior: NoGlowScrollBehavior(),
-        child: SingleChildScrollView(
-          physics: ClampingScrollPhysics(),
-          child: Column(
-            children: [buildTopContent(context), content],
-          ),
-        ),
+        child: onRefresh != null ? RefreshIndicator(onRefresh: onRefresh, child: scrollConfigChild) : scrollConfigChild,
       ),
       bottomNavigationBar: ConditionalBuilder(
         conditional: bottomButtons != null,
