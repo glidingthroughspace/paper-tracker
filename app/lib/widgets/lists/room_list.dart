@@ -25,7 +25,7 @@ class _RoomListState extends State<RoomList> {
             List<Room> roomList = snapshot.data;
             Map<String, Room> titleObjectMap =
                 Map.fromIterable(roomList, key: (room) => room.label, value: (room) => room);
-            var dataList = roomList.map((room) => CardListData(room.label, room.isLearned.toString(), room)).toList();
+            var dataList = roomList.map((room) => CardListData(room.label, buildSubtitle(room), room)).toList();
 
             return Scaffold(
               body: CardList<Room>(
@@ -73,5 +73,12 @@ class _RoomListState extends State<RoomList> {
 
   void onTapRoom(Room room) async {
     await Navigator.of(context).pushNamed(RoomPage.Route, arguments: room.id);
+  }
+
+  List<Widget> buildSubtitle(Room room) {
+    return [
+      Text("Learned:"),
+      Icon(room.isLearned ? Icons.check : Icons.close, color: Colors.grey, size: 20.0),
+    ];
   }
 }

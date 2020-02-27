@@ -8,6 +8,7 @@ class ListCard<T> extends StatelessWidget {
   final void Function(T) onTap;
   final double verticalPadding;
   final int indentationFactor;
+  final Color color;
 
   const ListCard(
       {Key key,
@@ -17,7 +18,8 @@ class ListCard<T> extends StatelessWidget {
       this.object,
       this.onTap,
       this.verticalPadding = 0.0,
-      this.indentationFactor = 0})
+      this.indentationFactor = 0,
+      this.color})
       : super(key: key);
 
   @override
@@ -26,7 +28,7 @@ class ListCard<T> extends StatelessWidget {
       elevation: 8.0,
       margin: EdgeInsets.only(left: 10.0 * (indentationFactor + 1), right: 10.0, top: 6.0, bottom: 6.0),
       child: Container(
-        decoration: BoxDecoration(color: Theme.of(context).cardColor),
+        decoration: BoxDecoration(color: color != null ? color : Theme.of(context).cardColor),
         child: ListTile(
           contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: verticalPadding),
           title: title,
@@ -41,10 +43,11 @@ class ListCard<T> extends StatelessWidget {
 
 class CardListData<T> {
   final String title;
-  final String subtitle;
+  final List<Widget> subtitle;
   final T object;
+  final Color color;
 
-  CardListData(this.title, this.subtitle, this.object);
+  CardListData(this.title, this.subtitle, this.object, {this.color});
 }
 
 class CardList<T> extends StatelessWidget {
@@ -52,8 +55,14 @@ class CardList<T> extends StatelessWidget {
   final void Function(T) onTap;
   final Future<void> Function() onRefresh;
   final IconData iconData;
+  final bool subtitleColum;
 
-  CardList({@required this.dataList, @required this.onTap, @required this.iconData, @required this.onRefresh});
+  CardList(
+      {@required this.dataList,
+      @required this.onTap,
+      @required this.iconData,
+      @required this.onRefresh,
+      this.subtitleColum = false});
 
   @override
   Widget build(BuildContext context) {
@@ -65,12 +74,20 @@ class CardList<T> extends StatelessWidget {
     var listChildren = dataList
         .map(
           (data) => ListCard(
-              title: Text(data.title),
-              subtitle: data.subtitle != null ? Text(data.subtitle) : null,
-              trailing: icon,
-              object: data.object,
-              onTap: onTap,
-              verticalPadding: 10.0),
+            title: Text(data.title),
+            subtitle: data.subtitle != null
+                ? subtitleColum
+                    ? Column(
+                        children: [Padding(padding: EdgeInsets.only(top: 5.0)), ...data.subtitle],
+                        crossAxisAlignment: CrossAxisAlignment.start)
+                    : Row(children: data.subtitle)
+                : null,
+            trailing: icon,
+            object: data.object,
+            onTap: onTap,
+            verticalPadding: 10.0,
+            color: data.color,
+          ),
         )
         .toList();
     return RefreshIndicator(

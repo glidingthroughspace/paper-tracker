@@ -79,7 +79,7 @@ func (mgr *WorkflowManager) AddTemplateStep(prevStepID models.StepID, decisionLa
 		return
 	}
 
-	_, err = mgr.workflowRep.GetStepByID(prevStepID)
+	_, err = mgr.GetStepByID(prevStepID)
 	if mgr.workflowRep.IsRecordNotFoundError(err) {
 		addStepLog.WithField("err", err).Warn("Previous step not found to add step")
 		mgr.workflowRep.DeleteStep(step.ID)
@@ -150,7 +150,7 @@ func (mgr *WorkflowManager) getStepsFromStart(startStepID models.StepID, getLog 
 	currentStepID := startStepID
 
 	for currentStepID > 0 {
-		currentStep, err := mgr.workflowRep.GetStepByID(currentStepID)
+		currentStep, err := mgr.GetStepByID(currentStepID)
 		if mgr.workflowRep.IsRecordNotFoundError(err) {
 			getStepsFromStartLog.Warn("StartStep not found")
 			break
@@ -185,6 +185,15 @@ func (mgr *WorkflowManager) getStepsFromStart(startStepID models.StepID, getLog 
 		}
 	}
 
+	return
+}
+
+func (mgr *WorkflowManager) GetStepByID(stepID models.StepID) (step *models.Step, err error) {
+	step, err = mgr.workflowRep.GetStepByID(stepID)
+	if err != nil {
+		log.WithFields(log.Fields{"stepID": stepID, "err": err}).Warn("Failed to get step by ID")
+		return
+	}
 	return
 }
 

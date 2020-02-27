@@ -79,7 +79,7 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
       var buttonContents = List<Widget>.of(step.options.keys.map((label) => Text(label)));
       var isSelected = step.options.keys.map((label) => selectedDecisionMap[step.id] == label).toList();
 
-      if (step.options.length < 2) {
+      if (step.options.length < 2 && widget.onStepAdd != null) {
         buttonContents.add(Icon(Icons.add));
         isSelected.add(false);
       }

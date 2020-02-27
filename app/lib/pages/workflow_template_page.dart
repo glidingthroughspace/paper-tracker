@@ -99,7 +99,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
     }
     await templateClient.getAllTemplates(refresh: true);
 
-    setState(() {});
+    refreshTemplate();
     Navigator.of(context).pop();
   }
 

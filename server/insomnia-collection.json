@@ -1,7 +1,7 @@
 {
 	"_type": "export",
 	"__export_format": 4,
-	"__export_date": "2020-02-26T15:09:44.286Z",
+	"__export_date": "2020-02-27T13:04:57.410Z",
 	"__export_source": "insomnia.desktop.app:v7.1.1",
 	"resources": [
 		{
@@ -209,6 +209,29 @@
 			"settingSendCookies": true,
 			"settingStoreCookies": true,
 			"url": "{{ base_url  }}/workflow/template/1/step",
+			"_type": "request"
+		},
+		{
+			"_id": "req_e391ce8998d3453b9417a7ba04f5cac6",
+			"authentication": {},
+			"body": {},
+			"created": 1582808656479,
+			"description": "",
+			"headers": [],
+			"isPrivate": false,
+			"metaSortKey": -1581249171440.5,
+			"method": "GET",
+			"modified": 1582808668013,
+			"name": "Template Step Get",
+			"parameters": [],
+			"parentId": "fld_d1e30600ebf647039e55af471cb723b2",
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingFollowRedirects": "global",
+			"settingRebuildPath": true,
+			"settingSendCookies": true,
+			"settingStoreCookies": true,
+			"url": "{{ base_url  }}/workflow/template/1/step/1",
 			"_type": "request"
 		},
 		{
@@ -555,4 +578,4 @@
 			"_type": "environment"
 		}
 	]
-}
+}}
