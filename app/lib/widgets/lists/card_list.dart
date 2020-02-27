@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:tuple/tuple.dart';
 
 class ListCard<T> extends StatelessWidget {
-  final Widget content;
+  final Widget title;
+  final Widget subtitle;
   final Widget trailing;
   final T object;
   final void Function(T) onTap;
@@ -11,7 +11,8 @@ class ListCard<T> extends StatelessWidget {
 
   const ListCard(
       {Key key,
-      this.content,
+      this.title,
+      this.subtitle,
       this.trailing,
       this.object,
       this.onTap,
@@ -28,7 +29,8 @@ class ListCard<T> extends StatelessWidget {
         decoration: BoxDecoration(color: Theme.of(context).cardColor),
         child: ListTile(
           contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: verticalPadding),
-          title: content,
+          title: title,
+          subtitle: subtitle,
           trailing: trailing,
           onTap: onTap != null ? () => onTap(object) : null,
         ),
@@ -37,13 +39,21 @@ class ListCard<T> extends StatelessWidget {
   }
 }
 
+class CardListData<T> {
+  final String title;
+  final String subtitle;
+  final T object;
+
+  CardListData(this.title, this.subtitle, this.object);
+}
+
 class CardList<T> extends StatelessWidget {
-  final List<Tuple2<String, T>> titleObjectList;
+  final List<CardListData<T>> dataList;
   final void Function(T) onTap;
   final Future<void> Function() onRefresh;
   final IconData iconData;
 
-  CardList({@required this.titleObjectList, @required this.onTap, @required this.iconData, @required this.onRefresh});
+  CardList({@required this.dataList, @required this.onTap, @required this.iconData, @required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +62,15 @@ class CardList<T> extends StatelessWidget {
       color: Colors.white,
       size: 30.0,
     );
-    var listChildren = titleObjectList
+    var listChildren = dataList
         .map(
-          (tuple) => ListCard(
-              content: Text(tuple.item1), trailing: icon, object: tuple.item2, onTap: onTap, verticalPadding: 10.0),
+          (data) => ListCard(
+              title: Text(data.title),
+              subtitle: data.subtitle != null ? Text(data.subtitle) : null,
+              trailing: icon,
+              object: data.object,
+              onTap: onTap,
+              verticalPadding: 10.0),
         )
         .toList();
     return RefreshIndicator(

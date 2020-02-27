@@ -117,7 +117,7 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
     for (WFStep step in steps) {
       var nestedSteps = getNestedSteps(step);
 
-      listChildren.add(ListCard(content: buildContent(step), indentationFactor: indentation, verticalPadding: 5.0));
+      listChildren.add(ListCard(title: buildContent(step), indentationFactor: indentation, verticalPadding: 5.0));
 
       if (nestedSteps != null) {
         listChildren.addAll(getChildrenListFromSteps(nestedSteps, indentation + 1));
@@ -127,7 +127,7 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
     if (widget.onStepAdd != null) {
       listChildren.add(
         ListCard(
-          content: Center(child: Icon(Icons.add)),
+          title: Center(child: Icon(Icons.add)),
           object: steps.length > 0 ? steps.last : null,
           onTap: widget.onStepAdd,
           indentationFactor: indentation,

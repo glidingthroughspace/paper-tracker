@@ -48,10 +48,7 @@ class _CheckCardListState extends State<CheckCardList> {
         .map(
           (title, checked) => MapEntry(
               ListCard(
-                  content: Text(title),
-                  trailing: Checkbox(value: checked, onChanged: null),
-                  object: title,
-                  onTap: onTap),
+                  title: Text(title), trailing: Checkbox(value: checked, onChanged: null), object: title, onTap: onTap),
               null),
         )
         .keys

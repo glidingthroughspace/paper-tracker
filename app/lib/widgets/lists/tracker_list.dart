@@ -3,7 +3,6 @@ import 'package:paper_tracker/client/tracker_client.dart';
 import 'package:paper_tracker/model/tracker.dart';
 import 'package:paper_tracker/pages/tracker_page.dart';
 import 'package:paper_tracker/widgets/lists/card_list.dart';
-import 'package:tuple/tuple.dart';
 
 class TrackerList extends StatefulWidget {
   TrackerList({Key key}) : super(key: key);
@@ -22,10 +21,12 @@ class _TrackerListState extends State<TrackerList> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Tracker> trackerList = snapshot.data;
-            List<Tuple2<String, Tracker>> titleObjectList =
-                trackerList.map((tracker) => Tuple2(tracker.label, tracker)).toList();
+            var dataList = trackerList
+                .map((tracker) => CardListData(tracker.label, tracker.lastRoom.toString(), tracker))
+                .toList();
+
             return CardList<Tracker>(
-              titleObjectList: titleObjectList,
+              dataList: dataList,
               onTap: (tracker) => Navigator.of(context).pushNamed(TrackerPage.Route, arguments: tracker.id),
               iconData: Icons.keyboard_arrow_right,
               onRefresh: onRefresh,

@@ -4,7 +4,6 @@ import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/pages/workflow_template_page.dart';
 import 'package:paper_tracker/widgets/dialogs/add_template_dialog.dart';
 import 'package:paper_tracker/widgets/lists/card_list.dart';
-import 'package:tuple/tuple.dart';
 
 class WorkflowTemplateList extends StatefulWidget {
   @override
@@ -22,12 +21,11 @@ class _WorkflowTemplateListState extends State<WorkflowTemplateList> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<WorkflowTemplate> templateList = snapshot.data;
-          List<Tuple2<String, WorkflowTemplate>> titleObjectList =
-              templateList.map((workflow) => Tuple2(workflow.label, workflow)).toList();
+          var dataList = templateList.map((template) => CardListData(template.label, null, template)).toList();
 
           return Scaffold(
             body: CardList<WorkflowTemplate>(
-              titleObjectList: titleObjectList,
+              dataList: dataList,
               onTap: onTapWorkflow,
               iconData: Icons.keyboard_arrow_right,
               onRefresh: onRefresh,
