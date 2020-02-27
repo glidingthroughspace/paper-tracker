@@ -6,11 +6,11 @@ import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/tracker_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/model/tracker.dart';
-import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/countdown_timer.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/dropdown.dart';
+import 'package:paper_tracker/widgets/lists/check_card_list.dart';
 
 class LearningPage extends StatefulWidget {
   static const Route = "/learning";

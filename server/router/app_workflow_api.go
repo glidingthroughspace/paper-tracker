@@ -18,6 +18,7 @@ func (r *HttpRouter) buildAppWorkflowAPIRoutes() {
 	template.POST("", r.workflowTemplateCreateHandler())
 	template.POST("/:id/start", extractID(), r.workflowTemplateCreateStartHandler())
 	template.POST("/:id/step", extractID(), r.workflowTemplateCreateStepHandler())
+	template.GET("/:tempID/step/:id", extractID(), r.workflowTemplateGetStepHandler())
 
 	exec := workflow.Group("/exec")
 	exec.GET("", r.workflowExecListHandler())
@@ -95,6 +96,20 @@ func (r *HttpRouter) workflowTemplateCreateStepHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, stepRequest.Step)
+	}
+}
+
+func (r *HttpRouter) workflowTemplateGetStepHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		stepID := models.StepID(ctx.GetInt(httpParamIDName))
+
+		step, err := managers.GetWorkflowManager().GetStepByID(stepID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("WorkflowTemplateGetStep request failed")
+			return
+		}
+		ctx.JSON(http.StatusOK, step)
 	}
 }
 

@@ -52,7 +52,7 @@ class WorkflowExec {
   @JsonKey(name: "tracker_id")
   int trackerID;
   @JsonKey(name: "completed")
-  bool compeleted;
+  bool completed;
   @JsonKey(name: "started_on")
   DateTime startedOn;
   @JsonKey(name: "completed_on")
@@ -67,7 +67,7 @@ class WorkflowExec {
       this.label,
       this.templateID,
       this.trackerID,
-      this.compeleted,
+      this.completed,
       this.startedOn,
       this.completedOn,
       this.currentStepID,
