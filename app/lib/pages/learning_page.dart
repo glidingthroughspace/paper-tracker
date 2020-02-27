@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/tracker_client.dart';
@@ -31,38 +32,40 @@ class _LearningPageState extends State<LearningPage> {
   var trackerDropdownController = DropdownController();
 
   @override
-  void dispose() {
-    super.dispose();
-    ssidTimer?.cancel();
-  }
-
-  @override
   Widget build(BuildContext context) {
     LearningPageParams params = ModalRoute.of(context).settings.arguments;
     roomDropdownController.defaultID = params.roomID;
     trackerDropdownController.defaultID = params.trackerID;
 
-    return DetailContent(
-      disableBackNav: state == _learningState.Running,
-      title: "Learn Room",
-      iconData: Icons.school,
-      bottomButtons: [
-        IconButton(
-          icon: Icon(Icons.check),
-          onPressed: state == _learningState.Finished ? onSave : null,
-        ),
-      ],
-      content: Container(
-        padding: EdgeInsets.all(15.0),
-        child: Column(
-          children: [
-            buildRoomDropdown(),
-            buildTrackerDropdown(),
-            SizedBox(height: 15.0),
-            buildButtonOrCountdown(context),
-            SizedBox(height: 15.0),
-            ...buildSSIDList()
-          ],
+    return WillPopScope(
+      onWillPop: () {
+        ssidTimer?.cancel();
+        return Future.value(true);
+      },
+      child: DetailContent(
+        disableBackNav: state == _learningState.Running,
+        title: "Learn Room",
+        iconData: Icons.school,
+        bottomButtons: [
+          IconButton(
+            icon: Icon(Icons.check),
+            onPressed: state == _learningState.Finished && (checkCardListController.checked.isNotEmpty || !kReleaseMode)
+                ? onSave
+                : null,
+          ),
+        ],
+        content: Container(
+          padding: EdgeInsets.all(15.0),
+          child: Column(
+            children: [
+              buildRoomDropdown(),
+              buildTrackerDropdown(),
+              SizedBox(height: 15.0),
+              buildButtonOrCountdown(context),
+              SizedBox(height: 15.0),
+              ...buildSSIDList()
+            ],
+          ),
         ),
       ),
     );

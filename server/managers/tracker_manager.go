@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"errors"
 	"paper-tracker/models"
 	"paper-tracker/models/communication"
 	"paper-tracker/repositories"
@@ -162,5 +163,34 @@ func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp c
 		updateLog.WithField("err", err).Error("Failed to update tracker")
 		return
 	}
+	return
+}
+
+func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, scanRes []*models.ScanResult) (err error) {
+	trackingDataLog := log.WithField("trackerID", trackerID)
+
+	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
+	if err != nil {
+		trackingDataLog.WithField("err", err).Error("Failed to get tracker with tracker ID")
+		return
+	}
+
+	switch tracker.Status {
+	case models.StatusIdle, models.StatusLearningFinished:
+		err = errors.New("No tracking data expected")
+		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unexpected tracking data")
+	case models.StatusLearning:
+		err = GetLearningManager().newLearningTrackingData(trackerID, scanRes)
+	case models.StatusTracking:
+		err = errors.New("Not implemented yes") //TODO
+	default:
+		err = errors.New("Unknown tracker status")
+		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unknown tracker status")
+	}
+
+	if err != nil {
+		log.Error(err)
+	}
+
 	return
 }

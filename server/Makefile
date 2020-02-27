@@ -23,4 +23,6 @@ mock:
 	mockgen -source=repositories/workflow_repository.go -package=mock -destination=mock/workflow_repository_mock.go
 
 new-tracker:
-	coap-client -m post coap://localhost:5688/tracker/new
+	- @coap-client -m post coap://localhost:5688/tracker/new -o tracker.tmp
+	- @echo "Tracker ID: $$(cat tracker.tmp | cbor-diag | jq '.id')"
+	- @rm tracker.tmp
