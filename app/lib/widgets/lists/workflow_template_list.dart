@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/pages/workflow_template_page.dart';
-import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:paper_tracker/widgets/dialogs/add_template_dialog.dart';
+import 'package:paper_tracker/widgets/lists/card_list.dart';
 import 'package:tuple/tuple.dart';
 
 class WorkflowTemplateList extends StatefulWidget {

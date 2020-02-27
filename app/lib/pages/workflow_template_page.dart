@@ -3,10 +3,10 @@ import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/communication/createStepRequest.dart';
 import 'package:paper_tracker/model/workflow.dart';
-import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/dialogs/add_step_dialog.dart';
 import 'package:paper_tracker/widgets/dropdown.dart';
+import 'package:paper_tracker/widgets/lists/workflow_steps_list.dart';
 
 class WorkflowTemplatePage extends StatefulWidget {
   static const Route = "/workflow/template";
