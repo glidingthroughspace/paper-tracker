@@ -10,6 +10,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
     - name: Get PlatformIO
       run: |
         wget https://raw.githubusercontent.com/platformio/platformio/develop/scripts/get-platformio.py
@@ -24,4 +28,4 @@ jobs:
 # They do however run on actual hardware, which of course is not testable in CI
 #    - name: Test
 #      run: make test-desktop
-#      working-directory: ./server
+#      working-directory: ./hardware/firmware
