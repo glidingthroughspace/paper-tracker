@@ -176,6 +176,20 @@ func (mr *MockWorkflowRepositoryMockRecorder) CreateNextStep(nextStep interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNextStep", reflect.TypeOf((*MockWorkflowRepository)(nil).CreateNextStep), nextStep)
 }
 
+// UpdateNextStep mocks base method
+func (m *MockWorkflowRepository) UpdateNextStep(nextStep *models.NextStep) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateNextStep", nextStep)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateNextStep indicates an expected call of UpdateNextStep
+func (mr *MockWorkflowRepositoryMockRecorder) UpdateNextStep(nextStep interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateNextStep", reflect.TypeOf((*MockWorkflowRepository)(nil).UpdateNextStep), nextStep)
+}
+
 // GetLinearNextStepID mocks base method
 func (m *MockWorkflowRepository) GetLinearNextStepID(stepID models.StepID) (models.StepID, error) {
 	m.ctrl.T.Helper()

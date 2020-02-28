@@ -57,15 +57,8 @@ func (mgr *WorkflowManager) CreateTemplateStart(templateID models.WorkflowTempla
 		return
 	}
 
-	workflow, err := mgr.workflowRep.GetTemplateByID(templateID)
-	if err != nil {
-		workflowStartLog.WithField("err", err).Error("Failed to get template to create start")
-		mgr.workflowRep.DeleteStep(step.ID)
-		return
-	}
-
-	workflow.StartStep = step.ID
-	err = mgr.workflowRep.UpdateTemplate(workflow)
+	template.StartStep = step.ID
+	err = mgr.workflowRep.UpdateTemplate(template)
 	if err != nil {
 		workflowStartLog.WithField("err", err).Error("Failed to update template to create start")
 		mgr.workflowRep.DeleteStep(step.ID)
