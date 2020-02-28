@@ -35,7 +35,7 @@ class WFStep {
   String label;
   @JsonKey(name: "room_id")
   int roomID;
-  @JsonKey(name: "options", toJson: _optionsToJson)
+  @JsonKey(name: "options", includeIfNull: false, toJson: _optionsToJson)
   Map<String, List<WFStep>> options;
 
   WFStep({this.id, this.label, this.roomID, this.options});
