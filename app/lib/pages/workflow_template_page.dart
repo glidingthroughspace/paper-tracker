@@ -59,9 +59,9 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
       child: WorkflowStepsList(
         steps: template.steps,
         roomClient: roomClient,
-        onStepAdd: onAddStep,
+        onStepAdd: template.editingLocked ? null : onAddStep,
         primaryScroll: false,
-        onTap: onStepTap,
+        onTap: template.editingLocked ? null : onStepTap,
       ),
     );
   }

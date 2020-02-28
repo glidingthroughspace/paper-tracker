@@ -14,6 +14,7 @@ WorkflowTemplate _$WorkflowTemplateFromJson(Map<String, dynamic> json) {
         ?.map((e) =>
             e == null ? null : WFStep.fromJson(e as Map<String, dynamic>))
         ?.toList(),
+    editingLocked: json['editing_locked'] as bool,
   );
 }
 
@@ -22,6 +23,7 @@ Map<String, dynamic> _$WorkflowTemplateToJson(WorkflowTemplate instance) =>
       'id': instance.id,
       'label': instance.label,
       'steps': instance.steps,
+      'editing_locked': instance.editingLocked,
     };
 
 WFStep _$WFStepFromJson(Map<String, dynamic> json) {
@@ -40,22 +42,12 @@ WFStep _$WFStepFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$WFStepToJson(WFStep instance) {
-  final val = <String, dynamic>{
-    'id': instance.id,
-    'label': instance.label,
-    'room_id': instance.roomID,
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('options', _optionsToJson(instance.options));
-  return val;
-}
+Map<String, dynamic> _$WFStepToJson(WFStep instance) => <String, dynamic>{
+      'id': instance.id,
+      'label': instance.label,
+      'room_id': instance.roomID,
+      'options': _optionsToJson(instance.options),
+    };
 
 WorkflowExec _$WorkflowExecFromJson(Map<String, dynamic> json) {
   return WorkflowExec(
