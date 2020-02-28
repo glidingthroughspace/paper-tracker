@@ -5,6 +5,7 @@ import 'package:paper_tracker/model/communication/createStepRequest.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/dialogs/add_step_dialog.dart';
+import 'package:paper_tracker/widgets/dialogs/workflow_step_dialog.dart';
 import 'package:paper_tracker/widgets/dropdown.dart';
 import 'package:paper_tracker/widgets/lists/workflow_steps_list.dart';
 
@@ -59,6 +60,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
         roomClient: roomClient,
         onStepAdd: onAddStep,
         primaryScroll: false,
+        onTap: onStepTap,
       ),
     );
   }
@@ -108,5 +110,15 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
       futureTemplate = templateClient.getTemplateByID(templateID, refresh: true);
       //futureWorkflow.then((template) => labelEditController.text = template.label);
     });
+  }
+
+  void onStepTap(WFStep step) {
+    showDialog(
+        context: context,
+        child: WorkflowStepDialog(
+          step: step,
+          onEdit: (WFStep step) {},
+          onDelete: (WFStep step) {},
+        ));
   }
 }

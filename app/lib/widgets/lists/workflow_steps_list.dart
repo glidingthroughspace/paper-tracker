@@ -16,6 +16,7 @@ class WorkflowStepsList extends StatefulWidget {
   final Map<int, ExecStepInfo> stepInfos;
   final int currentStep;
   final bool primaryScroll;
+  final void Function(WFStep) onTap;
 
   const WorkflowStepsList(
       {Key key,
@@ -25,6 +26,7 @@ class WorkflowStepsList extends StatefulWidget {
       this.controller,
       this.stepInfos,
       this.currentStep,
+      this.onTap,
       this.primaryScroll = true})
       : super(key: key);
 
@@ -67,6 +69,7 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
         indentationFactor: indentation,
         verticalPadding: 5.0,
         color: widget.currentStep == step.id ? WFStep.CurrentStepColor : null,
+        onTap: widget.onTap,
       ));
 
       if (nestedSteps != null) {
