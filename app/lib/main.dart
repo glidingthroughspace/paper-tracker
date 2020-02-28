@@ -6,6 +6,7 @@ import 'package:paper_tracker/pages/main_page.dart';
 import 'package:paper_tracker/pages/room_page.dart';
 import 'package:paper_tracker/pages/start_exec_page.dart';
 import 'package:paper_tracker/pages/tracker_page.dart';
+import 'package:paper_tracker/pages/workflow_exec_page.dart';
 import 'package:paper_tracker/pages/workflow_template_page.dart';
 
 void main() => runApp(PaperTrackerApp());
@@ -46,6 +47,7 @@ class PaperTrackerApp extends StatelessWidget {
         TrackerPage.Route: (context) => TrackerPage(),
         LearningPage.Route: (context) => LearningPage(),
         WorkflowTemplatePage.Route: (context) => WorkflowTemplatePage(),
+        WorkflowExecPage.Route: (context) => WorkflowExecPage(),
         StartExecPage.Route: (context) => StartExecPage()
       },
     );

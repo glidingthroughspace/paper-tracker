@@ -38,24 +38,24 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
     return FutureBuilder(
       future: futureTemplate,
       builder: (context, snapshot) {
-        WorkflowTemplate workflow = snapshot.data;
+        WorkflowTemplate template = snapshot.data;
 
         return DetailContent(
-          title: workflow != null ? workflow.label : "",
+          title: template != null ? template.label : "",
           iconData: WorkflowTemplate.IconData,
           bottomButtons: [],
-          content: workflow != null ? buildContent(workflow) : Container(),
+          content: template != null ? buildContent(template) : Container(),
           onRefresh: refreshTemplate,
         );
       },
     );
   }
 
-  Widget buildContent(WorkflowTemplate workflow) {
+  Widget buildContent(WorkflowTemplate template) {
     return Container(
       padding: EdgeInsets.all(15.0),
       child: WorkflowStepsList(
-        steps: workflow.steps,
+        steps: template.steps,
         roomClient: roomClient,
         onStepAdd: onAddStep,
         primaryScroll: false,

@@ -23,7 +23,7 @@ class WorkflowExecClient {
     }
   }
 
-  Future<WorkflowExec> getWorkflowByID(int id, {bool refresh = false}) async {
+  Future<WorkflowExec> getExecByID(int id, {bool refresh = false}) async {
     if (futureExecs == null || refresh) {
       await getAllExecs(refresh: true);
     }

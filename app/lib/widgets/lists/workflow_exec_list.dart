@@ -4,6 +4,7 @@ import 'package:paper_tracker/client/workflow_exec_client.dart';
 import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/pages/start_exec_page.dart';
+import 'package:paper_tracker/pages/workflow_exec_page.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/lists/card_list.dart';
 
@@ -24,8 +25,8 @@ class _WorkflowExecListState extends State<WorkflowExecList> {
         if (snapshot.hasData) {
           List<WorkflowExec> execList = snapshot.data;
           var dataList = execList
-              .map((exec) =>
-                  CardListData(exec.label, buildSubtitle(exec), exec, color: exec.completed ? Colors.lightGreen : null))
+              .map((exec) => CardListData(exec.label, buildSubtitle(exec), exec,
+                  color: exec.completed ? WorkflowExec.CompletedColor : null))
               .toList();
 
           return Scaffold(
@@ -59,7 +60,7 @@ class _WorkflowExecListState extends State<WorkflowExecList> {
   }
 
   void onTapExec(WorkflowExec exec) async {
-    //await Navigator.of(context).pushNamed(WorkflowTemplatePage.Route, arguments: workflow.id);
+    await Navigator.of(context).pushNamed(WorkflowExecPage.Route, arguments: exec.id);
   }
 
   void onStartExec() async {
@@ -67,7 +68,7 @@ class _WorkflowExecListState extends State<WorkflowExecList> {
   }
 
   List<Widget> buildSubtitle(WorkflowExec exec) {
-    var dateFormatter = DateFormat("dd.MM.yyyy H:m");
+    var dateFormatter = DateFormat("dd.MM.yyyy HH:mm");
     var currentStepFuture = templateClient.getStepByID(exec.id, exec.currentStepID);
 
     return [

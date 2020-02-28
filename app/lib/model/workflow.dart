@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:paper_tracker/widgets/dropdown.dart';
@@ -24,6 +25,8 @@ class WorkflowTemplate extends DropdownCapable {
 
 @JsonSerializable()
 class WFStep {
+  static const CurrentStepColor = Colors.amber;
+
   @JsonKey(name: "id")
   int id;
   @JsonKey(name: "label")
@@ -42,6 +45,7 @@ class WFStep {
 @JsonSerializable()
 class WorkflowExec {
   static const IconData = MdiIcons.clipboardTextPlayOutline;
+  static const CompletedColor = Colors.teal;
 
   @JsonKey(name: "id")
   int id;
