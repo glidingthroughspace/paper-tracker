@@ -250,6 +250,21 @@ func (mr *MockWorkflowRepositoryMockRecorder) GetExecByID(execID interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExecByID", reflect.TypeOf((*MockWorkflowRepository)(nil).GetExecByID), execID)
 }
 
+// GetExecsByTemplateID mocks base method
+func (m *MockWorkflowRepository) GetExecsByTemplateID(templateID models.WorkflowTemplateID) ([]*models.WorkflowExec, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetExecsByTemplateID", templateID)
+	ret0, _ := ret[0].([]*models.WorkflowExec)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetExecsByTemplateID indicates an expected call of GetExecsByTemplateID
+func (mr *MockWorkflowRepositoryMockRecorder) GetExecsByTemplateID(templateID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExecsByTemplateID", reflect.TypeOf((*MockWorkflowRepository)(nil).GetExecsByTemplateID), templateID)
+}
+
 // UpdateExec mocks base method
 func (m *MockWorkflowRepository) UpdateExec(exec *models.WorkflowExec) error {
 	m.ctrl.T.Helper()

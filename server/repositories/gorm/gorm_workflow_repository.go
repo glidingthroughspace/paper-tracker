@@ -103,6 +103,11 @@ func (rep *GormWorkflowRepository) GetExecByID(execID models.WorkflowExecID) (ex
 	return
 }
 
+func (rep *GormWorkflowRepository) GetExecsByTemplateID(templateID models.WorkflowTemplateID) (execs []*models.WorkflowExec, err error) {
+	err = databaseConnection.Where(&models.WorkflowExec{TemplateID: templateID}).Find(&execs).Error
+	return
+}
+
 func (rep *GormWorkflowRepository) UpdateExec(exec *models.WorkflowExec) (err error) {
 	err = databaseConnection.Save(exec).Error
 	return
