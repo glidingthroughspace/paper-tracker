@@ -14,8 +14,8 @@ func (r *HttpRouter) buildAppRoomAPIRoutes() {
 	room := r.engine.Group("/room")
 	room.GET("", r.roomListHandler())
 	room.POST("", r.roomCreateHandler())
-	room.PUT("/:id", extractID(), r.roomUpdateHandler())
-	room.DELETE("/:id", extractID(), r.roomDeleteHandler())
+	room.PUT("/:id", extractSimpleID(), r.roomUpdateHandler())
+	room.DELETE("/:id", extractSimpleID(), r.roomDeleteHandler())
 }
 
 func (r *HttpRouter) roomListHandler() gin.HandlerFunc {

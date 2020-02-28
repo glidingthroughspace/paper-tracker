@@ -44,6 +44,12 @@ func (mgr *WorkflowManager) CreateTemplate(template *models.WorkflowTemplate) (e
 func (mgr *WorkflowManager) CreateTemplateStart(templateID models.WorkflowTemplateID, step *models.Step) (err error) {
 	workflowStartLog := log.WithFields(log.Fields{"templateID": templateID, "step": step})
 
+	template, err := mgr.GetTemplate(templateID)
+	if err != nil || template.EditingLocked {
+		workflowStartLog.WithField("err", err).Warn("Editing of template locked")
+		return errors.New("Editing of template locked")
+	}
+
 	step.ID = 0
 	err = mgr.workflowRep.CreateStep(step)
 	if err != nil {
@@ -69,8 +75,14 @@ func (mgr *WorkflowManager) CreateTemplateStart(templateID models.WorkflowTempla
 }
 
 // TODO: Fix adding in between to steps
-func (mgr *WorkflowManager) AddTemplateStep(prevStepID models.StepID, decisionLabel string, step *models.Step) (err error) {
+func (mgr *WorkflowManager) AddTemplateStep(templateID models.WorkflowTemplateID, prevStepID models.StepID, decisionLabel string, step *models.Step) (err error) {
 	addStepLog := log.WithFields(log.Fields{"prevStepID": prevStepID, "step": step})
+
+	template, err := mgr.GetTemplate(templateID)
+	if err != nil || template.EditingLocked {
+		addStepLog.WithField("err", err).Warn("Editing of template locked")
+		return errors.New("Editing of template locked")
+	}
 
 	step.ID = 0
 	err = mgr.workflowRep.CreateStep(step)
@@ -79,7 +91,7 @@ func (mgr *WorkflowManager) AddTemplateStep(prevStepID models.StepID, decisionLa
 		return
 	}
 
-	_, err = mgr.GetStepByID(prevStepID)
+	_, err = mgr.GetStepByID(templateID, prevStepID)
 	if mgr.workflowRep.IsRecordNotFoundError(err) {
 		addStepLog.WithField("err", err).Warn("Previous step not found to add step")
 		mgr.workflowRep.DeleteStep(step.ID)
@@ -147,7 +159,7 @@ func (mgr *WorkflowManager) GetTemplate(templateID models.WorkflowTemplateID) (w
 		workflow.EditingLocked = false
 	}
 
-	workflow.Steps, err = mgr.getStepsFromStart(workflow.StartStep, getWorkflowLog)
+	workflow.Steps, err = mgr.getStepsFromStart(templateID, workflow.StartStep, getWorkflowLog)
 	if err != nil {
 		getWorkflowLog.WithField("err", err).Error("Failed to get steps")
 		return
@@ -156,13 +168,13 @@ func (mgr *WorkflowManager) GetTemplate(templateID models.WorkflowTemplateID) (w
 	return
 }
 
-func (mgr *WorkflowManager) getStepsFromStart(startStepID models.StepID, getLog *log.Entry) (steps []*models.Step, err error) {
+func (mgr *WorkflowManager) getStepsFromStart(templateID models.WorkflowTemplateID, startStepID models.StepID, getLog *log.Entry) (steps []*models.Step, err error) {
 	getStepsFromStartLog := getLog.WithField("startStepID", startStepID)
 	steps = make([]*models.Step, 0)
 	currentStepID := startStepID
 
 	for currentStepID > 0 {
-		currentStep, err := mgr.GetStepByID(currentStepID)
+		currentStep, err := mgr.GetStepByID(templateID, currentStepID)
 		if err != nil {
 			break
 		}
@@ -182,7 +194,7 @@ func (mgr *WorkflowManager) getStepsFromStart(startStepID models.StepID, getLog 
 	return
 }
 
-func (mgr *WorkflowManager) GetStepByID(stepID models.StepID) (step *models.Step, err error) {
+func (mgr *WorkflowManager) GetStepByID(templateID models.WorkflowTemplateID, stepID models.StepID) (step *models.Step, err error) {
 	getStepLog := log.WithField("stepID", stepID)
 
 	step, err = mgr.workflowRep.GetStepByID(stepID)
@@ -205,13 +217,43 @@ func (mgr *WorkflowManager) GetStepByID(stepID models.StepID) (step *models.Step
 	}
 	step.Options = make(map[string][]*models.Step)
 	for _, decision := range decisions {
-		step.Options[decision.DecisionLabel], err = mgr.getStepsFromStart(decision.NextID, getStepLog)
+		step.Options[decision.DecisionLabel], err = mgr.getStepsFromStart(templateID, decision.NextID, getStepLog)
 		if err != nil {
 			getStepLog.WithFields(log.Fields{"err": err, "decision": decision}).Error("Failed to get steps for decision")
 			continue
 		}
 	}
 
+	return
+}
+
+func (mgr *WorkflowManager) UpdateStep(templateID models.WorkflowTemplateID, step *models.Step) (err error) {
+	updateLog := log.WithFields(log.Fields{"templateID": templateID, "step": step})
+
+	template, err := mgr.GetTemplate(templateID)
+	if err != nil || template.EditingLocked {
+		updateLog.WithField("err", err).Warn("Editing of template locked")
+		return errors.New("Editing of template locked")
+	}
+
+	err = mgr.workflowRep.UpdateStep(step)
+	if err != nil {
+		updateLog.WithField("err", err).Error("Failed to update step")
+		return
+	}
+
+	for decision, steps := range step.Options {
+		nextStep := &models.NextStep{
+			PrevID:        step.ID,
+			NextID:        steps[0].ID,
+			DecisionLabel: decision,
+		}
+		err = mgr.workflowRep.UpdateNextStep(nextStep)
+		if err != nil {
+			updateLog.WithField("err", err).Error("Failed to update decision")
+			continue
+		}
+	}
 	return
 }
 
@@ -262,9 +304,9 @@ func (mgr *WorkflowManager) copySteps(templateID models.WorkflowTemplateID, oldS
 		if it == 0 && firstIsStartStep {
 			err = mgr.CreateTemplateStart(templateID, newStep)
 		} else if it == 0 {
-			err = mgr.AddTemplateStep(currentPrevStep, decision, newStep)
+			err = mgr.AddTemplateStep(templateID, currentPrevStep, decision, newStep)
 		} else {
-			err = mgr.AddTemplateStep(currentPrevStep, "", newStep)
+			err = mgr.AddTemplateStep(templateID, currentPrevStep, "", newStep)
 		}
 		if err != nil {
 			copyStepsLog.WithField("err", err).Error("Failed to create step to copy steps")

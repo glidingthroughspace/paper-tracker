@@ -8,13 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func extractID() gin.HandlerFunc {
+func extractSimpleID() gin.HandlerFunc {
+	return extractID("id", httpParamIDName)
+}
+
+func extractID(paramName, contextName string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id, err := strconv.Atoi(ctx.Param("id"))
+		id, err := strconv.Atoi(ctx.Param(paramName))
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
-		ctx.Set(httpParamIDName, id)
+		ctx.Set(contextName, id)
 	}
 }

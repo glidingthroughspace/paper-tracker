@@ -75,6 +75,11 @@ func (rep *GormWorkflowRepository) CreateNextStep(nextStep *models.NextStep) (er
 	return
 }
 
+func (rep *GormWorkflowRepository) UpdateNextStep(nextStep *models.NextStep) (err error) {
+	err = databaseConnection.Save(nextStep).Error
+	return
+}
+
 func (rep *GormWorkflowRepository) GetLinearNextStepID(stepID models.StepID) (nextStepID models.StepID, err error) {
 	nextStep := &models.NextStep{}
 	err = databaseConnection.Where("prev_id = ? AND decision_label = \"\"", stepID).First(nextStep).Error
