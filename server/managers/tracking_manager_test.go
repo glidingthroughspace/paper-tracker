@@ -93,10 +93,10 @@ var _ = Describe("TrackingManager", func() {
 	})
 })
 
-func getScanResultsForBSSIDWithRSSIs(bssid string, rssis ...int) []models.ScanResult {
-	var scanResults []models.ScanResult
+func getScanResultsForBSSIDWithRSSIs(bssid string, rssis ...int) []*models.ScanResult {
+	var scanResults []*models.ScanResult
 	for _, v := range rssis {
-		scanResults = append(scanResults, models.ScanResult{models.TrackerID(1), "TestNetwork", bssid, v})
+		scanResults = append(scanResults, &models.ScanResult{models.TrackerID(1), "TestNetwork", bssid, v})
 	}
 	return scanResults
 }

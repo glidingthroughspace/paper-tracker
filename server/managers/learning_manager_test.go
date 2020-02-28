@@ -181,10 +181,18 @@ var _ = Describe("LearningManager", func() {
 			Expect(manager.FinishLearning(id, wrongRoomID, []string{}).Error()).To(HavePrefix("room: "))
 		})
 
+		It("FinishLearning throws an error getting if scan results errors", func() {
+			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
+			mockRoomRep.EXPECT().GetByID(roomID).Return(outRoom, nil).Times(1)
+			mockScanResultRep.EXPECT().GetAllForTracker(id).Return(nil, recordNotFoundErr).Times(1)
+			Expect(manager.FinishLearning(id, roomID, []string{}).Error()).To(HavePrefix("scanResults: "))
+		})
+
 		It("FinishLearning sets room.IsLearned to true and tracker status to idle", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
 			mockRoomRep.EXPECT().GetByID(roomID).Return(outRoom, nil).Times(1)
-			mockRoomRep.EXPECT().SetLearnedByID(roomID, true).Return(nil).Times(1)
+			mockScanResultRep.EXPECT().GetAllForTracker(id).Return([]*models.ScanResult{}, nil)
+			mockRoomRep.EXPECT().Update(outRoom).Return(nil).Times(1)
 			mockTrackerRep.EXPECT().SetStatusByID(id, models.StatusIdle).Return(nil).Times(1)
 			Expect(manager.FinishLearning(id, roomID, []string{})).To(Succeed())
 		})

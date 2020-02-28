@@ -22,8 +22,8 @@ func GetTrackingManager() *TrackingManager {
 	return trackingManager
 }
 
-func (*TrackingManager) ConsolidateScanResults(scanResults []models.ScanResult) []models.BSSIDTrackingData {
-	scanResultsPerBSSID := make(map[string][]models.ScanResult)
+func (*TrackingManager) ConsolidateScanResults(scanResults []*models.ScanResult) []models.BSSIDTrackingData {
+	scanResultsPerBSSID := make(map[string][]*models.ScanResult)
 	for _, v := range scanResults {
 		scanResultsPerBSSID[v.BSSID] = append(scanResultsPerBSSID[v.BSSID], v)
 	}
@@ -40,7 +40,7 @@ func (*TrackingManager) ConsolidateScanResults(scanResults []models.ScanResult) 
 	return trackingData
 }
 
-func getRSSIs(scanResults []models.ScanResult) []int {
+func getRSSIs(scanResults []*models.ScanResult) []int {
 	var rssis []int
 	for _, v := range scanResults {
 		rssis = append(rssis, v.RSSI)
