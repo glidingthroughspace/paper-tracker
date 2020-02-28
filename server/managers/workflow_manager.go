@@ -31,18 +31,18 @@ func GetWorkflowManager() *WorkflowManager {
 	return workflowManager
 }
 
-func (mgr *WorkflowManager) CreateTemplate(workflow *models.WorkflowTemplate) (err error) {
-	workflow.ID = 0
-	err = mgr.workflowRep.CreateTemplate(workflow)
+func (mgr *WorkflowManager) CreateTemplate(template *models.WorkflowTemplate) (err error) {
+	template.ID = 0
+	err = mgr.workflowRep.CreateTemplate(template)
 	if err != nil {
-		log.WithFields(log.Fields{"workflow": workflow, "err": err}).Error("Failed to create workflow")
+		log.WithFields(log.Fields{"template": template, "err": err}).Error("Failed to create template")
 		return
 	}
 	return
 }
 
-func (mgr *WorkflowManager) CreateTemplateStart(workflowID models.WorkflowTemplateID, step *models.Step) (err error) {
-	workflowStartLog := log.WithFields(log.Fields{"workflowID": workflowID, "step": step})
+func (mgr *WorkflowManager) CreateTemplateStart(templateID models.WorkflowTemplateID, step *models.Step) (err error) {
+	workflowStartLog := log.WithFields(log.Fields{"templateID": templateID, "step": step})
 
 	step.ID = 0
 	err = mgr.workflowRep.CreateStep(step)
@@ -51,9 +51,9 @@ func (mgr *WorkflowManager) CreateTemplateStart(workflowID models.WorkflowTempla
 		return
 	}
 
-	workflow, err := mgr.workflowRep.GetTemplateByID(workflowID)
+	workflow, err := mgr.workflowRep.GetTemplateByID(templateID)
 	if err != nil {
-		workflowStartLog.WithField("err", err).Error("Failed to get workflow to create start")
+		workflowStartLog.WithField("err", err).Error("Failed to get template to create start")
 		mgr.workflowRep.DeleteStep(step.ID)
 		return
 	}
@@ -61,7 +61,7 @@ func (mgr *WorkflowManager) CreateTemplateStart(workflowID models.WorkflowTempla
 	workflow.StartStep = step.ID
 	err = mgr.workflowRep.UpdateTemplate(workflow)
 	if err != nil {
-		workflowStartLog.WithField("err", err).Error("Failed to update workflow to create start")
+		workflowStartLog.WithField("err", err).Error("Failed to update template to create start")
 		mgr.workflowRep.DeleteStep(step.ID)
 		return
 	}
@@ -135,6 +135,18 @@ func (mgr *WorkflowManager) GetTemplate(templateID models.WorkflowTemplateID) (w
 		return
 	}
 
+	execs, err := mgr.workflowRep.GetExecsByTemplateID(templateID)
+	if err != nil {
+		getWorkflowLog.WithField("err", err).Error("Failed to get execs of template - ignore for now")
+		execs = make([]*models.WorkflowExec, 0)
+		err = nil
+	}
+	if len(execs) > 0 {
+		workflow.EditingLocked = true
+	} else {
+		workflow.EditingLocked = false
+	}
+
 	workflow.Steps, err = mgr.getStepsFromStart(workflow.StartStep, getWorkflowLog)
 	if err != nil {
 		getWorkflowLog.WithField("err", err).Error("Failed to get steps")
@@ -151,11 +163,7 @@ func (mgr *WorkflowManager) getStepsFromStart(startStepID models.StepID, getLog 
 
 	for currentStepID > 0 {
 		currentStep, err := mgr.GetStepByID(currentStepID)
-		if mgr.workflowRep.IsRecordNotFoundError(err) {
-			getStepsFromStartLog.Warn("StartStep not found")
-			break
-		} else if err != nil {
-			getStepsFromStartLog.WithField("err", err).Error("Failed to get startStep")
+		if err != nil {
 			break
 		}
 
@@ -164,24 +172,10 @@ func (mgr *WorkflowManager) getStepsFromStart(startStepID models.StepID, getLog 
 		currentStepID, err = mgr.workflowRep.GetLinearNextStepID(currentStepID)
 		if mgr.workflowRep.IsRecordNotFoundError(err) {
 			getStepsFromStartLog.Info("No next linear step")
+			break
 		} else if err != nil {
 			getStepsFromStartLog.WithField("err", err).Warn("Failed to get next linear step ID")
-		}
-	}
-
-	for _, step := range steps {
-		decisions, err := mgr.workflowRep.GetDecisions(step.ID)
-		if err != nil {
-			getStepsFromStartLog.WithFields(log.Fields{"err": err, "stepID": step.ID}).Warn("Failed to get decisions for step")
-			continue
-		}
-		step.Options = make(map[string][]*models.Step)
-		for _, decision := range decisions {
-			step.Options[decision.DecisionLabel], err = mgr.getStepsFromStart(decision.NextID, getLog)
-			if err != nil {
-				getStepsFromStartLog.WithFields(log.Fields{"err": err, "decision": decision}).Error("Failed to get steps for decision")
-				continue
-			}
+			break
 		}
 	}
 
@@ -189,12 +183,84 @@ func (mgr *WorkflowManager) getStepsFromStart(startStepID models.StepID, getLog 
 }
 
 func (mgr *WorkflowManager) GetStepByID(stepID models.StepID) (step *models.Step, err error) {
+	getStepLog := log.WithField("stepID", stepID)
+
 	step, err = mgr.workflowRep.GetStepByID(stepID)
 	if err != nil {
-		log.WithFields(log.Fields{"stepID": stepID, "err": err}).Warn("Failed to get step by ID")
+		getStepLog.WithField("err", err).Warn("Failed to get step by ID")
 		return
 	}
+	if mgr.workflowRep.IsRecordNotFoundError(err) {
+		getStepLog.Warn("Step not found")
+		return
+	} else if err != nil {
+		getStepLog.WithField("err", err).Error("Failed to get startStep")
+		return
+	}
+
+	decisions, err := mgr.workflowRep.GetDecisions(step.ID)
+	if err != nil {
+		getStepLog.WithField("err", err).Warn("Failed to get decisions for step")
+		return
+	}
+	step.Options = make(map[string][]*models.Step)
+	for _, decision := range decisions {
+		step.Options[decision.DecisionLabel], err = mgr.getStepsFromStart(decision.NextID, getStepLog)
+		if err != nil {
+			getStepLog.WithFields(log.Fields{"err": err, "decision": decision}).Error("Failed to get steps for decision")
+			continue
+		}
+	}
+
 	return
+}
+
+func (mgr *WorkflowManager) CreateNewRevision(oldID models.WorkflowTemplateID) (template *models.WorkflowTemplate, err error) {
+	revisionLog := log.WithField("oldID", oldID)
+
+	oldTemplate, err := mgr.GetTemplate(oldID)
+	if err != nil {
+		revisionLog.WithField("err", err).Error("Failed to get old template for new revision")
+		return
+	}
+
+	newTemplate := &models.WorkflowTemplate{Label: "New " + oldTemplate.Label}
+	if oldTemplate.FirstRevisionID != 0 {
+		newTemplate.FirstRevisionID = oldTemplate.FirstRevisionID
+	} else {
+		newTemplate.FirstRevisionID = oldID
+	}
+	revisionLog = revisionLog.WithField("newTemplate", newTemplate)
+
+	err = mgr.CreateTemplate(newTemplate)
+	if err != nil {
+		revisionLog.WithField("err", err).Error("Failed to create new template for revision")
+		return
+	}
+
+	oldStartStep, err := mgr.GetStepByID(oldTemplate.StartStep)
+	if err != nil {
+		revisionLog.WithField("err", err).Error("Failed to get start step of old template for new revision")
+		mgr.workflowRep.DeleteTemplate(newTemplate.ID)
+		return
+	}
+
+	newStartStep := &models.Step{
+		Label:  oldStartStep.Label,
+		RoomID: oldStartStep.RoomID,
+	}
+	err = mgr.CreateTemplateStart(newTemplate.ID, newStartStep)
+	if err != nil {
+		revisionLog.WithField("err", err).Error("Failed to create start step for new revision")
+	}
+
+	//err = mgr.copySteps(oldStartStep.ID, newStartStep.ID)
+	if err != nil {
+		revisionLog.WithField("err", err).Error("Failed to copy steps from old to new revision template")
+		mgr.workflowRep.DeleteTemplate(newTemplate.ID)
+	}
+
+	return mgr.GetTemplate(newTemplate.ID)
 }
 
 func (mgr *WorkflowManager) GetAllExec() (execs []*models.WorkflowExec, err error) {
