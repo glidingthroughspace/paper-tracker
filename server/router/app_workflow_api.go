@@ -19,6 +19,7 @@ func (r *HttpRouter) buildAppWorkflowAPIRoutes() {
 	template.POST("/:id/start", extractID(), r.workflowTemplateCreateStartHandler())
 	template.POST("/:id/step", extractID(), r.workflowTemplateCreateStepHandler())
 	template.GET("/:tempID/step/:id", extractID(), r.workflowTemplateGetStepHandler())
+	template.POST("/:id/revision", extractID(), r.workflowTemplateNewRevisionHandler())
 
 	exec := workflow.Group("/exec")
 	exec.GET("", r.workflowExecListHandler())
@@ -142,5 +143,26 @@ func (r *HttpRouter) workflowExecStartHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, exec)
+	}
+}
+
+func (r *HttpRouter) workflowTemplateNewRevisionHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamIDName))
+
+		revisionRequest := &communication.CreateRevisionRequest{}
+		err := ctx.BindJSON(revisionRequest)
+		if err != nil {
+			log.WithField("err", err).Error("Failed to unmarshal json to create revision request")
+			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		newTemplate, err := managers.GetWorkflowManager().CreateNewRevision(templateID, revisionRequest.RevisionLabel)
+		if err != nil {
+			log.WithFields(log.Fields{"templateID": templateID, "err": err}).Warn("Failed to create new template revision")
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+		}
+		ctx.JSON(http.StatusOK, newTemplate)
 	}
 }

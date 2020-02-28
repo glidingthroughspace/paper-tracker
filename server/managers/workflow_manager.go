@@ -215,7 +215,7 @@ func (mgr *WorkflowManager) GetStepByID(stepID models.StepID) (step *models.Step
 	return
 }
 
-func (mgr *WorkflowManager) CreateNewRevision(oldID models.WorkflowTemplateID) (template *models.WorkflowTemplate, err error) {
+func (mgr *WorkflowManager) CreateNewRevision(oldID models.WorkflowTemplateID, revisionLabel string) (template *models.WorkflowTemplate, err error) {
 	revisionLog := log.WithField("oldID", oldID)
 
 	oldTemplate, err := mgr.GetTemplate(oldID)
@@ -224,7 +224,7 @@ func (mgr *WorkflowManager) CreateNewRevision(oldID models.WorkflowTemplateID) (
 		return
 	}
 
-	newTemplate := &models.WorkflowTemplate{Label: "New " + oldTemplate.Label}
+	newTemplate := &models.WorkflowTemplate{Label: revisionLabel}
 	if oldTemplate.FirstRevisionID != 0 {
 		newTemplate.FirstRevisionID = oldTemplate.FirstRevisionID
 	} else {
@@ -238,29 +238,51 @@ func (mgr *WorkflowManager) CreateNewRevision(oldID models.WorkflowTemplateID) (
 		return
 	}
 
-	oldStartStep, err := mgr.GetStepByID(oldTemplate.StartStep)
-	if err != nil {
-		revisionLog.WithField("err", err).Error("Failed to get start step of old template for new revision")
-		mgr.workflowRep.DeleteTemplate(newTemplate.ID)
-		return
-	}
-
-	newStartStep := &models.Step{
-		Label:  oldStartStep.Label,
-		RoomID: oldStartStep.RoomID,
-	}
-	err = mgr.CreateTemplateStart(newTemplate.ID, newStartStep)
-	if err != nil {
-		revisionLog.WithField("err", err).Error("Failed to create start step for new revision")
-	}
-
-	//err = mgr.copySteps(oldStartStep.ID, newStartStep.ID)
-	if err != nil {
-		revisionLog.WithField("err", err).Error("Failed to copy steps from old to new revision template")
-		mgr.workflowRep.DeleteTemplate(newTemplate.ID)
+	if len(oldTemplate.Steps) > 0 {
+		err = mgr.copySteps(newTemplate.ID, oldTemplate.Steps, 0, true, "")
+		if err != nil {
+			revisionLog.WithField("err", err).Error("Failed to copy steps from old to new revision template")
+			mgr.workflowRep.DeleteTemplate(newTemplate.ID)
+		}
 	}
 
 	return mgr.GetTemplate(newTemplate.ID)
+}
+
+func (mgr *WorkflowManager) copySteps(templateID models.WorkflowTemplateID, oldSteps []*models.Step, newStartID models.StepID, firstIsStartStep bool, decision string) (err error) {
+	copyStepsLog := log.WithFields(log.Fields{"templateID": templateID, "oldSteps": oldSteps, "newStartID": newStartID, "firstIsStartStep": firstIsStartStep})
+
+	currentPrevStep := newStartID
+	for it, oldStep := range oldSteps {
+		newStep := &models.Step{
+			Label:  oldStep.Label,
+			RoomID: oldStep.RoomID,
+		}
+
+		if it == 0 && firstIsStartStep {
+			err = mgr.CreateTemplateStart(templateID, newStep)
+		} else if it == 0 {
+			err = mgr.AddTemplateStep(currentPrevStep, decision, newStep)
+		} else {
+			err = mgr.AddTemplateStep(currentPrevStep, "", newStep)
+		}
+		if err != nil {
+			copyStepsLog.WithField("err", err).Error("Failed to create step to copy steps")
+			break
+		}
+
+		for decision, steps := range oldStep.Options {
+			err = mgr.copySteps(templateID, steps, newStep.ID, false, decision)
+			if err != nil {
+				copyStepsLog.WithField("err", err).Error("Failed to copy steps for decisions")
+				continue
+			}
+		}
+
+		currentPrevStep = newStep.ID
+	}
+
+	return
 }
 
 func (mgr *WorkflowManager) GetAllExec() (execs []*models.WorkflowExec, err error) {
