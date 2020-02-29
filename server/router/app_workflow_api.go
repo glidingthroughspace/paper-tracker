@@ -16,10 +16,11 @@ func (r *HttpRouter) buildAppWorkflowAPIRoutes() {
 	template := workflow.Group("/template")
 	template.GET("", r.workflowTemplateListHandler())
 	template.POST("", r.workflowTemplateCreateHandler())
-	template.POST("/:id/start", extractID(), r.workflowTemplateCreateStartHandler())
-	template.POST("/:id/step", extractID(), r.workflowTemplateCreateStepHandler())
-	template.GET("/:tempID/step/:id", extractID(), r.workflowTemplateGetStepHandler())
-	template.POST("/:id/revision", extractID(), r.workflowTemplateNewRevisionHandler())
+	template.POST("/:id/start", extractSimpleID(), r.workflowTemplateCreateStartHandler())
+	template.POST("/:id/step", extractSimpleID(), r.workflowTemplateCreateStepHandler())
+	template.GET("/:tempID/step/:id", extractID("tempID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateGetStepHandler())
+	template.PUT("/:tempID/step/:id", extractID("tempID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateUpdateStepHandler())
+	template.POST("/:id/revision", extractSimpleID(), r.workflowTemplateNewRevisionHandler())
 
 	exec := workflow.Group("/exec")
 	exec.GET("", r.workflowExecListHandler())
@@ -82,6 +83,8 @@ func (r *HttpRouter) workflowTemplateCreateStartHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) workflowTemplateCreateStepHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamIDName))
+
 		stepRequest := &communication.CreateStepRequest{}
 		err := ctx.BindJSON(stepRequest)
 		if err != nil {
@@ -90,7 +93,7 @@ func (r *HttpRouter) workflowTemplateCreateStepHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = managers.GetWorkflowManager().AddTemplateStep(stepRequest.PrevStepID, stepRequest.DecisionLabel, stepRequest.Step)
+		err = managers.GetWorkflowManager().AddTemplateStep(templateID, stepRequest.PrevStepID, stepRequest.DecisionLabel, stepRequest.Step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowTemplateCreateStep request failed")
@@ -102,12 +105,37 @@ func (r *HttpRouter) workflowTemplateCreateStepHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) workflowTemplateGetStepHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTempIDName))
 		stepID := models.StepID(ctx.GetInt(httpParamIDName))
 
-		step, err := managers.GetWorkflowManager().GetStepByID(stepID)
+		step, err := managers.GetWorkflowManager().GetStepByID(templateID, stepID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowTemplateGetStep request failed")
+			return
+		}
+		ctx.JSON(http.StatusOK, step)
+	}
+}
+
+func (r *HttpRouter) workflowTemplateUpdateStepHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTempIDName))
+		stepID := models.StepID(ctx.GetInt(httpParamIDName))
+
+		step := &models.Step{}
+		err := ctx.BindJSON(step)
+		if err != nil {
+			log.WithField("err", err).Error("Failed to unmarshal json to step")
+			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
+			return
+		}
+		step.ID = stepID
+
+		err = managers.GetWorkflowManager().UpdateStep(templateID, step)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("WorkflowTemplateUpdateStep request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, step)
@@ -162,6 +190,7 @@ func (r *HttpRouter) workflowTemplateNewRevisionHandler() gin.HandlerFunc {
 		if err != nil {
 			log.WithFields(log.Fields{"templateID": templateID, "err": err}).Warn("Failed to create new template revision")
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			return
 		}
 		ctx.JSON(http.StatusOK, newTemplate)
 	}

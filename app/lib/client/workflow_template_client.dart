@@ -54,4 +54,8 @@ class WorkflowTemplateClient {
       throw Exception("Failed to get workflow step");
     }
   }
+
+  Future<void> updateStep(int templateID, WFStep step) async {
+    return apiClient.put("/workflow/template/$templateID/step/${step.id}", json.encode(step.toJSON()));
+  }
 }

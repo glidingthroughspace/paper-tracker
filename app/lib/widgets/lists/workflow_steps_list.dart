@@ -16,6 +16,7 @@ class WorkflowStepsList extends StatefulWidget {
   final Map<int, ExecStepInfo> stepInfos;
   final int currentStep;
   final bool primaryScroll;
+  final void Function(WFStep) onTap;
 
   const WorkflowStepsList(
       {Key key,
@@ -25,6 +26,7 @@ class WorkflowStepsList extends StatefulWidget {
       this.controller,
       this.stepInfos,
       this.currentStep,
+      this.onTap,
       this.primaryScroll = true})
       : super(key: key);
 
@@ -67,6 +69,8 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
         indentationFactor: indentation,
         verticalPadding: 5.0,
         color: widget.currentStep == step.id ? WFStep.CurrentStepColor : null,
+        onTap: widget.onTap,
+        object: step,
       ));
 
       if (nestedSteps != null) {
@@ -89,13 +93,13 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
   }
 
   List<WFStep> getNestedSteps(WFStep step, ExecStepInfo stepInfo) {
-    if (step.options.isEmpty) {
+    if (step.options == null || step.options.isEmpty) {
       return null;
     }
 
     if (stepInfo != null && stepInfo.decision != null) {
       selectedDecisionMap[step.id] = widget.stepInfos[step.id].decision;
-    } else if (!selectedDecisionMap.containsKey(step.id)) {
+    } else if (!selectedDecisionMap.containsKey(step.id) || !step.options.keys.contains(selectedDecisionMap[step.id])) {
       selectedDecisionMap[step.id] = step.options.keys.elementAt(0);
     }
 

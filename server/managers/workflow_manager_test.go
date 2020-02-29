@@ -69,6 +69,7 @@ var _ = Describe("TrackerManager", func() {
 		It("CreateWorkflowStart calls repo create exactly once, gets workflow and inserts startstep", func() {
 			mockWorkflowRep.EXPECT().CreateStep(step).Return(nil).Times(1)
 			mockWorkflowRep.EXPECT().GetTemplateByID(workflow.ID).Return(workflow, nil).Times(1)
+			mockWorkflowRep.EXPECT().GetExecsByTemplateID(workflow.ID).Return(make([]*models.WorkflowExec, 0), nil).Times(1)
 			mockWorkflowRep.EXPECT().UpdateTemplate(workflow).Return(nil).Times(1)
 
 			Expect(manager.CreateTemplateStart(workflow.ID, step)).To(Succeed())

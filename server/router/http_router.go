@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	httpParamIDName = "id"
+	httpParamIDName     = "id"
+	httpParamTempIDName = "tempid"
 )
 
 type HttpRouter struct {
