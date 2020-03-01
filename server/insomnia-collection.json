@@ -1,7 +1,7 @@
 {
 	"_type": "export",
 	"__export_format": 4,
-	"__export_date": "2020-02-28T14:18:07.650Z",
+	"__export_date": "2020-03-01T10:26:31.312Z",
 	"__export_source": "insomnia.desktop.app:v7.1.1",
 	"resources": [
 		{
@@ -264,6 +264,29 @@
 			"settingSendCookies": true,
 			"settingStoreCookies": true,
 			"url": "{{ base_url  }}/workflow/template/2/step/4",
+			"_type": "request"
+		},
+		{
+			"_id": "req_5c24213986284be98161103821a35d37",
+			"authentication": {},
+			"body": {},
+			"created": 1583057844557,
+			"description": "",
+			"headers": [],
+			"isPrivate": false,
+			"metaSortKey": -1581249171403,
+			"method": "DELETE",
+			"modified": 1583058367615,
+			"name": "Template Step Delete",
+			"parameters": [],
+			"parentId": "fld_d1e30600ebf647039e55af471cb723b2",
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingFollowRedirects": "global",
+			"settingRebuildPath": true,
+			"settingSendCookies": true,
+			"settingStoreCookies": true,
+			"url": "{{ base_url  }}/workflow/template/2/step/7",
 			"_type": "request"
 		},
 		{

@@ -34,17 +34,17 @@ func (m *MockWorkflowRepository) EXPECT() *MockWorkflowRepositoryMockRecorder {
 }
 
 // CreateTemplate mocks base method
-func (m *MockWorkflowRepository) CreateTemplate(workflow *models.WorkflowTemplate) error {
+func (m *MockWorkflowRepository) CreateTemplate(template *models.WorkflowTemplate) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateTemplate", workflow)
+	ret := m.ctrl.Call(m, "CreateTemplate", template)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateTemplate indicates an expected call of CreateTemplate
-func (mr *MockWorkflowRepositoryMockRecorder) CreateTemplate(workflow interface{}) *gomock.Call {
+func (mr *MockWorkflowRepositoryMockRecorder) CreateTemplate(template interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTemplate", reflect.TypeOf((*MockWorkflowRepository)(nil).CreateTemplate), workflow)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTemplate", reflect.TypeOf((*MockWorkflowRepository)(nil).CreateTemplate), template)
 }
 
 // GetAllTemplates mocks base method
@@ -63,46 +63,46 @@ func (mr *MockWorkflowRepositoryMockRecorder) GetAllTemplates() *gomock.Call {
 }
 
 // GetTemplateByID mocks base method
-func (m *MockWorkflowRepository) GetTemplateByID(workflowID models.WorkflowTemplateID) (*models.WorkflowTemplate, error) {
+func (m *MockWorkflowRepository) GetTemplateByID(templateID models.WorkflowTemplateID) (*models.WorkflowTemplate, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetTemplateByID", workflowID)
+	ret := m.ctrl.Call(m, "GetTemplateByID", templateID)
 	ret0, _ := ret[0].(*models.WorkflowTemplate)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetTemplateByID indicates an expected call of GetTemplateByID
-func (mr *MockWorkflowRepositoryMockRecorder) GetTemplateByID(workflowID interface{}) *gomock.Call {
+func (mr *MockWorkflowRepositoryMockRecorder) GetTemplateByID(templateID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTemplateByID", reflect.TypeOf((*MockWorkflowRepository)(nil).GetTemplateByID), workflowID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTemplateByID", reflect.TypeOf((*MockWorkflowRepository)(nil).GetTemplateByID), templateID)
 }
 
 // UpdateTemplate mocks base method
-func (m *MockWorkflowRepository) UpdateTemplate(workflow *models.WorkflowTemplate) error {
+func (m *MockWorkflowRepository) UpdateTemplate(template *models.WorkflowTemplate) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateTemplate", workflow)
+	ret := m.ctrl.Call(m, "UpdateTemplate", template)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateTemplate indicates an expected call of UpdateTemplate
-func (mr *MockWorkflowRepositoryMockRecorder) UpdateTemplate(workflow interface{}) *gomock.Call {
+func (mr *MockWorkflowRepositoryMockRecorder) UpdateTemplate(template interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTemplate", reflect.TypeOf((*MockWorkflowRepository)(nil).UpdateTemplate), workflow)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTemplate", reflect.TypeOf((*MockWorkflowRepository)(nil).UpdateTemplate), template)
 }
 
 // DeleteTemplate mocks base method
-func (m *MockWorkflowRepository) DeleteTemplate(workflowID models.WorkflowTemplateID) error {
+func (m *MockWorkflowRepository) DeleteTemplate(templateID models.WorkflowTemplateID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteTemplate", workflowID)
+	ret := m.ctrl.Call(m, "DeleteTemplate", templateID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteTemplate indicates an expected call of DeleteTemplate
-func (mr *MockWorkflowRepositoryMockRecorder) DeleteTemplate(workflowID interface{}) *gomock.Call {
+func (mr *MockWorkflowRepositoryMockRecorder) DeleteTemplate(templateID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTemplate", reflect.TypeOf((*MockWorkflowRepository)(nil).DeleteTemplate), workflowID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTemplate", reflect.TypeOf((*MockWorkflowRepository)(nil).DeleteTemplate), templateID)
 }
 
 // CreateStep mocks base method
@@ -190,6 +190,20 @@ func (mr *MockWorkflowRepositoryMockRecorder) UpdateNextStep(nextStep interface{
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateNextStep", reflect.TypeOf((*MockWorkflowRepository)(nil).UpdateNextStep), nextStep)
 }
 
+// DeleteNextStep mocks base method
+func (m *MockWorkflowRepository) DeleteNextStep(prevStepID, nextStepID models.StepID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteNextStep", prevStepID, nextStepID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteNextStep indicates an expected call of DeleteNextStep
+func (mr *MockWorkflowRepositoryMockRecorder) DeleteNextStep(prevStepID, nextStepID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteNextStep", reflect.TypeOf((*MockWorkflowRepository)(nil).DeleteNextStep), prevStepID, nextStepID)
+}
+
 // GetLinearNextStepID mocks base method
 func (m *MockWorkflowRepository) GetLinearNextStepID(stepID models.StepID) (models.StepID, error) {
 	m.ctrl.T.Helper()
@@ -203,6 +217,21 @@ func (m *MockWorkflowRepository) GetLinearNextStepID(stepID models.StepID) (mode
 func (mr *MockWorkflowRepositoryMockRecorder) GetLinearNextStepID(stepID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLinearNextStepID", reflect.TypeOf((*MockWorkflowRepository)(nil).GetLinearNextStepID), stepID)
+}
+
+// GetNextStepByNextID mocks base method
+func (m *MockWorkflowRepository) GetNextStepByNextID(stepID models.StepID) (*models.NextStep, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNextStepByNextID", stepID)
+	ret0, _ := ret[0].(*models.NextStep)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetNextStepByNextID indicates an expected call of GetNextStepByNextID
+func (mr *MockWorkflowRepositoryMockRecorder) GetNextStepByNextID(stepID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNextStepByNextID", reflect.TypeOf((*MockWorkflowRepository)(nil).GetNextStepByNextID), stepID)
 }
 
 // GetDecisions mocks base method
