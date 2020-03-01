@@ -1,30 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:paper_tracker/model/workflow.dart';
 
-class WorkflowStepDialog extends StatelessWidget {
-  final WFStep step;
-  final void Function(WFStep) onEdit;
-  final void Function(WFStep) onDelete;
+class OptionsDialog<T> extends StatelessWidget {
+  final T object;
+  final Map<String, void Function(T)> options;
 
-  const WorkflowStepDialog({Key key, this.step, this.onEdit, this.onDelete}) : super(key: key);
+  const OptionsDialog({Key key, this.object, this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> buttons = [];
-    if (onEdit != null) {
-      buttons.add(MaterialButton(
-        child: Text("Edit"),
-        shape: Border.all(color: Colors.grey),
-        onPressed: () => onEdit(step),
-      ));
-    }
-    if (onDelete != null) {
-      buttons.add(MaterialButton(
-        child: Text("Delete"),
-        shape: Border.all(color: Colors.grey),
-        onPressed: () => onDelete(step),
-      ));
-    }
+    var buttons = options
+        .map(
+          (title, action) => MapEntry(
+              MaterialButton(
+                child: Text(title),
+                shape: Border.all(color: Colors.grey),
+                onPressed: () => action(object),
+              ),
+              null),
+        )
+        .keys
+        .toList();
 
     return AlertDialog(
       content: Column(
