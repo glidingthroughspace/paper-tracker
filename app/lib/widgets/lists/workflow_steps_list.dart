@@ -17,6 +17,7 @@ class WorkflowStepsList extends StatefulWidget {
   final int currentStep;
   final bool primaryScroll;
   final void Function(WFStep) onTap;
+  final Map<int, ExecStepInfo> execStepInfos;
 
   const WorkflowStepsList(
       {Key key,
@@ -27,6 +28,7 @@ class WorkflowStepsList extends StatefulWidget {
       this.stepInfos,
       this.currentStep,
       this.onTap,
+      this.execStepInfos,
       this.primaryScroll = true})
       : super(key: key);
 
@@ -110,7 +112,7 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
     List<Row> children = [
       Row(
         children: [
-          Text(step.label),
+          Text("Label: ${step.label}"),
         ],
       ),
       Row(

@@ -21,6 +21,7 @@ class _WorkflowTemplateListState extends State<WorkflowTemplateList> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<WorkflowTemplate> templateList = snapshot.data;
+          templateList.sort((a, b) => a.label.compareTo(b.label));
           var dataList = templateList.map((template) => CardListData(template.label, null, template)).toList();
 
           return Scaffold(

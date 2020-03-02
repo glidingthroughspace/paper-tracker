@@ -26,6 +26,7 @@ class _TrackerListState extends State<TrackerList> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Tracker> trackerList = snapshot.data;
+            trackerList.sort((a, b) => a.label.compareTo(b.label));
             var dataList =
                 trackerList.map((tracker) => CardListData(tracker.label, buildSubtitle(tracker), tracker)).toList();
 
