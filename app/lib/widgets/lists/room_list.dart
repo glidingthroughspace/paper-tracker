@@ -23,6 +23,7 @@ class _RoomListState extends State<RoomList> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Room> roomList = snapshot.data;
+            roomList.sort((a, b) => a.label.compareTo(b.label));
             Map<String, Room> titleObjectMap =
                 Map.fromIterable(roomList, key: (room) => room.label, value: (room) => room);
             var dataList = roomList.map((room) => CardListData(room.label, buildSubtitle(room), room)).toList();

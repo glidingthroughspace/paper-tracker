@@ -28,7 +28,13 @@ class _ConfigPageState extends State<ConfigPage> {
       Navigator.of(context).pushReplacementNamed(MainPage.Route);
     } else {
       return showDialog(
-          context: context, child: ConfirmIconTextDialog(text: "Server not available", icon: Icons.warning));
+        context: context,
+        child: ConfirmIconTextDialog(
+          text: "Server not available",
+          icon: Icons.warning,
+          actions: {"OK": () => Navigator.of(context).pop()},
+        ),
+      );
     }
   }
 

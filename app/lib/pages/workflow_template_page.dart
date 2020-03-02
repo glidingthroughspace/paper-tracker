@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/communication/createStepRequest.dart';
@@ -54,14 +55,33 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
   }
 
   Widget buildContent(WorkflowTemplate template) {
-    return Container(
-      padding: EdgeInsets.all(15.0),
-      child: WorkflowStepsList(
+    var children = <Widget>[
+      WorkflowStepsList(
         steps: template.steps,
         roomClient: roomClient,
         onStepAdd: template.editingLocked ? null : onAddStep,
         primaryScroll: false,
         onTap: template.editingLocked ? null : onStepTap,
+      )
+    ];
+
+    if (template.editingLocked) {
+      children.add(Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.lock, size: 18.0),
+          Padding(padding: EdgeInsets.only(left: 5)),
+          Text("Editing is locked"),
+        ],
+      ));
+    }
+
+    return Container(
+      padding: EdgeInsets.all(15.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
       ),
     );
   }

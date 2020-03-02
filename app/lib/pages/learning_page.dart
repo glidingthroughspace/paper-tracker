@@ -9,6 +9,7 @@ import 'package:paper_tracker/model/tracker.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/countdown_timer.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
+import 'package:paper_tracker/widgets/dialogs/confirm_icon_text_dialog.dart';
 import 'package:paper_tracker/widgets/dropdown.dart';
 import 'package:paper_tracker/widgets/lists/check_card_list.dart';
 
@@ -38,12 +39,9 @@ class _LearningPageState extends State<LearningPage> {
     trackerDropdownController.defaultID = params.trackerID;
 
     return WillPopScope(
-      onWillPop: () {
-        ssidTimer?.cancel();
-        return Future.value(true);
-      },
+      onWillPop: onBackPressed,
       child: DetailContent(
-        disableBackNav: state == _learningState.Running,
+        onBack: () => Navigator.of(context).maybePop(),
         title: "Learn Room",
         iconData: Icons.school,
         bottomButtons: [
@@ -163,6 +161,27 @@ class _LearningPageState extends State<LearningPage> {
         roomDropdownController.selectedItem.id, checkCardListController.checked);
     await roomClient.getAllRooms(refresh: true);
     Navigator.of(context).pop();
+  }
+
+  Future<bool> onBackPressed() {
+    return showDialog(
+          context: context,
+          builder: (context) => ConfirmIconTextDialog(
+            text: "Do you want to cancel learning?",
+            icon: Icons.question_answer,
+            actions: {
+              "No": () => Navigator.of(context).pop(false),
+              "Yes": onCancelLearning,
+            },
+          ),
+        ) ??
+        false;
+  }
+
+  void onCancelLearning() async {
+    ssidTimer?.cancel();
+    await trackerClient.cancelLearning(trackerDropdownController.selectedItem.id);
+    Navigator.of(context).pop(true);
   }
 }
 
