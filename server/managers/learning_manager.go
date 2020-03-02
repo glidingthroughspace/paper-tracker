@@ -153,7 +153,7 @@ func (mgr *LearningManager) FinishLearning(trackerID models.TrackerID, roomID mo
 	room.IsLearned = true
 	err = GetRoomManager().UpdateRoom(room)
 	if err != nil {
-		finishLearningLog.WithField("err", err).Error("Cloud not save room")
+		finishLearningLog.WithField("err", err).Error("Could not save room")
 		err = fmt.Errorf("room: %v", err)
 	}
 
