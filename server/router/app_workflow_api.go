@@ -18,9 +18,9 @@ func (r *HttpRouter) buildAppWorkflowAPIRoutes() {
 	template.POST("", r.workflowTemplateCreateHandler())
 	template.POST("/:id/start", extractSimpleID(), r.workflowTemplateCreateStartHandler())
 	template.POST("/:id/step", extractSimpleID(), r.workflowTemplateCreateStepHandler())
-	template.GET("/:tempID/step/:id", extractID("tempID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateGetStepHandler())
-	template.PUT("/:tempID/step/:id", extractID("tempID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateUpdateStepHandler())
-	template.DELETE("/:tempID/step/:id", extractID("tempID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateDeleteStepHandler())
+	template.GET("/:templID/step/:id", extractID("templID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateGetStepHandler())
+	template.PUT("/:templID/step/:id", extractID("templID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateUpdateStepHandler())
+	template.DELETE("/:templID/step/:id", extractID("templID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateDeleteStepHandler())
 	template.POST("/:id/revision", extractSimpleID(), r.workflowTemplateNewRevisionHandler())
 
 	exec := workflow.Group("/exec")
