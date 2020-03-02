@@ -26,7 +26,7 @@ class _WorkflowExecListState extends State<WorkflowExecList> {
           List<WorkflowExec> execList = snapshot.data;
           var dataList = execList
               .map((exec) => CardListData(exec.label, buildSubtitle(exec), exec,
-                  color: exec.completed ? WorkflowExec.CompletedColor : null))
+                  color: exec.status == WorkflowExecStatus.Finished ? WorkflowExec.CompletedColor : null))
               .toList();
 
           return Scaffold(
@@ -54,9 +54,8 @@ class _WorkflowExecListState extends State<WorkflowExecList> {
   }
 
   Future<void> onRefresh() async {
-    setState(() {
-      execClient.getAllExecs(refresh: true);
-    });
+    await execClient.getAllExecs(refresh: true);
+    setState(() {});
   }
 
   void onTapExec(WorkflowExec exec) async {
@@ -74,8 +73,8 @@ class _WorkflowExecListState extends State<WorkflowExecList> {
     return [
       Text("Started on: ${dateFormatter.format(exec.startedOn)}"),
       ConditionalBuilder(
-        conditional: exec.completed,
-        truthy: Text("Completed on: ${dateFormatter.format(exec.completedOn)}"),
+        conditional: exec.status == WorkflowExecStatus.Finished,
+        truthy: exec.completedOn != null ? Text("Completed on: ${dateFormatter.format(exec.completedOn)}") : Text(""),
         falsy: FutureBuilder(
           future: currentStepFuture,
           builder: (context, snapshot) {

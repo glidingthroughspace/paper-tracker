@@ -1,7 +1,7 @@
 {
 	"_type": "export",
 	"__export_format": 4,
-	"__export_date": "2020-03-01T10:26:31.312Z",
+	"__export_date": "2020-03-02T14:25:47.235Z",
 	"__export_source": "insomnia.desktop.app:v7.1.1",
 	"resources": [
 		{
@@ -14,7 +14,7 @@
 			"isPrivate": false,
 			"metaSortKey": -1582469051560.5,
 			"method": "GET",
-			"modified": 1582469253405,
+			"modified": 1583155763779,
 			"name": "Execution Get",
 			"parameters": [],
 			"parentId": "fld_67f44aab83a243afb5329cf9b2d4e422",
@@ -78,6 +78,29 @@
 			"settingSendCookies": true,
 			"settingStoreCookies": true,
 			"url": "{{ base_url  }}/workflow/exec/start",
+			"_type": "request"
+		},
+		{
+			"_id": "req_e26aecd3fa6246aa84eab02b8b5ff9c3",
+			"authentication": {},
+			"body": {},
+			"created": 1583155637990,
+			"description": "",
+			"headers": [],
+			"isPrivate": false,
+			"metaSortKey": -1581554141573.625,
+			"method": "POST",
+			"modified": 1583158787184,
+			"name": "Execution Progress to Step",
+			"parameters": [],
+			"parentId": "fld_67f44aab83a243afb5329cf9b2d4e422",
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingFollowRedirects": "global",
+			"settingRebuildPath": true,
+			"settingSendCookies": true,
+			"settingStoreCookies": true,
+			"url": "{{ base_url  }}/workflow/exec/1/progress/6",
 			"_type": "request"
 		},
 		{

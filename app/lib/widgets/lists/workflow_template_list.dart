@@ -47,9 +47,8 @@ class _WorkflowTemplateListState extends State<WorkflowTemplateList> {
   }
 
   Future<void> onRefresh() async {
-    setState(() {
-      templateClient.getAllTemplates(refresh: true);
-    });
+    await templateClient.getAllTemplates(refresh: true);
+    setState(() {});
   }
 
   void onAddTemplateButton() async {
@@ -62,9 +61,8 @@ class _WorkflowTemplateListState extends State<WorkflowTemplateList> {
   void addTemplate() async {
     var template = WorkflowTemplate(label: templateLabelEditController.text);
     await templateClient.createTemplate(template);
-    await templateClient.getAllTemplates(refresh: true);
 
-    setState(() {});
+    onRefresh();
     Navigator.of(context).pop();
   }
 

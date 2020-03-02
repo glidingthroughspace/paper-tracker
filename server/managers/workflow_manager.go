@@ -536,6 +536,11 @@ func (mgr *WorkflowManager) ProgressToStep(execID models.WorkflowExecID, stepID 
 		return
 	}
 
+	if exec.Status != models.ExecStatusRunning {
+		progressLog.Error("Workflow exec is not in status running")
+		return errors.New("Workflow exec is not in status running")
+	}
+
 	template, err := mgr.GetTemplate(exec.TemplateID)
 	if err != nil {
 		progressLog.WithField("err", err).Error("Failed to get template of exec")

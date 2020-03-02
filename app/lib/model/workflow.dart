@@ -64,8 +64,8 @@ class WorkflowExec {
   int templateID;
   @JsonKey(name: "tracker_id")
   int trackerID;
-  @JsonKey(name: "completed")
-  bool completed;
+  @JsonKey(name: "status")
+  WorkflowExecStatus status;
   @JsonKey(name: "started_on")
   DateTime startedOn;
   @JsonKey(name: "completed_on")
@@ -80,7 +80,7 @@ class WorkflowExec {
       this.label,
       this.templateID,
       this.trackerID,
-      this.completed,
+      this.status,
       this.startedOn,
       this.completedOn,
       this.currentStepID,
@@ -94,6 +94,15 @@ dynamic _stepInfosToJSON(Map<int, ExecStepInfo> stepInfos) {
   return stepInfos?.map((k, e) => MapEntry(k.toString(), e.toJSON()));
 }
 
+enum WorkflowExecStatus {
+  @JsonValue(1)
+  Running,
+  @JsonValue(2)
+  Finished,
+  @JsonValue(3)
+  Cancelled,
+}
+
 @JsonSerializable()
 class ExecStepInfo {
   @JsonKey(name: "decision")
@@ -102,8 +111,10 @@ class ExecStepInfo {
   DateTime startedOn;
   @JsonKey(name: "completed_on")
   DateTime completedOn;
+  @JsonKey(name: "skipped")
+  bool skipped;
 
-  ExecStepInfo({this.decision, this.startedOn, this.completedOn});
+  ExecStepInfo({this.decision, this.startedOn, this.completedOn, this.skipped});
 
   factory ExecStepInfo.fromJson(Map<String, dynamic> json) => _$ExecStepInfoFromJson(json);
   Map<String, dynamic> toJSON() => _$ExecStepInfoToJson(this);

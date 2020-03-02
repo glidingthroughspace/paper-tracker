@@ -78,6 +78,7 @@ class _LearningPageState extends State<LearningPage> {
       hintName: "room",
       icon: Room.IconData,
       itemFixed: state != _learningState.Init,
+      setState: setState,
     );
   }
 
@@ -85,7 +86,9 @@ class _LearningPageState extends State<LearningPage> {
     return ConditionalBuilder(
       conditional: state == _learningState.Init,
       truthy: MaterialButton(
-        onPressed: onStartLearning,
+        onPressed: roomDropdownController.selectedItem != null && trackerDropdownController.selectedItem != null
+            ? onStartLearning
+            : null,
         child: Text("Start learning"),
         color: Theme.of(context).accentColor,
         minWidth: MediaQuery.of(context).size.width * 0.8,
@@ -111,6 +114,7 @@ class _LearningPageState extends State<LearningPage> {
       hintName: "tracker",
       icon: Tracker.IconData,
       itemFixed: state != _learningState.Init,
+      setState: setState,
     );
   }
 
