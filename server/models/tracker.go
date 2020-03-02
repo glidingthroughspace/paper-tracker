@@ -18,21 +18,21 @@ type Tracker struct {
 type TrackerStatus int8
 
 const (
-	StatusIdle             TrackerStatus = 1
-	StatusLearning         TrackerStatus = 2
-	StatusLearningFinished TrackerStatus = 3
-	StatusTracking         TrackerStatus = 4
+	TrackerStatusIdle             TrackerStatus = 1
+	TrackerStatusLearning         TrackerStatus = 2
+	TrackerStatusLearningFinished TrackerStatus = 3
+	TrackerStatusTracking         TrackerStatus = 4
 )
 
 func (s TrackerStatus) String() string {
 	switch s {
-	case StatusIdle:
+	case TrackerStatusIdle:
 		return "StatusIdle"
-	case StatusLearning:
+	case TrackerStatusLearning:
 		return "StatusLearning"
-	case StatusLearningFinished:
+	case TrackerStatusLearningFinished:
 		return "StatusLearningFinished"
-	case StatusTracking:
+	case TrackerStatusTracking:
 		return "StatusTracking"
 	}
 	return "Unknown status"

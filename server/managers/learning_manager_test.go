@@ -65,9 +65,9 @@ var _ = Describe("LearningManager", func() {
 		mockTrackerRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
 		mockRoomRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
 
-		trackerIdle = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusIdle}
-		trackerLearning = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearning}
-		trackerLearningFinished = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearningFinished}
+		trackerIdle = &models.Tracker{ID: id, Label: "New Tracker", Status: models.TrackerStatusIdle}
+		trackerLearning = &models.Tracker{ID: id, Label: "New Tracker", Status: models.TrackerStatusLearning}
+		trackerLearningFinished = &models.Tracker{ID: id, Label: "New Tracker", Status: models.TrackerStatusLearningFinished}
 
 		scanRes = []*models.ScanResult{
 			&models.ScanResult{SSID: "Test0", BSSID: "aa:bb:cc:dd:ee:ff", RSSI: -50},
@@ -193,7 +193,7 @@ var _ = Describe("LearningManager", func() {
 			mockRoomRep.EXPECT().GetByID(roomID).Return(outRoom, nil).Times(1)
 			mockScanResultRep.EXPECT().GetAllForTracker(id).Return([]*models.ScanResult{}, nil)
 			mockRoomRep.EXPECT().Update(outRoom).Return(nil).Times(1)
-			mockTrackerRep.EXPECT().SetStatusByID(id, models.StatusIdle).Return(nil).Times(1)
+			mockTrackerRep.EXPECT().SetStatusByID(id, models.TrackerStatusIdle).Return(nil).Times(1)
 			Expect(manager.FinishLearning(id, roomID, []string{})).To(Succeed())
 		})
 	})
