@@ -58,4 +58,8 @@ class WorkflowTemplateClient {
   Future<void> updateStep(int templateID, WFStep step) async {
     return apiClient.put("/workflow/template/$templateID/step/${step.id}", json.encode(step.toJSON()));
   }
+
+  Future<void> deleteStep(int templateID, int stepID) async {
+    return apiClient.delete("/workflow/template/$templateID/step/$stepID");
+  }
 }

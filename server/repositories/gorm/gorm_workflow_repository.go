@@ -56,7 +56,7 @@ func (rep *GormWorkflowRepository) CreateStep(step *models.Step) (err error) {
 
 func (rep *GormWorkflowRepository) GetStepByID(stepID models.StepID) (step *models.Step, err error) {
 	step = &models.Step{}
-	err = databaseConnection.Where("id = ?", stepID).First(step).Error
+	err = databaseConnection.First(step, &models.Step{ID: stepID}).Error
 	return
 }
 
@@ -80,10 +80,21 @@ func (rep *GormWorkflowRepository) UpdateNextStep(nextStep *models.NextStep) (er
 	return
 }
 
+func (rep *GormWorkflowRepository) DeleteNextStep(prevStepID models.StepID, nextStepID models.StepID) (err error) {
+	err = databaseConnection.Delete(&models.NextStep{PrevID: prevStepID, NextID: nextStepID}).Error
+	return
+}
+
 func (rep *GormWorkflowRepository) GetLinearNextStepID(stepID models.StepID) (nextStepID models.StepID, err error) {
 	nextStep := &models.NextStep{}
 	err = databaseConnection.Where("prev_id = ? AND decision_label = \"\"", stepID).First(nextStep).Error
 	nextStepID = nextStep.NextID
+	return
+}
+
+func (rep *GormWorkflowRepository) GetNextStepByNextID(stepID models.StepID) (nextStep *models.NextStep, err error) {
+	nextStep = &models.NextStep{}
+	err = databaseConnection.First(nextStep, &models.NextStep{NextID: stepID}).Error
 	return
 }
 

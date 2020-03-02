@@ -120,11 +120,12 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
   void onStepTap(WFStep step) {
     showDialog(
       context: context,
-      child: WorkflowStepDialog(
-        step: step,
-        onEdit: onEditStep,
-        onDelete: onDeleteStep,
-      ),
+      child: OptionsDialog(object: step, options: {
+        "Edit Step": onEditStep,
+        "Delete Step": onDeleteStep,
+        "Move Step Up": onMoveStepUp,
+        "Move Step Down": onMoveStepDown,
+      }),
     );
   }
 
@@ -166,9 +167,17 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
     );
 
     await templateClient.updateStep(templateID, editedStep);
-    Navigator.of(context).pop();
     refreshTemplate();
+    Navigator.of(context).pop();
   }
 
-  void onDeleteStep(WFStep step) {}
+  void onDeleteStep(WFStep step) async {
+    await templateClient.deleteStep(templateID, step.id);
+    refreshTemplate();
+    Navigator.of(context).pop();
+  }
+
+  void onMoveStepUp(WFStep step) async {}
+
+  void onMoveStepDown(WFStep step) async {}
 }

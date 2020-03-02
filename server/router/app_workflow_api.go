@@ -18,8 +18,9 @@ func (r *HttpRouter) buildAppWorkflowAPIRoutes() {
 	template.POST("", r.workflowTemplateCreateHandler())
 	template.POST("/:id/start", extractSimpleID(), r.workflowTemplateCreateStartHandler())
 	template.POST("/:id/step", extractSimpleID(), r.workflowTemplateCreateStepHandler())
-	template.GET("/:tempID/step/:id", extractID("tempID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateGetStepHandler())
-	template.PUT("/:tempID/step/:id", extractID("tempID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateUpdateStepHandler())
+	template.GET("/:templID/step/:id", extractID("templID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateGetStepHandler())
+	template.PUT("/:templID/step/:id", extractID("templID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateUpdateStepHandler())
+	template.DELETE("/:templID/step/:id", extractID("templID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateDeleteStepHandler())
 	template.POST("/:id/revision", extractSimpleID(), r.workflowTemplateNewRevisionHandler())
 
 	exec := workflow.Group("/exec")
@@ -139,6 +140,21 @@ func (r *HttpRouter) workflowTemplateUpdateStepHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, step)
+	}
+}
+
+func (r *HttpRouter) workflowTemplateDeleteStepHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTempIDName))
+		stepID := models.StepID(ctx.GetInt(httpParamIDName))
+
+		err := managers.GetWorkflowManager().DeleteStep(templateID, stepID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithField("err", err).Warn("WorkflowTemplateUpdateStep request failed")
+			return
+		}
+		ctx.Status(http.StatusOK)
 	}
 }
 

@@ -250,6 +250,93 @@ func (mgr *WorkflowManager) UpdateStep(templateID models.WorkflowTemplateID, ste
 	return
 }
 
+func (mgr *WorkflowManager) DeleteStep(templateID models.WorkflowTemplateID, stepID models.StepID) (err error) {
+	deleteLog := log.WithFields(log.Fields{"templateID": templateID, "stepID": stepID})
+
+	template, err := mgr.GetTemplate(templateID)
+	if err != nil || template.EditingLocked {
+		deleteLog.WithField("err", err).Warn("Editing of template locked")
+		return errors.New("Editing of template locked")
+	}
+
+	step, err := mgr.GetStepByID(templateID, stepID)
+	if err != nil {
+		deleteLog.WithField("err", err).Error("Failed to get to be deleted step")
+		return
+	} else if len(step.Options) > 0 {
+		deleteLog.Warn("Cannot delete step that has options")
+		return errors.New("Cannot delete step that has options")
+	}
+
+	var fromStep *models.NextStep
+	if template.StartStep != stepID {
+		fromStep, err = mgr.workflowRep.GetNextStepByNextID(stepID)
+		if err != nil {
+			deleteLog.WithField("err", err).Error("Failed to get nextStep that points to be deleted step")
+			return
+		}
+	}
+
+	toStepID, err := mgr.workflowRep.GetLinearNextStepID(stepID)
+	if mgr.workflowRep.IsRecordNotFoundError(err) {
+		toStepID = 0
+		err = nil
+	} else if err != nil {
+		deleteLog.WithField("err", err).Error("Failed to get next linear step of to be deleted step")
+		return
+	}
+
+	if fromStep != nil {
+		err = mgr.workflowRep.DeleteNextStep(fromStep.PrevID, fromStep.NextID)
+		if err != nil {
+			deleteLog.WithField("err", err).Error("Failed to delete nextStep pointing to to be deleted step")
+			return
+		}
+	}
+
+	if toStepID > 0 {
+		err = mgr.workflowRep.DeleteNextStep(stepID, toStepID)
+		if err != nil {
+			deleteLog.WithField("err", err).Error("Failed to delete nextStep pointing from to be deleted step - ignore for now")
+			err = nil
+		}
+	}
+
+	err = mgr.workflowRep.DeleteStep(stepID)
+	if err != nil {
+		deleteLog.WithField("err", err).Error("Failed to delete step")
+		return
+	}
+
+	if fromStep != nil && toStepID > 0 {
+		newNextStep := &models.NextStep{
+			PrevID:        fromStep.PrevID,
+			NextID:        toStepID,
+			DecisionLabel: fromStep.DecisionLabel,
+		}
+		err = mgr.workflowRep.CreateNextStep(newNextStep)
+		if err != nil {
+			deleteLog.WithField("err", err).Error("Failed to create new nextStep after deleting step")
+			return
+		}
+	}
+
+	if stepID == template.StartStep {
+		if toStepID > 0 {
+			template.StartStep = toStepID
+		} else {
+			template.StartStep = 0
+		}
+		err = mgr.workflowRep.UpdateTemplate(template)
+		if err != nil {
+			deleteLog.WithField("err", err).Error("Failed to set template startStep to 0 after deleting start step")
+			return
+		}
+	}
+
+	return
+}
+
 func (mgr *WorkflowManager) CreateNewRevision(oldID models.WorkflowTemplateID, revisionLabel string) (template *models.WorkflowTemplate, err error) {
 	revisionLog := log.WithField("oldID", oldID)
 
