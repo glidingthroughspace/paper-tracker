@@ -141,13 +141,20 @@ func (mgr *LearningManager) FinishLearning(trackerID models.TrackerID, roomID mo
 		return
 	}
 
-	//TODO: Calc something useful from saved scans
-
-	err = GetRoomManager().SetRoomLearned(room.ID, true)
+	scanResults, err := mgr.scanResultRep.GetAllForTracker(tracker.ID)
 	if err != nil {
-		finishLearningLog.WithField("err", err).Error("Failed to save room")
-		err = fmt.Errorf("room: %v", err)
+		finishLearningLog.WithField("err", err).Error("Failed to get the new scan results")
+		err = fmt.Errorf("scanResults: %v", err)
 		return
+	}
+
+	trackingData := GetTrackingManager().ConsolidateScanResults(scanResults)
+	room.TrackingData = trackingData
+	room.IsLearned = true
+	err = GetRoomManager().UpdateRoom(room)
+	if err != nil {
+		finishLearningLog.WithField("err", err).Error("Could not save room")
+		err = fmt.Errorf("room: %v", err)
 	}
 
 	err = GetTrackerManager().SetTrackerStatus(tracker.ID, models.StatusIdle)
