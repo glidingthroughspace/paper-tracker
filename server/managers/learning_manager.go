@@ -43,7 +43,7 @@ func (mgr *LearningManager) StartLearning(trackerID models.TrackerID) (learnTime
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
 	if err != nil {
 		return
-	} else if tracker.Status != models.StatusIdle {
+	} else if tracker.Status != models.TrackerStatusIdle {
 		err = errors.New("Given tracker is not in idle mode")
 		return
 	}
@@ -66,7 +66,7 @@ func (mgr *LearningManager) learningRoutine(trackerID models.TrackerID, logger *
 	logger.Info("Start learning routine")
 
 	logger.Info("Set tracker status to learning")
-	err := GetTrackerManager().SetTrackerStatus(trackerID, models.StatusLearning)
+	err := GetTrackerManager().SetTrackerStatus(trackerID, models.TrackerStatusLearning)
 	if err != nil {
 		return
 	}
@@ -75,7 +75,7 @@ func (mgr *LearningManager) learningRoutine(trackerID models.TrackerID, logger *
 
 	if !canceled {
 		logger.Info("Set tracker status to learning finished")
-		err = GetTrackerManager().SetTrackerStatus(trackerID, models.StatusLearningFinished)
+		err = GetTrackerManager().SetTrackerStatus(trackerID, models.TrackerStatusLearningFinished)
 		if err != nil {
 			return
 		}
@@ -96,7 +96,7 @@ func (mgr *LearningManager) learningCreateTrackingCmds(trackerID models.TrackerI
 
 	for it := 0; it < mgr.learnCount; it++ {
 		tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
-		if err == nil && tracker.Status != models.StatusLearning {
+		if err == nil && tracker.Status != models.TrackerStatusLearning {
 			return true
 		}
 
@@ -129,7 +129,7 @@ func (mgr *LearningManager) FinishLearning(trackerID models.TrackerID, roomID mo
 		return
 	}
 
-	if tracker.Status != models.StatusLearningFinished {
+	if tracker.Status != models.TrackerStatusLearningFinished {
 		err = errors.New("Tracker is not in status LearningFinished")
 		return
 	}
@@ -157,7 +157,7 @@ func (mgr *LearningManager) FinishLearning(trackerID models.TrackerID, roomID mo
 		err = fmt.Errorf("room: %v", err)
 	}
 
-	err = GetTrackerManager().SetTrackerStatus(tracker.ID, models.StatusIdle)
+	err = GetTrackerManager().SetTrackerStatus(tracker.ID, models.TrackerStatusIdle)
 	if err != nil {
 		finishLearningLog.WithField("err", err).Error("Failed to set tracker status to idle after learning")
 		return
@@ -173,12 +173,12 @@ func (mgr *LearningManager) GetLearningStatus(trackerID models.TrackerID) (done 
 	if err != nil {
 		learningStatusLog.WithField("err", err).Error("Failed to get tracker")
 		return
-	} else if tracker.Status != models.StatusLearning && tracker.Status != models.StatusLearningFinished {
+	} else if tracker.Status != models.TrackerStatusLearning && tracker.Status != models.TrackerStatusLearningFinished {
 		err = errors.New("Tracker currently not in learning or learning finished status")
 		return
 	}
 
-	done = tracker.Status == models.StatusLearningFinished
+	done = tracker.Status == models.TrackerStatusLearningFinished
 
 	scanRes, err := mgr.scanResultRep.GetAllForTracker(trackerID)
 	if err != nil && !mgr.scanResultRep.IsRecordNotFoundError(err) {
@@ -207,7 +207,7 @@ func (mgr *LearningManager) GetLearningStatus(trackerID models.TrackerID) (done 
 func (mgr *LearningManager) CancelLearning(trackerID models.TrackerID) (err error) {
 	cancelLearningLog := log.WithField("trackerID", trackerID)
 
-	err = GetTrackerManager().SetTrackerStatus(trackerID, models.StatusIdle)
+	err = GetTrackerManager().SetTrackerStatus(trackerID, models.TrackerStatusIdle)
 	if err != nil {
 		cancelLearningLog.WithField("err", err).Error("Failed to set tracker status to idle while canceling learning - ignore for now")
 		err = nil

@@ -2,6 +2,7 @@ package managers
 
 import (
 	"errors"
+	"fmt"
 	"paper-tracker/models"
 	"paper-tracker/repositories"
 	"time"
@@ -458,7 +459,7 @@ func (mgr *WorkflowManager) StartExecution(exec *models.WorkflowExec) (err error
 		return
 	}
 
-	if tracker.Status != models.StatusIdle {
+	if tracker.Status != models.TrackerStatusIdle {
 		startExecLog.Warn("Tracker not in idle for starting execution")
 		err = errors.New("tracker not in idle mode")
 		return
@@ -476,16 +477,18 @@ func (mgr *WorkflowManager) StartExecution(exec *models.WorkflowExec) (err error
 		return
 	}
 
-	exec.Completed = false
+	timeNow := time.Now()
+
+	exec.Status = models.ExecStatusRunning
 	exec.CurrentStepID = template.StartStep
-	exec.StartedOn = time.Now()
+	exec.StartedOn = &timeNow
 	err = mgr.workflowRep.CreateExec(exec)
 	if err != nil {
 		startExecLog.WithField("err", err).Warn("Failed to create workflow exec")
 		return
 	}
 
-	err = GetTrackerManager().SetTrackerStatus(exec.TrackerID, models.StatusTracking)
+	err = GetTrackerManager().SetTrackerStatus(exec.TrackerID, models.TrackerStatusTracking)
 	if err != nil {
 		startExecLog.WithField("err", err).Error("Failed to set tracker to status tracking - error ignored for now")
 		err = nil
@@ -494,7 +497,7 @@ func (mgr *WorkflowManager) StartExecution(exec *models.WorkflowExec) (err error
 	startInfo := &models.ExecStepInfo{
 		ExecID:    exec.ID,
 		StepID:    template.StartStep,
-		StartedOn: time.Now(),
+		StartedOn: &timeNow,
 	}
 	err = mgr.workflowRep.CreateExecStepInfo(startInfo)
 	if err != nil {
@@ -519,6 +522,135 @@ func (mgr *WorkflowManager) StartExecution(exec *models.WorkflowExec) (err error
 			startExecLog.WithFields(log.Fields{"info": info, "err": err}).Error("Failed to create exec info - error ignored for now")
 			err = nil
 		}
+	}
+
+	return
+}
+
+func (mgr *WorkflowManager) ProgressToStep(execID models.WorkflowExecID, stepID models.StepID) (err error) {
+	progressLog := log.WithFields(log.Fields{"execID": execID, "stepID": stepID})
+
+	exec, err := mgr.GetExec(execID)
+	if err != nil {
+		progressLog.WithField("err", err).Error("Failed to get exec")
+		return
+	}
+
+	if exec.Status != models.ExecStatusRunning {
+		progressLog.Error("Workflow exec is not in status running")
+		return errors.New("Workflow exec is not in status running")
+	}
+
+	template, err := mgr.GetTemplate(exec.TemplateID)
+	if err != nil {
+		progressLog.WithField("err", err).Error("Failed to get template of exec")
+		return
+	}
+
+	updatedStepInfo := make([]*models.ExecStepInfo, 0)
+	setSkipped := false
+	found, finished, err := mgr.progressInSteps(exec, stepID, template.Steps, &setSkipped, &updatedStepInfo, progressLog)
+	if (!found && !finished) || err != nil {
+		progressLog.WithFields(log.Fields{"found": found, "err": err}).Error("Failed to progress to step")
+		err = fmt.Errorf("failed to progress step: %v", err)
+		return
+	}
+
+	if finished {
+		err = mgr.SetExecutionFinished(execID)
+		if err != nil {
+			progressLog.WithField("err", err).Error("Failed to set execution as finished after progressing to step")
+			return
+		}
+	}
+
+	for _, stepInfo := range updatedStepInfo {
+		err = mgr.workflowRep.UpdateExecStepInfo(stepInfo)
+		if err != nil {
+			progressLog.WithFields(log.Fields{"err": err, "stepInfo": stepInfo}).Error("Failed to update exec step info after progressing")
+			continue
+		}
+	}
+
+	return
+}
+
+func (mgr *WorkflowManager) progressInSteps(exec *models.WorkflowExec, stepID models.StepID, steps []*models.Step, setSkipped *bool, updatedStepInfo *[]*models.ExecStepInfo, progressLog *log.Entry) (bool, bool, error) {
+	timeNow := time.Now()
+	useNextStep := false
+	for _, step := range steps {
+		currentStepInfo, stepInfoOK := exec.StepInfos[step.ID]
+
+		if step.ID == stepID && exec.CurrentStepID == stepID {
+			useNextStep = true
+		} else if step.ID == stepID || useNextStep {
+			if stepInfoOK {
+				currentStepInfo.StartedOn = &timeNow
+				*updatedStepInfo = append(*updatedStepInfo, currentStepInfo)
+			} else {
+				*updatedStepInfo = append(*updatedStepInfo, &models.ExecStepInfo{ExecID: exec.ID, StepID: stepID, StartedOn: &timeNow})
+			}
+
+			exec.CurrentStepID = step.ID
+			err := mgr.workflowRep.UpdateExec(exec)
+			if err != nil {
+				progressLog.WithField("err", err).Error("Failed to set new current step id for exec")
+				return true, false, err
+			}
+			return true, false, nil
+		}
+
+		if step.ID == exec.CurrentStepID {
+			*setSkipped = true
+		}
+
+		if stepInfoOK && *setSkipped {
+			currentStepInfo.Skipped = true
+			*updatedStepInfo = append(*updatedStepInfo, currentStepInfo)
+		} else if *setSkipped {
+			*updatedStepInfo = append(*updatedStepInfo, &models.ExecStepInfo{ExecID: exec.ID, StepID: step.ID, Skipped: true})
+		}
+
+		if stepInfoOK && currentStepInfo.Decision != "" {
+			var found bool
+			var err error
+			found, useNextStep, err = mgr.progressInSteps(exec, stepID, step.Options[currentStepInfo.Decision], setSkipped, updatedStepInfo, progressLog)
+			if err != nil {
+				progressLog.WithField("err", err).Error("Failed to progress in inner steps")
+				return found, false, err
+			}
+			if found {
+				return true, false, nil
+			}
+		}
+	}
+
+	return false, useNextStep, nil
+}
+
+func (mgr *WorkflowManager) SetExecutionFinished(execID models.WorkflowExecID) (err error) {
+	execFinishLog := log.WithField("execID", execID)
+
+	exec, err := mgr.GetExec(execID)
+	if err != nil {
+		execFinishLog.WithField("err", err).Error("Failed to get exec")
+		return
+	}
+
+	timeNow := time.Now()
+	exec.CompletedOn = &timeNow
+	exec.Status = models.ExecStatusCompleted
+	exec.CurrentStepID = 0
+	err = mgr.workflowRep.UpdateExec(exec)
+	if err != nil {
+		execFinishLog.WithField("err", err).Error("Failed to set exec finished")
+		return
+	}
+
+	err = GetTrackerManager().SetTrackerStatus(exec.TrackerID, models.TrackerStatusIdle)
+	if err != nil {
+		execFinishLog.WithField("err", err).Error("Failed to set tracker to idle after finishing exec")
+		return
 	}
 
 	return

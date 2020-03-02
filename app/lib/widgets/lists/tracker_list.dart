@@ -66,8 +66,7 @@ class _TrackerListState extends State<TrackerList> {
   }
 
   Future<void> onRefresh() async {
-    setState(() {
-      trackerClient.getAllTrackers(refresh: true);
-    });
+    await trackerClient.getAllTrackers(refresh: true);
+    setState(() {});
   }
 }

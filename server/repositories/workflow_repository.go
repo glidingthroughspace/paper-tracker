@@ -17,6 +17,7 @@ type WorkflowRepository interface {
 	DeleteNextStep(prevStepID models.StepID, nextStepID models.StepID) error
 	GetLinearNextStepID(stepID models.StepID) (models.StepID, error)
 	GetNextStepByNextID(stepID models.StepID) (*models.NextStep, error)
+	GetNextStepByDecison(stepID models.StepID, decision string) (models.StepID, error)
 	GetDecisions(stepID models.StepID) ([]*models.NextStep, error)
 	CreateExec(exec *models.WorkflowExec) error
 	GetAllExec() ([]*models.WorkflowExec, error)

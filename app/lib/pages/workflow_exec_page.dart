@@ -4,6 +4,7 @@ import 'package:paper_tracker/client/workflow_exec_client.dart';
 import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
+import 'package:paper_tracker/widgets/dialogs/workflow_step_dialog.dart';
 import 'package:paper_tracker/widgets/lists/workflow_steps_list.dart';
 
 class WorkflowExecPage extends StatefulWidget {
@@ -62,12 +63,34 @@ class _WorkflowExecPageState extends State<WorkflowExecPage> {
               primaryScroll: false,
               stepInfos: exec.stepInfos,
               currentStep: exec.currentStepID,
+              onTap: onStepTap,
             ),
           );
         }
         return Container();
       },
     );
+  }
+
+  void onStepTap(WFStep step) async {
+    var exec = await futureExec;
+    var options = Map<String, void Function(WFStep)>();
+    if (exec.currentStepID == step.id) {
+      options["Skip this step"] = onProgressToStep;
+    } else {
+      options["Set workflow to this step"] = onProgressToStep;
+    }
+
+    showDialog(
+      context: context,
+      child: OptionsDialog(object: step, options: options),
+    );
+  }
+
+  void onProgressToStep(WFStep step) async {
+    await execClient.progressToStep(execID, step.id);
+    refreshExec();
+    Navigator.of(context).pop();
   }
 
   Future<void> refreshExec() async {

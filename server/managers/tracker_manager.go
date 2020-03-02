@@ -105,7 +105,7 @@ func (mgr *TrackerManager) AddTrackerCommand(command *models.Command) (err error
 }
 
 func (mgr *TrackerManager) NotifyNewTracker() (tracker *models.Tracker, err error) {
-	tracker = &models.Tracker{Label: "New Tracker", Status: models.StatusIdle}
+	tracker = &models.Tracker{Label: "New Tracker", Status: models.TrackerStatusIdle}
 	err = mgr.trackerRep.Create(tracker)
 	if err != nil {
 		log.WithField("err", err).Error("Failed to create new tracker")
@@ -176,12 +176,12 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, scanRes [
 	}
 
 	switch tracker.Status {
-	case models.StatusIdle, models.StatusLearningFinished:
+	case models.TrackerStatusIdle, models.TrackerStatusLearningFinished:
 		err = errors.New("No tracking data expected")
 		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unexpected tracking data")
-	case models.StatusLearning:
+	case models.TrackerStatusLearning:
 		err = GetLearningManager().newLearningTrackingData(trackerID, scanRes)
-	case models.StatusTracking:
+	case models.TrackerStatusTracking:
 		err = errors.New("Not implemented yes") //TODO
 	default:
 		err = errors.New("Unknown tracker status")

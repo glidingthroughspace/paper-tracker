@@ -234,6 +234,21 @@ func (mr *MockWorkflowRepositoryMockRecorder) GetNextStepByNextID(stepID interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNextStepByNextID", reflect.TypeOf((*MockWorkflowRepository)(nil).GetNextStepByNextID), stepID)
 }
 
+// GetNextStepByDecison mocks base method
+func (m *MockWorkflowRepository) GetNextStepByDecison(stepID models.StepID, decision string) (models.StepID, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNextStepByDecison", stepID, decision)
+	ret0, _ := ret[0].(models.StepID)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetNextStepByDecison indicates an expected call of GetNextStepByDecison
+func (mr *MockWorkflowRepositoryMockRecorder) GetNextStepByDecison(stepID, decision interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNextStepByDecison", reflect.TypeOf((*MockWorkflowRepository)(nil).GetNextStepByDecison), stepID, decision)
+}
+
 // GetDecisions mocks base method
 func (m *MockWorkflowRepository) GetDecisions(stepID models.StepID) ([]*models.NextStep, error) {
 	m.ctrl.T.Helper()

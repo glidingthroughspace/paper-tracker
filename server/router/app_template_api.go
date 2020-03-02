@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (r *HttpRouter) buildAppWorkflowAPIRoutes() {
+func (r *HttpRouter) buildAppTemplateAPIRoutes() {
 	workflow := r.engine.Group("/workflow")
 
 	template := workflow.Group("/template")
@@ -18,14 +18,10 @@ func (r *HttpRouter) buildAppWorkflowAPIRoutes() {
 	template.POST("", r.workflowTemplateCreateHandler())
 	template.POST("/:id/start", extractSimpleID(), r.workflowTemplateCreateStartHandler())
 	template.POST("/:id/step", extractSimpleID(), r.workflowTemplateCreateStepHandler())
-	template.GET("/:templID/step/:id", extractID("templID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateGetStepHandler())
-	template.PUT("/:templID/step/:id", extractID("templID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateUpdateStepHandler())
-	template.DELETE("/:templID/step/:id", extractID("templID", httpParamTempIDName), extractSimpleID(), r.workflowTemplateDeleteStepHandler())
+	template.GET("/:templID/step/:id", extractID("templID", httpParamTemplIDName), extractSimpleID(), r.workflowTemplateGetStepHandler())
+	template.PUT("/:templID/step/:id", extractID("templID", httpParamTemplIDName), extractSimpleID(), r.workflowTemplateUpdateStepHandler())
+	template.DELETE("/:templID/step/:id", extractID("templID", httpParamTemplIDName), extractSimpleID(), r.workflowTemplateDeleteStepHandler())
 	template.POST("/:id/revision", extractSimpleID(), r.workflowTemplateNewRevisionHandler())
-
-	exec := workflow.Group("/exec")
-	exec.GET("", r.workflowExecListHandler())
-	exec.POST("/start", r.workflowExecStartHandler())
 }
 
 func (r *HttpRouter) workflowTemplateListHandler() gin.HandlerFunc {
@@ -106,7 +102,7 @@ func (r *HttpRouter) workflowTemplateCreateStepHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) workflowTemplateGetStepHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTempIDName))
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTemplIDName))
 		stepID := models.StepID(ctx.GetInt(httpParamIDName))
 
 		step, err := managers.GetWorkflowManager().GetStepByID(templateID, stepID)
@@ -121,7 +117,7 @@ func (r *HttpRouter) workflowTemplateGetStepHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) workflowTemplateUpdateStepHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTempIDName))
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTemplIDName))
 		stepID := models.StepID(ctx.GetInt(httpParamIDName))
 
 		step := &models.Step{}
@@ -145,7 +141,7 @@ func (r *HttpRouter) workflowTemplateUpdateStepHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) workflowTemplateDeleteStepHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTempIDName))
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTemplIDName))
 		stepID := models.StepID(ctx.GetInt(httpParamIDName))
 
 		err := managers.GetWorkflowManager().DeleteStep(templateID, stepID)
@@ -155,38 +151,6 @@ func (r *HttpRouter) workflowTemplateDeleteStepHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.Status(http.StatusOK)
-	}
-}
-
-func (r *HttpRouter) workflowExecListHandler() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		execs, err := managers.GetWorkflowManager().GetAllExec()
-		if err != nil {
-			log.WithField("err", err).Warn("Failed to get all workflow execs")
-			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			return
-		}
-		ctx.JSON(http.StatusOK, execs)
-	}
-}
-
-func (r *HttpRouter) workflowExecStartHandler() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		exec := &models.WorkflowExec{}
-		err := ctx.BindJSON(exec)
-		if err != nil {
-			log.WithField("err", err).Error("Failed to unmarshal json to workflow execution")
-			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
-			return
-		}
-
-		err = managers.GetWorkflowManager().StartExecution(exec)
-		if err != nil {
-			log.WithFields(log.Fields{"exec": exec, "err": err}).Warn("Failed to start workflow execution")
-			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			return
-		}
-		ctx.JSON(http.StatusOK, exec)
 	}
 }
 

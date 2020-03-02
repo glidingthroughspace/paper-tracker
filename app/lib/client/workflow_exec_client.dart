@@ -33,6 +33,10 @@ class WorkflowExecClient {
   }
 
   Future<void> startExec(WorkflowExec exec) async {
-    return apiClient.post("/workflow/exec/start", json.encode(exec.toJSON()));
+    return apiClient.post("/workflow/exec", json.encode(exec.toJSON()));
+  }
+
+  Future<void> progressToStep(int execID, int stepID) async {
+    return apiClient.post("/workflow/exec/$execID/progress/$stepID", null);
   }
 }

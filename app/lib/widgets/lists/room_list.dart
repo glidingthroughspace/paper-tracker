@@ -50,9 +50,8 @@ class _RoomListState extends State<RoomList> {
   }
 
   Future<void> onRefresh() async {
-    setState(() {
-      roomClient.getAllRooms(refresh: true);
-    });
+    await roomClient.getAllRooms(refresh: true);
+    setState(() {});
   }
 
   void onAddRoomButton() async {
@@ -65,9 +64,8 @@ class _RoomListState extends State<RoomList> {
   void addRoom() async {
     var room = Room(label: roomLabelEditController.text);
     await roomClient.addRoom(room);
-    await roomClient.getAllRooms(refresh: true);
 
-    setState(() {});
+    onRefresh();
     Navigator.of(context).pop();
   }
 

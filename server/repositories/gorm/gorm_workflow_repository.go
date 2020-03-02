@@ -98,6 +98,13 @@ func (rep *GormWorkflowRepository) GetNextStepByNextID(stepID models.StepID) (ne
 	return
 }
 
+func (rep *GormWorkflowRepository) GetNextStepByDecison(stepID models.StepID, decision string) (nextStepID models.StepID, err error) {
+	nextStep := &models.NextStep{}
+	err = databaseConnection.Where("prev_id = ? AND decision_label = ?", stepID, decision).First(nextStep).Error
+	nextStepID = nextStep.NextID
+	return
+}
+
 func (rep *GormWorkflowRepository) GetDecisions(stepID models.StepID) (decisions []*models.NextStep, err error) {
 	err = databaseConnection.Where("prev_id = ? AND decision_label <> \"\"", stepID).Find(&decisions).Error
 	return
