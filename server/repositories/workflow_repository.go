@@ -22,6 +22,7 @@ type WorkflowRepository interface {
 	CreateExec(exec *models.WorkflowExec) error
 	GetAllExec() ([]*models.WorkflowExec, error)
 	GetExecByID(execID models.WorkflowExecID) (*models.WorkflowExec, error)
+	GetRunningExecByTrackerID(trackerID models.TrackerID) (*models.WorkflowExec, error)
 	GetExecsByTemplateID(templateID models.WorkflowTemplateID) ([]*models.WorkflowExec, error)
 	UpdateExec(exec *models.WorkflowExec) error
 	DeleteExec(execID models.WorkflowExecID) error
