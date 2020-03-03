@@ -17,6 +17,7 @@ func (r *HttpRouter) buildAppExecAPIRoutes() {
 	exec.GET("", r.workflowExecListHandler())
 	exec.POST("", r.workflowExecStartHandler())
 	exec.POST("/:execID/progress/:id", extractID("execID", httpParamExecIDName), extractSimpleID(), r.workflowExecProgressHandler())
+	exec.POST("/:execID/cancel", extractID("execID", httpParamExecIDName), r.workflowExecCancelHandler())
 }
 
 func (r *HttpRouter) workflowExecListHandler() gin.HandlerFunc {
@@ -59,6 +60,20 @@ func (r *HttpRouter) workflowExecProgressHandler() gin.HandlerFunc {
 		err := managers.GetWorkflowManager().ProgressToStep(execID, stepID)
 		if err != nil {
 			log.WithFields(log.Fields{"execID": execID, "stepID": stepID, "err": err}).Warn("Failed to progres exec to step")
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			return
+		}
+		ctx.Status(http.StatusOK)
+	}
+}
+
+func (r *HttpRouter) workflowExecCancelHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		execID := models.WorkflowExecID(ctx.GetInt(httpParamExecIDName))
+
+		err := managers.GetWorkflowManager().CancelExec(execID)
+		if err != nil {
+			log.WithFields(log.Fields{"execID": execID, "err": err}).Warn("Failed to cancel exec")
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}

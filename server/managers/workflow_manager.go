@@ -655,3 +655,32 @@ func (mgr *WorkflowManager) SetExecutionFinished(execID models.WorkflowExecID) (
 
 	return
 }
+
+func (mgr *WorkflowManager) CancelExec(execID models.WorkflowExecID) (err error) {
+	cancelLog := log.WithField("execID", execID)
+
+	exec, err := mgr.GetExec(execID)
+	if err != nil {
+		cancelLog.WithField("err", err).Error("Could not get exec to cancel")
+		return
+	}
+
+	if exec.Status != models.ExecStatusRunning {
+		cancelLog.Error("Exec is not in running status")
+		return errors.New("Exec is not in running status")
+	}
+
+	exec.Status = models.ExecStatusCanceled
+	err = mgr.workflowRep.UpdateExec(exec)
+	if err != nil {
+		cancelLog.WithField("err", err).Error("Failed to update exec")
+		return
+	}
+
+	err = GetTrackerManager().SetTrackerStatus(exec.TrackerID, models.TrackerStatusIdle)
+	if err != nil {
+		cancelLog.WithFields(log.Fields{"err": err, "trackerID": exec.TrackerID}).Error("Failed to set tracker of exec to idle")
+		return
+	}
+	return
+}
