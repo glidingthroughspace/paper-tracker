@@ -436,9 +436,37 @@ func (mgr *WorkflowManager) GetExec(execID models.WorkflowExecID) (exec *models.
 		return
 	}
 
+	err = mgr.fillExecOptions(exec)
+	if err != nil {
+		execLog.WithField("err", err).Error("Failed to fill exec options")
+		return
+	}
+	return
+}
+
+func (mgr *WorkflowManager) GetExecByTrackerID(trackerID models.TrackerID) (exec *models.WorkflowExec, err error) {
+	execLog := log.WithField("trackerID", trackerID)
+
+	exec, err = mgr.workflowRep.GetRunningExecByTrackerID(trackerID)
+	if err != nil {
+		execLog.WithField("err", err).Error("Failed to get workflow exec by tracker")
+		return
+	}
+
+	err = mgr.fillExecOptions(exec)
+	if err != nil {
+		execLog.WithField("err", err).Error("Failed to fill exec options")
+		return
+	}
+	return
+}
+
+func (mgr *WorkflowManager) fillExecOptions(exec *models.WorkflowExec) (err error) {
+	execOptionsLog := log.WithField("execID", exec.ID)
+
 	infos, err := mgr.workflowRep.GetExecStepInfoForExecID(exec.ID)
 	if err != nil {
-		execLog.WithField("err", err).Error("Failed to get infos for exec")
+		execOptionsLog.WithField("err", err).Error("Failed to get infos for exec")
 		return
 	}
 
@@ -446,7 +474,6 @@ func (mgr *WorkflowManager) GetExec(execID models.WorkflowExecID) (exec *models.
 	for _, info := range infos {
 		exec.StepInfos[info.StepID] = info
 	}
-
 	return
 }
 
@@ -530,7 +557,7 @@ func (mgr *WorkflowManager) StartExecution(exec *models.WorkflowExec) (err error
 func (mgr *WorkflowManager) ProgressToTrackerRoom(trackerID models.TrackerID, roomID models.RoomID) (err error) {
 	progressLog := log.WithFields(log.Fields{"trackerID": trackerID, "roomID": roomID})
 
-	exec, err := mgr.workflowRep.GetRunningExecByTrackerID(trackerID)
+	exec, err := mgr.GetExecByTrackerID(trackerID)
 	if mgr.workflowRep.IsRecordNotFoundError(err) {
 		progressLog.Warn("No exec found for tracker")
 		return errors.New("No exec found for tracker")
@@ -541,14 +568,30 @@ func (mgr *WorkflowManager) ProgressToTrackerRoom(trackerID models.TrackerID, ro
 		return errors.New("Workflow exec is not in status running")
 	}
 
-	_, err = mgr.GetTemplate(exec.TemplateID)
+	template, err := mgr.GetTemplate(exec.TemplateID)
 	if err != nil {
 		progressLog.WithField("err", err).Error("Failed to get template of exec")
 		return
 	}
 
 	updatedStepInfo := make([]*models.ExecStepInfo, 0)
-	//currentPassed := false
+	currentPassed := false
+	progressToNextStep := false
+	found, err := mgr.progressInSteps(exec, nil, &roomID, template.Steps, &currentPassed, &progressToNextStep, &updatedStepInfo, progressLog)
+	if (!found && !*&progressToNextStep) || err != nil {
+		progressLog.WithFields(log.Fields{"found": found, "err": err}).Error("Failed to progress to room")
+		err = fmt.Errorf("failed to progress to room: %v", err)
+		return
+	}
+
+	// If the next step should be progressed to but is the last, the workflow finished
+	if *&progressToNextStep {
+		err = mgr.SetExecutionFinished(exec.ID)
+		if err != nil {
+			progressLog.WithField("err", err).Error("Failed to set execution as finished after progressing to room")
+			return
+		}
+	}
 
 	for _, stepInfo := range updatedStepInfo {
 		err = mgr.workflowRep.UpdateExecStepInfo(stepInfo)
@@ -583,15 +626,16 @@ func (mgr *WorkflowManager) ProgressToStep(execID models.WorkflowExecID, stepID 
 
 	updatedStepInfo := make([]*models.ExecStepInfo, 0)
 	currentPassed := false
-	found, shouldUseNext, err := mgr.progressInSteps(exec, &stepID, nil, template.Steps, &currentPassed, &updatedStepInfo, progressLog)
-	if (!found && !shouldUseNext) || err != nil {
+	progressToNextStep := false
+	found, err := mgr.progressInSteps(exec, &stepID, nil, template.Steps, &currentPassed, &progressToNextStep, &updatedStepInfo, progressLog)
+	if (!found && !*&progressToNextStep) || err != nil {
 		progressLog.WithFields(log.Fields{"found": found, "err": err}).Error("Failed to progress to step")
 		err = fmt.Errorf("failed to progress step: %v", err)
 		return
 	}
 
 	// If the next step should be progressed to but is the last, the workflow finished
-	if shouldUseNext {
+	if *&progressToNextStep {
 		err = mgr.SetExecutionFinished(execID)
 		if err != nil {
 			progressLog.WithField("err", err).Error("Failed to set execution as finished after progressing to step")
@@ -610,20 +654,19 @@ func (mgr *WorkflowManager) ProgressToStep(execID models.WorkflowExecID, stepID 
 	return
 }
 
-func (mgr *WorkflowManager) progressInSteps(exec *models.WorkflowExec, stepID *models.StepID, roomID *models.RoomID, steps []*models.Step, currentPassed *bool, updatedStepInfo *[]*models.ExecStepInfo, progressLog *log.Entry) (bool, bool, error) {
+func (mgr *WorkflowManager) progressInSteps(exec *models.WorkflowExec, stepID *models.StepID, roomID *models.RoomID, steps []*models.Step, currentPassed, progressToNextStep *bool, updatedStepInfo *[]*models.ExecStepInfo, progressLog *log.Entry) (bool, error) {
 	timeNow := time.Now()
-	progressToNextStep := false
 	for _, step := range steps {
 		currentStepInfo, stepInfoOK := exec.StepInfos[step.ID]
 
-		if stepID != nil && step.ID == exec.CurrentStepID {
+		if step.ID == exec.CurrentStepID {
 			*currentPassed = true
 		}
 
 		//Step: Found step and it is the current one => Progress to the one after
 		if stepID != nil && step.ID == *stepID && exec.CurrentStepID == *stepID {
-			progressToNextStep = true
-		} else if roomID != nil && *currentPassed && step.RoomID == *roomID { //Room: Past the current step, found step with our room => Set this step as completed, progress to the one after
+			*progressToNextStep = true
+		} else if roomID != nil && *currentPassed && step.RoomID == *roomID && !*progressToNextStep { //Room: Past the current step, found step with our room => Set this step as completed, progress to the one after
 			if stepInfoOK {
 				currentStepInfo.CompletedOn = &timeNow
 				if currentStepInfo.StartedOn == nil {
@@ -633,8 +676,9 @@ func (mgr *WorkflowManager) progressInSteps(exec *models.WorkflowExec, stepID *m
 			} else {
 				*updatedStepInfo = append(*updatedStepInfo, &models.ExecStepInfo{ExecID: exec.ID, StepID: step.ID, StartedOn: &timeNow, CompletedOn: &timeNow})
 			}
-			progressToNextStep = true
-		} else if stepID != nil && step.ID == *stepID || progressToNextStep { //Step: Found step or next to progress to => Mark as started, set as current
+			*progressToNextStep = true
+		} else if (stepID != nil && step.ID == *stepID) || *progressToNextStep { //Step: Found step or next to progress to => Mark as started, set as current
+			*progressToNextStep = false
 			if stepInfoOK {
 				currentStepInfo.StartedOn = &timeNow
 				*updatedStepInfo = append(*updatedStepInfo, currentStepInfo)
@@ -646,9 +690,9 @@ func (mgr *WorkflowManager) progressInSteps(exec *models.WorkflowExec, stepID *m
 			err := mgr.workflowRep.UpdateExec(exec)
 			if err != nil {
 				progressLog.WithField("err", err).Error("Failed to set new current step id for exec")
-				return true, false, err
+				return true, err
 			}
-			return true, false, nil // Return that we have progressed and the next step should not be progressed to
+			return true, nil // Return that we have progressed and the next step should not be progressed to
 		}
 
 		//If the current step has passed and for room it is not the room we are searching four => Mark as skipped
@@ -665,19 +709,19 @@ func (mgr *WorkflowManager) progressInSteps(exec *models.WorkflowExec, stepID *m
 		if stepInfoOK && currentStepInfo.Decision != "" {
 			var found bool
 			var err error
-			found, progressToNextStep, err = mgr.progressInSteps(exec, stepID, roomID, step.Options[currentStepInfo.Decision], currentPassed, updatedStepInfo, progressLog)
+			found, err = mgr.progressInSteps(exec, stepID, roomID, step.Options[currentStepInfo.Decision], currentPassed, progressToNextStep, updatedStepInfo, progressLog)
 			if err != nil {
 				progressLog.WithField("err", err).Error("Failed to progress in inner steps")
-				return found, false, err
+				return found, err
 			}
 			// If we found what we are searching for and don't need to progress to next step => Exit
-			if found && !progressToNextStep {
-				return true, false, nil
+			if found && !*progressToNextStep {
+				return true, nil
 			}
 		}
 	}
 
-	return false, progressToNextStep, nil
+	return false, nil
 }
 
 func (mgr *WorkflowManager) SetExecutionFinished(execID models.WorkflowExecID) (err error) {

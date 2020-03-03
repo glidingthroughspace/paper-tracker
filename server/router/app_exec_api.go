@@ -17,6 +17,7 @@ func (r *HttpRouter) buildAppExecAPIRoutes() {
 	exec.GET("", r.workflowExecListHandler())
 	exec.POST("", r.workflowExecStartHandler())
 	exec.POST("/:execID/progress/:id", extractID("execID", httpParamExecIDName), extractSimpleID(), r.workflowExecProgressHandler())
+	exec.POST("/:execID/progressroom/:id", extractID("execID", httpParamExecIDName), extractSimpleID(), r.workflowExecProgressRoomHandler())
 }
 
 func (r *HttpRouter) workflowExecListHandler() gin.HandlerFunc {
@@ -59,6 +60,21 @@ func (r *HttpRouter) workflowExecProgressHandler() gin.HandlerFunc {
 		err := managers.GetWorkflowManager().ProgressToStep(execID, stepID)
 		if err != nil {
 			log.WithFields(log.Fields{"execID": execID, "stepID": stepID, "err": err}).Warn("Failed to progres exec to step")
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			return
+		}
+		ctx.Status(http.StatusOK)
+	}
+}
+
+func (r *HttpRouter) workflowExecProgressRoomHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		trackerID := models.TrackerID(ctx.GetInt(httpParamExecIDName))
+		roomID := models.RoomID(ctx.GetInt(httpParamIDName))
+
+		err := managers.GetWorkflowManager().ProgressToTrackerRoom(trackerID, roomID)
+		if err != nil {
+			log.WithFields(log.Fields{"trackerID": trackerID, "roomID": roomID, "err": err}).Warn("Failed to progres exec to room")
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
