@@ -594,14 +594,14 @@ func (mgr *WorkflowManager) progress(exec *models.WorkflowExec, stepID *models.S
 	currentPassed := false
 	progressToNextStep := false
 	found, err := mgr.progressInSteps(exec, stepID, roomID, template.Steps, &currentPassed, &progressToNextStep, &updatedStepInfo, progressLog)
-	if (!found && !*&progressToNextStep) || err != nil {
+	if (!found && !progressToNextStep) || err != nil {
 		progressLog.WithFields(log.Fields{"found": found, "err": err}).Error("Failed to progress to step")
 		err = fmt.Errorf("failed to progress step: %v", err)
 		return
 	}
 
 	// If the next step should be progressed to but is the last, the workflow finished
-	if *&progressToNextStep {
+	if progressToNextStep {
 		err = mgr.SetExecutionFinished(exec.ID)
 		if err != nil {
 			progressLog.WithField("err", err).Error("Failed to set execution as finished after progressing to step")
