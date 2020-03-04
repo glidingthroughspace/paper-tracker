@@ -49,7 +49,8 @@ func main() {
 	managers.CreateTrackerManager(trackerRep, cmdRep, *defaultSleepSecPtr)
 	managers.CreateRoomManager(roomRep)
 	managers.CreateLearningManager(scanResultRep, *learnCountPtr, *sleepBetweenLearnSecPtr)
-	managers.CreateWorkflowManager(workflowRep)
+	managers.CreateWorkflowTemplateManager(workflowRep)
+	managers.CreateWorkflowExecManager(workflowRep)
 
 	coapRouter := router.NewCoapRouter()
 	httpRouter := router.NewHttpRouter()

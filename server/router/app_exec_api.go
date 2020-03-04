@@ -22,7 +22,7 @@ func (r *HttpRouter) buildAppExecAPIRoutes() {
 
 func (r *HttpRouter) workflowExecListHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		execs, err := managers.GetWorkflowManager().GetAllExec()
+		execs, err := managers.GetWorkflowExecManager().GetAllExec()
 		if err != nil {
 			log.WithField("err", err).Warn("Failed to get all workflow execs")
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
@@ -42,7 +42,7 @@ func (r *HttpRouter) workflowExecStartHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = managers.GetWorkflowManager().StartExecution(exec)
+		err = managers.GetWorkflowExecManager().StartExecution(exec)
 		if err != nil {
 			log.WithFields(log.Fields{"exec": exec, "err": err}).Warn("Failed to start workflow execution")
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
@@ -57,7 +57,7 @@ func (r *HttpRouter) workflowExecProgressHandler() gin.HandlerFunc {
 		execID := models.WorkflowExecID(ctx.GetInt(httpParamExecIDName))
 		stepID := models.StepID(ctx.GetInt(httpParamIDName))
 
-		err := managers.GetWorkflowManager().ProgressToStep(execID, stepID)
+		err := managers.GetWorkflowExecManager().ProgressToStep(execID, stepID)
 		if err != nil {
 			log.WithFields(log.Fields{"execID": execID, "stepID": stepID, "err": err}).Warn("Failed to progres exec to step")
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
@@ -71,7 +71,7 @@ func (r *HttpRouter) workflowExecCancelHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		execID := models.WorkflowExecID(ctx.GetInt(httpParamExecIDName))
 
-		err := managers.GetWorkflowManager().CancelExec(execID)
+		err := managers.GetWorkflowExecManager().CancelExec(execID)
 		if err != nil {
 			log.WithFields(log.Fields{"execID": execID, "err": err}).Warn("Failed to cancel exec")
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})

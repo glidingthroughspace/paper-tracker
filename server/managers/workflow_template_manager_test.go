@@ -10,11 +10,11 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("TrackerManager", func() {
+var _ = Describe("WorkflowTemplateManager", func() {
 	var (
 		mockWorkflowRep *mock.MockWorkflowRepository
 		mockCtrl        *gomock.Controller
-		manager         *WorkflowManager
+		manager         *WorkflowTemplateManager
 
 		recordNotFoundErr = errors.New("record not found")
 		testErr           = errors.New("error")
@@ -26,11 +26,11 @@ var _ = Describe("TrackerManager", func() {
 	)
 
 	BeforeEach(func() {
-		workflowManager = nil
+		workflowTemplateManager = nil
 
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockWorkflowRep = mock.NewMockWorkflowRepository(mockCtrl)
-		manager = CreateWorkflowManager(mockWorkflowRep)
+		manager = CreateWorkflowTemplateManager(mockWorkflowRep)
 
 		gormNotFound := func(err error) bool {
 			return err == recordNotFoundErr
@@ -41,20 +41,20 @@ var _ = Describe("TrackerManager", func() {
 		mockCtrl.Finish()
 	})
 
-	Context("Test CreateWorkflow", func() {
+	Context("Test CreateWorkflowTemplate", func() {
 		workflow := &models.WorkflowTemplate{ID: 0, Label: "TestWorkflow"}
 
-		It("CreateWorkflow calls repo create exactly once", func() {
+		It("CreateTemplate calls repo create exactly once", func() {
 			mockWorkflowRep.EXPECT().CreateTemplate(workflow).Return(nil).Times(1)
 			Expect(manager.CreateTemplate(workflow)).To(Succeed())
 		})
 
-		It("CreateWorkflow return db error", func() {
+		It("CreateTemplate return db error", func() {
 			mockWorkflowRep.EXPECT().CreateTemplate(workflow).Return(testErr).AnyTimes()
 			Expect(manager.CreateTemplate(workflow)).To(MatchError(testErr))
 		})
 
-		It("CreateWorkflow sets ID to 0", func() {
+		It("CreateTemplate sets ID to 0", func() {
 			workflow.ID = 1
 			mockWorkflowRep.EXPECT().CreateTemplate(workflow).Return(nil).AnyTimes()
 			manager.CreateTemplate(workflow)
@@ -62,11 +62,11 @@ var _ = Describe("TrackerManager", func() {
 		})
 	})
 
-	Context("Test CreateWorkflowStart", func() {
+	Context("Test CreateTemplateStart", func() {
 		workflow := &models.WorkflowTemplate{ID: 1, Label: "TestWorkflow"}
 		step := &models.Step{ID: 1, Label: "TestStep"}
 
-		It("CreateWorkflowStart calls repo create exactly once, gets workflow and inserts startstep", func() {
+		It("CreateTemplateStart calls repo create exactly once, gets workflow and inserts startstep", func() {
 			mockWorkflowRep.EXPECT().CreateStep(step).Return(nil).Times(1)
 			mockWorkflowRep.EXPECT().GetTemplateByID(workflow.ID).Return(workflow, nil).Times(1)
 			mockWorkflowRep.EXPECT().GetExecsByTemplateID(workflow.ID).Return(make([]*models.WorkflowExec, 0), nil).Times(1)
