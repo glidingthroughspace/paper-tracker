@@ -207,6 +207,17 @@ func (mgr *LearningManager) GetLearningStatus(trackerID models.TrackerID) (done 
 func (mgr *LearningManager) CancelLearning(trackerID models.TrackerID) (err error) {
 	cancelLearningLog := log.WithField("trackerID", trackerID)
 
+	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
+	if err != nil {
+		cancelLearningLog.WithField("err", err).Error("Failed to get tracker")
+		return
+	}
+
+	if tracker.Status != models.TrackerStatusLearning && tracker.Status != models.TrackerStatusLearningFinished {
+		cancelLearningLog.Error("Tracker not in learning status")
+		return errors.New("Tracker not in learning status")
+	}
+
 	err = GetTrackerManager().SetTrackerStatus(trackerID, models.TrackerStatusIdle)
 	if err != nil {
 		cancelLearningLog.WithField("err", err).Error("Failed to set tracker status to idle while canceling learning - ignore for now")

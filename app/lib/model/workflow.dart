@@ -103,6 +103,24 @@ enum WorkflowExecStatus {
   Cancelled,
 }
 
+extension WorkflowExecStatusExtension on WorkflowExecStatus {
+  String get label {
+    return this.toString().substring(this.toString().indexOf('.') + 1);
+  }
+
+  IconData get icon {
+    switch (this) {
+      case WorkflowExecStatus.Running:
+        return Icons.play_circle_filled;
+      case WorkflowExecStatus.Finished:
+        return Icons.done;
+      case WorkflowExecStatus.Cancelled:
+        return Icons.cancel;
+    }
+    return Icons.adb;
+  }
+}
+
 @JsonSerializable()
 class ExecStepInfo {
   @JsonKey(name: "decision")

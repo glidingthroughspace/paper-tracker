@@ -3,8 +3,10 @@ import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/workflow_exec_client.dart';
 import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/workflow.dart';
+import 'package:paper_tracker/utils.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/dialogs/workflow_step_dialog.dart';
+import 'package:paper_tracker/widgets/label.dart';
 import 'package:paper_tracker/widgets/lists/workflow_steps_list.dart';
 
 class WorkflowExecPage extends StatefulWidget {
@@ -34,12 +36,11 @@ class _WorkflowExecPageState extends State<WorkflowExecPage> {
       future: futureExec,
       builder: (context, snapshot) {
         WorkflowExec exec = snapshot.data;
-
         return DetailContent(
           title: exec != null ? exec.label : "",
           iconData: WorkflowExec.IconData,
           bottomButtons: [],
-          content: exec != null ? buildContent(exec) : Container(),
+          content: exec != null ? buildContent(exec) : CircularProgressIndicator(),
           onRefresh: refreshExec,
         );
       },
@@ -47,8 +48,26 @@ class _WorkflowExecPageState extends State<WorkflowExecPage> {
   }
 
   Widget buildContent(WorkflowExec exec) {
+    return Container(
+      padding: EdgeInsets.all(15.0),
+      child: Column(
+        children: [
+          Table(
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            columnWidths: {0: FractionColumnWidth(0.3)},
+            children: [
+              buildStatusRow(exec),
+              getTableSpacing(10.0),
+            ],
+          ),
+          buildStepsList(exec),
+        ],
+      ),
+    );
+  }
+
+  Widget buildStepsList(WorkflowExec exec) {
     var futureTemplate = templateClient.getTemplateByID(exec.templateID);
-    print(exec.currentStepID);
 
     return FutureBuilder(
       future: futureTemplate,
@@ -67,7 +86,7 @@ class _WorkflowExecPageState extends State<WorkflowExecPage> {
             ),
           );
         }
-        return Container();
+        return CircularProgressIndicator();
       },
     );
   }
@@ -97,5 +116,39 @@ class _WorkflowExecPageState extends State<WorkflowExecPage> {
     setState(() {
       futureExec = execClient.getExecByID(execID, refresh: true);
     });
+  }
+
+  TableRow buildStatusRow(WorkflowExec exec) {
+    var statusRowChildren = [
+      Icon(exec.status.icon),
+      Padding(padding: EdgeInsets.only(left: 10.0)),
+      Label(exec.status.label),
+    ];
+    if (exec.status == WorkflowExecStatus.Running) {
+      statusRowChildren.addAll([
+        Spacer(),
+        MaterialButton(
+          child: Text("Cancel"),
+          onPressed: () => onCancel(exec),
+          color: Theme.of(context).accentColor,
+        )
+      ]);
+    }
+
+    return TableRow(
+      children: [
+        TableCell(child: Label("Status: ")),
+        TableCell(
+          child: Row(
+            children: statusRowChildren,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void onCancel(WorkflowExec exec) async {
+    await execClient.cancelExec(exec.id);
+    refreshExec();
   }
 }

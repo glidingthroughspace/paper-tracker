@@ -39,4 +39,8 @@ class WorkflowExecClient {
   Future<void> progressToStep(int execID, int stepID) async {
     return apiClient.post("/workflow/exec/$execID/progress/$stepID", null);
   }
+
+  Future<void> cancelExec(int execID) async {
+    return apiClient.post("/workflow/exec/$execID/cancel", null);
+  }
 }

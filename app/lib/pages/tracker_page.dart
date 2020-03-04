@@ -73,7 +73,6 @@ class _TrackerPageState extends State<TrackerPage> {
           buildStatusRow(tracker),
           getTableSpacing(10.0),
           buildLearnRow(tracker),
-          getTableSpacing(10.0),
         ],
       ),
     );
