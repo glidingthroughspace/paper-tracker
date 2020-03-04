@@ -13,10 +13,10 @@ import (
 var workflowExecManager *WorkflowExecManager
 
 type WorkflowExecManager struct {
-	workflowRep repositories.WorkflowRepository
+	workflowRep repositories.WorkflowExecRepository
 }
 
-func CreateWorkflowExecManager(workflowRep repositories.WorkflowRepository) *WorkflowExecManager {
+func CreateWorkflowExecManager(workflowRep repositories.WorkflowExecRepository) *WorkflowExecManager {
 	if workflowExecManager != nil {
 		return workflowExecManager
 	}
@@ -30,6 +30,15 @@ func CreateWorkflowExecManager(workflowRep repositories.WorkflowRepository) *Wor
 
 func GetWorkflowExecManager() *WorkflowExecManager {
 	return workflowExecManager
+}
+
+func (mgr *WorkflowExecManager) GetExecCountByTemplate(templateID models.WorkflowTemplateID) (int, error) {
+	execs, err := mgr.workflowRep.GetExecsByTemplateID(templateID)
+	if err != nil {
+		log.WithFields(log.Fields{"templateID": templateID, "err": err}).Error("Failed to get all execs by template id")
+		return -1, err
+	}
+	return len(execs), nil
 }
 
 func (mgr *WorkflowExecManager) GetAllExec() (execs []*models.WorkflowExec, err error) {

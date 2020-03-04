@@ -11,10 +11,10 @@ import (
 var workflowTemplateManager *WorkflowTemplateManager
 
 type WorkflowTemplateManager struct {
-	workflowRep repositories.WorkflowRepository
+	workflowRep repositories.WorkflowTemplateRepository
 }
 
-func CreateWorkflowTemplateManager(workflowRep repositories.WorkflowRepository) *WorkflowTemplateManager {
+func CreateWorkflowTemplateManager(workflowRep repositories.WorkflowTemplateRepository) *WorkflowTemplateManager {
 	if workflowTemplateManager != nil {
 		return workflowTemplateManager
 	}
@@ -139,13 +139,12 @@ func (mgr *WorkflowTemplateManager) GetTemplate(templateID models.WorkflowTempla
 		return
 	}
 
-	execs, err := mgr.workflowRep.GetExecsByTemplateID(templateID)
+	execCount, err := GetWorkflowExecManager().GetExecCountByTemplate(templateID)
 	if err != nil {
 		getWorkflowLog.WithField("err", err).Error("Failed to get execs of template - ignore for now")
-		execs = make([]*models.WorkflowExec, 0)
 		err = nil
 	}
-	if len(execs) > 0 {
+	if execCount > 0 {
 		workflow.EditingLocked = true
 	} else {
 		workflow.EditingLocked = false
