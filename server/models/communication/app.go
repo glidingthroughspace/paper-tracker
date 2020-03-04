@@ -21,3 +21,7 @@ type CreateStepRequest struct {
 	DecisionLabel string        `json:"decision_label"`
 	Step          *models.Step  `json:"step"`
 }
+
+type CreateRevisionRequest struct {
+	RevisionLabel string `json:"revision_label"`
+}

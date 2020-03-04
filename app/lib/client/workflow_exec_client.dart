@@ -23,7 +23,7 @@ class WorkflowExecClient {
     }
   }
 
-  Future<WorkflowExec> getWorkflowByID(int id, {bool refresh = false}) async {
+  Future<WorkflowExec> getExecByID(int id, {bool refresh = false}) async {
     if (futureExecs == null || refresh) {
       await getAllExecs(refresh: true);
     }
@@ -33,6 +33,14 @@ class WorkflowExecClient {
   }
 
   Future<void> startExec(WorkflowExec exec) async {
-    return apiClient.post("/workflow/exec/start", json.encode(exec.toJSON()));
+    return apiClient.post("/workflow/exec", json.encode(exec.toJSON()));
+  }
+
+  Future<void> progressToStep(int execID, int stepID) async {
+    return apiClient.post("/workflow/exec/$execID/progress/$stepID", null);
+  }
+
+  Future<void> cancelExec(int execID) async {
+    return apiClient.post("/workflow/exec/$execID/cancel", null);
   }
 }

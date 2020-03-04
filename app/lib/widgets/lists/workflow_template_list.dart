@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/pages/workflow_template_page.dart';
-import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:paper_tracker/widgets/dialogs/add_template_dialog.dart';
-import 'package:tuple/tuple.dart';
+import 'package:paper_tracker/widgets/lists/card_list.dart';
 
 class WorkflowTemplateList extends StatefulWidget {
   @override
@@ -22,12 +21,12 @@ class _WorkflowTemplateListState extends State<WorkflowTemplateList> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<WorkflowTemplate> templateList = snapshot.data;
-          List<Tuple2<String, WorkflowTemplate>> titleObjectList =
-              templateList.map((workflow) => Tuple2(workflow.label, workflow)).toList();
+          templateList.sort((a, b) => a.label.compareTo(b.label));
+          var dataList = templateList.map((template) => CardListData(template.label, null, template)).toList();
 
           return Scaffold(
             body: CardList<WorkflowTemplate>(
-              titleObjectList: titleObjectList,
+              dataList: dataList,
               onTap: onTapWorkflow,
               iconData: Icons.keyboard_arrow_right,
               onRefresh: onRefresh,
@@ -49,9 +48,8 @@ class _WorkflowTemplateListState extends State<WorkflowTemplateList> {
   }
 
   Future<void> onRefresh() async {
-    setState(() {
-      templateClient.getAllTemplates(refresh: true);
-    });
+    await templateClient.getAllTemplates(refresh: true);
+    setState(() {});
   }
 
   void onAddTemplateButton() async {
@@ -64,9 +62,8 @@ class _WorkflowTemplateListState extends State<WorkflowTemplateList> {
   void addTemplate() async {
     var template = WorkflowTemplate(label: templateLabelEditController.text);
     await templateClient.createTemplate(template);
-    await templateClient.getAllTemplates(refresh: true);
 
-    setState(() {});
+    onRefresh();
     Navigator.of(context).pop();
   }
 

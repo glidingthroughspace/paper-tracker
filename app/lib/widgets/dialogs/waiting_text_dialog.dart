@@ -12,11 +12,11 @@ class WaitingTextDialog extends StatelessWidget {
       child: SimpleDialog(children: [
         Center(
           child: Column(children: [
+            Padding(padding: EdgeInsets.only(top: 8.0)),
             CircularProgressIndicator(),
-            SizedBox(
-              height: 10,
-            ),
+            Padding(padding: EdgeInsets.only(top: 20.0)),
             Text(text),
+            Padding(padding: EdgeInsets.only(top: 8.0)),
           ]),
         )
       ]),

@@ -38,8 +38,8 @@ var _ = Describe("TrackerManager", func() {
 		mockCommandRep = mock.NewMockCommandRepository(mockCtrl)
 		manager = CreateTrackerManager(mockTrackerRep, mockCommandRep, sleepTimeSec)
 
-		trackerIdle = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusIdle}
-		trackerLearningFinished = &models.Tracker{ID: id, Label: "New Tracker", Status: models.StatusLearningFinished}
+		trackerIdle = &models.Tracker{ID: id, Label: "New Tracker", Status: models.TrackerStatusIdle}
+		trackerLearningFinished = &models.Tracker{ID: id, Label: "New Tracker", Status: models.TrackerStatusLearningFinished}
 
 		gormNotFound := func(err error) bool {
 			return err == recordNotFoundErr
@@ -68,7 +68,7 @@ var _ = Describe("TrackerManager", func() {
 	})
 
 	Context("Test NotifyNewTracker", func() {
-		outTracker := &models.Tracker{Label: "New Tracker", Status: models.StatusIdle}
+		outTracker := &models.Tracker{Label: "New Tracker", Status: models.TrackerStatusIdle}
 
 		It("NotifyNewTracker calls create in rep exactly once", func() {
 			mockTrackerRep.EXPECT().Create(outTracker).Return(nil).Times(1)
@@ -115,13 +115,13 @@ var _ = Describe("TrackerManager", func() {
 
 	Context("Test SetTrackerStatus", func() {
 		It("SetTrackerStatus calls rep exaclty once with correct status", func() {
-			mockTrackerRep.EXPECT().SetStatusByID(id, models.StatusIdle).Return(nil).Times(1)
-			Expect(manager.SetTrackerStatus(id, models.StatusIdle)).To(Succeed())
+			mockTrackerRep.EXPECT().SetStatusByID(id, models.TrackerStatusIdle).Return(nil).Times(1)
+			Expect(manager.SetTrackerStatus(id, models.TrackerStatusIdle)).To(Succeed())
 		})
 
 		It("SetTrackerStatus should return db error", func() {
-			mockTrackerRep.EXPECT().SetStatusByID(id, models.StatusIdle).Return(testErr).Times(1)
-			Expect(manager.SetTrackerStatus(id, models.StatusIdle)).To(MatchError(testErr))
+			mockTrackerRep.EXPECT().SetStatusByID(id, models.TrackerStatusIdle).Return(testErr).Times(1)
+			Expect(manager.SetTrackerStatus(id, models.TrackerStatusIdle)).To(MatchError(testErr))
 		})
 	})
 

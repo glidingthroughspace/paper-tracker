@@ -14,6 +14,7 @@ WorkflowTemplate _$WorkflowTemplateFromJson(Map<String, dynamic> json) {
         ?.map((e) =>
             e == null ? null : WFStep.fromJson(e as Map<String, dynamic>))
         ?.toList(),
+    editingLocked: json['editing_locked'] as bool,
   );
 }
 
@@ -22,6 +23,7 @@ Map<String, dynamic> _$WorkflowTemplateToJson(WorkflowTemplate instance) =>
       'id': instance.id,
       'label': instance.label,
       'steps': instance.steps,
+      'editing_locked': instance.editingLocked,
     };
 
 WFStep _$WFStepFromJson(Map<String, dynamic> json) {
@@ -53,7 +55,7 @@ Map<String, dynamic> _$WFStepToJson(WFStep instance) {
     }
   }
 
-  writeNotNull('options', instance.options);
+  writeNotNull('options', _optionsToJson(instance.options));
   return val;
 }
 
@@ -63,7 +65,7 @@ WorkflowExec _$WorkflowExecFromJson(Map<String, dynamic> json) {
     label: json['label'] as String,
     templateID: json['template_id'] as int,
     trackerID: json['tracker_id'] as int,
-    compeleted: json['completed'] as bool,
+    status: _$enumDecodeNullable(_$WorkflowExecStatusEnumMap, json['status']),
     startedOn: json['started_on'] == null
         ? null
         : DateTime.parse(json['started_on'] as String),
@@ -84,12 +86,50 @@ Map<String, dynamic> _$WorkflowExecToJson(WorkflowExec instance) =>
       'label': instance.label,
       'template_id': instance.templateID,
       'tracker_id': instance.trackerID,
-      'completed': instance.compeleted,
+      'status': _$WorkflowExecStatusEnumMap[instance.status],
       'started_on': instance.startedOn?.toIso8601String(),
       'completed_on': instance.completedOn?.toIso8601String(),
       'current_step_id': instance.currentStepID,
       'step_infos': _stepInfosToJSON(instance.stepInfos),
     };
+
+T _$enumDecode<T>(
+  Map<T, dynamic> enumValues,
+  dynamic source, {
+  T unknownValue,
+}) {
+  if (source == null) {
+    throw ArgumentError('A value must be provided. Supported values: '
+        '${enumValues.values.join(', ')}');
+  }
+
+  final value = enumValues.entries
+      .singleWhere((e) => e.value == source, orElse: () => null)
+      ?.key;
+
+  if (value == null && unknownValue == null) {
+    throw ArgumentError('`$source` is not one of the supported values: '
+        '${enumValues.values.join(', ')}');
+  }
+  return value ?? unknownValue;
+}
+
+T _$enumDecodeNullable<T>(
+  Map<T, dynamic> enumValues,
+  dynamic source, {
+  T unknownValue,
+}) {
+  if (source == null) {
+    return null;
+  }
+  return _$enumDecode<T>(enumValues, source, unknownValue: unknownValue);
+}
+
+const _$WorkflowExecStatusEnumMap = {
+  WorkflowExecStatus.Running: 1,
+  WorkflowExecStatus.Finished: 2,
+  WorkflowExecStatus.Cancelled: 3,
+};
 
 ExecStepInfo _$ExecStepInfoFromJson(Map<String, dynamic> json) {
   return ExecStepInfo(
@@ -100,6 +140,7 @@ ExecStepInfo _$ExecStepInfoFromJson(Map<String, dynamic> json) {
     completedOn: json['completed_on'] == null
         ? null
         : DateTime.parse(json['completed_on'] as String),
+    skipped: json['skipped'] as bool,
   );
 }
 
@@ -108,4 +149,5 @@ Map<String, dynamic> _$ExecStepInfoToJson(ExecStepInfo instance) =>
       'decision': instance.decision,
       'started_on': instance.startedOn?.toIso8601String(),
       'completed_on': instance.completedOn?.toIso8601String(),
+      'skipped': instance.skipped,
     };

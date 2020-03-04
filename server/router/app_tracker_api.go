@@ -14,10 +14,10 @@ import (
 func (r *HttpRouter) buildAppTrackerAPIRoutes() {
 	tracker := r.engine.Group("/tracker")
 	tracker.GET("", r.trackerListHandler())
-	tracker.PUT("/:id", extractID(), r.trackerUpdateHandler())
-	tracker.DELETE("/:id", extractID(), r.trackerDeleteHandler())
+	tracker.PUT("/:id", extractSimpleID(), r.trackerUpdateHandler())
+	tracker.DELETE("/:id", extractSimpleID(), r.trackerDeleteHandler())
 
-	trackerLearn := tracker.Group("/:id/learn", extractID())
+	trackerLearn := tracker.Group("/:id/learn", extractSimpleID())
 	trackerLearn.POST("/start", r.trackerLearnStartHandler())
 	trackerLearn.GET("/status", r.trackerLearnStatusHandler())
 	trackerLearn.POST("/finish", r.trackerLearnFinishHandler())

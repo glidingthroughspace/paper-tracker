@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/pages/room_page.dart';
-import 'package:paper_tracker/widgets/card_list.dart';
 import 'package:paper_tracker/widgets/dialogs/add_room_dialog.dart';
-import 'package:tuple/tuple.dart';
+import 'package:paper_tracker/widgets/lists/card_list.dart';
 
 class RoomList extends StatefulWidget {
   RoomList({Key key}) : super(key: key);
@@ -24,11 +23,14 @@ class _RoomListState extends State<RoomList> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Room> roomList = snapshot.data;
-            List<Tuple2<String, Room>> titleObjectList = roomList.map((room) => Tuple2(room.label, room)).toList();
+            roomList.sort((a, b) => a.label.compareTo(b.label));
+            Map<String, Room> titleObjectMap =
+                Map.fromIterable(roomList, key: (room) => room.label, value: (room) => room);
+            var dataList = roomList.map((room) => CardListData(room.label, buildSubtitle(room), room)).toList();
 
             return Scaffold(
               body: CardList<Room>(
-                titleObjectList: titleObjectList,
+                dataList: dataList,
                 onTap: onTapRoom,
                 iconData: Icons.keyboard_arrow_right,
                 onRefresh: onRefresh,
@@ -49,9 +51,8 @@ class _RoomListState extends State<RoomList> {
   }
 
   Future<void> onRefresh() async {
-    setState(() {
-      roomClient.getAllRooms(refresh: true);
-    });
+    await roomClient.getAllRooms(refresh: true);
+    setState(() {});
   }
 
   void onAddRoomButton() async {
@@ -64,13 +65,19 @@ class _RoomListState extends State<RoomList> {
   void addRoom() async {
     var room = Room(label: roomLabelEditController.text);
     await roomClient.addRoom(room);
-    await roomClient.getAllRooms(refresh: true);
 
-    setState(() {});
+    onRefresh();
     Navigator.of(context).pop();
   }
 
   void onTapRoom(Room room) async {
     await Navigator.of(context).pushNamed(RoomPage.Route, arguments: room.id);
+  }
+
+  List<Widget> buildSubtitle(Room room) {
+    return [
+      Text("Learned:"),
+      Icon(room.isLearned ? Icons.check : Icons.close, color: Colors.grey, size: 20.0),
+    ];
   }
 }

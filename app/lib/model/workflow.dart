@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:paper_tracker/widgets/dropdown.dart';
@@ -15,8 +16,10 @@ class WorkflowTemplate extends DropdownCapable {
   String label;
   @JsonKey(name: "steps")
   List<WFStep> steps;
+  @JsonKey(name: "editing_locked")
+  bool editingLocked;
 
-  WorkflowTemplate({this.id, this.label, this.steps});
+  WorkflowTemplate({this.id, this.label, this.steps, this.editingLocked});
 
   factory WorkflowTemplate.fromJson(Map<String, dynamic> json) => _$WorkflowTemplateFromJson(json);
   Map<String, dynamic> toJson() => _$WorkflowTemplateToJson(this);
@@ -24,13 +27,15 @@ class WorkflowTemplate extends DropdownCapable {
 
 @JsonSerializable()
 class WFStep {
+  static const CurrentStepColor = Colors.amber;
+
   @JsonKey(name: "id")
   int id;
   @JsonKey(name: "label")
   String label;
   @JsonKey(name: "room_id")
   int roomID;
-  @JsonKey(name: "options", includeIfNull: false)
+  @JsonKey(name: "options", includeIfNull: false, toJson: _optionsToJson)
   Map<String, List<WFStep>> options;
 
   WFStep({this.id, this.label, this.roomID, this.options});
@@ -39,9 +44,17 @@ class WFStep {
   Map<String, dynamic> toJSON() => _$WFStepToJson(this);
 }
 
+dynamic _optionsToJson(Map<String, List<WFStep>> options) {
+  if (options != null)
+    return options.map((decision, steps) => MapEntry(decision, steps.map((step) => step.toJSON()).toList()));
+  else
+    return null;
+}
+
 @JsonSerializable()
 class WorkflowExec {
   static const IconData = MdiIcons.clipboardTextPlayOutline;
+  static const CompletedColor = Colors.teal;
 
   @JsonKey(name: "id")
   int id;
@@ -51,8 +64,8 @@ class WorkflowExec {
   int templateID;
   @JsonKey(name: "tracker_id")
   int trackerID;
-  @JsonKey(name: "completed")
-  bool compeleted;
+  @JsonKey(name: "status")
+  WorkflowExecStatus status;
   @JsonKey(name: "started_on")
   DateTime startedOn;
   @JsonKey(name: "completed_on")
@@ -67,7 +80,7 @@ class WorkflowExec {
       this.label,
       this.templateID,
       this.trackerID,
-      this.compeleted,
+      this.status,
       this.startedOn,
       this.completedOn,
       this.currentStepID,
@@ -81,6 +94,33 @@ dynamic _stepInfosToJSON(Map<int, ExecStepInfo> stepInfos) {
   return stepInfos?.map((k, e) => MapEntry(k.toString(), e.toJSON()));
 }
 
+enum WorkflowExecStatus {
+  @JsonValue(1)
+  Running,
+  @JsonValue(2)
+  Finished,
+  @JsonValue(3)
+  Cancelled,
+}
+
+extension WorkflowExecStatusExtension on WorkflowExecStatus {
+  String get label {
+    return this.toString().substring(this.toString().indexOf('.') + 1);
+  }
+
+  IconData get icon {
+    switch (this) {
+      case WorkflowExecStatus.Running:
+        return Icons.play_circle_filled;
+      case WorkflowExecStatus.Finished:
+        return Icons.done;
+      case WorkflowExecStatus.Cancelled:
+        return Icons.cancel;
+    }
+    return Icons.adb;
+  }
+}
+
 @JsonSerializable()
 class ExecStepInfo {
   @JsonKey(name: "decision")
@@ -89,8 +129,10 @@ class ExecStepInfo {
   DateTime startedOn;
   @JsonKey(name: "completed_on")
   DateTime completedOn;
+  @JsonKey(name: "skipped")
+  bool skipped;
 
-  ExecStepInfo({this.decision, this.startedOn, this.completedOn});
+  ExecStepInfo({this.decision, this.startedOn, this.completedOn, this.skipped});
 
   factory ExecStepInfo.fromJson(Map<String, dynamic> json) => _$ExecStepInfoFromJson(json);
   Map<String, dynamic> toJSON() => _$ExecStepInfoToJson(this);

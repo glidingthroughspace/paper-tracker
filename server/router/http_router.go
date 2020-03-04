@@ -8,7 +8,9 @@ import (
 )
 
 const (
-	httpParamIDName = "id"
+	httpParamIDName      = "id"
+	httpParamTemplIDName = "tempid"
+	httpParamExecIDName  = "execid"
 )
 
 type HttpRouter struct {
@@ -32,5 +34,6 @@ func (r *HttpRouter) Serve(addr string, wg *sync.WaitGroup) {
 func (r *HttpRouter) buildRoutes() {
 	r.buildAppRoomAPIRoutes()
 	r.buildAppTrackerAPIRoutes()
-	r.buildAppWorkflowAPIRoutes()
+	r.buildAppTemplateAPIRoutes()
+	r.buildAppExecAPIRoutes()
 }
