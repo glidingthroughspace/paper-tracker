@@ -5,6 +5,10 @@ package collections
 import "sort"
 
 func MeanOf(values ...int) float64 {
+	if len(values) == 0 {
+		return 0
+	}
+
 	var sum float64 = 0.0
 	for _, v := range values {
 		sum += float64(v)
@@ -17,6 +21,10 @@ func IsOddAmountOfValues(values ...int) bool {
 }
 
 func MedianOf(values ...int) float64 {
+	if len(values) == 0 {
+		return 0
+	}
+
 	middleIndex := len(values) / 2
 
 	sort.Ints(values)
@@ -29,23 +37,39 @@ func MedianOf(values ...int) float64 {
 }
 
 func FirstQuartileOf(values ...int) float64 {
+	if len(values) == 0 {
+		return 0
+	}
+
 	sort.Ints(values)
 
 	return MedianOf(values[:len(values)-1]...)
 }
 
 func ThirdQuartileOf(values ...int) float64 {
+	if len(values) == 0 {
+		return 0
+	}
+
 	sort.Ints(values)
 
 	return MedianOf(values[len(values)-1:]...)
 }
 
 func MinOf(values ...int) int {
+	if len(values) == 0 {
+		return 0
+	}
+
 	sort.Ints(values)
 	return values[0]
 }
 
 func MaxOf(values ...int) int {
+	if len(values) == 0 {
+		return 0
+	}
+
 	sort.Ints(values)
 	return values[len(values)-1]
 }
