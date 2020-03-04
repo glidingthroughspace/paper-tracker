@@ -3,7 +3,7 @@ package managers
 import (
 	"math"
 	"paper-tracker/models"
-	"sort"
+	"paper-tracker/utils/collections"
 )
 
 var trackingManager *TrackingManager
@@ -33,13 +33,13 @@ func (*TrackingManager) ConsolidateScanResults(scanResults []*models.ScanResult)
 		rssis := getRSSIs((scanResults))
 		trackingData = append(trackingData, models.BSSIDTrackingData{
 			BSSID:   bssid,
-			Minimum: getMin(rssis...),
-			Maximum: getMax(rssis...),
-			Median:  getMedian(rssis...),
-			Mean:    getMean(rssis...),
+			Minimum: collections.MinOf(rssis...),
+			Maximum: collections.MaxOf(rssis...),
+			Median:  collections.MedianOf(rssis...),
+			Mean:    collections.MeanOf(rssis...),
 			Quantiles: models.Quantiles{
-				FirstQuartile: getFirstQuartile(rssis...),
-				ThirdQuartile: getThirdQuartile(rssis...),
+				FirstQuartile: collections.FirstQuartileOf(rssis...),
+				ThirdQuartile: collections.ThirdQuartileOf(rssis...),
 			},
 		})
 	}
@@ -127,47 +127,4 @@ func getRSSIs(scanResults []*models.ScanResult) []int {
 		rssis = append(rssis, v.RSSI)
 	}
 	return rssis
-}
-
-func getMean(values ...int) float64 {
-	var sum float64 = 0.0
-	for _, v := range values {
-		sum += float64(v)
-	}
-	return sum / float64(len(values))
-}
-
-func getMedian(values ...int) float64 {
-	isOddAmountOfValues := (len(values)%2 == 1)
-	middleIndex := len(values) / 2
-
-	sort.Ints(values)
-
-	if isOddAmountOfValues {
-		return float64(values[middleIndex])
-	}
-
-	return (float64(values[middleIndex-1]) + float64(values[middleIndex])) / 2.0
-}
-
-func getFirstQuartile(values ...int) float64 {
-	sort.Ints(values)
-
-	return getMedian(values[:len(values)-1]...)
-}
-
-func getThirdQuartile(values ...int) float64 {
-	sort.Ints(values)
-
-	return getMedian(values[len(values)-1:]...)
-}
-
-func getMin(values ...int) int {
-	sort.Ints(values)
-	return values[0]
-}
-
-func getMax(values ...int) int {
-	sort.Ints(values)
-	return values[len(values)-1]
 }
