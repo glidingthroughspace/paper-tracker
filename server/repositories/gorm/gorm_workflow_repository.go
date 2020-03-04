@@ -126,6 +126,12 @@ func (rep *GormWorkflowRepository) GetExecByID(execID models.WorkflowExecID) (ex
 	return
 }
 
+func (rep *GormWorkflowRepository) GetRunningExecByTrackerID(trackerID models.TrackerID) (exec *models.WorkflowExec, err error) {
+	exec = &models.WorkflowExec{}
+	err = databaseConnection.First(exec, &models.WorkflowExec{TrackerID: trackerID, Status: models.ExecStatusRunning}).Error
+	return
+}
+
 func (rep *GormWorkflowRepository) GetExecsByTemplateID(templateID models.WorkflowTemplateID) (execs []*models.WorkflowExec, err error) {
 	err = databaseConnection.Where(&models.WorkflowExec{TemplateID: templateID}).Find(&execs).Error
 	return
