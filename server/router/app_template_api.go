@@ -26,7 +26,7 @@ func (r *HttpRouter) buildAppTemplateAPIRoutes() {
 
 func (r *HttpRouter) workflowTemplateListHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		workflows, err := managers.GetWorkflowManager().GetAllTemplates()
+		workflows, err := managers.GetWorkflowTemplateManager().GetAllTemplates()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowList request failed")
@@ -46,7 +46,7 @@ func (r *HttpRouter) workflowTemplateCreateHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = managers.GetWorkflowManager().CreateTemplate(template)
+		err = managers.GetWorkflowTemplateManager().CreateTemplate(template)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowTemplateCreate request failed")
@@ -68,7 +68,7 @@ func (r *HttpRouter) workflowTemplateCreateStartHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = managers.GetWorkflowManager().CreateTemplateStart(templateID, step)
+		err = managers.GetWorkflowTemplateManager().CreateTemplateStart(templateID, step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowTemplateCreateStart request failed")
@@ -90,7 +90,7 @@ func (r *HttpRouter) workflowTemplateCreateStepHandler() gin.HandlerFunc {
 			return
 		}
 
-		err = managers.GetWorkflowManager().AddTemplateStep(templateID, stepRequest.PrevStepID, stepRequest.DecisionLabel, stepRequest.Step)
+		err = managers.GetWorkflowTemplateManager().AddTemplateStep(templateID, stepRequest.PrevStepID, stepRequest.DecisionLabel, stepRequest.Step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowTemplateCreateStep request failed")
@@ -105,7 +105,7 @@ func (r *HttpRouter) workflowTemplateGetStepHandler() gin.HandlerFunc {
 		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTemplIDName))
 		stepID := models.StepID(ctx.GetInt(httpParamIDName))
 
-		step, err := managers.GetWorkflowManager().GetStepByID(templateID, stepID)
+		step, err := managers.GetWorkflowTemplateManager().GetStepByID(templateID, stepID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowTemplateGetStep request failed")
@@ -129,7 +129,7 @@ func (r *HttpRouter) workflowTemplateUpdateStepHandler() gin.HandlerFunc {
 		}
 		step.ID = stepID
 
-		err = managers.GetWorkflowManager().UpdateStep(templateID, step)
+		err = managers.GetWorkflowTemplateManager().UpdateStep(templateID, step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowTemplateUpdateStep request failed")
@@ -144,7 +144,7 @@ func (r *HttpRouter) workflowTemplateDeleteStepHandler() gin.HandlerFunc {
 		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTemplIDName))
 		stepID := models.StepID(ctx.GetInt(httpParamIDName))
 
-		err := managers.GetWorkflowManager().DeleteStep(templateID, stepID)
+		err := managers.GetWorkflowTemplateManager().DeleteStep(templateID, stepID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithField("err", err).Warn("WorkflowTemplateUpdateStep request failed")
@@ -166,7 +166,7 @@ func (r *HttpRouter) workflowTemplateNewRevisionHandler() gin.HandlerFunc {
 			return
 		}
 
-		newTemplate, err := managers.GetWorkflowManager().CreateNewRevision(templateID, revisionRequest.RevisionLabel)
+		newTemplate, err := managers.GetWorkflowTemplateManager().CreateNewRevision(templateID, revisionRequest.RevisionLabel)
 		if err != nil {
 			log.WithFields(log.Fields{"templateID": templateID, "err": err}).Warn("Failed to create new template revision")
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})

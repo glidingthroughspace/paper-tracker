@@ -20,7 +20,8 @@ mock:
 	mockgen -source=repositories/command_repository.go -package=mock -destination=mock/command_repository_mock.go
 	mockgen -source=repositories/scan_result_repository.go -package=mock -destination=mock/scan_result_repository_mock.go
 	mockgen -source=repositories/room_repository.go -package=mock -destination=mock/room_repository_mock.go
-	mockgen -source=repositories/workflow_repository.go -package=mock -destination=mock/workflow_repository_mock.go
+	mockgen -source=repositories/workflow_template_repository.go -package=mock -destination=mock/workflow_template_repository_mock.go
+	mockgen -source=repositories/workflow_exec_repository.go -package=mock -destination=mock/workflow_exec_repository_mock.go
 
 new-tracker:
 	- @coap-client -m post coap://localhost:5688/tracker/new -o tracker.tmp
