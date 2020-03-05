@@ -50,7 +50,7 @@ func (mgr *LearningManager) StartLearning(trackerID models.TrackerID) (learnTime
 
 	err = mgr.scanResultRep.DeleteForTracker(trackerID)
 	if err != nil {
-		learnLog.WithField("err", err).Error("Failed to delete scan results for tracker")
+		learnLog.WithError(err).Error("Failed to delete scan results for tracker")
 		return
 	}
 
@@ -124,7 +124,7 @@ func (mgr *LearningManager) FinishLearning(trackerID models.TrackerID, roomID mo
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
 	if err != nil {
-		finishLearningLog.WithField("err", err).Error("Failed to get tracker")
+		finishLearningLog.WithError(err).Error("Failed to get tracker")
 		err = fmt.Errorf("tracker: %v", err)
 		return
 	}
@@ -136,14 +136,14 @@ func (mgr *LearningManager) FinishLearning(trackerID models.TrackerID, roomID mo
 
 	room, err := GetRoomManager().GetRoomByID(roomID)
 	if err != nil {
-		finishLearningLog.WithField("err", err).Error("Failed to get room")
+		finishLearningLog.WithError(err).Error("Failed to get room")
 		err = fmt.Errorf("room: %v", err)
 		return
 	}
 
 	scanResults, err := mgr.scanResultRep.GetAllForTracker(tracker.ID)
 	if err != nil {
-		finishLearningLog.WithField("err", err).Error("Failed to get the new scan results")
+		finishLearningLog.WithError(err).Error("Failed to get the new scan results")
 		err = fmt.Errorf("scanResults: %v", err)
 		return
 	}
@@ -153,13 +153,13 @@ func (mgr *LearningManager) FinishLearning(trackerID models.TrackerID, roomID mo
 	room.IsLearned = true
 	err = GetRoomManager().UpdateRoom(room)
 	if err != nil {
-		finishLearningLog.WithField("err", err).Error("Could not save room")
+		finishLearningLog.WithError(err).Error("Could not save room")
 		err = fmt.Errorf("room: %v", err)
 	}
 
 	err = GetTrackerManager().SetTrackerStatus(tracker.ID, models.TrackerStatusIdle)
 	if err != nil {
-		finishLearningLog.WithField("err", err).Error("Failed to set tracker status to idle after learning")
+		finishLearningLog.WithError(err).Error("Failed to set tracker status to idle after learning")
 		return
 	}
 
@@ -171,7 +171,7 @@ func (mgr *LearningManager) GetLearningStatus(trackerID models.TrackerID) (done 
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
 	if err != nil {
-		learningStatusLog.WithField("err", err).Error("Failed to get tracker")
+		learningStatusLog.WithError(err).Error("Failed to get tracker")
 		return
 	} else if tracker.Status != models.TrackerStatusLearning && tracker.Status != models.TrackerStatusLearningFinished {
 		err = errors.New("Tracker currently not in learning or learning finished status")
@@ -182,7 +182,7 @@ func (mgr *LearningManager) GetLearningStatus(trackerID models.TrackerID) (done 
 
 	scanRes, err := mgr.scanResultRep.GetAllForTracker(trackerID)
 	if err != nil && !mgr.scanResultRep.IsRecordNotFoundError(err) {
-		learningStatusLog.WithField("err", err).Error("Failed to get scan results for tracker")
+		learningStatusLog.WithError(err).Error("Failed to get scan results for tracker")
 		return
 	} else if mgr.scanResultRep.IsRecordNotFoundError(err) {
 		ssids = make([]string, 0)
@@ -209,7 +209,7 @@ func (mgr *LearningManager) CancelLearning(trackerID models.TrackerID) (err erro
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
 	if err != nil {
-		cancelLearningLog.WithField("err", err).Error("Failed to get tracker")
+		cancelLearningLog.WithError(err).Error("Failed to get tracker")
 		return
 	}
 
@@ -220,7 +220,7 @@ func (mgr *LearningManager) CancelLearning(trackerID models.TrackerID) (err erro
 
 	err = GetTrackerManager().SetTrackerStatus(trackerID, models.TrackerStatusIdle)
 	if err != nil {
-		cancelLearningLog.WithField("err", err).Error("Failed to set tracker status to idle while canceling learning - ignore for now")
+		cancelLearningLog.WithError(err).Error("Failed to set tracker status to idle while canceling learning - ignore for now")
 		err = nil
 	}
 	return

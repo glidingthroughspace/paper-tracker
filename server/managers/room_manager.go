@@ -53,7 +53,7 @@ func (mgr *RoomManager) GetRoomByID(roomID models.RoomID) (room *models.Room, er
 func (mgr *RoomManager) GetAllRooms() (rooms []*models.Room, err error) {
 	rooms, err = mgr.roomRep.GetAll()
 	if err != nil {
-		log.WithField("err", err).Error("Failed to get all rooms")
+		log.WithError(err).Error("Failed to get all rooms")
 		return
 	}
 
@@ -73,7 +73,7 @@ func (mgr *RoomManager) fillRoomInfo(room *models.Room) (err error) {
 
 	stepCount, err := GetWorkflowTemplateManager().NumberOfStepsReferringToRoom(room.ID)
 	if err != nil {
-		fillInfoLog.WithField("err", err).Error("Failed to get step count for room")
+		fillInfoLog.WithError(err).Error("Failed to get step count for room")
 		return
 	}
 	if stepCount > 0 {
@@ -108,7 +108,7 @@ func (mgr *RoomManager) DeleteRoom(roomID models.RoomID) (err error) {
 
 	err = mgr.roomRep.Delete(roomID)
 	if err != nil {
-		deleteLog.WithField("err", err).Error("Failed to delete room")
+		deleteLog.WithError(err).Error("Failed to delete room")
 		return
 	}
 	return

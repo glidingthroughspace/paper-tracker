@@ -29,7 +29,7 @@ func (r *HttpRouter) workflowTemplateListHandler() gin.HandlerFunc {
 		workflows, err := managers.GetWorkflowTemplateManager().GetAllTemplates()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("WorkflowList request failed")
+			log.WithError(err).Warn("WorkflowList request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, workflows)
@@ -41,7 +41,7 @@ func (r *HttpRouter) workflowTemplateCreateHandler() gin.HandlerFunc {
 		template := &models.WorkflowTemplate{}
 		err := ctx.BindJSON(template)
 		if err != nil {
-			log.WithField("err", err).Error("Failed to unmarshal json to workflow template")
+			log.WithError(err).Error("Failed to unmarshal json to workflow template")
 			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
@@ -49,7 +49,7 @@ func (r *HttpRouter) workflowTemplateCreateHandler() gin.HandlerFunc {
 		err = managers.GetWorkflowTemplateManager().CreateTemplate(template)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("WorkflowTemplateCreate request failed")
+			log.WithError(err).Warn("WorkflowTemplateCreate request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, template)
@@ -63,7 +63,7 @@ func (r *HttpRouter) workflowTemplateCreateStartHandler() gin.HandlerFunc {
 		step := &models.Step{}
 		err := ctx.BindJSON(step)
 		if err != nil {
-			log.WithField("err", err).Error("Failed to unmarshal json to step")
+			log.WithError(err).Error("Failed to unmarshal json to step")
 			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
@@ -71,7 +71,7 @@ func (r *HttpRouter) workflowTemplateCreateStartHandler() gin.HandlerFunc {
 		err = managers.GetWorkflowTemplateManager().CreateTemplateStart(templateID, step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("WorkflowTemplateCreateStart request failed")
+			log.WithError(err).Warn("WorkflowTemplateCreateStart request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, step)
@@ -85,7 +85,7 @@ func (r *HttpRouter) workflowTemplateCreateStepHandler() gin.HandlerFunc {
 		stepRequest := &communication.CreateStepRequest{}
 		err := ctx.BindJSON(stepRequest)
 		if err != nil {
-			log.WithField("err", err).Error("Failed to unmarshal json to step")
+			log.WithError(err).Error("Failed to unmarshal json to step")
 			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
@@ -93,7 +93,7 @@ func (r *HttpRouter) workflowTemplateCreateStepHandler() gin.HandlerFunc {
 		err = managers.GetWorkflowTemplateManager().AddTemplateStep(templateID, stepRequest.PrevStepID, stepRequest.DecisionLabel, stepRequest.Step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("WorkflowTemplateCreateStep request failed")
+			log.WithError(err).Warn("WorkflowTemplateCreateStep request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, stepRequest.Step)
@@ -108,7 +108,7 @@ func (r *HttpRouter) workflowTemplateGetStepHandler() gin.HandlerFunc {
 		step, err := managers.GetWorkflowTemplateManager().GetStepByID(templateID, stepID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("WorkflowTemplateGetStep request failed")
+			log.WithError(err).Warn("WorkflowTemplateGetStep request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, step)
@@ -123,7 +123,7 @@ func (r *HttpRouter) workflowTemplateUpdateStepHandler() gin.HandlerFunc {
 		step := &models.Step{}
 		err := ctx.BindJSON(step)
 		if err != nil {
-			log.WithField("err", err).Error("Failed to unmarshal json to step")
+			log.WithError(err).Error("Failed to unmarshal json to step")
 			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
@@ -132,7 +132,7 @@ func (r *HttpRouter) workflowTemplateUpdateStepHandler() gin.HandlerFunc {
 		err = managers.GetWorkflowTemplateManager().UpdateStep(templateID, step)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("WorkflowTemplateUpdateStep request failed")
+			log.WithError(err).Warn("WorkflowTemplateUpdateStep request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, step)
@@ -147,7 +147,7 @@ func (r *HttpRouter) workflowTemplateDeleteStepHandler() gin.HandlerFunc {
 		err := managers.GetWorkflowTemplateManager().DeleteStep(templateID, stepID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("WorkflowTemplateUpdateStep request failed")
+			log.WithError(err).Warn("WorkflowTemplateUpdateStep request failed")
 			return
 		}
 		ctx.Status(http.StatusOK)
@@ -161,7 +161,7 @@ func (r *HttpRouter) workflowTemplateNewRevisionHandler() gin.HandlerFunc {
 		revisionRequest := &communication.CreateRevisionRequest{}
 		err := ctx.BindJSON(revisionRequest)
 		if err != nil {
-			log.WithField("err", err).Error("Failed to unmarshal json to create revision request")
+			log.WithError(err).Error("Failed to unmarshal json to create revision request")
 			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}

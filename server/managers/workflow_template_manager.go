@@ -45,21 +45,21 @@ func (mgr *WorkflowTemplateManager) CreateTemplateStart(templateID models.Workfl
 
 	template, err := mgr.GetTemplate(templateID)
 	if err != nil || template.StepEditingLocked {
-		workflowStartLog.WithField("err", err).Warn("Editing of template locked")
+		workflowStartLog.WithError(err).Warn("Editing of template locked")
 		return errors.New("Editing of template locked")
 	}
 
 	step.ID = 0
 	err = mgr.workflowRep.CreateStep(step)
 	if err != nil {
-		workflowStartLog.WithField("err", err).Error("Failed to create step")
+		workflowStartLog.WithError(err).Error("Failed to create step")
 		return
 	}
 
 	template.StartStep = step.ID
 	err = mgr.workflowRep.UpdateTemplate(template)
 	if err != nil {
-		workflowStartLog.WithField("err", err).Error("Failed to update template to create start")
+		workflowStartLog.WithError(err).Error("Failed to update template to create start")
 		mgr.workflowRep.DeleteStep(step.ID)
 		return
 	}
@@ -72,24 +72,24 @@ func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTe
 
 	template, err := mgr.GetTemplate(templateID)
 	if err != nil || template.StepEditingLocked {
-		addStepLog.WithField("err", err).Warn("Editing of template locked")
+		addStepLog.WithError(err).Warn("Editing of template locked")
 		return errors.New("Editing of template locked")
 	}
 
 	step.ID = 0
 	err = mgr.workflowRep.CreateStep(step)
 	if err != nil {
-		addStepLog.WithField("err", err).Error("Failed to create step to add step")
+		addStepLog.WithError(err).Error("Failed to create step to add step")
 		return
 	}
 
 	_, err = mgr.GetStepByID(templateID, prevStepID)
 	if mgr.workflowRep.IsRecordNotFoundError(err) {
-		addStepLog.WithField("err", err).Warn("Previous step not found to add step")
+		addStepLog.WithError(err).Warn("Previous step not found to add step")
 		mgr.workflowRep.DeleteStep(step.ID)
 		return
 	} else if err != nil {
-		addStepLog.WithField("err", err).Error("Failed to get previous step to add step")
+		addStepLog.WithError(err).Error("Failed to get previous step to add step")
 		mgr.workflowRep.DeleteStep(step.ID)
 		return
 	}
@@ -101,7 +101,7 @@ func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTe
 	}
 	err = mgr.workflowRep.CreateNextStep(nextStep)
 	if err != nil {
-		addStepLog.WithField("err", err).Error("Failed to get insert nextStep to add step")
+		addStepLog.WithError(err).Error("Failed to get insert nextStep to add step")
 		mgr.workflowRep.DeleteStep(step.ID)
 		return
 	}
@@ -112,7 +112,7 @@ func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTe
 func (mgr *WorkflowTemplateManager) GetAllTemplates() (templates []*models.WorkflowTemplate, err error) {
 	templates, err = mgr.workflowRep.GetAllTemplates()
 	if err != nil {
-		log.WithField("err", err).Error("Failed to get all raw workflows")
+		log.WithError(err).Error("Failed to get all raw workflows")
 		return
 	}
 
@@ -134,7 +134,7 @@ func (mgr *WorkflowTemplateManager) GetTemplate(templateID models.WorkflowTempla
 		getWorkflowLog.Warn("Template not found")
 		return
 	} else if err != nil {
-		getWorkflowLog.WithField("err", err).Error("Failed to get template")
+		getWorkflowLog.WithError(err).Error("Failed to get template")
 		return
 	}
 
@@ -147,7 +147,7 @@ func (mgr *WorkflowTemplateManager) fillTemplateInfo(template *models.WorkflowTe
 
 	execCount, err := GetWorkflowExecManager().GetExecCountByTemplate(template.ID)
 	if err != nil {
-		infoLog.WithField("err", err).Error("Failed to get execs of template - ignore for now")
+		infoLog.WithError(err).Error("Failed to get execs of template - ignore for now")
 		err = nil
 	}
 	if execCount > 0 {
@@ -158,7 +158,7 @@ func (mgr *WorkflowTemplateManager) fillTemplateInfo(template *models.WorkflowTe
 
 	template.Steps, err = mgr.getStepsFromStart(template.ID, template.StartStep, infoLog)
 	if err != nil {
-		infoLog.WithField("err", err).Error("Failed to get steps")
+		infoLog.WithError(err).Error("Failed to get steps")
 		return
 	}
 	return
@@ -182,7 +182,7 @@ func (mgr *WorkflowTemplateManager) getStepsFromStart(templateID models.Workflow
 			getStepsFromStartLog.Info("No next linear step")
 			break
 		} else if err != nil {
-			getStepsFromStartLog.WithField("err", err).Warn("Failed to get next linear step ID")
+			getStepsFromStartLog.WithError(err).Warn("Failed to get next linear step ID")
 			break
 		}
 	}
@@ -195,20 +195,20 @@ func (mgr *WorkflowTemplateManager) GetStepByID(templateID models.WorkflowTempla
 
 	step, err = mgr.workflowRep.GetStepByID(stepID)
 	if err != nil {
-		getStepLog.WithField("err", err).Warn("Failed to get step by ID")
+		getStepLog.WithError(err).Warn("Failed to get step by ID")
 		return
 	}
 	if mgr.workflowRep.IsRecordNotFoundError(err) {
 		getStepLog.Warn("Step not found")
 		return
 	} else if err != nil {
-		getStepLog.WithField("err", err).Error("Failed to get startStep")
+		getStepLog.WithError(err).Error("Failed to get startStep")
 		return
 	}
 
 	decisions, err := mgr.workflowRep.GetDecisions(step.ID)
 	if err != nil {
-		getStepLog.WithField("err", err).Warn("Failed to get decisions for step")
+		getStepLog.WithError(err).Warn("Failed to get decisions for step")
 		return
 	}
 	step.Options = make(map[string][]*models.Step)
@@ -228,13 +228,13 @@ func (mgr *WorkflowTemplateManager) UpdateStep(templateID models.WorkflowTemplat
 
 	template, err := mgr.GetTemplate(templateID)
 	if err != nil || template.StepEditingLocked {
-		updateLog.WithField("err", err).Warn("Editing of template locked")
+		updateLog.WithError(err).Warn("Editing of template locked")
 		return errors.New("Editing of template locked")
 	}
 
 	err = mgr.workflowRep.UpdateStep(step)
 	if err != nil {
-		updateLog.WithField("err", err).Error("Failed to update step")
+		updateLog.WithError(err).Error("Failed to update step")
 		return
 	}
 
@@ -246,7 +246,7 @@ func (mgr *WorkflowTemplateManager) UpdateStep(templateID models.WorkflowTemplat
 		}
 		err = mgr.workflowRep.UpdateNextStep(nextStep)
 		if err != nil {
-			updateLog.WithField("err", err).Error("Failed to update decision")
+			updateLog.WithError(err).Error("Failed to update decision")
 			continue
 		}
 	}
@@ -258,13 +258,13 @@ func (mgr *WorkflowTemplateManager) DeleteStep(templateID models.WorkflowTemplat
 
 	template, err := mgr.GetTemplate(templateID)
 	if err != nil || template.StepEditingLocked {
-		deleteLog.WithField("err", err).Warn("Editing of template locked")
+		deleteLog.WithError(err).Warn("Editing of template locked")
 		return errors.New("Editing of template locked")
 	}
 
 	step, err := mgr.GetStepByID(templateID, stepID)
 	if err != nil {
-		deleteLog.WithField("err", err).Error("Failed to get to be deleted step")
+		deleteLog.WithError(err).Error("Failed to get to be deleted step")
 		return
 	} else if len(step.Options) > 0 {
 		deleteLog.Warn("Cannot delete step that has options")
@@ -275,7 +275,7 @@ func (mgr *WorkflowTemplateManager) DeleteStep(templateID models.WorkflowTemplat
 	if template.StartStep != stepID {
 		fromStep, err = mgr.workflowRep.GetNextStepByNextID(stepID)
 		if err != nil {
-			deleteLog.WithField("err", err).Error("Failed to get nextStep that points to be deleted step")
+			deleteLog.WithError(err).Error("Failed to get nextStep that points to be deleted step")
 			return
 		}
 	}
@@ -285,14 +285,14 @@ func (mgr *WorkflowTemplateManager) DeleteStep(templateID models.WorkflowTemplat
 		toStepID = 0
 		err = nil
 	} else if err != nil {
-		deleteLog.WithField("err", err).Error("Failed to get next linear step of to be deleted step")
+		deleteLog.WithError(err).Error("Failed to get next linear step of to be deleted step")
 		return
 	}
 
 	if fromStep != nil {
 		err = mgr.workflowRep.DeleteNextStep(fromStep.PrevID, fromStep.NextID)
 		if err != nil {
-			deleteLog.WithField("err", err).Error("Failed to delete nextStep pointing to to be deleted step")
+			deleteLog.WithError(err).Error("Failed to delete nextStep pointing to to be deleted step")
 			return
 		}
 	}
@@ -300,14 +300,14 @@ func (mgr *WorkflowTemplateManager) DeleteStep(templateID models.WorkflowTemplat
 	if toStepID > 0 {
 		err = mgr.workflowRep.DeleteNextStep(stepID, toStepID)
 		if err != nil {
-			deleteLog.WithField("err", err).Error("Failed to delete nextStep pointing from to be deleted step - ignore for now")
+			deleteLog.WithError(err).Error("Failed to delete nextStep pointing from to be deleted step - ignore for now")
 			err = nil
 		}
 	}
 
 	err = mgr.workflowRep.DeleteStep(stepID)
 	if err != nil {
-		deleteLog.WithField("err", err).Error("Failed to delete step")
+		deleteLog.WithError(err).Error("Failed to delete step")
 		return
 	}
 
@@ -319,7 +319,7 @@ func (mgr *WorkflowTemplateManager) DeleteStep(templateID models.WorkflowTemplat
 		}
 		err = mgr.workflowRep.CreateNextStep(newNextStep)
 		if err != nil {
-			deleteLog.WithField("err", err).Error("Failed to create new nextStep after deleting step")
+			deleteLog.WithError(err).Error("Failed to create new nextStep after deleting step")
 			return
 		}
 	}
@@ -332,7 +332,7 @@ func (mgr *WorkflowTemplateManager) DeleteStep(templateID models.WorkflowTemplat
 		}
 		err = mgr.workflowRep.UpdateTemplate(template)
 		if err != nil {
-			deleteLog.WithField("err", err).Error("Failed to set template startStep to 0 after deleting start step")
+			deleteLog.WithError(err).Error("Failed to set template startStep to 0 after deleting start step")
 			return
 		}
 	}
@@ -345,7 +345,7 @@ func (mgr *WorkflowTemplateManager) CreateNewRevision(oldID models.WorkflowTempl
 
 	oldTemplate, err := mgr.GetTemplate(oldID)
 	if err != nil {
-		revisionLog.WithField("err", err).Error("Failed to get old template for new revision")
+		revisionLog.WithError(err).Error("Failed to get old template for new revision")
 		return
 	}
 
@@ -359,14 +359,14 @@ func (mgr *WorkflowTemplateManager) CreateNewRevision(oldID models.WorkflowTempl
 
 	err = mgr.CreateTemplate(newTemplate)
 	if err != nil {
-		revisionLog.WithField("err", err).Error("Failed to create new template for revision")
+		revisionLog.WithError(err).Error("Failed to create new template for revision")
 		return
 	}
 
 	if len(oldTemplate.Steps) > 0 {
 		err = mgr.copySteps(newTemplate.ID, oldTemplate.Steps, 0, true, "")
 		if err != nil {
-			revisionLog.WithField("err", err).Error("Failed to copy steps from old to new revision template")
+			revisionLog.WithError(err).Error("Failed to copy steps from old to new revision template")
 			mgr.workflowRep.DeleteTemplate(newTemplate.ID)
 		}
 	}
@@ -392,14 +392,14 @@ func (mgr *WorkflowTemplateManager) copySteps(templateID models.WorkflowTemplate
 			err = mgr.AddTemplateStep(templateID, currentPrevStep, "", newStep)
 		}
 		if err != nil {
-			copyStepsLog.WithField("err", err).Error("Failed to create step to copy steps")
+			copyStepsLog.WithError(err).Error("Failed to create step to copy steps")
 			break
 		}
 
 		for decision, steps := range oldStep.Options {
 			err = mgr.copySteps(templateID, steps, newStep.ID, false, decision)
 			if err != nil {
-				copyStepsLog.WithField("err", err).Error("Failed to copy steps for decisions")
+				copyStepsLog.WithError(err).Error("Failed to copy steps for decisions")
 				continue
 			}
 		}
@@ -424,7 +424,7 @@ func (mgr *WorkflowTemplateManager) DeleteTemplate(templateID models.WorkflowTem
 
 	template, err := mgr.GetTemplate(templateID)
 	if err != nil {
-		deleteLog.WithField("err", err).Error("Failed to get template that should be deleted")
+		deleteLog.WithError(err).Error("Failed to get template that should be deleted")
 		return
 	}
 
@@ -436,13 +436,13 @@ func (mgr *WorkflowTemplateManager) DeleteTemplate(templateID models.WorkflowTem
 
 	err = mgr.deleteSteps(template.Steps, deleteLog)
 	if err != nil {
-		deleteLog.WithField("err", err).Error("Failed to delete steps of template")
+		deleteLog.WithError(err).Error("Failed to delete steps of template")
 		return
 	}
 
 	err = mgr.workflowRep.DeleteTemplate(templateID)
 	if err != nil {
-		deleteLog.WithField("err", err).Error("Failed to delete template itself")
+		deleteLog.WithError(err).Error("Failed to delete template itself")
 		return
 	}
 
@@ -463,19 +463,19 @@ func (mgr *WorkflowTemplateManager) deleteSteps(steps []*models.Step, deleteLog 
 
 		err = mgr.workflowRep.DeleteStep(step.ID)
 		if err != nil {
-			stepLog.WithField("err", err).Error("Failed to delete step")
+			stepLog.WithError(err).Error("Failed to delete step")
 			return
 		}
 
 		var nextStep *models.NextStep
 		nextStep, err = mgr.workflowRep.GetNextStepByNextID(step.ID)
 		if err != nil {
-			stepLog.WithField("err", err).Error("Next step to to deleted step not found - ignore for now")
+			stepLog.WithError(err).Error("Next step to to deleted step not found - ignore for now")
 			err = nil
 		} else {
 			err = mgr.workflowRep.DeleteNextStep(nextStep.PrevID, nextStep.NextID)
 			if err != nil {
-				stepLog.WithField("err", err).Error("Could not delete next step that points to deleted step")
+				stepLog.WithError(err).Error("Could not delete next step that points to deleted step")
 				return
 			}
 		}

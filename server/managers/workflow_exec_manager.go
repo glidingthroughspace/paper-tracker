@@ -44,7 +44,7 @@ func (mgr *WorkflowExecManager) GetExecCountByTemplate(templateID models.Workflo
 func (mgr *WorkflowExecManager) GetAllExec() (execs []*models.WorkflowExec, err error) {
 	rawExecs, err := mgr.workflowRep.GetAllExec()
 	if err != nil {
-		log.WithField("err", err).Error("Failed to get all execs")
+		log.WithError(err).Error("Failed to get all execs")
 		return
 	}
 
@@ -65,13 +65,13 @@ func (mgr *WorkflowExecManager) GetExec(execID models.WorkflowExecID) (exec *mod
 
 	exec, err = mgr.workflowRep.GetExecByID(execID)
 	if err != nil {
-		execLog.WithField("err", err).Error("Failed to get workflow exec")
+		execLog.WithError(err).Error("Failed to get workflow exec")
 		return
 	}
 
 	err = mgr.fillExecOptions(exec)
 	if err != nil {
-		execLog.WithField("err", err).Error("Failed to fill exec options")
+		execLog.WithError(err).Error("Failed to fill exec options")
 		return
 	}
 	return
@@ -82,13 +82,13 @@ func (mgr *WorkflowExecManager) GetExecByTrackerID(trackerID models.TrackerID) (
 
 	exec, err = mgr.workflowRep.GetRunningExecByTrackerID(trackerID)
 	if err != nil {
-		execLog.WithField("err", err).Error("Failed to get workflow exec by tracker")
+		execLog.WithError(err).Error("Failed to get workflow exec by tracker")
 		return
 	}
 
 	err = mgr.fillExecOptions(exec)
 	if err != nil {
-		execLog.WithField("err", err).Error("Failed to fill exec options")
+		execLog.WithError(err).Error("Failed to fill exec options")
 		return
 	}
 	return
@@ -99,7 +99,7 @@ func (mgr *WorkflowExecManager) fillExecOptions(exec *models.WorkflowExec) (err 
 
 	infos, err := mgr.workflowRep.GetExecStepInfoForExecID(exec.ID)
 	if err != nil {
-		execOptionsLog.WithField("err", err).Error("Failed to get infos for exec")
+		execOptionsLog.WithError(err).Error("Failed to get infos for exec")
 		return
 	}
 
@@ -115,7 +115,7 @@ func (mgr *WorkflowExecManager) StartExecution(exec *models.WorkflowExec) (err e
 
 	tracker, err := GetTrackerManager().GetTrackerByID(exec.TrackerID)
 	if err != nil {
-		startExecLog.WithField("err", err).Warn("Failed to get tracker for starting execution")
+		startExecLog.WithError(err).Warn("Failed to get tracker for starting execution")
 		return
 	}
 
@@ -127,7 +127,7 @@ func (mgr *WorkflowExecManager) StartExecution(exec *models.WorkflowExec) (err e
 
 	template, err := GetWorkflowTemplateManager().GetTemplate(exec.TemplateID)
 	if err != nil {
-		startExecLog.WithField("err", err).Warn("Failed to get template for starting execution")
+		startExecLog.WithError(err).Warn("Failed to get template for starting execution")
 		return
 	}
 
@@ -144,13 +144,13 @@ func (mgr *WorkflowExecManager) StartExecution(exec *models.WorkflowExec) (err e
 	exec.StartedOn = &timeNow
 	err = mgr.workflowRep.CreateExec(exec)
 	if err != nil {
-		startExecLog.WithField("err", err).Warn("Failed to create workflow exec")
+		startExecLog.WithError(err).Warn("Failed to create workflow exec")
 		return
 	}
 
 	err = GetTrackerManager().SetTrackerStatus(exec.TrackerID, models.TrackerStatusTracking)
 	if err != nil {
-		startExecLog.WithField("err", err).Error("Failed to set tracker to status tracking - error ignored for now")
+		startExecLog.WithError(err).Error("Failed to set tracker to status tracking - error ignored for now")
 		err = nil
 	}
 
@@ -204,7 +204,7 @@ func (mgr *WorkflowExecManager) ProgressToStep(execID models.WorkflowExecID, ste
 
 	exec, err := mgr.GetExec(execID)
 	if err != nil {
-		progressLog.WithField("err", err).Error("Failed to get exec")
+		progressLog.WithError(err).Error("Failed to get exec")
 		return
 	}
 
@@ -219,7 +219,7 @@ func (mgr *WorkflowExecManager) progress(exec *models.WorkflowExec, stepID *mode
 
 	template, err := GetWorkflowTemplateManager().GetTemplate(exec.TemplateID)
 	if err != nil {
-		progressLog.WithField("err", err).Error("Failed to get template of exec")
+		progressLog.WithError(err).Error("Failed to get template of exec")
 		return
 	}
 
@@ -237,7 +237,7 @@ func (mgr *WorkflowExecManager) progress(exec *models.WorkflowExec, stepID *mode
 	if progressToNextStep {
 		err = mgr.SetExecutionFinished(exec.ID)
 		if err != nil {
-			progressLog.WithField("err", err).Error("Failed to set execution as finished after progressing to step")
+			progressLog.WithError(err).Error("Failed to set execution as finished after progressing to step")
 			return
 		}
 	}
@@ -284,7 +284,7 @@ func (mgr *WorkflowExecManager) progressInSteps(exec *models.WorkflowExec, stepI
 			var err error
 			found, err = mgr.progressInSteps(exec, stepID, roomID, step.Options[currentStepInfo.Decision], currentPassed, progressToNextStep, updatedStepInfo, progressLog)
 			if err != nil {
-				progressLog.WithField("err", err).Error("Failed to progress in inner steps")
+				progressLog.WithError(err).Error("Failed to progress in inner steps")
 				return found, err
 			}
 			// If we found what we are searching for and don't need to progress to next step => Exit
@@ -320,7 +320,7 @@ func (mgr *WorkflowExecManager) markStepAsCurrent(exec *models.WorkflowExec, ste
 	exec.CurrentStepID = step.ID
 	err = mgr.workflowRep.UpdateExec(exec)
 	if err != nil {
-		progressLog.WithField("err", err).Error("Failed to set new current step id for exec")
+		progressLog.WithError(err).Error("Failed to set new current step id for exec")
 		return
 	}
 	return
@@ -340,7 +340,7 @@ func (mgr *WorkflowExecManager) SetExecutionFinished(execID models.WorkflowExecI
 
 	exec, err := mgr.GetExec(execID)
 	if err != nil {
-		execFinishLog.WithField("err", err).Error("Failed to get exec")
+		execFinishLog.WithError(err).Error("Failed to get exec")
 		return
 	}
 
@@ -350,13 +350,13 @@ func (mgr *WorkflowExecManager) SetExecutionFinished(execID models.WorkflowExecI
 	exec.CurrentStepID = 0
 	err = mgr.workflowRep.UpdateExec(exec)
 	if err != nil {
-		execFinishLog.WithField("err", err).Error("Failed to set exec finished")
+		execFinishLog.WithError(err).Error("Failed to set exec finished")
 		return
 	}
 
 	err = GetTrackerManager().SetTrackerStatus(exec.TrackerID, models.TrackerStatusIdle)
 	if err != nil {
-		execFinishLog.WithField("err", err).Error("Failed to set tracker to idle after finishing exec")
+		execFinishLog.WithError(err).Error("Failed to set tracker to idle after finishing exec")
 		return
 	}
 
@@ -368,7 +368,7 @@ func (mgr *WorkflowExecManager) CancelExec(execID models.WorkflowExecID) (err er
 
 	exec, err := mgr.GetExec(execID)
 	if err != nil {
-		cancelLog.WithField("err", err).Error("Could not get exec to cancel")
+		cancelLog.WithError(err).Error("Could not get exec to cancel")
 		return
 	}
 
@@ -380,7 +380,7 @@ func (mgr *WorkflowExecManager) CancelExec(execID models.WorkflowExecID) (err er
 	exec.Status = models.ExecStatusCanceled
 	err = mgr.workflowRep.UpdateExec(exec)
 	if err != nil {
-		cancelLog.WithField("err", err).Error("Failed to update exec")
+		cancelLog.WithError(err).Error("Failed to update exec")
 		return
 	}
 
