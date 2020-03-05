@@ -71,7 +71,7 @@ func (mgr *RoomManager) GetAllRooms() (rooms []*models.Room, err error) {
 func (mgr *RoomManager) fillRoomInfo(room *models.Room) (err error) {
 	fillInfoLog := log.WithField("roomID", room.ID)
 
-	stepCount, err := GetWorkflowTemplateManager().GetStepCountByRoom(room.ID)
+	stepCount, err := GetWorkflowTemplateManager().NumberOfStepsReferringToRoom(room.ID)
 	if err != nil {
 		fillInfoLog.WithField("err", err).Error("Failed to get step count for room")
 		return

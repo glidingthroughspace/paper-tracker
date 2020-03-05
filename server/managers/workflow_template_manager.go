@@ -410,7 +410,7 @@ func (mgr *WorkflowTemplateManager) copySteps(templateID models.WorkflowTemplate
 	return
 }
 
-func (mgr *WorkflowTemplateManager) GetStepCountByRoom(roomID models.RoomID) (int, error) {
+func (mgr *WorkflowTemplateManager) NumberOfStepsReferringToRoom(roomID models.RoomID) (int, error) {
 	steps, err := mgr.workflowRep.GetStepsByRoomID(roomID)
 	if err != nil {
 		log.WithFields(log.Fields{"roomID": roomID, "err": err}).Error("Failed to get all steps by room id")
