@@ -4,8 +4,8 @@ package models
 // Note that all sizes (min, max, ...) are in their mathematical form, not the logical form:
 // a RSSI of -90dBm is worse than -10dBm. The Minimum in this case is -90dBm, as one might expect.
 type BSSIDTrackingData struct {
-	ID        uint
-	RoomID    RoomID
+	ID        uint      `json:"id"`
+	RoomID    RoomID    `json:"roomID"`
 	BSSID     string    `json:"bssid" gorm:"column:bssid"`
 	Minimum   int       `json:"minimum"`
 	Maximum   int       `json:"maximum"`
