@@ -87,9 +87,22 @@ func (mgr *TrackerManager) UpdateTrackerLabel(trackerID models.TrackerID, label 
 }
 
 func (mgr *TrackerManager) DeleteTracker(trackerID models.TrackerID) (err error) {
+	deleteLog := log.WithField("trackerID", trackerID)
+
+	tracker, err := mgr.GetTrackerByID(trackerID)
+	if err != nil {
+		deleteLog.WithField("err", err).Error("Failed to get tracker to delete")
+		return
+	}
+
+	if tracker.Status != models.TrackerStatusIdle {
+		deleteLog.Error("Can not delete tracker that is not in idle")
+		return errors.New("Can not delete tracker that is not in idle")
+	}
+
 	err = mgr.trackerRep.Delete(trackerID)
 	if err != nil {
-		log.WithFields(log.Fields{"trackerID": trackerID, "err": err}).Error("Failed to delete tracker")
+		deleteLog.WithField("err", err).Error("Failed to delete tracker")
 		return
 	}
 	return

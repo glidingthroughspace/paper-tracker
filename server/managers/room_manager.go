@@ -45,6 +45,8 @@ func (mgr *RoomManager) GetRoomByID(roomID models.RoomID) (room *models.Room, er
 		log.WithFields(log.Fields{"roomID": roomID, "err": err}).Error("Failed to get room")
 		return
 	}
+
+	err = mgr.fillRoomInfo(room)
 	return
 }
 
@@ -54,6 +56,32 @@ func (mgr *RoomManager) GetAllRooms() (rooms []*models.Room, err error) {
 		log.WithField("err", err).Error("Failed to get all rooms")
 		return
 	}
+
+	for _, room := range rooms {
+		err = mgr.fillRoomInfo(room)
+		if err != nil {
+			log.WithFields(log.Fields{"err": err, "roomID": room.ID}).Error("Failed to fill room infos for list")
+			continue
+		}
+	}
+
+	return
+}
+
+func (mgr *RoomManager) fillRoomInfo(room *models.Room) (err error) {
+	fillInfoLog := log.WithField("roomID", room.ID)
+
+	stepCount, err := GetWorkflowTemplateManager().NumberOfStepsReferringToRoom(room.ID)
+	if err != nil {
+		fillInfoLog.WithField("err", err).Error("Failed to get step count for room")
+		return
+	}
+	if stepCount > 0 {
+		room.DeleteLocked = true
+	} else {
+		room.DeleteLocked = false
+	}
+
 	return
 }
 
@@ -76,9 +104,11 @@ func (mgr *RoomManager) UpdateRoom(room *models.Room) (err error) {
 }
 
 func (mgr *RoomManager) DeleteRoom(roomID models.RoomID) (err error) {
+	deleteLog := log.WithField("roomID", roomID)
+
 	err = mgr.roomRep.Delete(roomID)
 	if err != nil {
-		log.WithFields(log.Fields{"roomID": roomID, "err": err}).Error("Failed to delete room")
+		deleteLog.WithField("err", err).Error("Failed to delete room")
 		return
 	}
 	return

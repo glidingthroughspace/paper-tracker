@@ -11,11 +11,12 @@ Room _$RoomFromJson(Map<String, dynamic> json) {
     id: json['id'] as int,
     label: json['label'] as String,
     isLearned: json['is_learned'] as bool,
-  );
+  )..deleteLocked = json['delete_locked'] as bool;
 }
 
 Map<String, dynamic> _$RoomToJson(Room instance) => <String, dynamic>{
       'id': instance.id,
       'label': instance.label,
       'is_learned': instance.isLearned,
+      'delete_locked': instance.deleteLocked,
     };

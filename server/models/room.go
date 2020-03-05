@@ -7,4 +7,5 @@ type Room struct {
 	Label        string              `json:"label"`
 	IsLearned    bool                `json:"is_learned"`
 	TrackingData []BSSIDTrackingData `json:"tracking_data"`
+	DeleteLocked bool                `json:"delete_locked"`
 }
