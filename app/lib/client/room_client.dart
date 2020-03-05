@@ -28,18 +28,31 @@ class RoomClient {
     }
 
     var rooms = await futureRooms;
-    return rooms.firstWhere((room) => room.id == id);
+    try {
+      return rooms.firstWhere((room) => room.id == id);
+    } catch (_) {
+      throw Exception("Failed to get room with id '$id'");
+    }
   }
 
   Future<void> addRoom(Room room) async {
-    return apiClient.post("/room", json.encode(room.toJson()));
+    var response = await apiClient.post("/room", json.encode(room.toJson()));
+    if (response.statusCode != 200) {
+      throw Exception("Failed to add room");
+    }
   }
 
   Future<void> updateRoom(Room room) async {
-    return apiClient.put("/room/${room.id}", json.encode(room.toJson()));
+    var response = await apiClient.put("/room/${room.id}", json.encode(room.toJson()));
+    if (response.statusCode != 200) {
+      throw Exception("Failed to update room");
+    }
   }
 
   Future<void> deleteRoom(int id) async {
-    return apiClient.delete("/room/$id");
+    var response = await apiClient.delete("/room/$id");
+    if (response.statusCode != 200) {
+      throw Exception("Failed to delete room");
+    }
   }
 }
