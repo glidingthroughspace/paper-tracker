@@ -59,13 +59,13 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
       WorkflowStepsList(
         steps: template.steps,
         roomClient: roomClient,
-        onStepAdd: template.editingLocked ? null : onAddStep,
+        onStepAdd: template.stepEditingLocked ? null : onAddStep,
         primaryScroll: false,
-        onTap: template.editingLocked ? null : onStepTap,
+        onTap: template.stepEditingLocked ? null : onStepTap,
       )
     ];
 
-    if (template.editingLocked) {
+    if (template.stepEditingLocked) {
       children.add(Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -126,6 +126,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
     }
     await templateClient.getAllTemplates(refresh: true);
 
+    roomClient.getAllRooms(refresh: true); // In case now a room cannot be deleted
     refreshTemplate();
     Navigator.of(context).pop();
   }

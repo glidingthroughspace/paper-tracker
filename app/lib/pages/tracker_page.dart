@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/tracker_client.dart';
 import 'package:paper_tracker/model/room.dart';
@@ -203,6 +204,11 @@ class _TrackerPageState extends State<TrackerPage> {
   }
 
   void delete(Tracker tracker) async {
+    if (tracker.status != TrackerStatus.Idle) {
+      Fluttertoast.showToast(msg: "Can't delete tracker that is not in idle status");
+      return;
+    }
+
     await trackerClient.deleteTracker(tracker.id);
     await trackerClient.getAllTrackers(refresh: true);
     Navigator.of(context).pop();

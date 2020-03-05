@@ -14,6 +14,8 @@ class Room implements DropdownCapable {
   String label;
   @JsonKey(name: "is_learned")
   bool isLearned;
+  @JsonKey(name: "delete_locked")
+  bool deleteLocked;
 
   Room({this.id, this.label, this.isLearned = false});
 

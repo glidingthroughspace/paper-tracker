@@ -16,10 +16,10 @@ class WorkflowTemplate extends DropdownCapable {
   String label;
   @JsonKey(name: "steps")
   List<WFStep> steps;
-  @JsonKey(name: "editing_locked")
-  bool editingLocked;
+  @JsonKey(name: "step_editing_locked")
+  bool stepEditingLocked;
 
-  WorkflowTemplate({this.id, this.label, this.steps, this.editingLocked});
+  WorkflowTemplate({this.id, this.label, this.steps, this.stepEditingLocked});
 
   factory WorkflowTemplate.fromJson(Map<String, dynamic> json) => _$WorkflowTemplateFromJson(json);
   Map<String, dynamic> toJson() => _$WorkflowTemplateToJson(this);
