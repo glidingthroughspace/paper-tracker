@@ -47,10 +47,10 @@ class _CheckCardListState extends State<CheckCardList> {
   @override
   Widget build(BuildContext context) {
     var listChildren = widget.controller.contentMap
-        .map(
-          (title, checked) => MapEntry(
-              ListCard(title: Text(title), trailing: Checkbox(value: checked, onChanged: null), onTap: onTap), l),
-        )
+        .map((title, checked) => MapEntry(
+            ListCard(
+                title: Text(title), trailing: Checkbox(value: checked, onChanged: null), object: title, onTap: onTap),
+            null))
         .keys
         .toList();
     return ListView(
