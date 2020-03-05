@@ -8,15 +8,3 @@ type Room struct {
 	IsLearned    bool                `json:"is_learned"`
 	TrackingData []BSSIDTrackingData `json:"tracking_data"`
 }
-
-type ScoredRoom struct {
-	Room
-	Score float64 `json:"score"`
-}
-
-func ScoredRoomFromRoom(room *Room, score float64) *ScoredRoom {
-	return &ScoredRoom{
-		Room:  *room,
-		Score: score,
-	}
-}

@@ -47,26 +47,22 @@ func (*TrackingManager) ConsolidateScanResults(scanResults []*models.ScanResult)
 }
 
 func (tm *TrackingManager) GetRoomMatchingBest(rooms []*models.Room, scanResults []*models.ScanResult) *models.Room {
-	var bestMatch *models.ScoredRoom = nil
+	var bestMatch *models.Room = nil
+	var bestScore float64 = -1.0
 	scoredRooms := tm.ScoreRoomsForScanResults(rooms, scanResults)
-	for _, room := range scoredRooms {
-		if bestMatch == nil && room.Score > 0.1e-7 {
-			bestMatch = room
-		} else if bestMatch != nil && room.Score > bestMatch.Score {
+	for room, score := range scoredRooms {
+		if (bestMatch == nil && score > 0.1e-7) || (bestMatch != nil && score > bestScore) {
+			bestScore = score
 			bestMatch = room
 		}
 	}
-	// no room had a score > 0
-	if bestMatch == nil {
-		return nil
-	}
-	return &bestMatch.Room
+	return bestMatch
 }
 
-func (tm *TrackingManager) ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) []*models.ScoredRoom {
-	scoredRooms := []*models.ScoredRoom{}
+func (tm *TrackingManager) ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[*models.Room]float64 {
+	scoredRooms := make(map[*models.Room]float64)
 	for _, room := range rooms {
-		scoredRooms = append(scoredRooms, models.ScoredRoomFromRoom(room, tm.ScoreRoomForScanResults(room, scanResults)))
+		scoredRooms[room] = tm.ScoreRoomForScanResults(room, scanResults)
 	}
 	return scoredRooms
 }
