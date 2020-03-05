@@ -39,21 +39,21 @@ class WorkflowTemplateClient {
 
   Future<void> addStartStep(int templateID, WFStep step) async {
     var response = await apiClient.post("/workflow/template/$templateID/start", json.encode(step.toJSON()));
-    if (response.statusCode != 200) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Failed to add start step to template");
     }
   }
 
   Future<void> addStep(int templateID, CreateStepRequest stepRequest) async {
     var response = await apiClient.post("/workflow/template/$templateID/step", json.encode(stepRequest.toJson()));
-    if (response.statusCode != 200) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Failed to add step to template");
     }
   }
 
   Future<void> createTemplate(WorkflowTemplate template) async {
     var response = await apiClient.post("/workflow/template", json.encode(template.toJson()));
-    if (response.statusCode != 200) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Failed to create template");
     }
   }

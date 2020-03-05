@@ -59,14 +59,14 @@ class TrackerClient {
   Future<void> finishLearning(int trackerID, int roomID, List<String> ssids) async {
     final response = await apiClient.post(
         "/tracker/$trackerID/learn/finish", json.encode(LearningFinishRequest(roomID: roomID, ssids: ssids).toJson()));
-    if (response.statusCode != 200) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Failed to finish learning");
     }
   }
 
   Future<void> cancelLearning(int trackerID) async {
     final response = await apiClient.post("/tracker/$trackerID/learn/cancel", null);
-    if (response.statusCode != 200) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Failed to cancel learning");
     }
   }

@@ -37,7 +37,7 @@ class RoomClient {
 
   Future<void> addRoom(Room room) async {
     var response = await apiClient.post("/room", json.encode(room.toJson()));
-    if (response.statusCode != 200) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Failed to add room");
     }
   }

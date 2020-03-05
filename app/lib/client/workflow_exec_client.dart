@@ -38,7 +38,7 @@ class WorkflowExecClient {
 
   Future<void> startExec(WorkflowExec exec) async {
     var response = await apiClient.post("/workflow/exec", json.encode(exec.toJSON()));
-    if (response.statusCode != 200) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Failed to start exec");
     }
   }
