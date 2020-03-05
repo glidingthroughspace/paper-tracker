@@ -39,7 +39,7 @@ func InitDatabaseConnection(name string) error {
 // CloseDatabaseConnection closes the gorm connection
 func CloseDatabaseConnection() {
 	if err := databaseConnection.Close(); err != nil {
-		log.WithField("err", err).Fatal("Error shutting down gorm")
+		log.WithError(err).Fatal("Error shutting down gorm")
 		return
 	}
 

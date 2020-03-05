@@ -107,6 +107,7 @@ class _StartExecPageState extends State<StartExecPage> {
     );
     await execClient.startExec(exec);
     await execClient.getAllExecs(refresh: true);
+    templateClient.getAllTemplates(refresh: true); // In case this locks the editing of an template
     Navigator.of(context).pop();
   }
 }

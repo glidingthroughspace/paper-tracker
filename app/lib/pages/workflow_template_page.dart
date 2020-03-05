@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/communication/createStepRequest.dart';
@@ -46,7 +47,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
         return DetailContent(
           title: template != null ? template.label : "",
           iconData: WorkflowTemplate.IconData,
-          bottomButtons: [],
+          bottomButtons: buildBottomButtons(template),
           content: template != null ? buildContent(template) : Container(),
           onRefresh: refreshTemplate,
         );
@@ -201,4 +202,25 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
   void onMoveStepUp(WFStep step) async {}
 
   void onMoveStepDown(WFStep step) async {}
+
+  List<Widget> buildBottomButtons(WorkflowTemplate template) {
+    return [
+      IconButton(
+        icon: Icon(Icons.delete_forever, color: Colors.white),
+        onPressed: () => delete(template),
+      ),
+    ];
+  }
+
+  void delete(WorkflowTemplate template) async {
+    if (template.stepEditingLocked) {
+      Fluttertoast.showToast(msg: "Can't delete template that is in use");
+      return;
+    }
+
+    await templateClient.deleteTemplate(template.id);
+    await templateClient.getAllTemplates(refresh: true);
+    roomClient.getAllRooms(refresh: true);
+    Navigator.of(context).pop();
+  }
 }

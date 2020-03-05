@@ -24,7 +24,7 @@ func (r *HttpRouter) workflowExecListHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		execs, err := managers.GetWorkflowExecManager().GetAllExec()
 		if err != nil {
-			log.WithField("err", err).Warn("Failed to get all workflow execs")
+			log.WithError(err).Warn("Failed to get all workflow execs")
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
@@ -37,7 +37,7 @@ func (r *HttpRouter) workflowExecStartHandler() gin.HandlerFunc {
 		exec := &models.WorkflowExec{}
 		err := ctx.BindJSON(exec)
 		if err != nil {
-			log.WithField("err", err).Error("Failed to unmarshal json to workflow execution")
+			log.WithError(err).Error("Failed to unmarshal json to workflow execution")
 			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
