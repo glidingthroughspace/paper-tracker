@@ -163,7 +163,11 @@ class _LearningPageState extends State<LearningPage> {
     Navigator.of(context).pop();
   }
 
-  Future<bool> onBackPressed() {
+  Future<bool> onBackPressed() async {
+    if (state == _learningState.Init) {
+      return true;
+    }
+
     return showDialog(
           context: context,
           builder: (context) => ConfirmIconTextDialog(

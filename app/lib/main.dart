@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:paper_tracker/pages/config_page.dart';
 import 'package:paper_tracker/pages/init_page.dart';
 import 'package:paper_tracker/pages/learning_page.dart';
@@ -9,7 +10,10 @@ import 'package:paper_tracker/pages/tracker_page.dart';
 import 'package:paper_tracker/pages/workflow_exec_page.dart';
 import 'package:paper_tracker/pages/workflow_template_page.dart';
 
-void main() => runApp(PaperTrackerApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_) => runApp(PaperTrackerApp()));
+}
 
 class PaperTrackerApp extends StatelessWidget {
   @override
