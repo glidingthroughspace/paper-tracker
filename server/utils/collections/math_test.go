@@ -64,4 +64,31 @@ var _ = Describe("Collections", func() {
 			Expect(IsOddAmountOfValues(2, 3)).To(Equal(false))
 		})
 	})
+
+	Context("FirstQuartileOf", func() {
+		It("Returns 0 for 0 numbers", func() {
+			Expect(FirstQuartileOf()).To(BeNumerically("==", 0))
+		})
+
+		It("Returns the number for 1 number", func() {
+			Expect(FirstQuartileOf(13)).To(BeNumerically("==", 13))
+		})
+
+		It("Returns the first number for 2 numbers", func() {
+			Expect(FirstQuartileOf(9, 13)).To(BeNumerically("==", 9))
+			Expect(FirstQuartileOf(13, 9)).To(BeNumerically("==", 9))
+		})
+
+		It("Returns the first quartile for 4 numbers", func() {
+			Expect(FirstQuartileOf(2, 4, 6, 8)).To(BeNumerically("==", 3))
+		})
+
+		It("Returns the first quartile for 5 numbers", func() {
+			Expect(FirstQuartileOf(2, 4, 6, 8, 10)).To(BeNumerically("==", 3))
+		})
+
+		It("Returns the first quartile for 6 numbers", func() {
+			Expect(FirstQuartileOf(2, 4, 6, 8, 10, 12)).To(BeNumerically("==", 4))
+		})
+	})
 })

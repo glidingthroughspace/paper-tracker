@@ -2,7 +2,11 @@ package collections
 
 // various helpers for collections, targeting statistcs
 
-import "sort"
+import (
+	"sort"
+
+	"github.com/montanaflynn/stats"
+)
 
 func MeanOf(values ...int) float64 {
 	if len(values) == 0 {
@@ -21,39 +25,41 @@ func IsOddAmountOfValues(values ...int) bool {
 }
 
 func MedianOf(values ...int) float64 {
-	if len(values) == 0 {
+	data := stats.LoadRawData(values)
+	median, err := stats.Median(data)
+	// TODO: Do we really want to do this?
+	if err != nil {
 		return 0
 	}
-
-	middleIndex := len(values) / 2
-
-	sort.Ints(values)
-
-	if IsOddAmountOfValues(values...) {
-		return float64(values[middleIndex])
-	}
-
-	return (float64(values[middleIndex-1]) + float64(values[middleIndex])) / 2.0
+	return median
 }
 
 func FirstQuartileOf(values ...int) float64 {
-	if len(values) == 0 {
+	// This is a special case for our use and is not "standard math"
+	if len(values) == 1 {
+		return float64(values[0])
+	}
+	data := stats.LoadRawData(values)
+	quartiles, err := stats.Quartile(data)
+	// TODO: Do we really want to do this?
+	if err != nil {
 		return 0
 	}
-
-	sort.Ints(values)
-
-	return MedianOf(values[:len(values)-1]...)
+	return quartiles.Q1
 }
 
 func ThirdQuartileOf(values ...int) float64 {
-	if len(values) == 0 {
+	// This is a special case for our use and is not "standard math"
+	if len(values) == 1 {
+		return float64(values[0])
+	}
+	data := stats.LoadRawData(values)
+	quartiles, err := stats.Quartile(data)
+	// TODO: Do we really want to do this?
+	if err != nil {
 		return 0
 	}
-
-	sort.Ints(values)
-
-	return MedianOf(values[len(values)-1:]...)
+	return quartiles.Q3
 }
 
 func MinOf(values ...int) int {
