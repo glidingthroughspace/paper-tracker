@@ -19,6 +19,7 @@ var _ = Describe("LearningManager", func() {
 		mockCommandRep    *mock.MockCommandRepository
 		mockScanResultRep *mock.MockScanResultRepository
 		mockRoomRep       *mock.MockRoomRepository
+		mockTemplateRep   *mock.MockWorkflowTemplateRepository
 		mockCtrl          *gomock.Controller
 		manager           *LearningManager
 
@@ -47,15 +48,18 @@ var _ = Describe("LearningManager", func() {
 		// TODO: Mock managers
 		trackerManager = nil
 		roomManager = nil
+		workflowTemplateManager = nil
 
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockScanResultRep = mock.NewMockScanResultRepository(mockCtrl)
 		mockTrackerRep = mock.NewMockTrackerRepository(mockCtrl)
 		mockCommandRep = mock.NewMockCommandRepository(mockCtrl)
 		mockRoomRep = mock.NewMockRoomRepository(mockCtrl)
+		mockTemplateRep = mock.NewMockWorkflowTemplateRepository(mockCtrl)
 		manager = CreateLearningManager(mockScanResultRep, learnCount, sleepBetweenLearnSec)
 		CreateTrackerManager(mockTrackerRep, mockCommandRep, 5)
 		CreateRoomManager(mockRoomRep)
+		CreateWorkflowTemplateManager(mockTemplateRep)
 
 		gormNotFound := func(err error) bool {
 			return gorm.IsRecordNotFoundError(err)
@@ -185,6 +189,7 @@ var _ = Describe("LearningManager", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
 			mockRoomRep.EXPECT().GetByID(roomID).Return(outRoom, nil).Times(1)
 			mockScanResultRep.EXPECT().GetAllForTracker(id).Return(nil, recordNotFoundErr).Times(1)
+			mockTemplateRep.EXPECT().GetStepsByRoomID(roomID).Return([]*models.Step{&models.Step{}}, nil).Times(1)
 			Expect(manager.FinishLearning(id, roomID, []string{}).Error()).To(HavePrefix("scanResults: "))
 		})
 
@@ -194,6 +199,7 @@ var _ = Describe("LearningManager", func() {
 			mockScanResultRep.EXPECT().GetAllForTracker(id).Return([]*models.ScanResult{}, nil)
 			mockRoomRep.EXPECT().Update(outRoom).Return(nil).Times(1)
 			mockTrackerRep.EXPECT().SetStatusByID(id, models.TrackerStatusIdle).Return(nil).Times(1)
+			mockTemplateRep.EXPECT().GetStepsByRoomID(roomID).Return([]*models.Step{&models.Step{}}, nil).Times(1)
 			Expect(manager.FinishLearning(id, roomID, []string{})).To(Succeed())
 		})
 	})
