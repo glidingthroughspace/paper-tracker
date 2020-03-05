@@ -470,7 +470,7 @@ func (mgr *WorkflowTemplateManager) deleteSteps(steps []*models.Step, deleteLog 
 		var nextStep *models.NextStep
 		nextStep, err = mgr.workflowRep.GetNextStepByNextID(step.ID)
 		if err != nil {
-			stepLog.WithError(err).Error("Next step to to deleted step not found - ignore for now")
+			stepLog.WithError(err).Error("Next step to deleted step not found - ignore for now")
 			err = nil
 		} else {
 			err = mgr.workflowRep.DeleteNextStep(nextStep.PrevID, nextStep.NextID)
