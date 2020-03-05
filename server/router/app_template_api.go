@@ -16,6 +16,7 @@ func (r *HttpRouter) buildAppTemplateAPIRoutes() {
 	template := workflow.Group("/template")
 	template.GET("", r.workflowTemplateListHandler())
 	template.POST("", r.workflowTemplateCreateHandler())
+	template.DELETE("/:templID", extractID("templID", httpParamTemplIDName), r.workflowTemplateDeleteHandler())
 	template.POST("/:id/start", extractSimpleID(), r.workflowTemplateCreateStartHandler())
 	template.POST("/:id/step", extractSimpleID(), r.workflowTemplateCreateStepHandler())
 	template.GET("/:templID/step/:id", extractID("templID", httpParamTemplIDName), extractSimpleID(), r.workflowTemplateGetStepHandler())
@@ -53,6 +54,20 @@ func (r *HttpRouter) workflowTemplateCreateHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.JSON(http.StatusOK, template)
+	}
+}
+
+func (r *HttpRouter) workflowTemplateDeleteHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTemplIDName))
+
+		err := managers.GetWorkflowTemplateManager().DeleteTemplate(templateID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithError(err).Warn("WorkflowTemplateDelete request failed")
+			return
+		}
+		ctx.Status(http.StatusOK)
 	}
 }
 
