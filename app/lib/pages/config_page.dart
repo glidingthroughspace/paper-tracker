@@ -74,6 +74,10 @@ class _ConfigPageState extends State<ConfigPage> {
               labelText: "Server URL",
               enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
               focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
+              suffixIcon: IconButton(
+                icon: Icon(Icons.clear),
+                onPressed: () => urlEditController.clear(),
+              ),
             ),
             validator: (val) {
               if (val.length == 0) {

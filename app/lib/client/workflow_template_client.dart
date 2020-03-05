@@ -80,4 +80,11 @@ class WorkflowTemplateClient {
       throw Exception("Failed to delete step in template");
     }
   }
+
+  Future<void> deleteTemplate(int templateID) async {
+    var response = await apiClient.delete("/workflow/template/$templateID");
+    if (response.statusCode != 200) {
+      throw Exception("Failed to delete template");
+    }
+  }
 }
