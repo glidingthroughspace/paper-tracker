@@ -9,8 +9,7 @@ class CheckCardListController {
   }
 
   void fromTitles(List<String> titles) {
-    if (titles != null)
-      contentMap = titles.asMap().map((_, title) => MapEntry(title, false));
+    if (titles != null) contentMap = titles.asMap().map((_, title) => MapEntry(title, false));
   }
 
   void updateFromTitles(List<String> titles) {
@@ -32,8 +31,7 @@ class CheckCardList extends StatefulWidget {
   final List<String> titles;
   final CheckCardListController controller;
 
-  const CheckCardList({Key key, this.titles, @required this.controller})
-      : super(key: key);
+  const CheckCardList({Key key, this.titles, @required this.controller}) : super(key: key);
 
   @override
   _CheckCardListState createState() => _CheckCardListState();
@@ -51,12 +49,7 @@ class _CheckCardListState extends State<CheckCardList> {
     var listChildren = widget.controller.contentMap
         .map(
           (title, checked) => MapEntry(
-              ListCard(
-                  title: Text(title),
-                  trailing: Checkbox(value: checked, onChanged: null),
-                  object: title,
-                  onTap: onTap),
-              null),
+              ListCard(title: Text(title), trailing: Checkbox(value: checked, onChanged: null), onTap: onTap), l),
         )
         .keys
         .toList();
