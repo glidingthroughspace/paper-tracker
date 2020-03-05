@@ -418,3 +418,68 @@ func (mgr *WorkflowTemplateManager) NumberOfStepsReferringToRoom(roomID models.R
 	}
 	return len(steps), nil
 }
+
+func (mgr *WorkflowTemplateManager) DeleteTemplate(templateID models.WorkflowTemplateID) (err error) {
+	deleteLog := log.WithField("templateID", templateID)
+
+	template, err := mgr.GetTemplate(templateID)
+	if err != nil {
+		deleteLog.WithField("err", err).Error("Failed to get template that should be deleted")
+		return
+	}
+
+	// If step editing is locked we also cannot delete this template
+	if template.StepEditingLocked {
+		deleteLog.Error("Cannot delete template that is locked for step editing")
+		return errors.New("Cannot delete template that is locked for step editing")
+	}
+
+	err = mgr.deleteSteps(template.Steps, deleteLog)
+	if err != nil {
+		deleteLog.WithField("err", err).Error("Failed to delete steps of template")
+		return
+	}
+
+	err = mgr.workflowRep.DeleteTemplate(templateID)
+	if err != nil {
+		deleteLog.WithField("err", err).Error("Failed to delete template itself")
+		return
+	}
+
+	return
+}
+
+func (mgr *WorkflowTemplateManager) deleteSteps(steps []*models.Step, deleteLog *log.Entry) (err error) {
+	for it := len(steps) - 1; it >= 0; it-- {
+		step := steps[it]
+		stepLog := deleteLog.WithField("stepID", step.ID)
+
+		for _, optionSteps := range step.Options {
+			err = mgr.deleteSteps(optionSteps, deleteLog)
+			if err != nil {
+				return
+			}
+		}
+
+		err = mgr.workflowRep.DeleteStep(step.ID)
+		if err != nil {
+			stepLog.WithField("err", err).Error("Failed to delete step")
+			return
+		}
+
+		var nextStep *models.NextStep
+		nextStep, err = mgr.workflowRep.GetNextStepByNextID(step.ID)
+		if err != nil {
+			stepLog.WithField("err", err).Error("Next step to to deleted step not found - ignore for now")
+			err = nil
+		} else {
+			err = mgr.workflowRep.DeleteNextStep(nextStep.PrevID, nextStep.NextID)
+			if err != nil {
+				stepLog.WithField("err", err).Error("Could not delete next step that points to deleted step")
+				return
+			}
+		}
+	}
+
+	return
+}
