@@ -2,6 +2,7 @@ package managers
 
 import (
 	"paper-tracker/models"
+	"paper-tracker/utils/collections"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -19,52 +20,6 @@ var _ = Describe("TrackingManager", func() {
 	})
 
 	AfterEach(func() {
-
-	})
-
-	Context("Test getMedian", func() {
-		It("Calculates Median for an odd amount of values", func() {
-			Expect(getMedian(10, 25, 1)).Should(BeNumerically("==", 10.0))
-			Expect(getMedian(1, 10, 25)).Should(BeNumerically("==", 10.0))
-			Expect(getMedian(-1, 10, 25)).Should(BeNumerically("==", 10.0))
-			Expect(getMedian(-99, -10, -25)).Should(BeNumerically("==", -25.0))
-		})
-
-		It("Calculates Median for an even amount of values", func() {
-			Expect(getMedian(10, 25, 1, 12)).Should(BeNumerically("==", 11.0))
-			Expect(getMedian(1, 12, 11, 25)).Should(BeNumerically("==", 11.5))
-			Expect(getMedian(-1, 10, -10, 25)).Should(BeNumerically("==", 4.5))
-			Expect(getMedian(-99, -10, -25, -12)).Should(BeNumerically("==", -18.5))
-		})
-	})
-
-	Context("Test getMean", func() {
-		It("Calculates the correct Mean", func() {
-			Expect(getMean(10, 25, 1)).Should(BeNumerically("==", 12.0))
-			Expect(getMean(1, 10, 25)).Should(BeNumerically("==", 12.0))
-			Expect(getMean(-1, 10, 25)).Should(BeNumerically("==", 34.0/3.0))
-			Expect(getMean(-99, -10, -25)).Should(BeNumerically("==", -134.0/3.0))
-		})
-	})
-
-	Context("Test getMin", func() {
-		It("Returns the number if only one is given", func() {
-			Expect(getMin(1)).To(Equal(1))
-		})
-
-		It("Returns the minumum of multiple numbers", func() {
-			Expect(getMin(1, 3, 4, -23, 21)).To(Equal(-23))
-		})
-	})
-
-	Context("Test getMax", func() {
-		It("Returns the number if only one is given", func() {
-			Expect(getMax(1)).To(Equal(1))
-		})
-
-		It("Returns the maximum of multiple numbers", func() {
-			Expect(getMax(1, 3, 4, -23, 21)).To(Equal(21))
-		})
 	})
 
 	Context("Test ConsolidateScanResults", func() {
@@ -72,7 +27,7 @@ var _ = Describe("TrackingManager", func() {
 			rssis := []int{-31, -12, -80, -99}
 			scanResults := getScanResultsForBSSIDWithRSSIs("AA:BB:CC:DD:EE", rssis...)
 			expected := []models.BSSIDTrackingData{
-				{BSSID: "AA:BB:CC:DD:EE", Minimum: getMin(rssis...), Maximum: getMax(rssis...), Median: getMedian(rssis...), Mean: getMean(rssis...)},
+				getBSSIDTrackingDataForBSSIDWithRSSIs("AA:BB:CC:DD:EE", rssis),
 			}
 
 			Expect(manager.ConsolidateScanResults(scanResults)).To(Equal(expected))
@@ -84,8 +39,8 @@ var _ = Describe("TrackingManager", func() {
 			rssis2 := []int{-40, -33, -17, -22}
 			scanResults2 := getScanResultsForBSSIDWithRSSIs("EE:DD:CC:BB:AA", rssis2...)
 			expected := []models.BSSIDTrackingData{
-				{BSSID: "AA:BB:CC:DD:EE", Minimum: getMin(rssis1...), Maximum: getMax(rssis1...), Median: getMedian(rssis1...), Mean: getMean(rssis1...)},
-				{BSSID: "EE:DD:CC:BB:AA", Minimum: getMin(rssis2...), Maximum: getMax(rssis2...), Median: getMedian(rssis2...), Mean: getMean(rssis2...)},
+				getBSSIDTrackingDataForBSSIDWithRSSIs("AA:BB:CC:DD:EE", rssis1),
+				getBSSIDTrackingDataForBSSIDWithRSSIs("EE:DD:CC:BB:AA", rssis2),
 			}
 
 			Expect(manager.ConsolidateScanResults(append(scanResults1, scanResults2...))).Should(ConsistOf(expected))
@@ -96,7 +51,22 @@ var _ = Describe("TrackingManager", func() {
 func getScanResultsForBSSIDWithRSSIs(bssid string, rssis ...int) []*models.ScanResult {
 	var scanResults []*models.ScanResult
 	for _, v := range rssis {
-		scanResults = append(scanResults, &models.ScanResult{models.TrackerID(1), "TestNetwork", bssid, v})
+		scanResults = append(scanResults, &models.ScanResult{TrackerID: models.TrackerID(1), SSID: "TestNetwork", BSSID: bssid, RSSI: v})
 	}
 	return scanResults
+}
+
+func getBSSIDTrackingDataForBSSIDWithRSSIs(bssid string, rssis []int) models.BSSIDTrackingData {
+	return models.BSSIDTrackingData{
+		BSSID:   bssid,
+		Minimum: collections.MinOf(rssis...),
+		Maximum: collections.MaxOf(rssis...),
+		Median:  collections.MedianOf(rssis...),
+		Mean:    collections.MeanOf(rssis...),
+		Quantiles: models.Quantiles{
+			FirstQuartile: collections.FirstQuartileOf(rssis...),
+			ThirdQuartile: collections.ThirdQuartileOf(rssis...),
+		},
+	}
+
 }

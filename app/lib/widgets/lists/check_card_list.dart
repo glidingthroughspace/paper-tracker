@@ -21,7 +21,9 @@ class CheckCardListController {
   }
 
   List<String> get checked {
-    return contentMap.map((key, value) => value ? MapEntry(key, value) : null).keys.toList();
+    Map<String, bool> cc = Map.of(contentMap);
+    cc.removeWhere((key, value) => !value);
+    return cc.keys.toList();
   }
 }
 
@@ -45,12 +47,10 @@ class _CheckCardListState extends State<CheckCardList> {
   @override
   Widget build(BuildContext context) {
     var listChildren = widget.controller.contentMap
-        .map(
-          (title, checked) => MapEntry(
-              ListCard(
-                  title: Text(title), trailing: Checkbox(value: checked, onChanged: null), object: title, onTap: onTap),
-              null),
-        )
+        .map((title, checked) => MapEntry(
+            ListCard(
+                title: Text(title), trailing: Checkbox(value: checked, onChanged: null), object: title, onTap: onTap),
+            null))
         .keys
         .toList();
     return ListView(

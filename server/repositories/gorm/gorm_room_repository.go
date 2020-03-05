@@ -4,7 +4,7 @@ import "paper-tracker/models"
 
 // Add used models to enable auto migration for them
 func init() {
-	databaseModels = append(databaseModels, &models.Room{})
+	databaseModels = append(databaseModels, &models.Room{}, &models.BSSIDTrackingData{})
 }
 
 type GormRoomRepository struct{}

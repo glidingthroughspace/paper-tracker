@@ -29,18 +29,31 @@ class WorkflowExecClient {
     }
 
     var execs = await futureExecs;
-    return execs.firstWhere((exec) => exec.id == id);
+    try {
+      return execs.firstWhere((exec) => exec.id == id);
+    } catch (_) {
+      throw Exception("Failed to get exec with id '$id'");
+    }
   }
 
   Future<void> startExec(WorkflowExec exec) async {
-    return apiClient.post("/workflow/exec", json.encode(exec.toJSON()));
+    var response = await apiClient.post("/workflow/exec", json.encode(exec.toJSON()));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception("Failed to start exec");
+    }
   }
 
   Future<void> progressToStep(int execID, int stepID) async {
-    return apiClient.post("/workflow/exec/$execID/progress/$stepID", null);
+    var response = await apiClient.post("/workflow/exec/$execID/progress/$stepID", null);
+    if (response.statusCode != 200) {
+      throw Exception("Failed to progress to step in exec");
+    }
   }
 
   Future<void> cancelExec(int execID) async {
-    return apiClient.post("/workflow/exec/$execID/cancel", null);
+    var response = await apiClient.post("/workflow/exec/$execID/cancel", null);
+    if (response.statusCode != 200) {
+      throw Exception("Failed to cancel exec");
+    }
   }
 }
