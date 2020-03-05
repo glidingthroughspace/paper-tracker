@@ -44,7 +44,7 @@ func (mgr *WorkflowTemplateManager) CreateTemplateStart(templateID models.Workfl
 	workflowStartLog := log.WithFields(log.Fields{"templateID": templateID, "step": step})
 
 	template, err := mgr.GetTemplate(templateID)
-	if err != nil || template.EditingLocked {
+	if err != nil || template.StepEditingLocked {
 		workflowStartLog.WithField("err", err).Warn("Editing of template locked")
 		return errors.New("Editing of template locked")
 	}
@@ -71,7 +71,7 @@ func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTe
 	addStepLog := log.WithFields(log.Fields{"prevStepID": prevStepID, "step": step})
 
 	template, err := mgr.GetTemplate(templateID)
-	if err != nil || template.EditingLocked {
+	if err != nil || template.StepEditingLocked {
 		addStepLog.WithField("err", err).Warn("Editing of template locked")
 		return errors.New("Editing of template locked")
 	}
@@ -109,53 +109,58 @@ func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTe
 	return
 }
 
-func (mgr *WorkflowTemplateManager) GetAllTemplates() (workflows []*models.WorkflowTemplate, err error) {
-	rawWorkflows, err := mgr.workflowRep.GetAllTemplates()
+func (mgr *WorkflowTemplateManager) GetAllTemplates() (templates []*models.WorkflowTemplate, err error) {
+	templates, err = mgr.workflowRep.GetAllTemplates()
 	if err != nil {
 		log.WithField("err", err).Error("Failed to get all raw workflows")
 		return
 	}
 
-	workflows = make([]*models.WorkflowTemplate, len(rawWorkflows))
-	for it, raw := range rawWorkflows {
-		workflows[it], err = mgr.GetTemplate(raw.ID)
+	for _, template := range templates {
+		err = mgr.fillTemplateInfo(template)
 		if err != nil {
-			log.WithFields(log.Fields{"err": err, "rawID": raw.ID}).Error("Failed to get workflow for list")
+			log.WithFields(log.Fields{"err": err, "templateID": template.ID}).Error("Failed to fill workflow infos for list")
 			continue
 		}
 	}
 	return
 }
 
-func (mgr *WorkflowTemplateManager) GetTemplate(templateID models.WorkflowTemplateID) (workflow *models.WorkflowTemplate, err error) {
-	getWorkflowLog := log.WithField("workflowID", templateID)
+func (mgr *WorkflowTemplateManager) GetTemplate(templateID models.WorkflowTemplateID) (template *models.WorkflowTemplate, err error) {
+	getWorkflowLog := log.WithField("templateID", templateID)
 
-	workflow, err = mgr.workflowRep.GetTemplateByID(templateID)
+	template, err = mgr.workflowRep.GetTemplateByID(templateID)
 	if mgr.workflowRep.IsRecordNotFoundError(err) {
-		getWorkflowLog.Warn("Workflow not found")
+		getWorkflowLog.Warn("Template not found")
 		return
 	} else if err != nil {
-		getWorkflowLog.WithField("err", err).Error("Failed to get workflow")
+		getWorkflowLog.WithField("err", err).Error("Failed to get template")
 		return
 	}
 
-	execCount, err := GetWorkflowExecManager().GetExecCountByTemplate(templateID)
+	err = mgr.fillTemplateInfo(template)
+	return
+}
+
+func (mgr *WorkflowTemplateManager) fillTemplateInfo(template *models.WorkflowTemplate) (err error) {
+	infoLog := log.WithField("templateID", template.ID)
+
+	execCount, err := GetWorkflowExecManager().GetExecCountByTemplate(template.ID)
 	if err != nil {
-		getWorkflowLog.WithField("err", err).Error("Failed to get execs of template - ignore for now")
+		infoLog.WithField("err", err).Error("Failed to get execs of template - ignore for now")
 		err = nil
 	}
 	if execCount > 0 {
-		workflow.EditingLocked = true
+		template.StepEditingLocked = true
 	} else {
-		workflow.EditingLocked = false
+		template.StepEditingLocked = false
 	}
 
-	workflow.Steps, err = mgr.getStepsFromStart(templateID, workflow.StartStep, getWorkflowLog)
+	template.Steps, err = mgr.getStepsFromStart(template.ID, template.StartStep, infoLog)
 	if err != nil {
-		getWorkflowLog.WithField("err", err).Error("Failed to get steps")
+		infoLog.WithField("err", err).Error("Failed to get steps")
 		return
 	}
-
 	return
 }
 
@@ -222,7 +227,7 @@ func (mgr *WorkflowTemplateManager) UpdateStep(templateID models.WorkflowTemplat
 	updateLog := log.WithFields(log.Fields{"templateID": templateID, "step": step})
 
 	template, err := mgr.GetTemplate(templateID)
-	if err != nil || template.EditingLocked {
+	if err != nil || template.StepEditingLocked {
 		updateLog.WithField("err", err).Warn("Editing of template locked")
 		return errors.New("Editing of template locked")
 	}
@@ -252,7 +257,7 @@ func (mgr *WorkflowTemplateManager) DeleteStep(templateID models.WorkflowTemplat
 	deleteLog := log.WithFields(log.Fields{"templateID": templateID, "stepID": stepID})
 
 	template, err := mgr.GetTemplate(templateID)
-	if err != nil || template.EditingLocked {
+	if err != nil || template.StepEditingLocked {
 		deleteLog.WithField("err", err).Warn("Editing of template locked")
 		return errors.New("Editing of template locked")
 	}
@@ -403,4 +408,13 @@ func (mgr *WorkflowTemplateManager) copySteps(templateID models.WorkflowTemplate
 	}
 
 	return
+}
+
+func (mgr *WorkflowTemplateManager) GetStepCountByRoom(roomID models.RoomID) (int, error) {
+	steps, err := mgr.workflowRep.GetStepsByRoomID(roomID)
+	if err != nil {
+		log.WithFields(log.Fields{"roomID": roomID, "err": err}).Error("Failed to get all steps by room id")
+		return -1, err
+	}
+	return len(steps), nil
 }
