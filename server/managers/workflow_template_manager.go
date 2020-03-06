@@ -66,7 +66,6 @@ func (mgr *WorkflowTemplateManager) CreateTemplateStart(templateID models.Workfl
 	return
 }
 
-// TODO: Fix adding in between to steps
 func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTemplateID, prevStepID models.StepID, decisionLabel string, step *models.Step) (err error) {
 	addStepLog := log.WithFields(log.Fields{"prevStepID": prevStepID, "step": step})
 
@@ -74,6 +73,15 @@ func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTe
 	if err != nil || template.StepEditingLocked {
 		addStepLog.WithError(err).Warn("Editing of template locked")
 		return errors.New("Editing of template locked")
+	}
+
+	foundStep, isLast := mgr.findStepInSteps(template.Steps, prevStepID)
+	if foundStep == nil {
+		addStepLog.Error("Prev step is not part of template")
+		return errors.New("Prev step is not part of template")
+	} else if !isLast {
+		addStepLog.Error("Prev step is not last step of template or decision")
+		return errors.New("Prev step is not last step of template or decision")
 	}
 
 	step.ID = 0
@@ -107,6 +115,24 @@ func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTe
 	}
 
 	return
+}
+
+// Returns 1: is step part of the WF; 2: Is step last step of this or nested steps
+func (mgr *WorkflowTemplateManager) findStepInSteps(steps []*models.Step, stepID models.StepID) (*models.Step, bool) {
+	for it, step := range steps {
+		if step.ID == stepID {
+			lastStep := it == len(steps)-1
+			return step, lastStep
+		}
+
+		for _, optionSteps := range step.Options {
+			step, lastStep := mgr.findStepInSteps(optionSteps, stepID)
+			if step != nil {
+				return step, lastStep
+			}
+		}
+	}
+	return nil, false
 }
 
 func (mgr *WorkflowTemplateManager) GetAllTemplates() (templates []*models.WorkflowTemplate, err error) {
@@ -170,9 +196,31 @@ func (mgr *WorkflowTemplateManager) getStepsFromStart(templateID models.Workflow
 	currentStepID := startStepID
 
 	for currentStepID > 0 {
-		currentStep, err := mgr.GetStepByID(templateID, currentStepID)
+		currentStep, err := mgr.workflowRep.GetStepByID(currentStepID)
 		if err != nil {
+			getStepsFromStartLog.WithError(err).Warn("Failed to get step by ID")
 			break
+		}
+		if mgr.workflowRep.IsRecordNotFoundError(err) {
+			getStepsFromStartLog.Warn("Step not found")
+			break
+		} else if err != nil {
+			getStepsFromStartLog.WithError(err).Error("Failed to get startStep")
+			break
+		}
+
+		decisions, err := mgr.workflowRep.GetDecisions(currentStep.ID)
+		if err != nil {
+			getStepsFromStartLog.WithError(err).Warn("Failed to get decisions for step")
+			break
+		}
+		currentStep.Options = make(map[string][]*models.Step)
+		for _, decision := range decisions {
+			currentStep.Options[decision.DecisionLabel], err = mgr.getStepsFromStart(templateID, decision.NextID, getStepsFromStartLog)
+			if err != nil {
+				getStepsFromStartLog.WithFields(log.Fields{"err": err, "decision": decision}).Error("Failed to get steps for decision")
+				continue
+			}
 		}
 
 		steps = append(steps, currentStep)
@@ -193,31 +241,16 @@ func (mgr *WorkflowTemplateManager) getStepsFromStart(templateID models.Workflow
 func (mgr *WorkflowTemplateManager) GetStepByID(templateID models.WorkflowTemplateID, stepID models.StepID) (step *models.Step, err error) {
 	getStepLog := log.WithField("stepID", stepID)
 
-	step, err = mgr.workflowRep.GetStepByID(stepID)
+	template, err := mgr.GetTemplate(templateID)
 	if err != nil {
-		getStepLog.WithError(err).Warn("Failed to get step by ID")
-		return
-	}
-	if mgr.workflowRep.IsRecordNotFoundError(err) {
-		getStepLog.Warn("Step not found")
-		return
-	} else if err != nil {
-		getStepLog.WithError(err).Error("Failed to get startStep")
+		getStepLog.WithError(err).Error("Failed to get template")
 		return
 	}
 
-	decisions, err := mgr.workflowRep.GetDecisions(step.ID)
-	if err != nil {
-		getStepLog.WithError(err).Warn("Failed to get decisions for step")
-		return
-	}
-	step.Options = make(map[string][]*models.Step)
-	for _, decision := range decisions {
-		step.Options[decision.DecisionLabel], err = mgr.getStepsFromStart(templateID, decision.NextID, getStepLog)
-		if err != nil {
-			getStepLog.WithFields(log.Fields{"err": err, "decision": decision}).Error("Failed to get steps for decision")
-			continue
-		}
+	step, _ = mgr.findStepInSteps(template.Steps, stepID)
+	if step == nil {
+		getStepLog.Warn("Step not found")
+		return nil, errors.New("Step not found")
 	}
 
 	return
@@ -230,6 +263,12 @@ func (mgr *WorkflowTemplateManager) UpdateStep(templateID models.WorkflowTemplat
 	if err != nil || template.StepEditingLocked {
 		updateLog.WithError(err).Warn("Editing of template locked")
 		return errors.New("Editing of template locked")
+	}
+
+	foundStep, _ := mgr.findStepInSteps(template.Steps, step.ID)
+	if foundStep == nil {
+		updateLog.Error("Step is not part of template")
+		return errors.New("Step is not part of template")
 	}
 
 	err = mgr.workflowRep.UpdateStep(step)
@@ -260,6 +299,12 @@ func (mgr *WorkflowTemplateManager) DeleteStep(templateID models.WorkflowTemplat
 	if err != nil || template.StepEditingLocked {
 		deleteLog.WithError(err).Warn("Editing of template locked")
 		return errors.New("Editing of template locked")
+	}
+
+	foundStep, _ := mgr.findStepInSteps(template.Steps, stepID)
+	if foundStep == nil {
+		deleteLog.Error("Step is not part of template")
+		return errors.New("Step is not part of template")
 	}
 
 	step, err := mgr.GetStepByID(templateID, stepID)
