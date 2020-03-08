@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	httpParamIDName      = "id"
-	httpParamTemplIDName = "tempid"
-	httpParamExecIDName  = "execid"
+	httpParamIDName        = "id"
+	httpParamTemplIDName   = "tempid"
+	httpParamExecIDName    = "execid"
+	httpQueryDirectionName = "direction"
 )
 
 type HttpRouter struct {

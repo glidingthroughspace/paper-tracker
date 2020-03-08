@@ -25,3 +25,17 @@ type CreateStepRequest struct {
 type CreateRevisionRequest struct {
 	RevisionLabel string `json:"revision_label"`
 }
+
+type StepMoveDirection string
+
+const (
+	StepMoveUp   = StepMoveDirection("up")
+	StepMoveDown = StepMoveDirection("down")
+)
+
+func StepMoveDirectionFromString(raw string) StepMoveDirection {
+	if StepMoveDirection(raw) == StepMoveUp {
+		return StepMoveUp
+	}
+	return StepMoveDown
+}
