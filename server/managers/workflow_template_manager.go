@@ -575,8 +575,7 @@ func (mgr *WorkflowTemplateManager) MoveStep(templateID models.WorkflowTemplateI
 	return
 }
 
-// Only linear steps are allowed to be swapped
-// TODO: Update start step of template
+// Only linear steps are allowed to be swapped; firstStep has to be before secondStep
 func (mgr *WorkflowTemplateManager) swapSteps(template *models.WorkflowTemplate, firstStepID, secondStepID models.StepID) (err error) {
 	swapLog := log.WithFields(log.Fields{"templateID": template.ID, "firstStepID": firstStepID, "secondStepID": secondStepID})
 
@@ -585,6 +584,8 @@ func (mgr *WorkflowTemplateManager) swapSteps(template *models.WorkflowTemplate,
 	if err != nil && !mgr.workflowRep.IsRecordNotFoundError(err) {
 		swapLog.WithError(err).Error("Failed to get step before first swap step")
 		return
+	} else if mgr.workflowRep.IsRecordNotFoundError(err) {
+		toFirst = nil
 	}
 
 	var fromSecond *models.NextStep
@@ -592,6 +593,8 @@ func (mgr *WorkflowTemplateManager) swapSteps(template *models.WorkflowTemplate,
 	if err != nil && !mgr.workflowRep.IsRecordNotFoundError(err) {
 		swapLog.WithError(err).Error("Failed to get step after second swap step")
 		return
+	} else if mgr.workflowRep.IsRecordNotFoundError(err) {
+		fromSecond = nil
 	} else if err == nil {
 		fromSecond = &models.NextStep{PrevID: secondStepID, NextID: fromSecondID}
 	}
@@ -635,6 +638,15 @@ func (mgr *WorkflowTemplateManager) swapSteps(template *models.WorkflowTemplate,
 		err = mgr.workflowRep.CreateNextStep(&models.NextStep{PrevID: firstStepID, NextID: fromSecond.NextID})
 		if err != nil {
 			swapLog.WithError(err).Error("Failed to insert new nextStep from new second swap step")
+			return
+		}
+	}
+
+	if template.StartStep == firstStepID {
+		template.StartStep = secondStepID
+		err = mgr.workflowRep.UpdateTemplate(template)
+		if err != nil {
+			swapLog.WithError(err).Error("Failed to set new start step after swapping steps")
 			return
 		}
 	}
