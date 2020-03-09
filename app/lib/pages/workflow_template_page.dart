@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/communication/createStepRequest.dart';
+import 'package:paper_tracker/model/communication/moveDirection.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/dialogs/add_step_dialog.dart';
@@ -145,8 +146,8 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
       child: OptionsDialog(object: step, options: {
         "Edit Step": onEditStep,
         "Delete Step": onDeleteStep,
-        "Move Step Up": onMoveStepUp,
-        "Move Step Down": onMoveStepDown,
+        "Move Step Up": (step) => onMoveStep(step, StepMoveDirection.Up),
+        "Move Step Down": (step) => onMoveStep(step, StepMoveDirection.Down),
       }),
     );
   }
@@ -199,9 +200,11 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
     Navigator.of(context).pop();
   }
 
-  void onMoveStepUp(WFStep step) async {}
-
-  void onMoveStepDown(WFStep step) async {}
+  void onMoveStep(WFStep step, StepMoveDirection direction) async {
+    await templateClient.moveStep(templateID, step.id, direction);
+    refreshTemplate();
+    Navigator.of(context).pop();
+  }
 
   List<Widget> buildBottomButtons(WorkflowTemplate template) {
     return [

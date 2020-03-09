@@ -17,23 +17,23 @@ class APIClient {
     return true;
   }
 
-  Future<Uri> _buildURI(String path) async {
-    return Uri.http(await config.getServerURL(), path);
+  Future<Uri> _buildURI(String path, Map<String, String> query) async {
+    return Uri.http(await config.getServerURL(), path, query);
   }
 
-  Future<http.Response> get(String path) async {
-    return http.get(await _buildURI(path));
+  Future<http.Response> get(String path, [Map<String, String> query]) async {
+    return http.get(await _buildURI(path, query));
   }
 
-  Future<http.Response> post(String path, String body) async {
-    return http.post(await _buildURI(path), body: body);
+  Future<http.Response> post(String path, String body, [Map<String, String> query]) async {
+    return http.post(await _buildURI(path, query), body: body);
   }
 
-  Future<http.Response> put(String path, String body) async {
-    return http.put(await _buildURI(path), body: body);
+  Future<http.Response> put(String path, String body, [Map<String, String> query]) async {
+    return http.put(await _buildURI(path, query), body: body);
   }
 
-  Future<http.Response> delete(String path) async {
-    return http.delete(await _buildURI(path));
+  Future<http.Response> delete(String path, [Map<String, String> query]) async {
+    return http.delete(await _buildURI(path, query));
   }
 }
