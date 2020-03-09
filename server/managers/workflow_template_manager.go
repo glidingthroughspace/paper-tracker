@@ -119,17 +119,17 @@ func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTe
 }
 
 // Returns 1: found step; 2: Is step first step of this or nested steps; 3: Is step last step of this or nested steps
-func (mgr *WorkflowTemplateManager) findStepInSteps(steps []*models.Step, stepID models.StepID) (step *models.Step, firstStep bool, lastStep bool) {
-	var it int
-	for it, step = range steps {
+func (mgr *WorkflowTemplateManager) findStepInSteps(steps []*models.Step, stepID models.StepID) (foundStep *models.Step, isFirstStep bool, isLastStep bool) {
+	for it, step := range steps {
 		if step.ID == stepID {
-			firstStep = it == 0
-			lastStep = it == len(steps)-1
+			isFirstStep = it == 0
+			isLastStep = it == len(steps)-1
+			foundStep = step
 			return
 		}
 
 		for _, optionSteps := range step.Options {
-			step, firstStep, lastStep = mgr.findStepInSteps(optionSteps, stepID)
+			step, isFirstStep, isLastStep = mgr.findStepInSteps(optionSteps, stepID)
 			if step != nil {
 				return
 			}

@@ -174,9 +174,14 @@ func (r *HttpRouter) workflowTemplateMoveStepHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTemplIDName))
 		stepID := models.StepID(ctx.GetInt(httpParamIDName))
-		direction := communication.StepMoveDirectionFromString(ctx.Query(httpQueryDirectionName))
+		direction, err := communication.StepMoveDirectionFromString(ctx.Query(httpQueryDirectionName))
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
+			log.WithError(err).Warn("WorkflowTemplateMoveStep request failed")
+			return
+		}
 
-		err := managers.GetWorkflowTemplateManager().MoveStep(templateID, stepID, direction)
+		err = managers.GetWorkflowTemplateManager().MoveStep(templateID, stepID, direction)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithError(err).Warn("WorkflowTemplateMoveStep request failed")

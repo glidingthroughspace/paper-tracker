@@ -92,7 +92,7 @@ class WorkflowTemplateClient {
   Future<void> moveStep(int templateID, int stepID, StepMoveDirection direction) async {
     var response = await apiClient
         .post("/workflow/template/$templateID/step/$stepID/move", null, {"direction": direction.queryString});
-    if (response.statusCode != 200) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Failed to move step");
     }
   }

@@ -9,7 +9,7 @@ import (
 
 const (
 	httpParamIDName        = "id"
-	httpParamTemplIDName   = "tempid"
+	httpParamTemplIDName   = "templid"
 	httpParamExecIDName    = "execid"
 	httpQueryDirectionName = "direction"
 )
