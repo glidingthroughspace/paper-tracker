@@ -215,6 +215,10 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, scanRes [
 		err = GetLearningManager().newLearningTrackingData(trackerID, scanRes)
 	case models.TrackerStatusTracking:
 		err = setMatchingRoomForTracker(tracker, scanRes)
+		if err != nil {
+			break
+		}
+		err = GetWorkflowExecManager().ProgressToTrackerRoom(tracker.ID, tracker.LastRoom)
 	default:
 		err = errors.New("Unknown tracker status")
 		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unknown tracker status")

@@ -32,7 +32,7 @@ func (rep *GormRoomRepository) GetByID(roomID models.RoomID) (room *models.Room,
 }
 
 func (rep *GormRoomRepository) GetAll() (rooms []*models.Room, err error) {
-	err = databaseConnection.Find(&rooms).Error
+	err = databaseConnection.Preload("TrackingData").Find(&rooms).Error
 	return
 }
 
