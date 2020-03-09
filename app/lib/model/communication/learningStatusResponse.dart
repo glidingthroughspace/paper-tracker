@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 part 'learningStatusResponse.g.dart';
 
 @JsonSerializable()
@@ -6,7 +7,7 @@ class LearningStatusResponse {
   @JsonKey(name: "done")
   bool done;
   @JsonKey(name: "ssids")
-  List<String > ssids;
+  List<String> ssids;
 
   LearningStatusResponse({this.done, this.ssids});
 

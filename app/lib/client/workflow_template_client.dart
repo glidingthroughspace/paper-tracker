@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:paper_tracker/model/communication/createRevisionRequest.dart';
 import 'package:paper_tracker/model/communication/createStepRequest.dart';
 import 'package:paper_tracker/model/workflow.dart';
 
@@ -85,6 +86,13 @@ class WorkflowTemplateClient {
     var response = await apiClient.delete("/workflow/template/$templateID");
     if (response.statusCode != 200) {
       throw Exception("Failed to delete template");
+    }
+  }
+
+  Future<void> createRevision(int templateID, CreateRevisionRequest request) async {
+    var response = await apiClient.post("/workflow/template/$templateID/revision", json.encode(request.toJson()));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception("Failed to create template revision");
     }
   }
 }
