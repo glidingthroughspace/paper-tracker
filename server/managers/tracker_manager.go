@@ -2,6 +2,7 @@ package managers
 
 import (
 	"errors"
+	"fmt"
 	"paper-tracker/models"
 	"paper-tracker/models/communication"
 	"paper-tracker/repositories"
@@ -179,6 +180,24 @@ func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp c
 	return
 }
 
+func (mgr *TrackerManager) UpdateRoom(trackerID models.TrackerID, roomID models.RoomID) (err error) {
+	updateLog := log.WithFields(log.Fields{"trackerID": trackerID, "roomID": roomID})
+
+	tracker, err := mgr.trackerRep.GetByID(trackerID)
+	if err != nil {
+		updateLog.WithField("err", err).Error("Failed to get tracker with id")
+		return
+	}
+
+	tracker.LastRoom = roomID
+	err = mgr.trackerRep.Update(tracker)
+	if err != nil {
+		updateLog.WithField("err", err).Error("Failed to update tracker")
+		return
+	}
+	return
+}
+
 func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, scanRes []*models.ScanResult) (err error) {
 	trackingDataLog := log.WithField("trackerID", trackerID)
 
@@ -195,7 +214,11 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, scanRes [
 	case models.TrackerStatusLearning:
 		err = GetLearningManager().newLearningTrackingData(trackerID, scanRes)
 	case models.TrackerStatusTracking:
-		err = errors.New("Not implemented yes") //TODO
+		err = setMatchingRoomForTracker(tracker, scanRes)
+		if err != nil {
+			break
+		}
+		err = GetWorkflowExecManager().ProgressToTrackerRoom(tracker.ID, tracker.LastRoom)
 	default:
 		err = errors.New("Unknown tracker status")
 		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unknown tracker status")
@@ -206,4 +229,18 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, scanRes [
 	}
 
 	return
+}
+
+func setMatchingRoomForTracker(tracker *models.Tracker, scanResults []*models.ScanResult) error {
+	rooms, err := GetRoomManager().GetAllRooms()
+	if err != nil {
+		err = fmt.Errorf("could not get rooms: %w", err)
+		return err
+	}
+	bestMatch := GetTrackingManager().GetRoomMatchingBest(rooms, scanResults)
+	if bestMatch == nil {
+		err = fmt.Errorf("no matching room found")
+		return err
+	}
+	return GetTrackerManager().UpdateRoom(tracker.ID, bestMatch.ID)
 }
