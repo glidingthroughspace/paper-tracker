@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:paper_tracker/model/communication/createStepRequest.dart';
+import 'package:paper_tracker/model/communication/moveDirection.dart';
 import 'package:paper_tracker/model/workflow.dart';
 
 import 'api_client.dart';
@@ -85,6 +86,14 @@ class WorkflowTemplateClient {
     var response = await apiClient.delete("/workflow/template/$templateID");
     if (response.statusCode != 200) {
       throw Exception("Failed to delete template");
+    }
+  }
+
+  Future<void> moveStep(int templateID, int stepID, StepMoveDirection direction) async {
+    var response = await apiClient
+        .post("/workflow/template/$templateID/step/$stepID/move", null, {"direction": direction.queryString});
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception("Failed to move step");
     }
   }
 }

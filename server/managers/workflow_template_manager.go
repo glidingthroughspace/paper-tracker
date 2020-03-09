@@ -3,6 +3,7 @@ package managers
 import (
 	"errors"
 	"paper-tracker/models"
+	"paper-tracker/models/communication"
 	"paper-tracker/repositories"
 
 	log "github.com/sirupsen/logrus"
@@ -75,7 +76,7 @@ func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTe
 		return errors.New("Editing of template locked")
 	}
 
-	foundStep, isLast := mgr.findStepInSteps(template.Steps, prevStepID)
+	foundStep, _, isLast := mgr.findStepInSteps(template.Steps, prevStepID)
 	if foundStep == nil {
 		addStepLog.Error("Prev step is not part of template")
 		return errors.New("Prev step is not part of template")
@@ -117,22 +118,24 @@ func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTe
 	return
 }
 
-// Returns 1: is step part of the WF; 2: Is step last step of this or nested steps
-func (mgr *WorkflowTemplateManager) findStepInSteps(steps []*models.Step, stepID models.StepID) (*models.Step, bool) {
+// Returns 1: found step; 2: Is step first step of this or nested steps; 3: Is step last step of this or nested steps
+func (mgr *WorkflowTemplateManager) findStepInSteps(steps []*models.Step, stepID models.StepID) (foundStep *models.Step, isFirstStep bool, isLastStep bool) {
 	for it, step := range steps {
 		if step.ID == stepID {
-			lastStep := it == len(steps)-1
-			return step, lastStep
+			isFirstStep = it == 0
+			isLastStep = it == len(steps)-1
+			foundStep = step
+			return
 		}
 
 		for _, optionSteps := range step.Options {
-			step, lastStep := mgr.findStepInSteps(optionSteps, stepID)
+			step, isFirstStep, isLastStep = mgr.findStepInSteps(optionSteps, stepID)
 			if step != nil {
-				return step, lastStep
+				return
 			}
 		}
 	}
-	return nil, false
+	return
 }
 
 func (mgr *WorkflowTemplateManager) GetAllTemplates() (templates []*models.WorkflowTemplate, err error) {
@@ -247,7 +250,7 @@ func (mgr *WorkflowTemplateManager) GetStepByID(templateID models.WorkflowTempla
 		return
 	}
 
-	step, _ = mgr.findStepInSteps(template.Steps, stepID)
+	step, _, _ = mgr.findStepInSteps(template.Steps, stepID)
 	if step == nil {
 		getStepLog.Warn("Step not found")
 		return nil, errors.New("Step not found")
@@ -265,7 +268,7 @@ func (mgr *WorkflowTemplateManager) UpdateStep(templateID models.WorkflowTemplat
 		return errors.New("Editing of template locked")
 	}
 
-	foundStep, _ := mgr.findStepInSteps(template.Steps, step.ID)
+	foundStep, _, _ := mgr.findStepInSteps(template.Steps, step.ID)
 	if foundStep == nil {
 		updateLog.Error("Step is not part of template")
 		return errors.New("Step is not part of template")
@@ -301,7 +304,7 @@ func (mgr *WorkflowTemplateManager) DeleteStep(templateID models.WorkflowTemplat
 		return errors.New("Editing of template locked")
 	}
 
-	foundStep, _ := mgr.findStepInSteps(template.Steps, stepID)
+	foundStep, _, _ := mgr.findStepInSteps(template.Steps, stepID)
 	if foundStep == nil {
 		deleteLog.Error("Step is not part of template")
 		return errors.New("Step is not part of template")
@@ -523,6 +526,128 @@ func (mgr *WorkflowTemplateManager) deleteSteps(steps []*models.Step, deleteLog 
 				stepLog.WithError(err).Error("Could not delete next step that points to deleted step")
 				return
 			}
+		}
+	}
+
+	return
+}
+
+func (mgr *WorkflowTemplateManager) MoveStep(templateID models.WorkflowTemplateID, stepID models.StepID, direction communication.StepMoveDirection) (err error) {
+	moveLog := log.WithFields(log.Fields{"templateID": templateID, "stepID": stepID, "direction": direction})
+
+	template, err := mgr.GetTemplate(templateID)
+	if err != nil || template.StepEditingLocked {
+		moveLog.WithError(err).Warn("Editing of template locked")
+		return errors.New("Editing of template locked")
+	}
+
+	foundStep, firstStep, lastStep := mgr.findStepInSteps(template.Steps, stepID)
+	if foundStep == nil {
+		moveLog.Error("Step is not part of template")
+		return errors.New("Step is not part of template")
+	}
+
+	if firstStep && direction == communication.StepMoveUp || lastStep && direction == communication.StepMoveDown {
+		moveLog.Error("Cannot move step in given direction as it is the first/last step")
+		return errors.New("Cannot move step in given direction as it is the first/last step")
+	}
+
+	var prevStepID, nextStepID models.StepID
+	if direction == communication.StepMoveUp {
+		var nextStep *models.NextStep
+		nextStep, err = mgr.workflowRep.GetNextStepByNextID(stepID)
+		if err != nil {
+			moveLog.WithError(err).Error("Failed to get previous step for moving step up")
+			return
+		}
+		prevStepID = nextStep.PrevID
+		nextStepID = stepID
+	} else {
+		nextStepID, err = mgr.workflowRep.GetLinearNextStepID(stepID)
+		prevStepID = stepID
+	}
+
+	err = mgr.swapSteps(template, prevStepID, nextStepID)
+	if err != nil {
+		moveLog.WithError(err).Error("Failed to swap steps")
+		return
+	}
+	return
+}
+
+// Only linear steps are allowed to be swapped; firstStep has to be before secondStep
+func (mgr *WorkflowTemplateManager) swapSteps(template *models.WorkflowTemplate, firstStepID, secondStepID models.StepID) (err error) {
+	swapLog := log.WithFields(log.Fields{"templateID": template.ID, "firstStepID": firstStepID, "secondStepID": secondStepID})
+
+	var toFirst *models.NextStep
+	toFirst, err = mgr.workflowRep.GetNextStepByNextID(firstStepID)
+	if err != nil && !mgr.workflowRep.IsRecordNotFoundError(err) {
+		swapLog.WithError(err).Error("Failed to get step before first swap step")
+		return
+	} else if mgr.workflowRep.IsRecordNotFoundError(err) {
+		toFirst = nil
+	}
+
+	var fromSecond *models.NextStep
+	fromSecondID, err := mgr.workflowRep.GetLinearNextStepID(secondStepID)
+	if err != nil && !mgr.workflowRep.IsRecordNotFoundError(err) {
+		swapLog.WithError(err).Error("Failed to get step after second swap step")
+		return
+	} else if mgr.workflowRep.IsRecordNotFoundError(err) {
+		fromSecond = nil
+	} else if err == nil {
+		fromSecond = &models.NextStep{PrevID: secondStepID, NextID: fromSecondID}
+	}
+
+	// If we have a step before first, swap connections there
+	if toFirst != nil {
+		err = mgr.workflowRep.DeleteNextStep(toFirst.PrevID, toFirst.NextID)
+		if err != nil {
+			swapLog.WithError(err).Error("Failed to delete nextStep to first swap step")
+			return
+		}
+
+		toNewFirst := *toFirst
+		toNewFirst.NextID = secondStepID
+		err = mgr.workflowRep.CreateNextStep(&toNewFirst)
+		if err != nil {
+			swapLog.WithError(err).Error("Failed to insert new nextStep to new first swap step")
+			return
+		}
+	}
+
+	// Swap connection between the steps itself
+	err = mgr.workflowRep.DeleteNextStep(firstStepID, secondStepID)
+	if err != nil {
+		swapLog.WithError(err).Error("Failed to delete nextStep between to be swapped steps")
+		return
+	}
+	err = mgr.workflowRep.CreateNextStep(&models.NextStep{PrevID: secondStepID, NextID: firstStepID})
+	if err != nil {
+		swapLog.WithError(err).Error("Failed to insert new nextStep between swapped steps")
+		return
+	}
+
+	// If we have a step after second, swap connections there
+	if fromSecond != nil {
+		err = mgr.workflowRep.DeleteNextStep(fromSecond.PrevID, fromSecond.NextID)
+		if err != nil {
+			swapLog.WithError(err).Error("Failed to delete nextStep to from second swap step")
+			return
+		}
+		err = mgr.workflowRep.CreateNextStep(&models.NextStep{PrevID: firstStepID, NextID: fromSecond.NextID})
+		if err != nil {
+			swapLog.WithError(err).Error("Failed to insert new nextStep from new second swap step")
+			return
+		}
+	}
+
+	if template.StartStep == firstStepID {
+		template.StartStep = secondStepID
+		err = mgr.workflowRep.UpdateTemplate(template)
+		if err != nil {
+			swapLog.WithError(err).Error("Failed to set new start step after swapping steps")
+			return
 		}
 	}
 

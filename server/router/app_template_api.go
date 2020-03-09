@@ -16,13 +16,14 @@ func (r *HttpRouter) buildAppTemplateAPIRoutes() {
 	template := workflow.Group("/template")
 	template.GET("", r.workflowTemplateListHandler())
 	template.POST("", r.workflowTemplateCreateHandler())
-	template.DELETE("/:templID", extractID("templID", httpParamTemplIDName), r.workflowTemplateDeleteHandler())
-	template.POST("/:id/start", extractSimpleID(), r.workflowTemplateCreateStartHandler())
-	template.POST("/:id/step", extractSimpleID(), r.workflowTemplateCreateStepHandler())
-	template.GET("/:templID/step/:id", extractID("templID", httpParamTemplIDName), extractSimpleID(), r.workflowTemplateGetStepHandler())
-	template.PUT("/:templID/step/:id", extractID("templID", httpParamTemplIDName), extractSimpleID(), r.workflowTemplateUpdateStepHandler())
-	template.DELETE("/:templID/step/:id", extractID("templID", httpParamTemplIDName), extractSimpleID(), r.workflowTemplateDeleteStepHandler())
-	template.POST("/:id/revision", extractSimpleID(), r.workflowTemplateNewRevisionHandler())
+	template.DELETE("/:templID", extractTemplID(), r.workflowTemplateDeleteHandler())
+	template.POST("/:templID/start", extractTemplID(), r.workflowTemplateCreateStartHandler())
+	template.POST("/:templID/step", extractTemplID(), r.workflowTemplateCreateStepHandler())
+	template.GET("/:templID/step/:id", extractTemplID(), extractSimpleID(), r.workflowTemplateGetStepHandler())
+	template.PUT("/:templID/step/:id", extractTemplID(), extractSimpleID(), r.workflowTemplateUpdateStepHandler())
+	template.DELETE("/:templID/step/:id", extractTemplID(), extractSimpleID(), r.workflowTemplateDeleteStepHandler())
+	template.POST("/:templID/step/:id/move", extractTemplID(), extractSimpleID(), r.workflowTemplateMoveStepHandler())
+	template.POST("/:templID/revision", extractTemplID(), r.workflowTemplateNewRevisionHandler())
 }
 
 func (r *HttpRouter) workflowTemplateListHandler() gin.HandlerFunc {
@@ -73,7 +74,7 @@ func (r *HttpRouter) workflowTemplateDeleteHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) workflowTemplateCreateStartHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamIDName))
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTemplIDName))
 
 		step := &models.Step{}
 		err := ctx.BindJSON(step)
@@ -95,7 +96,7 @@ func (r *HttpRouter) workflowTemplateCreateStartHandler() gin.HandlerFunc {
 
 func (r *HttpRouter) workflowTemplateCreateStepHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamIDName))
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTemplIDName))
 
 		stepRequest := &communication.CreateStepRequest{}
 		err := ctx.BindJSON(stepRequest)
@@ -169,9 +170,30 @@ func (r *HttpRouter) workflowTemplateDeleteStepHandler() gin.HandlerFunc {
 	}
 }
 
+func (r *HttpRouter) workflowTemplateMoveStepHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTemplIDName))
+		stepID := models.StepID(ctx.GetInt(httpParamIDName))
+		direction, err := communication.StepMoveDirectionFromString(ctx.Query(httpQueryDirectionName))
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
+			log.WithError(err).Warn("WorkflowTemplateMoveStep request failed")
+			return
+		}
+
+		err = managers.GetWorkflowTemplateManager().MoveStep(templateID, stepID, direction)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithError(err).Warn("WorkflowTemplateMoveStep request failed")
+			return
+		}
+		ctx.Status(http.StatusOK)
+	}
+}
+
 func (r *HttpRouter) workflowTemplateNewRevisionHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamIDName))
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTemplIDName))
 
 		revisionRequest := &communication.CreateRevisionRequest{}
 		err := ctx.BindJSON(revisionRequest)

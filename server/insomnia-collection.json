@@ -1,7 +1,7 @@
 {
 	"_type": "export",
 	"__export_format": 4,
-	"__export_date": "2020-03-06T08:38:27.314Z",
+	"__export_date": "2020-03-09T08:25:06.778Z",
 	"__export_source": "insomnia.desktop.app:v7.1.1",
 	"resources": [
 		{
@@ -310,6 +310,36 @@
 			"settingSendCookies": true,
 			"settingStoreCookies": true,
 			"url": "{{ base_url  }}/workflow/template/2/step/4",
+			"_type": "request"
+		},
+		{
+			"_id": "req_c7fe94b13c2440c5ace4b010f47474f8",
+			"authentication": {},
+			"body": {},
+			"created": 1583661100636,
+			"description": "",
+			"headers": [],
+			"isPrivate": false,
+			"metaSortKey": -1581249171409.25,
+			"method": "POST",
+			"modified": 1583742042932,
+			"name": "Template Step Move",
+			"parameters": [
+				{
+					"description": "",
+					"id": "pair_97af106cdc054a8bb60cf0c87b47f373",
+					"name": "direction",
+					"value": "down"
+				}
+			],
+			"parentId": "fld_d1e30600ebf647039e55af471cb723b2",
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingFollowRedirects": "global",
+			"settingRebuildPath": true,
+			"settingSendCookies": true,
+			"settingStoreCookies": true,
+			"url": "{{ base_url  }}/workflow/template/4/step/14/move",
 			"_type": "request"
 		},
 		{
