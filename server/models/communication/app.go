@@ -1,6 +1,9 @@
 package communication
 
-import "paper-tracker/models"
+import (
+	"fmt"
+	"paper-tracker/models"
+)
 
 type LearningStartResponse struct {
 	LearnTimeSec int `json:"learn_time_sec"`
@@ -24,4 +27,23 @@ type CreateStepRequest struct {
 
 type CreateRevisionRequest struct {
 	RevisionLabel string `json:"revision_label"`
+}
+
+type StepMoveDirection string
+
+const (
+	StepMoveUp   = StepMoveDirection("up")
+	StepMoveDown = StepMoveDirection("down")
+)
+
+func StepMoveDirectionFromString(raw string) (direction StepMoveDirection, err error) {
+	if StepMoveDirection(raw) == StepMoveUp {
+		direction = StepMoveUp
+		return
+	} else if raw == "" || StepMoveDirection(raw) == StepMoveDown {
+		direction = StepMoveDown
+		return
+	}
+	err = fmt.Errorf("Could not parse '%s' as StepMoveDirection", raw)
+	return
 }
