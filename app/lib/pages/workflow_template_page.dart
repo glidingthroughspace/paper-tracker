@@ -246,9 +246,10 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
   }
 
   void onCreateRevision(WorkflowTemplate template) async {
-    await templateClient.createRevision(
+    var revisionID = await templateClient.createRevision(
         template.id, CreateRevisionRequest(revisionLabel: revisionLabelEditingController.text));
-    refreshTemplate();
+    await templateClient.getAllTemplates(refresh: true);
     Navigator.of(context).pop();
+    Navigator.of(context).pushNamed(WorkflowTemplatePage.Route, arguments: revisionID);
   }
 }

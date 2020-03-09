@@ -89,10 +89,12 @@ class WorkflowTemplateClient {
     }
   }
 
-  Future<void> createRevision(int templateID, CreateRevisionRequest request) async {
+  Future<int> createRevision(int templateID, CreateRevisionRequest request) async {
     var response = await apiClient.post("/workflow/template/$templateID/revision", json.encode(request.toJson()));
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception("Failed to create template revision");
+    if (response.statusCode == 200) {
+      return WorkflowTemplate.fromJson(json.decode(response.body)).id;
+    } else {
+      throw Exception("Failed to load workflows templates");
     }
   }
 }
