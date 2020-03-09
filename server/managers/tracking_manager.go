@@ -92,11 +92,12 @@ func getScoreForScanResultAndTrackingData(td models.BSSIDTrackingData, sr *model
 	if float64(sr.RSSI) < td.Quantiles.ThirdQuartile && float64(sr.RSSI) > td.Quantiles.FirstQuartile {
 		score += 5
 	}
+	// The +0.5e-7 additions below are to prevent division by zero
 	if isInRange(float64(sr.RSSI), td.Mean, 10) {
-		score += math.Abs(td.Mean - float64(sr.RSSI))
+		score += (1.0 / (math.Abs(td.Mean-float64(sr.RSSI)) + 0.5e-7)) * 5
 	}
 	if isInRange(float64(sr.RSSI), td.Median, 10) {
-		score += math.Abs(td.Median - float64(sr.RSSI))
+		score += (1.0 / (math.Abs(td.Median-float64(sr.RSSI)) + 0.5e-7)) * 5
 	}
 	return score
 }
