@@ -3,12 +3,14 @@ import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/workflow_template_client.dart';
+import 'package:paper_tracker/model/communication/createRevisionRequest.dart';
 import 'package:paper_tracker/model/communication/createStepRequest.dart';
 import 'package:paper_tracker/model/communication/moveDirection.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/dialogs/add_step_dialog.dart';
 import 'package:paper_tracker/widgets/dialogs/edit_step_dialog.dart';
+import 'package:paper_tracker/widgets/dialogs/single_text_dialog.dart';
 import 'package:paper_tracker/widgets/dialogs/workflow_step_dialog.dart';
 import 'package:paper_tracker/widgets/dropdown.dart';
 import 'package:paper_tracker/widgets/lists/workflow_steps_list.dart';
@@ -27,6 +29,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
   var stepLabelEditController = TextEditingController();
   var stepDecisionLabelEditController = [TextEditingController()];
   var roomDropdownController = DropdownController();
+  var revisionLabelEditingController = TextEditingController();
   int templateID;
   Future<WorkflowTemplate> futureTemplate;
 
@@ -212,6 +215,10 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
         icon: Icon(Icons.delete_forever, color: Colors.white),
         onPressed: () => delete(template),
       ),
+      IconButton(
+        icon: Icon(Icons.content_copy, color: Colors.white),
+        onPressed: () => newRevision(template),
+      )
     ];
   }
 
@@ -225,5 +232,27 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
     await templateClient.getAllTemplates(refresh: true);
     roomClient.getAllRooms(refresh: true);
     Navigator.of(context).pop();
+  }
+
+  void newRevision(WorkflowTemplate template) async {
+    revisionLabelEditingController.text = template.label;
+    showDialog(
+      context: context,
+      child: SingleTextDialog(
+        title: "Copy to New Revision",
+        textLabel: "Template Label",
+        buttonLabel: "Copy",
+        labelController: revisionLabelEditingController,
+        onButton: () => onCreateRevision(template),
+      ),
+    );
+  }
+
+  void onCreateRevision(WorkflowTemplate template) async {
+    var revisionID = await templateClient.createRevision(
+        template.id, CreateRevisionRequest(revisionLabel: revisionLabelEditingController.text));
+    await templateClient.getAllTemplates(refresh: true);
+    Navigator.of(context).pop();
+    Navigator.of(context).pushNamed(WorkflowTemplatePage.Route, arguments: revisionID);
   }
 }
