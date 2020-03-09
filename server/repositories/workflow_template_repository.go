@@ -10,6 +10,7 @@ type WorkflowTemplateRepository interface {
 	DeleteTemplate(templateID models.WorkflowTemplateID) error
 	CreateStep(step *models.Step) error
 	GetStepByID(stepID models.StepID) (*models.Step, error)
+	GetStepsByRoomID(roomID models.RoomID) ([]*models.Step, error)
 	UpdateStep(step *models.Step) error
 	DeleteStep(stepID models.StepID) error
 	CreateNextStep(nextStep *models.NextStep) error

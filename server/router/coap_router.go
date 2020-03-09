@@ -56,7 +56,7 @@ func (r *CoapRouter) writeCBOR(w coap.ResponseWriter, status coap.COAPCode, body
 	defer enc.Release()
 	err = enc.Encode(body)
 	if err != nil {
-		log.WithField("err", err).Error("Failed to write or encode CBOR response")
+		log.WithError(err).Error("Failed to write or encode CBOR response")
 		return
 	}
 	return

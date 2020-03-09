@@ -7,12 +7,12 @@ type StepID int
 type WorkflowExecID int
 
 type WorkflowTemplate struct {
-	ID              WorkflowTemplateID `json:"id" gorm:"primary_key;auto_increment"`
-	Label           string             `json:"label"`
-	StartStep       StepID             `json:"-"`
-	FirstRevisionID WorkflowTemplateID `json:"first_revision_id"`
-	Steps           []*Step            `json:"steps" gorm:"-"`
-	EditingLocked   bool               `json:"editing_locked" gorm:"-"`
+	ID                WorkflowTemplateID `json:"id" gorm:"primary_key;auto_increment"`
+	Label             string             `json:"label"`
+	StartStep         StepID             `json:"-"`
+	FirstRevisionID   WorkflowTemplateID `json:"first_revision_id"`
+	Steps             []*Step            `json:"steps" gorm:"-"`
+	StepEditingLocked bool               `json:"step_editing_locked" gorm:"-"`
 }
 
 type Step struct {

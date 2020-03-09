@@ -31,7 +31,11 @@ class TrackerClient {
     }
 
     var rooms = await futureTrackers;
-    return rooms.firstWhere((tracker) => tracker.id == id);
+    try {
+      return rooms.firstWhere((tracker) => tracker.id == id);
+    } catch (_) {
+      throw Exception("Failed to get tracker with id '$id'");
+    }
   }
 
   Future<LearningStartResponse> startLearning(int id) async {
@@ -55,22 +59,29 @@ class TrackerClient {
   Future<void> finishLearning(int trackerID, int roomID, List<String> ssids) async {
     final response = await apiClient.post(
         "/tracker/$trackerID/learn/finish", json.encode(LearningFinishRequest(roomID: roomID, ssids: ssids).toJson()));
-    if (response.statusCode == 200) {
-      return;
-    } else {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Failed to finish learning");
     }
   }
 
   Future<void> cancelLearning(int trackerID) async {
-    return apiClient.post("/tracker/$trackerID/learn/cancel", null);
+    final response = await apiClient.post("/tracker/$trackerID/learn/cancel", null);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception("Failed to cancel learning");
+    }
   }
 
   Future<void> updateTracker(Tracker tracker) async {
-    return apiClient.put("/tracker/${tracker.id}", json.encode(tracker.toJson()));
+    final response = await apiClient.put("/tracker/${tracker.id}", json.encode(tracker.toJson()));
+    if (response.statusCode != 200) {
+      throw Exception("Failed to update tracker");
+    }
   }
 
   Future<void> deleteTracker(int trackerID) async {
-    return apiClient.delete("/tracker/$trackerID");
+    final response = await apiClient.delete("/tracker/$trackerID");
+    if (response.statusCode != 200) {
+      throw Exception("Failed to delete tracker");
+    }
   }
 }

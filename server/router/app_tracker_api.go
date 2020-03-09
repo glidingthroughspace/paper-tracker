@@ -30,7 +30,7 @@ func (r *HttpRouter) trackerListHandler() gin.HandlerFunc {
 		trackers, err := managers.GetTrackerManager().GetAllTrackers()
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("TrackerList request failed")
+			log.WithError(err).Warn("TrackerList request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, trackers)
@@ -44,7 +44,7 @@ func (r *HttpRouter) trackerUpdateHandler() gin.HandlerFunc {
 		tracker := &models.Tracker{}
 		err := ctx.BindJSON(tracker)
 		if err != nil {
-			log.WithField("err", err).Error("Failed to unmarshal json to tracker")
+			log.WithError(err).Error("Failed to unmarshal json to tracker")
 			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
@@ -52,7 +52,7 @@ func (r *HttpRouter) trackerUpdateHandler() gin.HandlerFunc {
 		tracker, err = managers.GetTrackerManager().UpdateTrackerLabel(trackerID, tracker.Label)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("TrackerUpdate request failed")
+			log.WithError(err).Warn("TrackerUpdate request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, tracker)
@@ -66,7 +66,7 @@ func (r *HttpRouter) trackerDeleteHandler() gin.HandlerFunc {
 		err := managers.GetTrackerManager().DeleteTracker(trackerID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("TrackerDelete request failed")
+			log.WithError(err).Warn("TrackerDelete request failed")
 			return
 		}
 		ctx.Status(http.StatusOK)
@@ -80,7 +80,7 @@ func (r *HttpRouter) trackerLearnStartHandler() gin.HandlerFunc {
 		learnTime, err := managers.GetLearningManager().StartLearning(trackerID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("TrackerLearnStart request failed")
+			log.WithError(err).Warn("TrackerLearnStart request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, &communication.LearningStartResponse{LearnTimeSec: learnTime})
@@ -94,7 +94,7 @@ func (r *HttpRouter) trackerLearnStatusHandler() gin.HandlerFunc {
 		done, ssids, err := managers.GetLearningManager().GetLearningStatus(trackerID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
-			log.WithField("err", err).Warn("TrackerLearnStatus request failed")
+			log.WithError(err).Warn("TrackerLearnStatus request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, &communication.LearningStatusResponse{Done: done, SSIDs: ssids})
@@ -108,14 +108,14 @@ func (r *HttpRouter) trackerLearnFinishHandler() gin.HandlerFunc {
 		req := &communication.LearningFinishRequest{}
 		err := ctx.BindJSON(req)
 		if err != nil {
-			log.WithField("err", err).Error("Failed to unmarshal json to learn finish request")
+			log.WithError(err).Error("Failed to unmarshal json to learn finish request")
 			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
 
 		err = managers.GetLearningManager().FinishLearning(trackerID, req.RoomID, req.SSIDs)
 		if err != nil {
-			log.WithField("err", err).Warn("TrackerLearnFinish request failed")
+			log.WithError(err).Warn("TrackerLearnFinish request failed")
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			return
 		}
@@ -129,7 +129,7 @@ func (r *HttpRouter) trackerLearnCancelHandler() gin.HandlerFunc {
 
 		err := managers.GetLearningManager().CancelLearning(trackerID)
 		if err != nil {
-			log.WithField("err", err).Warn("TrackerLearnCancel request failed")
+			log.WithError(err).Warn("TrackerLearnCancel request failed")
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 		}
 		ctx.Status(http.StatusOK)

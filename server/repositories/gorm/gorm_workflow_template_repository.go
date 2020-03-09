@@ -60,6 +60,11 @@ func (rep *GormWorkflowTemplateRepository) GetStepByID(stepID models.StepID) (st
 	return
 }
 
+func (rep *GormWorkflowTemplateRepository) GetStepsByRoomID(roomID models.RoomID) (steps []*models.Step, err error) {
+	err = databaseConnection.Find(&steps, &models.Step{RoomID: roomID}).Error
+	return
+}
+
 func (rep *GormWorkflowTemplateRepository) UpdateStep(step *models.Step) (err error) {
 	err = databaseConnection.Save(step).Error
 	return

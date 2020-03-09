@@ -14,7 +14,7 @@ WorkflowTemplate _$WorkflowTemplateFromJson(Map<String, dynamic> json) {
         ?.map((e) =>
             e == null ? null : WFStep.fromJson(e as Map<String, dynamic>))
         ?.toList(),
-    editingLocked: json['editing_locked'] as bool,
+    stepEditingLocked: json['step_editing_locked'] as bool,
   );
 }
 
@@ -23,7 +23,7 @@ Map<String, dynamic> _$WorkflowTemplateToJson(WorkflowTemplate instance) =>
       'id': instance.id,
       'label': instance.label,
       'steps': instance.steps,
-      'editing_locked': instance.editingLocked,
+      'step_editing_locked': instance.stepEditingLocked,
     };
 
 WFStep _$WFStepFromJson(Map<String, dynamic> json) {

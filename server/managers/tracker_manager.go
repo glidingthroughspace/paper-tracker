@@ -54,7 +54,7 @@ func (mgr *TrackerManager) GetTrackerByID(trackerID models.TrackerID) (tracker *
 func (mgr *TrackerManager) GetAllTrackers() (trackers []*models.Tracker, err error) {
 	trackers, err = mgr.trackerRep.GetAll()
 	if err != nil {
-		log.WithField("err", err).Error("Failed to get all trackers")
+		log.WithError(err).Error("Failed to get all trackers")
 		return
 	}
 	return
@@ -74,23 +74,36 @@ func (mgr *TrackerManager) UpdateTrackerLabel(trackerID models.TrackerID, label 
 
 	tracker, err = mgr.trackerRep.GetByID(trackerID)
 	if err != nil {
-		setLabelLog.WithField("err", err).Error("Failed to get tracker")
+		setLabelLog.WithError(err).Error("Failed to get tracker")
 		return
 	}
 
 	tracker.Label = label
 	err = mgr.trackerRep.Update(tracker)
 	if err != nil {
-		log.WithField("err", err).Error("Failed to set label of tracker")
+		log.WithError(err).Error("Failed to set label of tracker")
 		return
 	}
 	return
 }
 
 func (mgr *TrackerManager) DeleteTracker(trackerID models.TrackerID) (err error) {
+	deleteLog := log.WithField("trackerID", trackerID)
+
+	tracker, err := mgr.GetTrackerByID(trackerID)
+	if err != nil {
+		deleteLog.WithError(err).Error("Failed to get tracker to delete")
+		return
+	}
+
+	if tracker.Status != models.TrackerStatusIdle {
+		deleteLog.Error("Can not delete tracker that is not in idle")
+		return errors.New("Can not delete tracker that is not in idle")
+	}
+
 	err = mgr.trackerRep.Delete(trackerID)
 	if err != nil {
-		log.WithFields(log.Fields{"trackerID": trackerID, "err": err}).Error("Failed to delete tracker")
+		deleteLog.WithError(err).Error("Failed to delete tracker")
 		return
 	}
 	return
@@ -109,7 +122,7 @@ func (mgr *TrackerManager) NotifyNewTracker() (tracker *models.Tracker, err erro
 	tracker = &models.Tracker{Label: "New Tracker", Status: models.TrackerStatusIdle}
 	err = mgr.trackerRep.Create(tracker)
 	if err != nil {
-		log.WithField("err", err).Error("Failed to create new tracker")
+		log.WithError(err).Error("Failed to create new tracker")
 		return
 	}
 	return
@@ -120,13 +133,13 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 
 	_, err = mgr.trackerRep.GetByID(trackerID)
 	if err != nil {
-		pollLog.WithField("err", err).Error("Failed to get tracker with tracker ID")
+		pollLog.WithError(err).Error("Failed to get tracker with tracker ID")
 		return
 	}
 
 	cmd, err = mgr.cmdRep.GetNextCommand(trackerID)
 	if err != nil && !mgr.cmdRep.IsRecordNotFoundError(err) {
-		pollLog.WithField("err", err).Error("Failed to get next command for tracker")
+		pollLog.WithError(err).Error("Failed to get next command for tracker")
 		return
 	} else if mgr.cmdRep.IsRecordNotFoundError(err) {
 		pollLog.Info("No command for tracker, return default sleep")
@@ -137,7 +150,7 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 
 	err = mgr.cmdRep.Delete(cmd.ID)
 	if err != nil {
-		pollLog.WithField("err", err).Error("Failed to delete command")
+		pollLog.WithError(err).Error("Failed to delete command")
 		return
 	}
 
@@ -153,7 +166,7 @@ func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp c
 
 	tracker, err := mgr.trackerRep.GetByID(trackerID)
 	if err != nil {
-		updateLog.WithField("err", err).Error("Failed to get tracker with id")
+		updateLog.WithError(err).Error("Failed to get tracker with id")
 		return
 	}
 
@@ -161,7 +174,7 @@ func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp c
 	tracker.IsCharging = resp.IsCharging
 	err = mgr.trackerRep.Update(tracker)
 	if err != nil {
-		updateLog.WithField("err", err).Error("Failed to update tracker")
+		updateLog.WithError(err).Error("Failed to update tracker")
 		return
 	}
 	return
@@ -190,7 +203,7 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, scanRes [
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
 	if err != nil {
-		trackingDataLog.WithField("err", err).Error("Failed to get tracker with tracker ID")
+		trackingDataLog.WithError(err).Error("Failed to get tracker with tracker ID")
 		return
 	}
 

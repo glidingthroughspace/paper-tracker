@@ -134,6 +134,21 @@ func (mr *MockWorkflowTemplateRepositoryMockRecorder) GetStepByID(stepID interfa
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStepByID", reflect.TypeOf((*MockWorkflowTemplateRepository)(nil).GetStepByID), stepID)
 }
 
+// GetStepsByRoomID mocks base method
+func (m *MockWorkflowTemplateRepository) GetStepsByRoomID(roomID models.RoomID) ([]*models.Step, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetStepsByRoomID", roomID)
+	ret0, _ := ret[0].([]*models.Step)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetStepsByRoomID indicates an expected call of GetStepsByRoomID
+func (mr *MockWorkflowTemplateRepositoryMockRecorder) GetStepsByRoomID(roomID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStepsByRoomID", reflect.TypeOf((*MockWorkflowTemplateRepository)(nil).GetStepsByRoomID), roomID)
+}
+
 // UpdateStep mocks base method
 func (m *MockWorkflowTemplateRepository) UpdateStep(step *models.Step) error {
 	m.ctrl.T.Helper()

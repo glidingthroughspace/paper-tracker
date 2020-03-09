@@ -19,6 +19,7 @@ ApiClient apiClient(&wifi.getUDP(), SERVER_IP);
 void haltIf(bool condition, const char* message);
 void sendScanResultsInChunks(std::vector<ScanResult>&);
 bool hasTrackerID();
+void requestNextCommand();
 
 static void onCommandReceived(Command& command) {
   command.print();
@@ -30,7 +31,12 @@ static void onCommandReceived(Command& command) {
     case CommandType::SEND_TRACKING_INFO: {
         auto scanResults = wifi.getAllVisibleNetworks();
         sendScanResultsInChunks(scanResults);
-        Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
+        if (command.getSleepTimeInSeconds() > 0) {
+          Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
+        } else {
+          logln("Not sleeping, since sleep time is 0");
+          requestNextCommand();
+        }
       }
       break;
     default:
@@ -59,14 +65,18 @@ void setup() {
     logln("This tracker does not have an ID yet");
     apiClient.requestTrackerID([] (uint16_t newID) {
       Storage::set(Storage::TRACKER_ID, newID);
-      apiClient.requestNextCommand(newID, onCommandReceived);
+      requestNextCommand();
     });
   } else {
-    auto id = Storage::get(Storage::TRACKER_ID);
-    log("This tracker has id ");
-    logln(id);
-    apiClient.requestNextCommand(id, onCommandReceived);
+    requestNextCommand();
   }
+}
+
+void requestNextCommand() {
+  auto id = Storage::get(Storage::TRACKER_ID);
+  log("This tracker has id ");
+  logln(id);
+  apiClient.requestNextCommand(id, onCommandReceived);
 }
 
 void loop() {

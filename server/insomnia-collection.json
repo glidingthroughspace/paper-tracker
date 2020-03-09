@@ -1,7 +1,7 @@
 {
 	"_type": "export",
 	"__export_format": 4,
-	"__export_date": "2020-03-02T14:25:47.235Z",
+	"__export_date": "2020-03-09T08:25:06.778Z",
 	"__export_source": "insomnia.desktop.app:v7.1.1",
 	"resources": [
 		{
@@ -171,6 +171,29 @@
 			"_type": "request"
 		},
 		{
+			"_id": "req_3445160a21e84e119133e113cfce92e3",
+			"authentication": {},
+			"body": {},
+			"created": 1583415970572,
+			"description": "",
+			"headers": [],
+			"isPrivate": false,
+			"metaSortKey": -1581249171524.875,
+			"method": "DELETE",
+			"modified": 1583415978769,
+			"name": "Template Delete",
+			"parameters": [],
+			"parentId": "fld_d1e30600ebf647039e55af471cb723b2",
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingFollowRedirects": "global",
+			"settingRebuildPath": true,
+			"settingSendCookies": true,
+			"settingStoreCookies": true,
+			"url": "{{ base_url  }}/workflow/template/1",
+			"_type": "request"
+		},
+		{
 			"_id": "req_9170ca9726d74309990a0624abb60c6b",
 			"authentication": {},
 			"body": {
@@ -207,7 +230,7 @@
 			"authentication": {},
 			"body": {
 				"mimeType": "application/json",
-				"text": "{\n\t\"prev_step_id\": 1,\n\t\"decision_label\": \"Decision 2\",\n\t\"step\": {\n\t\t\"label\": \"Step 2b\",\n\t\t\"room_id\": 1\n\t}\n}"
+				"text": "{\n\t\"prev_step_id\": 15,\n\t\"step\": {\n\t\t\"label\": \"Step 2b\",\n\t\t\"room_id\": 1\n\t}\n}"
 			},
 			"created": 1581249344212,
 			"description": "",
@@ -221,7 +244,7 @@
 			"isPrivate": false,
 			"metaSortKey": -1581249171490.5,
 			"method": "POST",
-			"modified": 1582542236905,
+			"modified": 1583483374448,
 			"name": "Template Add Step",
 			"parameters": [],
 			"parentId": "fld_d1e30600ebf647039e55af471cb723b2",
@@ -231,7 +254,7 @@
 			"settingRebuildPath": true,
 			"settingSendCookies": true,
 			"settingStoreCookies": true,
-			"url": "{{ base_url  }}/workflow/template/1/step",
+			"url": "{{ base_url  }}/workflow/template/4/step",
 			"_type": "request"
 		},
 		{
@@ -244,7 +267,7 @@
 			"isPrivate": false,
 			"metaSortKey": -1581249171440.5,
 			"method": "GET",
-			"modified": 1582808668013,
+			"modified": 1583483320683,
 			"name": "Template Step Get",
 			"parameters": [],
 			"parentId": "fld_d1e30600ebf647039e55af471cb723b2",
@@ -254,7 +277,7 @@
 			"settingRebuildPath": true,
 			"settingSendCookies": true,
 			"settingStoreCookies": true,
-			"url": "{{ base_url  }}/workflow/template/1/step/1",
+			"url": "{{ base_url  }}/workflow/template/4/step/11",
 			"_type": "request"
 		},
 		{
@@ -287,6 +310,36 @@
 			"settingSendCookies": true,
 			"settingStoreCookies": true,
 			"url": "{{ base_url  }}/workflow/template/2/step/4",
+			"_type": "request"
+		},
+		{
+			"_id": "req_c7fe94b13c2440c5ace4b010f47474f8",
+			"authentication": {},
+			"body": {},
+			"created": 1583661100636,
+			"description": "",
+			"headers": [],
+			"isPrivate": false,
+			"metaSortKey": -1581249171409.25,
+			"method": "POST",
+			"modified": 1583742042932,
+			"name": "Template Step Move",
+			"parameters": [
+				{
+					"description": "",
+					"id": "pair_97af106cdc054a8bb60cf0c87b47f373",
+					"name": "direction",
+					"value": "down"
+				}
+			],
+			"parentId": "fld_d1e30600ebf647039e55af471cb723b2",
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingFollowRedirects": "global",
+			"settingRebuildPath": true,
+			"settingSendCookies": true,
+			"settingStoreCookies": true,
+			"url": "{{ base_url  }}/workflow/template/4/step/14/move",
 			"_type": "request"
 		},
 		{

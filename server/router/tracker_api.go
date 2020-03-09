@@ -22,7 +22,7 @@ func (r *CoapRouter) trackerNewHandler() coap.HandlerFunc {
 		tracker, err := managers.GetTrackerManager().NotifyNewTracker()
 		if err != nil {
 			r.writeError(w, coap.InternalServerError, err)
-			reqLogger.WithField("err", err).Warning("Coap router: Failed to notify new tracker")
+			reqLogger.WithError(err).Warning("Coap router: Failed to notify new tracker")
 			return
 		}
 
@@ -37,7 +37,7 @@ func (r *CoapRouter) trackerPollHandler() coap.HandlerFunc {
 		trackerID, err := r.extractTrackerID(req)
 		if err != nil {
 			r.writeError(w, coap.BadRequest, err)
-			reqLogger.WithField("err", err).Warning("Coap router: Failed to extract tracker ID")
+			reqLogger.WithError(err).Warning("Coap router: Failed to extract tracker ID")
 			return
 		}
 
@@ -45,7 +45,7 @@ func (r *CoapRouter) trackerPollHandler() coap.HandlerFunc {
 
 		cmd, err := managers.GetTrackerManager().PollCommand(trackerID)
 		if err != nil {
-			reqLogger.WithField("err", err).Warning("Coap router: Failed to poll command")
+			reqLogger.WithError(err).Warning("Coap router: Failed to poll command")
 			r.writeError(w, coap.InternalServerError, err)
 			return
 		}
@@ -73,19 +73,19 @@ func (r *CoapRouter) trackerTrackingData() coap.HandlerFunc {
 		resp := &communication.TrackingCmdResponse{}
 		err = dec.Decode(resp)
 		if err != nil {
-			reqLogger.WithField("err", err).Warning("Coap router: Failed decode tracking data")
+			reqLogger.WithError(err).Warning("Coap router: Failed decode tracking data")
 		}
 
 		err = managers.GetTrackerManager().UpdateFromResponse(trackerID, resp.TrackerCmdResponse)
 		if err != nil {
-			reqLogger.WithField("err", err).Error("Failed to update tracker from response - ignore for request")
+			reqLogger.WithError(err).Error("Failed to update tracker from response - ignore for request")
 			err = nil
 		}
 
 		err = managers.GetTrackerManager().NewTrackingData(trackerID, resp.ScanResults)
 		if err != nil {
 			r.writeError(w, coap.InternalServerError, err)
-			reqLogger.WithField("err", err).Warning("Coap router: Failed to save tracking data")
+			reqLogger.WithError(err).Warning("Coap router: Failed to save tracking data")
 			return
 		}
 

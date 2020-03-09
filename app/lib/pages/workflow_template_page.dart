@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/communication/createStepRequest.dart';
+import 'package:paper_tracker/model/communication/moveDirection.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/dialogs/add_step_dialog.dart';
@@ -46,7 +48,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
         return DetailContent(
           title: template != null ? template.label : "",
           iconData: WorkflowTemplate.IconData,
-          bottomButtons: [],
+          bottomButtons: buildBottomButtons(template),
           content: template != null ? buildContent(template) : Container(),
           onRefresh: refreshTemplate,
         );
@@ -59,13 +61,13 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
       WorkflowStepsList(
         steps: template.steps,
         roomClient: roomClient,
-        onStepAdd: template.editingLocked ? null : onAddStep,
+        onStepAdd: template.stepEditingLocked ? null : onAddStep,
         primaryScroll: false,
-        onTap: template.editingLocked ? null : onStepTap,
+        onTap: template.stepEditingLocked ? null : onStepTap,
       )
     ];
 
-    if (template.editingLocked) {
+    if (template.stepEditingLocked) {
       children.add(Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -126,6 +128,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
     }
     await templateClient.getAllTemplates(refresh: true);
 
+    roomClient.getAllRooms(refresh: true); // In case now a room cannot be deleted
     refreshTemplate();
     Navigator.of(context).pop();
   }
@@ -143,8 +146,8 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
       child: OptionsDialog(object: step, options: {
         "Edit Step": onEditStep,
         "Delete Step": onDeleteStep,
-        "Move Step Up": onMoveStepUp,
-        "Move Step Down": onMoveStepDown,
+        "Move Step Up": (step) => onMoveStep(step, StepMoveDirection.Up),
+        "Move Step Down": (step) => onMoveStep(step, StepMoveDirection.Down),
       }),
     );
   }
@@ -197,7 +200,30 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
     Navigator.of(context).pop();
   }
 
-  void onMoveStepUp(WFStep step) async {}
+  void onMoveStep(WFStep step, StepMoveDirection direction) async {
+    await templateClient.moveStep(templateID, step.id, direction);
+    refreshTemplate();
+    Navigator.of(context).pop();
+  }
 
-  void onMoveStepDown(WFStep step) async {}
+  List<Widget> buildBottomButtons(WorkflowTemplate template) {
+    return [
+      IconButton(
+        icon: Icon(Icons.delete_forever, color: Colors.white),
+        onPressed: () => delete(template),
+      ),
+    ];
+  }
+
+  void delete(WorkflowTemplate template) async {
+    if (template.stepEditingLocked) {
+      Fluttertoast.showToast(msg: "Can't delete template that is in use");
+      return;
+    }
+
+    await templateClient.deleteTemplate(template.id);
+    await templateClient.getAllTemplates(refresh: true);
+    roomClient.getAllRooms(refresh: true);
+    Navigator.of(context).pop();
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/pages/learning_page.dart';
@@ -122,6 +123,11 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void delete(Room room) async {
+    if (room.deleteLocked) {
+      Fluttertoast.showToast(msg: "Can't delete room that is in use");
+      return;
+    }
+
     await roomClient.deleteRoom(room.id);
     await roomClient.getAllRooms(refresh: true);
     Navigator.of(context).pop();
