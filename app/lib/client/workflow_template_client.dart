@@ -106,4 +106,11 @@ class WorkflowTemplateClient {
       throw Exception("Failed to move step");
     }
   }
+
+  Future<void> updateTemplate(WorkflowTemplate template) async {
+    var response = await apiClient.put("/workflow/template/${template.id}", json.encode(template.toJson()));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception("Failed to update template");
+    }
+  }
 }

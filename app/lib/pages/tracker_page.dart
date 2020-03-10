@@ -5,6 +5,7 @@ import 'package:paper_tracker/client/tracker_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/model/tracker.dart';
 import 'package:paper_tracker/utils.dart';
+import 'package:paper_tracker/widgets/attribute_table.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/label.dart';
@@ -59,23 +60,18 @@ class _TrackerPageState extends State<TrackerPage> {
   }
 
   Widget buildContent(Tracker tracker) {
-    return Container(
-      padding: EdgeInsets.all(15.0),
-      child: Table(
-        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-        columnWidths: {0: FractionColumnWidth(0.3)},
-        children: [
-          buildLabelRow(),
-          getTableSpacing(10.0),
-          buildRoomRow(tracker),
-          getTableSpacing(10.0),
-          buildBatteryRow(tracker),
-          getTableSpacing(10.0),
-          buildStatusRow(tracker),
-          getTableSpacing(10.0),
-          buildLearnRow(tracker),
-        ],
-      ),
+    return AttributeTable(
+      children: [
+        buildLabelRow(),
+        getTableSpacing(10.0),
+        buildRoomRow(tracker),
+        getTableSpacing(10.0),
+        buildBatteryRow(tracker),
+        getTableSpacing(10.0),
+        buildStatusRow(tracker),
+        getTableSpacing(10.0),
+        buildLearnRow(tracker),
+      ],
     );
   }
 

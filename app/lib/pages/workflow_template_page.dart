@@ -7,12 +7,15 @@ import 'package:paper_tracker/model/communication/createRevisionRequest.dart';
 import 'package:paper_tracker/model/communication/createStepRequest.dart';
 import 'package:paper_tracker/model/communication/moveDirection.dart';
 import 'package:paper_tracker/model/workflow.dart';
+import 'package:paper_tracker/widgets/attribute_table.dart';
+import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/dialogs/add_step_dialog.dart';
 import 'package:paper_tracker/widgets/dialogs/edit_step_dialog.dart';
 import 'package:paper_tracker/widgets/dialogs/single_text_dialog.dart';
 import 'package:paper_tracker/widgets/dialogs/workflow_step_dialog.dart';
 import 'package:paper_tracker/widgets/dropdown.dart';
+import 'package:paper_tracker/widgets/label.dart';
 import 'package:paper_tracker/widgets/lists/workflow_steps_list.dart';
 
 class WorkflowTemplatePage extends StatefulWidget {
@@ -26,6 +29,8 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
   var templateClient = WorkflowTemplateClient();
   var roomClient = RoomClient();
 
+  var isEditing = false;
+  var labelEditController = TextEditingController();
   var stepLabelEditController = TextEditingController();
   var stepDecisionLabelEditController = [TextEditingController()];
   var roomDropdownController = DropdownController();
@@ -38,7 +43,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
     super.didChangeDependencies();
     templateID = ModalRoute.of(context).settings.arguments;
     futureTemplate = templateClient.getTemplateByID(templateID);
-    //futureWorkflow.then((template) => labelEditController.text = template.label);
+    futureTemplate.then((template) => labelEditController.text = template.label);
   }
 
   @override
@@ -52,7 +57,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
           title: template != null ? template.label : "",
           iconData: WorkflowTemplate.IconData,
           bottomButtons: buildBottomButtons(template),
-          content: template != null ? buildContent(template) : Container(),
+          content: template != null ? buildContent(template) : CircularProgressIndicator(),
           onRefresh: refreshTemplate,
         );
       },
@@ -60,7 +65,40 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
   }
 
   Widget buildContent(WorkflowTemplate template) {
+    var tableRows = <TableRow>[
+      TableRow(children: [
+        TableCell(child: Label("Label: ")),
+        TextFormField(
+          controller: labelEditController,
+          readOnly: !isEditing,
+        ),
+      ]),
+    ];
+
+    if (template.firstRevisionID != null && template.firstRevisionID > 0) {
+      tableRows.add(
+        TableRow(children: [
+          TableCell(child: Label("Initial Revision: ")),
+          TableCell(
+            child: FutureBuilder(
+              future: templateClient.getTemplateByID(template.firstRevisionID),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  WorkflowTemplate revTemplate = snapshot.data;
+                  return Label(revTemplate.label);
+                }
+                return Label("");
+              },
+            ),
+          )
+        ]),
+      );
+    }
+
     var children = <Widget>[
+      AttributeTable(
+        children: tableRows,
+      ),
       WorkflowStepsList(
         steps: template.steps,
         roomClient: roomClient,
@@ -139,7 +177,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
   Future<void> refreshTemplate() async {
     setState(() {
       futureTemplate = templateClient.getTemplateByID(templateID, refresh: true);
-      //futureWorkflow.then((template) => labelEditController.text = template.label);
+      futureTemplate.then((template) => labelEditController.text = template.label);
     });
   }
 
@@ -211,15 +249,37 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
 
   List<Widget> buildBottomButtons(WorkflowTemplate template) {
     return [
-      IconButton(
-        icon: Icon(Icons.delete_forever, color: Colors.white),
-        onPressed: () => delete(template),
+      ConditionalBuilder(
+        conditional: isEditing,
+        truthy: IconButton(
+          icon: Icon(Icons.save, color: Colors.white),
+          onPressed: () => setEditing(template, false),
+        ),
+        falsy: IconButton(
+          icon: Icon(Icons.edit, color: Colors.white),
+          onPressed: () => setEditing(template, true),
+        ),
       ),
       IconButton(
         icon: Icon(Icons.content_copy, color: Colors.white),
         onPressed: () => newRevision(template),
-      )
+      ),
+      IconButton(
+        icon: Icon(Icons.delete_forever, color: Colors.white),
+        onPressed: () => delete(template),
+      ),
     ];
+  }
+
+  void setEditing(WorkflowTemplate template, bool edit) async {
+    if (edit == false && template != null) {
+      template.label = labelEditController.text;
+      await templateClient.updateTemplate(template);
+    }
+    setState(() {
+      isEditing = edit;
+    });
+    refreshTemplate();
   }
 
   void delete(WorkflowTemplate template) async {
