@@ -241,6 +241,24 @@ func (mgr *WorkflowTemplateManager) getStepsFromStart(templateID models.Workflow
 	return
 }
 
+func (mgr *WorkflowTemplateManager) UpdateTemplateLabel(templateID models.WorkflowTemplateID, label string) (template *models.WorkflowTemplate, err error) {
+	updateLog := log.WithFields(log.Fields{"templateID": templateID, "newLabel": label})
+
+	template, err = mgr.GetTemplate(templateID)
+	if err != nil {
+		updateLog.WithError(err).Error("Failed to get template to update")
+		return
+	}
+
+	template.Label = label
+	err = mgr.workflowRep.UpdateTemplate(template)
+	if err != nil {
+		updateLog.WithError(err).Error("Failed to update template label")
+		return
+	}
+	return
+}
+
 func (mgr *WorkflowTemplateManager) GetStepByID(templateID models.WorkflowTemplateID, stepID models.StepID) (step *models.Step, err error) {
 	getStepLog := log.WithField("stepID", stepID)
 
