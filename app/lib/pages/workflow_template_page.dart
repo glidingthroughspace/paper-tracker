@@ -80,15 +80,19 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
         TableRow(children: [
           TableCell(child: Label("Initial Revision: ")),
           TableCell(
-            child: FutureBuilder(
-              future: templateClient.getTemplateByID(template.firstRevisionID),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  WorkflowTemplate revTemplate = snapshot.data;
-                  return Label(revTemplate.label);
-                }
-                return Label("");
-              },
+            child: FlatButton(
+              child: FutureBuilder(
+                future: templateClient.getTemplateByID(template.firstRevisionID),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text((snapshot.data as WorkflowTemplate).label);
+                  }
+                  return Text("");
+                },
+              ),
+              color: Theme.of(context).cardColor,
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(WorkflowTemplatePage.Route, arguments: template.firstRevisionID),
             ),
           )
         ]),
