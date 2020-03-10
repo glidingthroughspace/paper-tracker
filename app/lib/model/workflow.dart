@@ -14,15 +14,24 @@ class WorkflowTemplate extends DropdownCapable {
   int id;
   @JsonKey(name: "label")
   String label;
-  @JsonKey(name: "steps")
+  @JsonKey(name: "first_revision_id")
+  int firstRevisionID;
+  @JsonKey(name: "steps", toJson: _stepsToJson)
   List<WFStep> steps;
   @JsonKey(name: "step_editing_locked")
   bool stepEditingLocked;
 
-  WorkflowTemplate({this.id, this.label, this.steps, this.stepEditingLocked});
+  WorkflowTemplate({this.id, this.label, this.firstRevisionID, this.steps, this.stepEditingLocked});
 
   factory WorkflowTemplate.fromJson(Map<String, dynamic> json) => _$WorkflowTemplateFromJson(json);
   Map<String, dynamic> toJson() => _$WorkflowTemplateToJson(this);
+}
+
+dynamic _stepsToJson(List<WFStep> steps) {
+  if (steps != null)
+    return steps.map((step) => step.toJSON()).toList();
+  else
+    return null;
 }
 
 @JsonSerializable()
@@ -46,7 +55,7 @@ class WFStep {
 
 dynamic _optionsToJson(Map<String, List<WFStep>> options) {
   if (options != null)
-    return options.map((decision, steps) => MapEntry(decision, steps.map((step) => step.toJSON()).toList()));
+    return options.map((decision, steps) => MapEntry(decision, _stepsToJson(steps)));
   else
     return null;
 }
