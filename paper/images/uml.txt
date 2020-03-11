@@ -8,19 +8,20 @@ package model {
     String Label
     Time LastPoll <no cbor>
     Time LastSleepTime <no cbor>
+    int BatteryPercentage <no cbor>
+    bool IsCharging <no cbor>
   }
 
   enum TrackerStatus {
     Idle = 1
     Learning = 2
-    Tracking = 3
+    LearningFinished = 3
+    Tracking = 4
   }
   hide TrackerStatus methods
 
   class Command {
-    UInt16 ID
     UInt16 SleepTimeSec
-    Time CreatedAt
   }
 
   enum CommandType {
@@ -37,23 +38,30 @@ package model {
   class Room {
     UInt16 ID
     String Label
+    Boolean IsLearned
+    Boolean DeleteLocked <transient>
   }
 
   class BSSIDTrackingData {
+  	UInt16 ID
     String BSSID
     Int Minimum
     Int Maximum
-    Int Median
+    Int Mean
     Float Average
+    Float FirstQuantile
+    Float ThirdQuantile
   }
   together {
     class Room
     class BSSIDTrackingData
   }
 
-  class Workflow {
+  class WorkflowTemplate {
+  	UInt16 ID
   	String Label
     Boolean IsTemplate
+    Boolean StepEditingLocked <transient>
   }
 
   class Step {
@@ -61,17 +69,39 @@ package model {
     Time StartedOn
     Time CompletedOn
   }
-  together {
-  	class Workflow
-    class Step
+  
+  class NextStep {
+    String DecisionLabel
+  }
+  
+  class WorkflowExec {
+    UInt16 ID
+    String Label
+    Time StartedOn
+    Time CompletedOn
+  }
+  
+  enum WorkflowExecStatus {
+    Running = 1
+    Completed = 2
+    Canceled = 3
+  }
+  
+  class ExecStepInfo {
+  	String Decision
+    Time StartedOn
+    Time CompletedOn
+    Boolean Skipped
   }
 
   package communication {
     class TrackerResponse {
       Float BatteryPercentage
+      Boolean IsCharging
     }
 
     class TrackingInformationResponse {
+      UInt16 ID
     }
 
     class ScanResult {
@@ -86,19 +116,25 @@ package model {
   }
 
   Tracker -up- TrackerStatus
-  Tracker "0..*" -- "0..*" Room : LastLocations
-  Tracker "0..*" -- "1" Room : LastLocation
-  Tracker "1" -- "0..*" Command : NextCommands
+  Tracker "0..*" -- "1" Room : LastRoom
   Tracker "1" -- "0..*" ScanResult
 
   Command -- CommandType
 
   Room "1" -- "0..*" BSSIDTrackingData
 
-  Workflow -- Step : StartStep
-  Workflow -- Step : CurrentStep
-  Step "1" -- "0..1" Room
-  Step "1" -- "0..2" Step
+  WorkflowTemplate -- Step : StartStep
+  WorkflowTemplate -- WorkflowTemplate : FirstRevision
+  Step "0..*" -- "1" Room
+  Step "1" -- "0..*" Step
+  (Step, Step) .. NextStep
+  
+  WorkflowExec -- WorkflowExecStatus
+  WorkflowExec "0..*" -- "1" WorkflowTemplate : TemplateID
+  WorkflowExec "0..1" -- "1" Tracker : TrackerID
+  WorkflowExec "0..*" -- "1" Step : CurrentStep
+  WorkflowExec "0..*" -- "0..*" ExecStepInfo
+  ExecStepInfo "0..*" -- "1" Step
 
   TrackerResponse <|-- TrackingInformationResponse
   TrackingInformationResponse "1" -- "0..*" ScanResult
