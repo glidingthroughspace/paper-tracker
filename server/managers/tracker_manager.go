@@ -10,29 +10,27 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var defaultSleepCmd *models.Command
 var trackerManager *TrackerManager
 
 type TrackerManager struct {
-	trackerRep repositories.TrackerRepository
-	cmdRep     repositories.CommandRepository
-	done       chan struct{}
+	trackerRep       repositories.TrackerRepository
+	idleSleepSec     int
+	trackingSleepSec int
+	learningSleepSec int
+	done             chan struct{}
 }
 
-func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repositories.CommandRepository, defaultSleepSec int) *TrackerManager {
+func CreateTrackerManager(trackerRep repositories.TrackerRepository, idleSleepSec, trackingSleepSec, learningSleepSec int) *TrackerManager {
 	if trackerManager != nil {
 		return trackerManager
 	}
 
 	trackerManager = &TrackerManager{
-		trackerRep: trackerRep,
-		cmdRep:     cmdRep,
-		done:       make(chan struct{}),
-	}
-
-	defaultSleepCmd = &models.Command{
-		Command:      models.CmdSleep,
-		SleepTimeSec: defaultSleepSec,
+		trackerRep:       trackerRep,
+		idleSleepSec:     idleSleepSec,
+		trackingSleepSec: trackingSleepSec,
+		learningSleepSec: learningSleepSec,
+		done:             make(chan struct{}),
 	}
 
 	return trackerManager
@@ -109,15 +107,6 @@ func (mgr *TrackerManager) DeleteTracker(trackerID models.TrackerID) (err error)
 	return
 }
 
-func (mgr *TrackerManager) AddTrackerCommand(command *models.Command) (err error) {
-	err = mgr.cmdRep.Create(command)
-	if err != nil {
-		log.WithFields(log.Fields{"command": command, "err": err}).Error("Failed to add tracker command")
-		return
-	}
-	return
-}
-
 func (mgr *TrackerManager) NotifyNewTracker() (tracker *models.Tracker, err error) {
 	tracker = &models.Tracker{Label: "New Tracker", Status: models.TrackerStatusIdle}
 	err = mgr.trackerRep.Create(tracker)
@@ -131,31 +120,28 @@ func (mgr *TrackerManager) NotifyNewTracker() (tracker *models.Tracker, err erro
 func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.Command, err error) {
 	pollLog := log.WithField("trackerID", trackerID)
 
-	_, err = mgr.trackerRep.GetByID(trackerID)
+	tracker, err := mgr.trackerRep.GetByID(trackerID)
 	if err != nil {
 		pollLog.WithError(err).Error("Failed to get tracker with tracker ID")
 		return
 	}
 
-	cmd, err = mgr.cmdRep.GetNextCommand(trackerID)
-	if err != nil && !mgr.cmdRep.IsRecordNotFoundError(err) {
-		pollLog.WithError(err).Error("Failed to get next command for tracker")
-		return
-	} else if mgr.cmdRep.IsRecordNotFoundError(err) {
-		pollLog.Info("No command for tracker, return default sleep")
-		err = nil
-		cmd = defaultSleepCmd
-		return
-	}
-
-	err = mgr.cmdRep.Delete(cmd.ID)
-	if err != nil {
-		pollLog.WithError(err).Error("Failed to delete command")
-		return
-	}
-
-	if _, nextErr := mgr.cmdRep.GetNextCommand(trackerID); !mgr.cmdRep.IsRecordNotFoundError(nextErr) {
-		cmd.SleepTimeSec = 0
+	switch tracker.Status {
+	case models.TrackerStatusIdle, models.TrackerStatusLearningFinished:
+		cmd = &models.Command{
+			Type:         models.CmdSleep,
+			SleepTimeSec: mgr.idleSleepSec,
+		}
+	case models.TrackerStatusTracking:
+		cmd = &models.Command{
+			Type:         models.CmdSendTrackingInformation,
+			SleepTimeSec: mgr.trackingSleepSec,
+		}
+	case models.TrackerStatusLearning:
+		cmd = &models.Command{
+			Type:         models.CmdSendTrackingInformation,
+			SleepTimeSec: mgr.learningSleepSec,
+		}
 	}
 
 	return
@@ -207,6 +193,14 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, scanRes [
 		return
 	}
 
+	if tracker.Status == models.TrackerStatusIdle || tracker.Status == models.TrackerStatusTracking {
+		err = setMatchingRoomForTracker(tracker, scanRes)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+	}
+
 	switch tracker.Status {
 	case models.TrackerStatusIdle, models.TrackerStatusLearningFinished:
 		err = errors.New("No tracking data expected")
@@ -214,10 +208,6 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, scanRes [
 	case models.TrackerStatusLearning:
 		err = GetLearningManager().newLearningTrackingData(trackerID, scanRes)
 	case models.TrackerStatusTracking:
-		err = setMatchingRoomForTracker(tracker, scanRes)
-		if err != nil {
-			break
-		}
 		err = GetWorkflowExecManager().ProgressToTrackerRoom(tracker.ID, tracker.LastRoom)
 	default:
 		err = errors.New("Unknown tracker status")
@@ -226,6 +216,7 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, scanRes [
 
 	if err != nil {
 		log.Error(err)
+		return
 	}
 
 	return
