@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/widgets/label.dart';
 
-class AddRoomDialog extends StatelessWidget {
+class SingleTextDialog extends StatelessWidget {
   final TextEditingController labelController;
-  final void Function() addRoom;
+  final void Function() onButton;
+  final String title;
+  final String textLabel;
+  final String buttonLabel;
 
-  const AddRoomDialog({Key key, @required this.labelController, @required this.addRoom}) : super(key: key);
+  const SingleTextDialog(
+      {Key key,
+      @required this.labelController,
+      @required this.onButton,
+      @required this.title,
+      @required this.textLabel,
+      @required this.buttonLabel})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -13,15 +23,15 @@ class AddRoomDialog extends StatelessWidget {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Label("Add Room"),
+          Label(title),
           Padding(
-            padding: EdgeInsets.only(top: 10.0),
+            padding: EdgeInsets.only(top: 20.0),
           ),
           TextFormField(
             controller: labelController,
             autofocus: true,
             decoration: InputDecoration(
-              labelText: "Room Label",
+              labelText: textLabel,
               enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
               focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Theme.of(context).accentColor)),
             ),
@@ -30,8 +40,8 @@ class AddRoomDialog extends StatelessWidget {
       ),
       actions: [
         FlatButton(
-          child: Text("Create"),
-          onPressed: addRoom,
+          child: Text(buttonLabel),
+          onPressed: onButton,
         ),
       ],
     );

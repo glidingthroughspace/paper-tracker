@@ -16,7 +16,6 @@ import (
 var _ = Describe("LearningManager", func() {
 	var (
 		mockTrackerRep    *mock.MockTrackerRepository
-		mockCommandRep    *mock.MockCommandRepository
 		mockScanResultRep *mock.MockScanResultRepository
 		mockRoomRep       *mock.MockRoomRepository
 		mockTemplateRep   *mock.MockWorkflowTemplateRepository
@@ -53,11 +52,10 @@ var _ = Describe("LearningManager", func() {
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockScanResultRep = mock.NewMockScanResultRepository(mockCtrl)
 		mockTrackerRep = mock.NewMockTrackerRepository(mockCtrl)
-		mockCommandRep = mock.NewMockCommandRepository(mockCtrl)
 		mockRoomRep = mock.NewMockRoomRepository(mockCtrl)
 		mockTemplateRep = mock.NewMockWorkflowTemplateRepository(mockCtrl)
 		manager = CreateLearningManager(mockScanResultRep, learnCount, sleepBetweenLearnSec)
-		CreateTrackerManager(mockTrackerRep, mockCommandRep, 5)
+		CreateTrackerManager(mockTrackerRep, 5, 5, 5)
 		CreateRoomManager(mockRoomRep)
 		CreateWorkflowTemplateManager(mockTemplateRep)
 
@@ -65,7 +63,6 @@ var _ = Describe("LearningManager", func() {
 			return gorm.IsRecordNotFoundError(err)
 		}
 		mockScanResultRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
-		mockCommandRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
 		mockTrackerRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
 		mockRoomRep.EXPECT().IsRecordNotFoundError(gomock.Any()).DoAndReturn(gormNotFound).AnyTimes()
 
@@ -88,13 +85,10 @@ var _ = Describe("LearningManager", func() {
 	})
 
 	Context("Test StartLearning", func() {
-		var cmdCreateCall *gomock.Call
 		var trackerSetStatusCall *gomock.Call
-		trackCmd := &models.Command{TrackerID: id, Command: models.CmdSendTrackingInformation, SleepTimeSec: sleepBetweenLearnSec}
 		testLogger := log.WithField("unit_test", true)
 
 		BeforeEach(func() {
-			cmdCreateCall = mockCommandRep.EXPECT().Create(trackCmd).Return(nil).AnyTimes()
 			trackerSetStatusCall = mockTrackerRep.EXPECT().SetStatusByID(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
 		})
 
@@ -120,7 +114,6 @@ var _ = Describe("LearningManager", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearning, nil).Times(2)
 			mockScanResultRep.EXPECT().DeleteForTracker(id).Return(nil).Times(1)
-			cmdCreateCall.MinTimes(1)
 			_, err := manager.StartLearning(id)
 			Expect(err).To(Succeed())
 			time.Sleep(10 * time.Millisecond)
@@ -131,20 +124,6 @@ var _ = Describe("LearningManager", func() {
 				trackerSetStatusCall.Times(2)
 				mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearning, nil).AnyTimes()
 				manager.learningRoutine(id, testLogger)
-			})
-		})
-
-		Context("Test learningSendTrackingCmds", func() {
-			It("learningSendTrackingCmds insert correct amounts of tracking commands", func() {
-				cmdCreateCall.Times(learnCount)
-				mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearning, nil).Times(learnCount)
-				Expect(manager.learningCreateTrackingCmds(id, testLogger)).To(BeFalse())
-			})
-
-			It("learningSendTrackingCmds aborts if the learning gets canceled", func() {
-				cmdCreateCall.Times(0)
-				mockTrackerRep.EXPECT().GetByID(id).Return(trackerIdle, nil).Times(1)
-				Expect(manager.learningCreateTrackingCmds(id, testLogger)).To(BeTrue())
 			})
 		})
 	})

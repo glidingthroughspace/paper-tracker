@@ -1,15 +1,8 @@
 package models
 
-import "time"
-
-type CommandID int
-
 type Command struct {
-	ID           CommandID   `codec:"-" gorm:"primary_key;auto_increment" json:"id"`
-	TrackerID    TrackerID   `codec:"-" json:"tracker_id"`
-	Command      CommandType `json:"command"`
+	Type         CommandType `json:"type"`
 	SleepTimeSec int         `json:"sleep_time_sec"`
-	CreatedAt    time.Time   `codec:"-" json:"created_at"`
 }
 
 type CommandType int8

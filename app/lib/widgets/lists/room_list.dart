@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/pages/room_page.dart';
-import 'package:paper_tracker/widgets/dialogs/add_room_dialog.dart';
+import 'package:paper_tracker/widgets/dialogs/single_text_dialog.dart';
 import 'package:paper_tracker/widgets/lists/card_list.dart';
 
 class RoomList extends StatefulWidget {
@@ -58,7 +58,13 @@ class _RoomListState extends State<RoomList> {
   void onAddRoomButton() async {
     return showDialog(
       context: context,
-      child: AddRoomDialog(labelController: roomLabelEditController, addRoom: addRoom),
+      child: SingleTextDialog(
+        title: "Add Room",
+        textLabel: "Room Label",
+        buttonLabel: "Create",
+        labelController: roomLabelEditController,
+        onButton: addRoom,
+      ),
     );
   }
 

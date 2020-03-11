@@ -15,7 +15,7 @@ enum class CommandType {
 class Command {
   private:
     CBORUint16 sleepTimeSec{"sleep_time_sec"};
-    CBORUint8 type{"command"};
+    CBORUint8 type{"type"};
     bool isValidType(uint8_t type) const { return (type <= 2); }
     bool parseType(CBORParser&);
   public:

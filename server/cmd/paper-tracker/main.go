@@ -23,9 +23,11 @@ func main() {
 	coapNetworkPtr := flag.String("coap-network", "udp", "Network which should be used for coap requests; 'udp' or 'tcp'")
 	coapPortPtr := flag.Int("coap-port", 5688, "Port on which the application will listen for coap requests")
 	httpPortPtr := flag.Int("http-port", 8080, "Port on which the application will listen for http requests")
-	defaultSleepSecPtr := flag.Int("default-sleep", 5, "Default sleep duration for the tracker before polling for new commands")
+
+	idleSleepSecPtr := flag.Int("idle-sleep", 5, "Sleep duration for the tracker before polling for new command in idle")
+	trackingSleepSecPtr := flag.Int("tracking-sleep", 5, "Sleep duration for the tracker before polling for new command in tracking")
+	learnSleepSecPtr := flag.Int("learn-sleep", 5, "Sleep duration for the tracker before polling for new command in learning")
 	learnCountPtr := flag.Int("learn-count", 5, "Total times the WiFi is scanned when learning a room")
-	sleepBetweenLearnSecPtr := flag.Int("sleep-between-learn", 5, "Sleep duration between two scans during learning")
 
 	err := gorm.InitDatabaseConnection(*dbNamePtr)
 	if err != nil {
@@ -35,10 +37,6 @@ func main() {
 	trackerRep, err := gorm.CreateGormTrackerRepository()
 	if err != nil {
 		log.Fatal("Abort: Failed to create tracker repository")
-	}
-	cmdRep, err := gorm.CreateGormCommandRepository()
-	if err != nil {
-		log.Fatal("Abort: Failed to create command repository")
 	}
 	scanResultRep, err := gorm.CreateGormScanResultRepository()
 	if err != nil {
@@ -57,9 +55,9 @@ func main() {
 		log.Fatal("Abort: Failed to create workflow repository")
 	}
 
-	managers.CreateTrackerManager(trackerRep, cmdRep, *defaultSleepSecPtr)
+	managers.CreateTrackerManager(trackerRep, *idleSleepSecPtr, *trackingSleepSecPtr, *learnSleepSecPtr)
 	managers.CreateRoomManager(roomRep)
-	managers.CreateLearningManager(scanResultRep, *learnCountPtr, *sleepBetweenLearnSecPtr)
+	managers.CreateLearningManager(scanResultRep, *learnCountPtr, *learnSleepSecPtr)
 	managers.CreateWorkflowTemplateManager(workflowTemplateRep)
 	managers.CreateWorkflowExecManager(workflowExecRep)
 

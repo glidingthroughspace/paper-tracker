@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:paper_tracker/model/communication/createRevisionRequest.dart';
 import 'package:paper_tracker/model/communication/createStepRequest.dart';
 import 'package:paper_tracker/model/communication/moveDirection.dart';
 import 'package:paper_tracker/model/workflow.dart';
@@ -89,11 +90,27 @@ class WorkflowTemplateClient {
     }
   }
 
+  Future<int> createRevision(int templateID, CreateRevisionRequest request) async {
+    var response = await apiClient.post("/workflow/template/$templateID/revision", json.encode(request.toJson()));
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return WorkflowTemplate.fromJson(json.decode(response.body)).id;
+    } else {
+      throw Exception("Failed to load workflows templates");
+    }
+  }
+
   Future<void> moveStep(int templateID, int stepID, StepMoveDirection direction) async {
     var response = await apiClient
         .post("/workflow/template/$templateID/step/$stepID/move", null, {"direction": direction.queryString});
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Failed to move step");
+    }
+  }
+
+  Future<void> updateTemplate(WorkflowTemplate template) async {
+    var response = await apiClient.put("/workflow/template/${template.id}", json.encode(template.toJson()));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception("Failed to update template");
     }
   }
 }

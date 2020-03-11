@@ -16,6 +16,7 @@ func (r *HttpRouter) buildAppTemplateAPIRoutes() {
 	template := workflow.Group("/template")
 	template.GET("", r.workflowTemplateListHandler())
 	template.POST("", r.workflowTemplateCreateHandler())
+	template.PUT("/:templID", extractTemplID(), r.workflowTemplateUpdateHandler())
 	template.DELETE("/:templID", extractTemplID(), r.workflowTemplateDeleteHandler())
 	template.POST("/:templID/start", extractTemplID(), r.workflowTemplateCreateStartHandler())
 	template.POST("/:templID/step", extractTemplID(), r.workflowTemplateCreateStepHandler())
@@ -52,6 +53,28 @@ func (r *HttpRouter) workflowTemplateCreateHandler() gin.HandlerFunc {
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
 			log.WithError(err).Warn("WorkflowTemplateCreate request failed")
+			return
+		}
+		ctx.JSON(http.StatusOK, template)
+	}
+}
+
+func (r *HttpRouter) workflowTemplateUpdateHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		templateID := models.WorkflowTemplateID(ctx.GetInt(httpParamTemplIDName))
+
+		templateReq := &models.WorkflowTemplate{}
+		err := ctx.BindJSON(templateReq)
+		if err != nil {
+			log.WithError(err).Error("Failed to unmarshal json to workflow template")
+			ctx.JSON(http.StatusBadRequest, &communication.ErrorResponse{Error: err.Error()})
+			return
+		}
+
+		template, err := managers.GetWorkflowTemplateManager().UpdateTemplateLabel(templateID, templateReq.Label)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithError(err).Warn("WorkflowTemplateUpdate request failed")
 			return
 		}
 		ctx.JSON(http.StatusOK, template)

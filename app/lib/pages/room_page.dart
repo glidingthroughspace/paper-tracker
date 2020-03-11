@@ -4,6 +4,7 @@ import 'package:paper_tracker/client/room_client.dart';
 import 'package:paper_tracker/model/room.dart';
 import 'package:paper_tracker/pages/learning_page.dart';
 import 'package:paper_tracker/utils.dart';
+import 'package:paper_tracker/widgets/attribute_table.dart';
 import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/label.dart';
@@ -75,40 +76,43 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget buildContent(Room room) {
-    return Container(
-      padding: EdgeInsets.all(15.0),
-      child: Table(
-        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-        columnWidths: {0: FractionColumnWidth(0.3)},
-        children: [
-          TableRow(children: [
-            TableCell(child: Label("Label: ")),
-            TextFormField(
-              controller: labelEditController,
-              readOnly: !isEditing,
-            ),
-          ]),
-          getTableSpacing(10.0),
-          TableRow(children: [
-            TableCell(child: Label("Is Learned: ")),
-            TableCell(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Icon(room.isLearned ? Icons.check : Icons.close, color: Colors.white),
-                  MaterialButton(
-                    child: Text(room.isLearned ? "Relearn" : "Learn now"),
-                    onPressed: () => Navigator.of(context)
-                        .pushNamed(LearningPage.Route, arguments: LearningPageParams(roomID: room.id)),
-                    color: Theme.of(context).accentColor,
-                  ),
-                ],
-              ),
-            ),
-          ]),
-        ],
-      ),
+    return AttributeTable(
+      children: [
+        buildLabelRow(),
+        getTableSpacing(10.0),
+        buildLearnedRow(room),
+      ],
     );
+  }
+
+  TableRow buildLearnedRow(Room room) {
+    return TableRow(children: [
+      TableCell(child: Label("Is Learned: ")),
+      TableCell(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Icon(room.isLearned ? Icons.check : Icons.close, color: Colors.white),
+            MaterialButton(
+              child: Text(room.isLearned ? "Relearn" : "Learn now"),
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(LearningPage.Route, arguments: LearningPageParams(roomID: room.id)),
+              color: Theme.of(context).accentColor,
+            ),
+          ],
+        ),
+      ),
+    ]);
+  }
+
+  TableRow buildLabelRow() {
+    return TableRow(children: [
+      TableCell(child: Label("Label: ")),
+      TextFormField(
+        controller: labelEditController,
+        readOnly: !isEditing,
+      ),
+    ]);
   }
 
   void setEditing(Room room, bool edit) async {
