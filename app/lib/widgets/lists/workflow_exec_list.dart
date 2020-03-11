@@ -70,7 +70,7 @@ class _WorkflowExecListState extends State<WorkflowExecList> {
 
   List<Widget> buildSubtitle(WorkflowExec exec) {
     var dateFormatter = DateFormat("dd.MM.yyyy HH:mm");
-    var currentStepFuture = templateClient.getStepByID(exec.id, exec.currentStepID);
+    var currentStepFuture = templateClient.getStepByID(exec.templateID, exec.currentStepID);
 
     return [
       Text("Started on: ${dateFormatter.format(exec.startedOn.toLocal())}"),
