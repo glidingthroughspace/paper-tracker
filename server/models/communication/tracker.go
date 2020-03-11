@@ -9,5 +9,6 @@ type TrackerCmdResponse struct {
 
 type TrackingCmdResponse struct {
 	TrackerCmdResponse `json:"tracker_cmd_response"`
+	IsLastBatch        bool                 `json:"is_last_batch"`
 	ScanResults        []*models.ScanResult `json:"scan_results"`
 }

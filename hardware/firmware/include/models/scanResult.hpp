@@ -15,7 +15,7 @@ class ScanResult {
       log(", BSSID: ");
       log(BSSID.get());
       log(", RSSI: ");
-      logln(static_cast<uint32_t>(RSSI.value));
+      logln(static_cast<int32_t>(RSSI.value));
     }
 
     void toCBOR(CBORDocument& cbor) {

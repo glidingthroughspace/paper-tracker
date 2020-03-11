@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"os"
 	"paper-tracker/managers"
 	"paper-tracker/repositories/gorm"
 	"paper-tracker/router"
@@ -10,6 +11,12 @@ import (
 
 	log "github.com/sirupsen/logrus"
 )
+
+func init() {
+	if debug := os.Getenv("DEBUG"); debug != "" {
+		log.SetLevel(log.DebugLevel)
+	}
+}
 
 func main() {
 	dbNamePtr := flag.String("db-name", "paper-tracker.db", "Path of the database file")

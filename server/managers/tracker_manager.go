@@ -6,6 +6,7 @@ import (
 	"paper-tracker/models"
 	"paper-tracker/models/communication"
 	"paper-tracker/repositories"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -14,9 +15,11 @@ var defaultSleepCmd *models.Command
 var trackerManager *TrackerManager
 
 type TrackerManager struct {
-	trackerRep repositories.TrackerRepository
-	cmdRep     repositories.CommandRepository
-	done       chan struct{}
+	trackerRep       repositories.TrackerRepository
+	cmdRep           repositories.CommandRepository
+	done             chan struct{}
+	mtx              sync.Mutex
+	scanResultsCache map[models.TrackerID][]*models.ScanResult
 }
 
 func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repositories.CommandRepository, defaultSleepSec int) *TrackerManager {
@@ -25,9 +28,10 @@ func CreateTrackerManager(trackerRep repositories.TrackerRepository, cmdRep repo
 	}
 
 	trackerManager = &TrackerManager{
-		trackerRep: trackerRep,
-		cmdRep:     cmdRep,
-		done:       make(chan struct{}),
+		trackerRep:       trackerRep,
+		cmdRep:           cmdRep,
+		done:             make(chan struct{}),
+		scanResultsCache: make(map[models.TrackerID][]*models.ScanResult),
 	}
 
 	defaultSleepCmd = &models.Command{
@@ -198,7 +202,7 @@ func (mgr *TrackerManager) UpdateRoom(trackerID models.TrackerID, roomID models.
 	return
 }
 
-func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, scanRes []*models.ScanResult) (err error) {
+func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, isLastBatch bool, scanRes []*models.ScanResult) (err error) {
 	trackingDataLog := log.WithField("trackerID", trackerID)
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
@@ -214,11 +218,18 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, scanRes [
 	case models.TrackerStatusLearning:
 		err = GetLearningManager().newLearningTrackingData(trackerID, scanRes)
 	case models.TrackerStatusTracking:
-		err = setMatchingRoomForTracker(tracker, scanRes)
-		if err != nil {
-			break
+		mgr.mtx.Lock()
+		defer mgr.mtx.Unlock()
+		mgr.scanResultsCache[tracker.ID] = append(mgr.scanResultsCache[tracker.ID], scanRes...)
+		if isLastBatch {
+			scanResults := mgr.scanResultsCache[tracker.ID]
+			mgr.scanResultsCache[tracker.ID] = nil
+			err = setMatchingRoomForTracker(tracker, scanResults)
+			if err != nil {
+				break
+			}
+			err = GetWorkflowExecManager().ProgressToTrackerRoom(tracker.ID, tracker.LastRoom)
 		}
-		err = GetWorkflowExecManager().ProgressToTrackerRoom(tracker.ID, tracker.LastRoom)
 	default:
 		err = errors.New("Unknown tracker status")
 		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unknown tracker status")

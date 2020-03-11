@@ -53,6 +53,16 @@ void setup() {
 
   Power::print_wakeup_reason();
 
+  #ifndef NDEBUG
+  pinMode(4, INPUT_PULLDOWN);
+  auto should_clear_storage = digitalRead(4);
+  logln(should_clear_storage);
+  if (should_clear_storage) {
+    logln("Clearing storage since pin 33 (GPIO 13) is pulled low");
+    Storage::clear();
+  }
+  #endif
+
   #ifdef WIFI_USERNAME
   haltIf(!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD), "Failed to connect to WiFi");
   #else
@@ -100,7 +110,8 @@ void sendScanResultsInChunks(std::vector<ScanResult>& scanResults) {
     log(percent);
     log(" and charging state is ");
     logln(charging);
-    TrackerResponse trackerResponse{percent, charging, batch};
+    bool is_last_batch = (i + batchSize) >= scanResults.size();
+    TrackerResponse trackerResponse{percent, charging, is_last_batch, batch};
     CBORDocument cborDocument;
     trackerResponse.toCBOR(cborDocument);
     apiClient.writeTrackingData(Storage::get(Storage::TRACKER_ID), cborDocument.serialize(), [] () {
