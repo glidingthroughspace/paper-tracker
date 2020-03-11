@@ -14,20 +14,20 @@ import (
 var learningManager *LearningManager
 
 type LearningManager struct {
-	scanResultRep        repositories.ScanResultRepository
-	learnCount           int
-	sleepBetweenLearnSec int
+	scanResultRep repositories.ScanResultRepository
+	learnCount    int
+	learnSleepSec int
 }
 
-func CreateLearningManager(scanResultRep repositories.ScanResultRepository, learnCount, sleepBetweenLearnSec int) *LearningManager {
+func CreateLearningManager(scanResultRep repositories.ScanResultRepository, learnCount, learnSleepSec int) *LearningManager {
 	if learningManager != nil {
 		return learningManager
 	}
 
 	learningManager = &LearningManager{
-		scanResultRep:        scanResultRep,
-		learnCount:           learnCount,
-		sleepBetweenLearnSec: sleepBetweenLearnSec,
+		scanResultRep: scanResultRep,
+		learnCount:    learnCount,
+		learnSleepSec: learnSleepSec,
 	}
 
 	return learningManager
@@ -56,7 +56,7 @@ func (mgr *LearningManager) StartLearning(trackerID models.TrackerID) (learnTime
 
 	go mgr.learningRoutine(trackerID, learnLog)
 
-	learnTimeSec = mgr.learnCount * mgr.sleepBetweenLearnSec
+	learnTimeSec = mgr.learnCount * mgr.learnSleepSec
 	return
 }
 
@@ -71,7 +71,7 @@ func (mgr *LearningManager) learningRoutine(trackerID models.TrackerID, logger *
 		return
 	}
 
-	canceled := mgr.learningCreateTrackingCmds(trackerID, logger)
+	canceled := mgr.checkLearningCanceled(trackerID, logger)
 
 	if !canceled {
 		logger.Info("Set tracker status to learning finished")
@@ -84,15 +84,9 @@ func (mgr *LearningManager) learningRoutine(trackerID models.TrackerID, logger *
 	}
 }
 
-// Returns whether the learning was canceled
-func (mgr *LearningManager) learningCreateTrackingCmds(trackerID models.TrackerID, logger *log.Entry) bool {
-	logger.Info("Start creating tracking commands")
-
-	trackCmd := &models.Command{
-		TrackerID:    trackerID,
-		Command:      models.CmdSendTrackingInformation,
-		SleepTimeSec: mgr.sleepBetweenLearnSec,
-	}
+// Returns whether the learning was canceled and also "waits" the learning time
+func (mgr *LearningManager) checkLearningCanceled(trackerID models.TrackerID, logger *log.Entry) bool {
+	logger.Info("Start checking for canceled learning")
 
 	for it := 0; it < mgr.learnCount; it++ {
 		tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
@@ -100,12 +94,9 @@ func (mgr *LearningManager) learningCreateTrackingCmds(trackerID models.TrackerI
 			return true
 		}
 
-		trackCmd.ID = 0
-		GetTrackerManager().AddTrackerCommand(trackCmd)
-
-		time.Sleep(time.Duration(mgr.sleepBetweenLearnSec-1) * time.Second)
+		time.Sleep(time.Duration(mgr.learnSleepSec-1) * time.Second)
 	}
-	logger.Info("Finished creating tracking commands")
+	logger.Info("Finished checking for canceled learning")
 
 	return false
 }
