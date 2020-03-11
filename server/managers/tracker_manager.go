@@ -170,14 +170,8 @@ func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp c
 	return
 }
 
-func (mgr *TrackerManager) UpdateRoom(trackerID models.TrackerID, roomID models.RoomID) (err error) {
-	updateLog := log.WithFields(log.Fields{"trackerID": trackerID, "roomID": roomID})
-
-	tracker, err := mgr.trackerRep.GetByID(trackerID)
-	if err != nil {
-		updateLog.WithField("err", err).Error("Failed to get tracker with id")
-		return
-	}
+func (mgr *TrackerManager) UpdateRoom(tracker *models.Tracker, roomID models.RoomID) (err error) {
+	updateLog := log.WithFields(log.Fields{"trackerID": tracker.ID, "roomID": roomID})
 
 	tracker.LastRoom = roomID
 	err = mgr.trackerRep.Update(tracker)
@@ -208,12 +202,7 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, isLastBat
 			if err != nil {
 				return
 			}
-		}
-
-		err = setMatchingRoomForTracker(tracker, scanRes)
-		if err != nil {
-			log.Error(err)
-			return
+			log.Debugf("Last known room ID for tracker is: %v", tracker.LastRoom)
 		}
 	}
 
@@ -251,5 +240,5 @@ func setMatchingRoomForTracker(tracker *models.Tracker, scanResults []*models.Sc
 		err = fmt.Errorf("no matching room found")
 		return err
 	}
-	return GetTrackerManager().UpdateRoom(tracker.ID, bestMatch.ID)
+	return GetTrackerManager().UpdateRoom(tracker, bestMatch.ID)
 }
