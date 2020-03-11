@@ -1,30 +1,40 @@
+@startuml
 title ESP-Server communication
 
-participantspacing equal
 participant ESP
 participant Server
 
-group Every 30 seconds
+loop
   ESP->ESP: Wakeup
+  ESP->ESP: Connect to WiFi
+  alt No tracker ID saved
+  ESP->Server: Request tracker ID
+  Server-->ESP: New tracker ID
+  ESP->ESP: Save tracker ID
+  end
   ESP->Server: Ask for new commands
   ESP<--Server: Command
   ESP->ESP: Execute command
   ESP->Server: Result
   ESP<--Server: Acknowledge + sleep time
+  alt Sleep Time is greater than X seconds
   ESP->ESP: Deep sleep with given sleep time
+  else
+  ESP->ESP: Wait for given sleep time
+  end
 end
+
+|||
+|||
+...Commands...
 
 group Tracking command
   ESP->ESP: Collect number of available APs
 
-  loop available APs
   ESP->ESP: Gather information about AP into List
-  alt Information about 5 APs gathered
-  ESP->Server: Send information about gathered APS
-  ESP->ESP: Clear AP List
+  loop For every AP batch of size X
+  ESP->Server: Send batch information about APs
   end
-  end
-  ESP->Server: Send "Completed"
   ESP<--Server: Acknowledge
 end
 
@@ -36,3 +46,4 @@ group Signal location
   ESP->ESP: Wait X milliseconds
   end
 end
+@enduml
