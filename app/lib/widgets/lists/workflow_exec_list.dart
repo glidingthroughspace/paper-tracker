@@ -5,7 +5,6 @@ import 'package:paper_tracker/client/workflow_template_client.dart';
 import 'package:paper_tracker/model/workflow.dart';
 import 'package:paper_tracker/pages/start_exec_page.dart';
 import 'package:paper_tracker/pages/workflow_exec_page.dart';
-import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/lists/card_list.dart';
 
 class WorkflowExecList extends StatefulWidget {
@@ -70,17 +69,17 @@ class _WorkflowExecListState extends State<WorkflowExecList> {
 
   List<Widget> buildSubtitle(WorkflowExec exec) {
     var dateFormatter = DateFormat("dd.MM.yyyy HH:mm");
-    var currentStepFuture = templateClient.getStepByID(exec.templateID, exec.currentStepID);
 
-    return [
+    var subtitle = <Widget>[
       Text("Started on: ${dateFormatter.format(exec.startedOn.toLocal())}"),
-      ConditionalBuilder(
-        conditional: exec.status == WorkflowExecStatus.Finished,
-        truthy: exec.completedOn != null
-            ? Text("Completed on: ${dateFormatter.format(exec.completedOn.toLocal())}")
-            : Text(""),
-        falsy: FutureBuilder(
-          future: currentStepFuture,
+    ];
+
+    if (exec.status == WorkflowExecStatus.Finished) {
+      subtitle.add(Text("Completed on: ${dateFormatter.format(exec.completedOn.toLocal())}"));
+    } else {
+      subtitle.add(
+        FutureBuilder(
+          future: templateClient.getStepByID(exec.templateID, exec.currentStepID),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               WFStep step = snapshot.data;
@@ -89,7 +88,9 @@ class _WorkflowExecListState extends State<WorkflowExecList> {
             return Text("Current Step: ");
           },
         ),
-      ),
-    ];
+      );
+    }
+
+    return subtitle;
   }
 }
