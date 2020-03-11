@@ -92,7 +92,7 @@ var _ = Describe("TrackerManager", func() {
 	Context("Test NewTrackingData", func() {
 		It("NewTrackingData throws error for tracker with status LearningFinished", func() {
 			mockTrackerRep.EXPECT().GetByID(id).Return(trackerLearningFinished, nil).Times(1)
-			Expect(manager.NewTrackingData(id, nil)).To(HaveOccurred())
+			Expect(manager.NewTrackingData(id, false, nil)).To(HaveOccurred())
 		})
 
 		/*It("NewTrackingData throws error for tracker with status Idle", func() {

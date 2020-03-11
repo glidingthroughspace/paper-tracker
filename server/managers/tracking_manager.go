@@ -4,6 +4,8 @@ import (
 	"math"
 	"paper-tracker/models"
 	"paper-tracker/utils/collections"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var trackingManager *TrackingManager
@@ -51,10 +53,16 @@ func (tm *TrackingManager) GetRoomMatchingBest(rooms []*models.Room, scanResults
 	var bestScore float64 = -1.0
 	scoredRooms := tm.ScoreRoomsForScanResults(rooms, scanResults)
 	for room, score := range scoredRooms {
+		log.Debugf("Scored room for matching: %s (%d): %f", room.Label, room.ID, score)
 		if (bestMatch == nil && score > 0.1e-7) || (bestMatch != nil && score > bestScore) {
 			bestScore = score
 			bestMatch = room
 		}
+	}
+	if bestMatch != nil {
+		log.Debugf("Selected the best match to be: %s", bestMatch.Label)
+	} else {
+		log.Debug("Did not find a matching room")
 	}
 	return bestMatch
 }
@@ -86,7 +94,7 @@ func getScoreForScanResultAndTrackingData(td models.BSSIDTrackingData, sr *model
 	// TODO: Evaluate how good this scoring works
 	//       We might also use distances (e.g. d(Mean, RSSI)) to get more fine-grained scores
 	score := 0.0
-	if sr.RSSI < td.Maximum && sr.RSSI > td.Minimum {
+	if sr.RSSI <= td.Maximum && sr.RSSI >= td.Minimum {
 		score += 1
 	}
 	if float64(sr.RSSI) < td.Quantiles.ThirdQuartile && float64(sr.RSSI) > td.Quantiles.FirstQuartile {
@@ -94,10 +102,10 @@ func getScoreForScanResultAndTrackingData(td models.BSSIDTrackingData, sr *model
 	}
 	// The +0.5e-7 additions below are to prevent division by zero
 	if isInRange(float64(sr.RSSI), td.Mean, 10) {
-		score += (1.0 / (math.Abs(td.Mean-float64(sr.RSSI)) + 0.5e-7)) * 5
+		score += (1.0 / (math.Abs(td.Mean-float64(sr.RSSI)) + 0.1)) * 5
 	}
 	if isInRange(float64(sr.RSSI), td.Median, 10) {
-		score += (1.0 / (math.Abs(td.Median-float64(sr.RSSI)) + 0.5e-7)) * 5
+		score += (1.0 / (math.Abs(td.Median-float64(sr.RSSI)) + 0.1)) * 5
 	}
 	return score
 }
