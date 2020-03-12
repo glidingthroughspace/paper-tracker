@@ -102,7 +102,7 @@ bool hasTrackerID() {
 void sendScanResultsInChunks(std::vector<ScanResult>& scanResults) {
   constexpr size_t batchSize = 10;
   uint8_t batchCount = floor(scanResults.size() / batchSize) + 1;
-  uint64_t resultID = random(100000);
+  uint64_t resultID = random(10, 100000);
   log("Current resultID is ");
   logln(static_cast<uint32_t>(resultID)); // rand() only returns an int anyway, so this is safe
   for (auto i = 0; i < scanResults.size(); i+=batchSize) {
