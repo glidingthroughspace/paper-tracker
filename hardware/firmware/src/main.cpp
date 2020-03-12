@@ -10,6 +10,7 @@
 #include <apiClient.hpp>
 #include <power.hpp>
 #include <storage.hpp>
+#include <cmath>
 
 #include <credentials.hpp>
 
@@ -47,6 +48,7 @@ static void onCommandReceived(Command& command) {
 }
 
 void setup() {
+  randomSeed(analogRead(0));
   Power::enable_powersavings();
   initSerial(115400);
   logln("Starting");
@@ -99,6 +101,10 @@ bool hasTrackerID() {
 
 void sendScanResultsInChunks(std::vector<ScanResult>& scanResults) {
   constexpr size_t batchSize = 10;
+  uint8_t batchCount = floor(scanResults.size() / batchSize) + 1;
+  uint64_t resultID = random(100000);
+  log("Current resultID is ");
+  logln(static_cast<uint32_t>(resultID)); // rand() only returns an int anyway, so this is safe
   for (auto i = 0; i < scanResults.size(); i+=batchSize) {
     auto begin = scanResults.begin() + i;
     auto end = (i + batchSize > scanResults.size()) ? scanResults.end() : scanResults.begin() + i + batchSize;
@@ -110,8 +116,7 @@ void sendScanResultsInChunks(std::vector<ScanResult>& scanResults) {
     log(percent);
     log(" and charging state is ");
     logln(charging);
-    bool is_last_batch = (i + batchSize) >= scanResults.size();
-    TrackerResponse trackerResponse{percent, charging, is_last_batch, batch};
+    TrackerResponse trackerResponse{percent, charging, resultID, batchCount, batch};
     CBORDocument cborDocument;
     trackerResponse.toCBOR(cborDocument);
     apiClient.writeTrackingData(Storage::get(Storage::TRACKER_ID), cborDocument.serialize(), [] () {

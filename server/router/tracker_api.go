@@ -82,7 +82,7 @@ func (r *CoapRouter) trackerTrackingData() coap.HandlerFunc {
 			err = nil
 		}
 
-		err = managers.GetTrackerManager().NewTrackingData(trackerID, resp.IsLastBatch, resp.ScanResults)
+		err = managers.GetTrackerManager().NewTrackingData(trackerID, resp.ResultID, resp.BatchCount, resp.ScanResults)
 		if err != nil {
 			r.writeError(w, coap.InternalServerError, err)
 			reqLogger.WithError(err).Warning("Coap router: Failed to save tracking data")
