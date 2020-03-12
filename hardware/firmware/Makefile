@@ -26,4 +26,7 @@ run:
 	$(MAKE) upload
 	$(MAKE) monitor
 
+gencompilecommands:
+	pio run -t compiledb
+
 .PHONY: test
