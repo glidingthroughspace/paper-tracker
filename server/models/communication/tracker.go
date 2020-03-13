@@ -9,6 +9,9 @@ type TrackerCmdResponse struct {
 
 type TrackingCmdResponse struct {
 	TrackerCmdResponse `json:"tracker_cmd_response"`
-	IsLastBatch        bool                 `json:"is_last_batch"`
-	ScanResults        []*models.ScanResult `json:"scan_results"`
+	// ResultID is an ID for identifying batches comprising a single result
+	ResultID uint64 `json:"result_id"`
+	// BatchCount batches are in the given result
+	BatchCount  uint8                `json:"result_batch_count"`
+	ScanResults []*models.ScanResult `json:"scan_results"`
 }

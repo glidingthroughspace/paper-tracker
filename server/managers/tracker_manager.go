@@ -13,10 +13,17 @@ import (
 
 var trackerManager *TrackerManager
 
+type CachedScanResults struct {
+	ResultID        uint64
+	BatchesExpected uint8
+	BatchesReceived uint8
+	ScanResults     []*models.ScanResult
+}
+
 type TrackerManager struct {
 	trackerRep            repositories.TrackerRepository
 	scanResultsCacheMutex sync.Mutex
-	scanResultsCache      map[models.TrackerID][]*models.ScanResult
+	scanResultsCache      map[models.TrackerID]CachedScanResults
 	idleSleepSec          int
 	trackingSleepSec      int
 	learningSleepSec      int
@@ -34,7 +41,7 @@ func CreateTrackerManager(trackerRep repositories.TrackerRepository, idleSleepSe
 		trackingSleepSec: trackingSleepSec,
 		learningSleepSec: learningSleepSec,
 		done:             make(chan struct{}),
-		scanResultsCache: make(map[models.TrackerID][]*models.ScanResult),
+		scanResultsCache: make(map[models.TrackerID]CachedScanResults),
 	}
 
 	return trackerManager
@@ -162,6 +169,8 @@ func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp c
 
 	tracker.BatteryPercentage = resp.BatteryPercentage
 	tracker.IsCharging = resp.IsCharging
+
+	updateLog.Debugf("Tracker %ds battery is at %d%% capacity", tracker.ID, resp.BatteryPercentage)
 	err = mgr.trackerRep.Update(tracker)
 	if err != nil {
 		updateLog.WithError(err).Error("Failed to update tracker")
@@ -182,7 +191,7 @@ func (mgr *TrackerManager) UpdateRoom(tracker *models.Tracker, roomID models.Roo
 	return
 }
 
-func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, isLastBatch bool, scanRes []*models.ScanResult) (err error) {
+func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, resultID uint64, batchCount uint8, scanRes []*models.ScanResult) (err error) {
 	trackingDataLog := log.WithField("trackerID", trackerID)
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
@@ -194,10 +203,27 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, isLastBat
 	if tracker.Status == models.TrackerStatusIdle || tracker.Status == models.TrackerStatusTracking {
 		mgr.scanResultsCacheMutex.Lock()
 		defer mgr.scanResultsCacheMutex.Unlock()
-		mgr.scanResultsCache[tracker.ID] = append(mgr.scanResultsCache[tracker.ID], scanRes...)
-		if isLastBatch {
-			scanResults := mgr.scanResultsCache[tracker.ID]
-			mgr.scanResultsCache[tracker.ID] = nil
+		if mgr.scanResultsCache[tracker.ID].ResultID != resultID {
+			trackingDataLog.Infof("Received scan results with result ID %v, replacing scan results for result ID %v", resultID, mgr.scanResultsCache[tracker.ID].ResultID)
+			trackingDataLog.Debugf("Expecting %d scan result batches", batchCount)
+			mgr.scanResultsCache[tracker.ID] = CachedScanResults{
+				ResultID:        resultID,
+				BatchesExpected: batchCount,
+				BatchesReceived: 1,
+				ScanResults:     scanRes,
+			}
+		} else {
+			trackingDataLog.WithFields(log.Fields{"expected": mgr.scanResultsCache[tracker.ID].BatchesExpected, "received": mgr.scanResultsCache[tracker.ID].BatchesReceived + 1}).Debugf("Got additional scan result batch")
+			mgr.scanResultsCache[tracker.ID] = CachedScanResults{
+				ResultID:        resultID,
+				BatchesExpected: batchCount,
+				BatchesReceived: mgr.scanResultsCache[tracker.ID].BatchesReceived + 1,
+				ScanResults:     append(mgr.scanResultsCache[tracker.ID].ScanResults, scanRes...),
+			}
+		}
+
+		if mgr.receivedAllBatchesForTracker(tracker.ID) {
+			scanResults := mgr.scanResultsCache[tracker.ID].ScanResults
 			err = setMatchingRoomForTracker(tracker, scanResults)
 			if err != nil {
 				return
@@ -213,7 +239,7 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, isLastBat
 	case models.TrackerStatusLearning:
 		err = GetLearningManager().newLearningTrackingData(trackerID, scanRes)
 	case models.TrackerStatusTracking:
-		if isLastBatch {
+		if mgr.receivedAllBatchesForTracker(tracker.ID) {
 			err = GetWorkflowExecManager().ProgressToTrackerRoom(tracker.ID, tracker.LastRoom)
 		}
 	default:
@@ -227,6 +253,10 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, isLastBat
 	}
 
 	return
+}
+
+func (mgr *TrackerManager) receivedAllBatchesForTracker(trackerID models.TrackerID) bool {
+	return mgr.scanResultsCache[trackerID].BatchesReceived == mgr.scanResultsCache[trackerID].BatchesExpected
 }
 
 func setMatchingRoomForTracker(tracker *models.Tracker, scanResults []*models.ScanResult) error {
