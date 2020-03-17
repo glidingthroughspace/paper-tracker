@@ -7,6 +7,9 @@ Studienarbeit.pdf:
 watch:
 	latexmk -pvc $(latexmk_options)
 
+run: watch
+	# Alias for watch target
+
 clean:
 	latexmk -c
 
