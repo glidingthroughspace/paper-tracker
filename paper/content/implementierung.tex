@@ -14,9 +14,29 @@
 \subsection{COAP-Schnittstelle}
 
 
-\section{Firmware}
+\section{Hardware und Firmware}
+
+Im Folgenden wird erläutert, wie der Tracker aus sicht der Hardware und der entsprechenden Firmware
+implementiert wurde.
 
 \subsection{Verwendete Technologien}
+
+Als Mikrokontrollerplattform wurde die sogenannte \enquote{TinyPICO}-Plattform gewählt. Nach eigener
+Aussage handelt es sich dabei um die kleinste vorgefertigte Entwicklungsplattform basierend auf
+Mikrocontrollern vom Typ ESP32. Dieser Aspekt ist für die Erfüllung von \ref*{nf:klein} wichtig.
+Dieser Mikrocontroller wurde gewählt, da er alle benötigten Funktionen wie beispielsweise \gls{WLAN}
+bereits über ein \gls{API} bereitstellt.
+
+Die TinyPICO-Entwicklungsplattform stellt neben dem Mikrocontroller weitere Hardware bereit, so sind
+unter anderem
+die Stromversorgung über \gls{USB} sowie Lithium-Polymer-Akkumulatoren, ein Übersetzer von \gls{USB}
+zu \gls{UART} zur Programmierung des Mikrocontroller und eine Vollspektrum-\gls{LED} verbaut.
+
+\TODO{Hier noch über den Akku schreiben}
+
+Die Firmware wurde in der Programmiersprache C++ auf Basis des Arduino-Frameworks erstellt. Dieses
+Framework wurde gewählt, da es auf vielen Plattformen, wie auch dem ESP32 lauffähig ist, weit
+verbreitet ist und somit viele Bibliotheken für das Framework existieren.
 
 
 \section{App}
