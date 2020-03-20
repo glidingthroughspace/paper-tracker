@@ -23,11 +23,11 @@ Sie kommuniziert ebenfalls mit der Backend-Anwendung und fragt von dieser Inform
 Die Entwürfe der drei Komponenten werden in den nachfolgenden Abschnitten im Detail erläutert.
 
 \begin{figure}
-	\includegraphics[width=\textwidth]{images/architecture.png} 
+	\includegraphics[width=\textwidth]{images/architecture_de.png}
 	\centering
 	\caption{Architektur des Paper-Tracker}
 	\label{fig:architecture}
-\end{figure} 
+\end{figure}
 
 \section{Komponentenarchitektur} \label{sec:komponentenarchitektur}
 
@@ -101,14 +101,14 @@ Auch wird pro Kommando eine \enquote{SleepTimeSec} festgelegt, die bestimmt wie 
 
 Spezielle Antworten der Tracker auf Kommandos und auch des Servers auf Anfragen der App sind in dem Unterpaket \enquote{communication} modelliert.
 Dies ist zum Beispiel eine Fehler-Antwort und eine Basisklasse für Antworten des Trackers.
-Diese \enquote{TrackerResponse}-Klasse besitzt auch ein Feld für den aktuellen Batteriestand des Trackers, um diesen überwachen zu können. 
+Diese \enquote{TrackerResponse}-Klasse besitzt auch ein Feld für den aktuellen Batteriestand des Trackers, um diesen überwachen zu können.
 
 \begin{figure}
-	\includegraphics[width=\textwidth]{images/uml.png} 
+	\includegraphics[width=\textwidth]{images/uml.png}
 	\centering
 	\caption{UML-Diagramm für die Backend-Anwendung}
 	\label{fig:uml}
-\end{figure} 
+\end{figure}
 
 \FloatBarrier
 \subsection{App für Mobilgeräte} \label{sec:app}
