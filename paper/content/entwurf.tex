@@ -81,27 +81,62 @@ Protokoll. (vgl. \cite{Dizdarevic2019}, \cite{Naik2017})
 
 \subsection{Backend-Anwendung} \label{sec:backend}
 
+\subsubsection{UML Daten Modellierung}
 Da die Backend-Anwendung die zentrale Komponente des Systems ist und auch die Daten verwaltet, werden für sie die Daten-Klassen modelliert.
 Das resultierende UML-Diagramm ist in Abbildung \ref{fig:uml} abgebildet.
 
 Die zentrale Klasse des Diagramms bildet die \enquote{Tracker}-Klasse.
 Sie modelliert einen Hardware-Tracker.
-Als Attribut besitzt sie eine Referenz auf einen \enquote{Room}.
+Neben einigen Attributen, wie dem Label, der Batteriestatus und einigen gespeicherten Zeitstempeln, besitzt sie eine Referenz auf einen Status.
+Dieser Status gibt an, zu was der Tracker zur Zeit verwendet wird und in welchen anderen Zustand gewechselt werden kann.
+
+Es gibt vier verschiedene Zustände, die in Integern kodiert sind:
+\begin{description}
+	\item[Idle = 1] \hfill \\
+		Tracker ist frei verfügbar und kann in \enquote{Learning} oder \enquote{Tracking} übergehen.
+	\item[Learning = 2] \hfill \\
+		Tracker wird für das Lernen eines Raumes verwendet und kann bei erfolgreichem Abschluss in \enquote{LearningFinished} oder bei Abbruch in \enquote{Idle} übergehen.
+	\item[LearningFinished = 3] \hfill \\
+		Das Lernen eines Raumes mit diesem Tracker wurde beendet. Die Ergebnisse können berechnet und einem Raum zugewiesen werden. In Folge darauf, geht der Tracker in den Zustand \enquote{Idle} über.
+	\item[Tracking = 4] \hfill \\
+		Der Tracker besitzt aktuell einen Workflow, den er trackt. Nach Abschluss dieses Workflows oder nach Abbruch, geht der Tracker in den Status \enquote{Idle} über.
+\end{description}
+
+Weiter besitzt der Tracker eine Referenz auf einen aktiven Workflow und den aktuellen Raum.
+Beide Referenzen können nichtexistent sein, falls der Tracker keinen aktiven Workflow besitzt oder der Raum nicht bestimmbar ist.
 
 Ein \enquote{Room} ist ein physikalischer Raum, der von einem Tracker erkannt werden soll.
 Neben einem Identifizierer und einem \enquote{Label} (Name) für den Raum werden zusätzlich mehrere \enquote{BSSIDTrackingData} gespeichert.
-Diese beinhalten für einen spezifischen \enquote{Access Point} einige Messdaten zu der gemessenen Signalstärke.
+Diese beinhalten für einen spezifischen \enquote{Access Point}/\gls{BSSID} einige Messdaten zu der gemessenen Signalstärke.
 Über diese kann über eine Antwort des Trackers mit \enquote{ScanResults} die Position des Tracker bestimmt werden.
 
 Damit der Tracker eine Antwort sendet, wird diese mit Hilfe eines Kommandos angefragt.
 Diese Kommandos werden jeweils in einer Instanz der \enquote{Command}-Klasse abgebildet.
-Pro Tracker können somit mehrere Kommandos abgespeichert werden.
 Die Kommandos besitzen einen spezifischen Typ der Enumeration \enquote{CommandType}, der die Aktion des Kommandos bestimmt.
-Auch wird pro Kommando eine \enquote{SleepTimeSec} festgelegt, die bestimmt wie lange der Tracker sich abschalten darf.
+Auch wird pro Kommando eine \enquote{SleepTimeSec} festgelegt, die bestimmt wie lange der Tracker sich nach der Aktion abschalten darf.
 
 Spezielle Antworten der Tracker auf Kommandos und auch des Servers auf Anfragen der App sind in dem Unterpaket \enquote{communication} modelliert.
 Dies ist zum Beispiel eine Fehler-Antwort und eine Basisklasse für Antworten des Trackers.
 Diese \enquote{TrackerResponse}-Klasse besitzt auch ein Feld für den aktuellen Batteriestand des Trackers, um diesen überwachen zu können.
+
+Unter den Klassen \enquote{WorkflowTemplate} und \enquote{WorkflowExec} sind die Workflows modelliert.
+\enquote{WorkflowTemplate} stellt eine Blaupause dar, wie ein Workflow aussieht.
+In diesem werden die einzelnen Schritte (\enquote{Steps}) des Workflows festgelegt.
+Für einen \enquote{Step} werden ein Label und eine Referenz auf den dazugehörigen Raum gespeichert.
+Über die Klasse \enquote{NextStep} werden Referenzen auf nachfolgende Schritte modelliert.
+Die \enquote{NextStep} Klasse besitzt ein Attribut \enquote{DecisionLabel}.
+Ist diese ein leerer String, so ist dieser verbundene Schritt ein linearer.
+Mit einem nicht-leeren String, gibt es mit diesem Schritt verschiedene Auswahlmöglichkeiten.
+Durch das transitive Attribut \enquote{StepEditingLocked} der \enquote{WorkflowTemplate}-Klasse, wird die Bearbeitung blockiert.
+Dieses Attribut ist gesetzt, sobald es eine Ausführung des Templates gab.
+
+Die \enquote{WorkflowExec}-Klasse stellt einen konkreten Workflow in der Durchführung dar.
+Als Attribute besitzt diese Klasse ein Label, einen Status und Start-/Endzeit.
+Der Status ist entweder \enquote{Running}, \enquote{Completed} oder \enquote{Canceled}.
+Weiter besitzt die Klasse eine Referenz auf das Template, das ausgeführt wird, eine Menge an \enquote{ExecStepInfo} und an den aktuellen Schritt.
+Die Klasse \enquote{ExecStepInfo} besitzt Informationen über einzelne Schritte des Workflows.
+Dies sind zum einen die Start-/Endzeit des Schrittes sowie, ob der Schritt übersprungen wurde, und zum anderen die \enquote{Decision}-Information.
+Der \enquote{Decision} String wird im Falle von mehreren Auswahlmöglichkeiten in einem Workflow dazu genutzt, in der Ausführung den richtigen Weg zu wählen.
 
 \begin{figure}
 	\includegraphics[width=\textwidth]{images/uml.png}
@@ -111,4 +146,8 @@ Diese \enquote{TrackerResponse}-Klasse besitzt auch ein Feld für den aktuellen 
 \end{figure}
 
 \FloatBarrier
+
+\subsubsection{Schnittstellen}
+
 \subsection{App für Mobilgeräte} \label{sec:app}
+

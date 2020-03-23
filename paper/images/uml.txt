@@ -60,14 +60,12 @@ package model {
   class WorkflowTemplate {
   	UInt16 ID
   	String Label
-    Boolean IsTemplate
     Boolean StepEditingLocked <transient>
   }
 
   class Step {
+    UInt16 ID
   	String Label
-    Time StartedOn
-    Time CompletedOn
   }
   
   class NextStep {
