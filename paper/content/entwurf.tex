@@ -64,20 +64,9 @@ dass der Tracker auswertet, von welchen \glspl{AP} er ein Signal empfängt und w
 Empfang zum jeweiligen \gls{AP} ist.
 Da die Positionsdaten ohnehin zur Auswertung an das Backend übertragen werden müssen, wofür eine
 \gls{WLAN}-Verbindung notwendig ist, wird diese Methode eingesetzt.
+Die gesammelten Daten werden dann im Anschluss an das Backend übermittelt.
 
-Um die Daten über die Signalstärke an das Backend zu übermitteln wird das Protokoll \gls{CoAP}
-eingesetzt. Hierbei handelt es sich um ein spezialisiertes Protokoll für die Verwendung in
-\gls{IoT}-Hardware, welches dafür optimiert wurde möglichst wenig Overhead zu haben.
-\TODO{Glossar: Overhead}
-Im \gls{IoT}-Bereich haben sich einige Protokolle durchsetzen können. Dazu zählen vor allem
-\gls{HTTP}, \gls{MQTT}, \gls{AMQP} und \gls{CoAP}.
-Da die Tracker Batteriebetrieben sind, ist für diesen Anwendungsfall besonders die Performance des
-eingesetzten Protokolles wichtig. Je weniger Overhead das Protokoll aufweist, desto weniger
-Instruktionen müssen vom Prozessor des Trackers durchgeführt werden, was zu einer längeren Laufzeit
-führt.
-Werden die Protokolle anhand dieses Aspektes verglichen, erweist sich \gls{CoAP} als effizientestes
-Protokoll. (vgl. \cite{Dizdarevic2019}, \cite{Naik2017})
-\TODO{Quellen verwenden, die in diesem Paper zitiert werden}
+% TODO: Lifecycle des Paper-Trackers erläutern
 
 \subsection{Backend-Anwendung} \label{sec:backend}
 
@@ -148,6 +137,50 @@ Der \enquote{Decision} String wird im Falle von mehreren Auswahlmöglichkeiten i
 \FloatBarrier
 
 \subsubsection{Schnittstellen}
+
+Für die Backend-Anwendung sind zwei verschiedene Schnittstellen vorgesehen.
+Eine Schnittstelle ist für den Tracker und eine für die App vorgesehen.
+Die unterschiedlichen Schnittstellen sollen die aus der Analyse entwickelten Ansprüche entsprechend erfüllen.
+
+\paragraph{Tracker-Schnittstelle}
+Für die Schnittstelle des Trackers bedeutet dies, dass sie möglichst simpel und effizient sein muss.
+Dies wird über ein entsprechendes Protokoll und einem Datenformat erreicht.
+Das verwendete Protokoll ist das \acrfull{CoAP} Protokoll und das Datenformat ist \acrfull{CBOR}.
+
+Bei \gls{CoAP} handelt es sich um ein spezialisiertes Protokoll für die Verwendung in
+\gls{IoT}-Hardware, welches dafür optimiert wurde möglichst wenig Overhead zu haben.
+\TODO{Glossar: Overhead}
+Im \gls{IoT}-Bereich haben sich einige Protokolle durchsetzen können. Dazu zählen vor allem
+\gls{HTTP}, \gls{MQTT}, \gls{AMQP} und \gls{CoAP}.
+Da die Tracker Batteriebetrieben sind, ist für diesen Anwendungsfall besonders die Performance des
+eingesetzten Protokolles wichtig. Je weniger Overhead das Protokoll aufweist, desto weniger
+Instruktionen müssen vom Prozessor des Trackers durchgeführt werden, was zu einer längeren Laufzeit
+führt.
+Werden die Protokolle anhand dieses Aspektes verglichen, erweist sich \gls{CoAP} als effizientestes
+Protokoll. (vgl. \cite{Dizdarevic2019}, \cite{Naik2017})
+\TODO{Quellen verwenden, die in diesem Paper zitiert werden}
+
+\gls{CBOR} ist ein Datenformat, das auf kleine Code- und Nachrichtengrößen optimiert ist.
+Demnach ist es auch für der \gls{IoT}-Bereich sehr gut geeignet.
+Vom Aufbau des Formats, ist es sehr gut mit \gls{JSON} zu vergleichen, da es auch Schlüssel-Wert-Paare verwendet.
+Der große Unterschied ist jedoch, dass \gls{CBOR} binär kodiert wird und \gls{JSON} in Text kodiert wird.
+Dadurch ist \gls{CBOR} nicht menschenlesbar aber sehr gut maschinenlesbar.
+Bei einem Vergleich zwischen der \gls{CBOR} Bibliothek \enquote{libCBOR} und der \gls{JSON} Bibliothek \enquote{ArduinoJson}
+konnte zudem festgestellt werden, dass bei gleicher Nachricht das \gls{CBOR} Format ca. 26.5\% kleinere Nachrichten
+in 83.3\% der Zeit schnellerer Zeit serialisiert hat.
+
+% TODO: Hier das Polling-Prinzip oder unter Hardware?!
+
+% TODO: Auflistung der Endpunkte
+
+\paragraph{App-Schnittstelle}
+Die Schnittstelle für die App hat keine besonderen Anforderungen und kann daher frei gewählt werden.
+Aus diesem Grund werden Protokolle und Datenformate verwendet, die momentan dem aktuellen Stand der Technik entsprechen. % TODO: Quelle
+Dies ergibt den Vorteil, dass sie mit allen anderen gewählten Technologien sehr gut kombinierbar sind und entsprechende Bibliotheken vorhanden sind.
+Das verwendete Protokoll ist das \gls{HTTP}-Protokoll und das Datenformat ist \gls{JSON}.
+Die Schnittstelle basiert auf dem \gls{REST} Paradigma. % TODO: Erläutern?
+
+% TODO: Auflistung der Endpunkte
 
 \subsection{App für Mobilgeräte} \label{sec:app}
 
