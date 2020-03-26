@@ -171,16 +171,68 @@ in 83.3\% der Zeit schnellerer Zeit serialisiert hat.
 
 % TODO: Hier das Polling-Prinzip oder unter Hardware?!
 
-% TODO: Auflistung der Endpunkte
+Die Tracker-Schnittstelle soll drei Endpunkte zur Verfügung stellen.
+Diese sind in \autoref{tab:coap-api} aufgelistet.
+Bis auf den Endpunkt zum erstellen eines neuen Trackers, erhalten alle Endpunkte als Parameter die Tracker ID des Trackers, der die Anfrage stellt.
+Der Endpunkt zum Speichern der Tracking Ergebnisse hat zudem als Parameter die Ergebnisste selbst.
 
+\begin{table}[]
+\begin{tabular}{l|l|l|l}
+\textbf{Verb} & \textbf{Pfad}     & \textbf{Aktion}                   & \textbf{Rückgabe-Wert}    \\ \hline
+POST          & /tracker/new      & Neuen Tracker erstellen           & Tracker ID \\ \hline
+GET           & /tracker/poll     & Kommando für Tracker abfragen     & Tracker Kommando   \\ \hline
+POST          & /tracker/tracking & Ergebnisse des Tracking speichern & -                        
+\end{tabular}
+\caption{\label{tab:coap-api}Verfügbare Endpunkte der Tracker-Schnittstelle}
+\end{table}
+
+\FloatBarrier
 \paragraph{App-Schnittstelle}
 Die Schnittstelle für die App hat keine besonderen Anforderungen und kann daher frei gewählt werden.
 Aus diesem Grund werden Protokolle und Datenformate verwendet, die momentan dem aktuellen Stand der Technik entsprechen. % TODO: Quelle
 Dies ergibt den Vorteil, dass sie mit allen anderen gewählten Technologien sehr gut kombinierbar sind und entsprechende Bibliotheken vorhanden sind.
 Das verwendete Protokoll ist das \gls{HTTP}-Protokoll und das Datenformat ist \gls{JSON}.
 Die Schnittstelle basiert auf dem \gls{REST} Paradigma. % TODO: Erläutern?
+Alle verfügbaren Endpunkte der App-Schnittstelle sind in \autoref{tab:http-api} dargestellt.
 
-% TODO: Auflistung der Endpunkte
+% TODO: Zwischen"überschriften" hinzufügen für Room, Tracker, etc.
+% TODO: Erläuterung der einen Abkürzung?
+% TODO: Add caption -> throws errors
+\begin{small}
+\begin{landscape}
+\begin{longtable}{l|l|l|l|l}
+\textbf{Verb} & \textbf{Pfad}                   & \textbf{Aktion}                     & \textbf{Parameter}                                          & \textbf{Rückgabe-Wert}                                                  \\ \hline
+\endhead
+%
+GET           & /room                           & Auflistung der Räume                & -                                                           & Liste aller Räume                                                       \\ \hline
+POST          & /room                           & Erstellen eines neuen Raums         & Raum                                                        & Erstellter Raum                                                         \\ \hline
+PUT           & /room/:id                       & Raum aktualisieren                  & Raum                                                        & Aktualisierter Raum                                                     \\ \hline
+DELETE        & /room/:id                       & Raum löschen                        & -                                                           & -                                                                       \\ \hline
+GET           & /tracker                        & Auflistung der Tracker              & -                                                           & List aller Tracker                                                      \\ \hline
+PUT           & /tracker/:id                    & Tracker aktualisieren               & Tracker                                                     & Aktualisierter Tracker                                                  \\ \hline
+DELETE        & /tracker/:id                    & Tracker löschen                     & -                                                           & -                                                                       \\ \hline
+POST          & /tracker/:id/learn              & Lernen mit Tracker starten          & -                                                           & Lernzeit                                                                \\ \hline
+GET           & /tracker/:id/learn              & Lern Status abfragen                & -                                                           & \begin{tabular}[c]{@{}l@{}}Abgeschlossen\\ Gefundene SSIDs\end{tabular} \\ \hline
+DELETE        & /tracker/:id/learn              & Lernen abbrechen                    & -                                                           & -                                                                       \\ \hline
+POST          & /tracker/:id/learn/finish       & Lernen abschließen                  & \begin{tabular}[c]{@{}l@{}}Raum ID\\ SSIDs\end{tabular}     &                                                                         \\ \hline
+GET           & /workflow/template              & Auflistung der Templates            & -                                                           & Liste aller Templates                                                   \\ \hline
+POST          & /workflow/template              & Template erstellen                  & Template                                                    & Erstelltes Template                                                     \\ \hline
+PUT           & /workflow/template/:id          & Template aktualisieren              & Tempalte                                                    & Aktualisiertes Template                                                 \\ \hline
+DELETE        & /workflow/template/:id          & Template löschen                    & -                                                           & -                                                                       \\ \hline
+POST          & /workflow/template/:id/start    & Start Schritt erstellen             & Step                                                        & Erstellter Step                                                         \\ \hline
+POST          & /workflow/template/:id/step     & Schritt hinzufügen                  & \begin{tabular}[c]{@{}l@{}}Step\\ Vorgänger ID\end{tabular} & Erstellter Step                                                         \\ \hline
+GET           & /workflow/template/:id/step/:id & Schritt abfragen                    & -                                                           & Step                                                                    \\ \hline
+PUT           & /workflow/template/:id/step/:id & Schritt aktualisieren               & Step                                                        & Aktualisierter Step                                                     \\ \hline
+DELETE        & /workflow/template/:id/step/:id & Schritt löschen                     & -                                                           & -                                                                       \\ \hline
+POST          & /wf/template/:id/step/:id/move  & Schritt verschieben                 & Richtung                                                    & -                                                                       \\ \hline
+POST          & /workflow/template/revision     & Template Revision erstellen         & Label                                                       & Erstellte Revision                                                      \\ \hline
+GET           & /workflow/exec                  & Auflistung der Ausführungen         & -                                                           & Execution                                                               \\ \hline
+POST          & /workflow/exec                  & Ausführung erstellen                & Execution                                                   & Erstelle Execution                                                      \\ \hline
+POST          & /workflow/exec/:id/progress/:id & Ausführung zu Schritt progressieren & -                                                           & -                                                                       \\ \hline
+POST          & /workflow/exec/:id/cancel       & Ausführung abbrechen                & -                                                           & -                                                                      
+\end{longtable}
+\end{landscape}
+\end{small}
 
 \subsection{App für Mobilgeräte} \label{sec:app}
 
