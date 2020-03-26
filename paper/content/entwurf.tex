@@ -201,7 +201,7 @@ Alle verfügbaren Endpunkte der App-Schnittstelle sind in \autoref{tab:http-api}
 \FIXME{Hinzufügen einer caption führt zu Fehlern}
 \begin{small}
 \begin{landscape}
-\begin{longtable}{l|l|l|l|l}
+	\begin{longtable}{l|l|l|l|l} \label{tab:http-api}
 \textbf{Verb} & \textbf{Pfad}                   & \textbf{Aktion}                     & \textbf{Parameter}                                          & \textbf{Rückgabe-Wert}                                                  \\ \hline
 \endhead
 %
@@ -230,7 +230,7 @@ POST          & /workflow/template/revision     & Template Revision erstellen   
 GET           & /workflow/exec                  & Auflistung der Ausführungen         & -                                                           & Execution                                                               \\ \hline
 POST          & /workflow/exec                  & Ausführung erstellen                & Execution                                                   & Erstelle Execution                                                      \\ \hline
 POST          & /workflow/exec/:id/progress/:id & Ausführung zu Schritt progressieren & -                                                           & -                                                                       \\ \hline
-POST          & /workflow/exec/:id/cancel       & Ausführung abbrechen                & -                                                           & -                                                                      
+POST          & /workflow/exec/:id/cancel       & Ausführung abbrechen                & -                                                           & -
 \end{longtable}
 \end{landscape}
 \end{small}
