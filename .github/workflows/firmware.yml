@@ -16,8 +16,7 @@ jobs:
         python-version: 3.8
     - name: Get PlatformIO
       run: |
-        wget https://raw.githubusercontent.com/platformio/platformio-core-installer/develop/get-platformio.py
-        python get-platformio.py
+        pip install -U platformio
     - name: Build
       run: |
         cp include/credentials.example.hpp include/credentials.hpp
