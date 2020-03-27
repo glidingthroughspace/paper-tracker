@@ -9,8 +9,8 @@ Das Projekt wird im Umfeld der \gls{DHBW} Karlsruhe durchgeführt.
 
 Unter \gls{WLAN} versteht man im Allgemeinen ein Funknetz nach einem Standard der \gls{IEEE} 802.11 Familie.
 Alle Standards der Familie basieren auf dem ursprünglichen 802.11 Standard und erweitern diesen um neue Funktionalität, Frequenzen und höheren Datenraten.
-
-\TODO{Quelle: https://www.elektronik-kompendium.de/sites/net/0610051.htm; Konnte jabref nicht installieren da ein java repo ein 504 wirft...}
+(vgl. \cite{Schnabel2020})
+\TODO{Primärquelle finden}
 
 Für die Funktionsweise des Paper-Trackers muss der Teil der \enquote{Service Sets} der Spezifikation detailiert erleutert werden.
 Unter einem Service Set versteht man im Allgemeinen alle Geräte in einem \gls{WLAN}-Netzwerk.
@@ -23,7 +23,9 @@ Zu diesem \gls{AP} können beliebig viele Klienten verbunden sein.
 In einem solchen Netzwerk besitzt der \gls{AP} eine \gls{SSID} und eine \gls{BSSID}.
 Die \gls{SSID} ist der Name des Netzwerks, das von einem Endbenutzer ausgewählt wird, um sich mit dem \gls{WLAN} zu verbinden.
 Da mehrere \gls{BSS} die gleiche \gls{SSID} verwenden können, besitzt der \gls{AP} auch eine \gls{BSSID}.
-Diese ist meist die \gls{MAC}-Adresse des \gls{AP}, welche per Definition einzigartig ist. \TODO{https://www.ip-insider.de/was-ist-eine-mac-adresse-a-665074/}
+Diese ist meist die \gls{MAC}-Adresse des \gls{AP}, welche per Definition einzigartig ist.
+(vgl. \cite{Luber2018})
+\TODO{Primärquelle finden (IEEE RFC)}
 Mit Hilfe dieser \gls{BSSID} können Klienten zwischen den verschiedenen Netzwerken mit identischer \gls{SSID} unterscheiden.
 
 \subsection{\gls{ESS}}
@@ -31,11 +33,11 @@ Mit Hilfe dieser \gls{BSSID} können Klienten zwischen den verschiedenen Netzwer
 In einem \gls{ESS} existieren mehrere \gls{BSS}, die miteinander z.B. über ein \gls{LAN} verbunden sind.
 Alle \gls{BSS} in diesem Service Set haben eine eigene \gls{BSSID} aber bauen ein Netz mit der gleichen \gls{SSID} auf.
 So können Klienten z.B. in größeren Gebäuden zwischen verschiedenen \gls{BSS} wechseln, ohne es zu bemerken.
-
-\TODO{https://www.wifi-professionals.com/2019/03/802-11-topologies-aka-service-sets}
+(vgl. \cite{Haider2019})
+\TODO{Primärquelle finden}
 
 \subsection{Signalstärke RSSI}
- 
+
 \TODO{Oder Messen wir doch eher in dBm?!}
 
 \section{Beispiel eines Workflows}
@@ -44,11 +46,11 @@ In folgender \autoref{fig:beschaffungsverfahren} ist ein Beispiel für einen Pro
 Es ist das \enquote{Beschaffungs-Genehmigungsverfahren}, das benötigt wird, um eine Bestellung für die \gls{DHBW} durchzuführen.
 
 \begin{figure}
-	\includegraphics[width=\textwidth]{images/beschaffungs-genehmigungsverfahren.png} 
+	\includegraphics[width=\textwidth]{images/beschaffungs-genehmigungsverfahren.png}
 	\centering
 	\caption{Beschaffungs-Genehmigungsverfahren der \gls{DHBW}}
 	\label{fig:beschaffungsverfahren}
-\end{figure} 
+\end{figure}
 
 Der Prozess beginnt mit dem Antragsteller, welcher den Beschaffungsantrag stellt.
 Der Antrag geht zum Fachvorgesetzten des Antragsteller, welcher diesen fachlich prüft.
