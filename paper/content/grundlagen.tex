@@ -3,14 +3,40 @@
 \section{Projektumfeld}
 
 Das Projekt wird im Umfeld der \gls{DHBW} Karlsruhe durchgeführt.
+\TODO{}
 
-\section{Funktionsweise WLAN}
+\section{Funktionsweise \gls{WLAN}}
 
-\subsection{SSID}
+Unter \gls{WLAN} versteht man im Allgemeinen ein Funknetz nach einem Standard der \gls{IEEE} 802.11 Familie.
+Alle Standards der Familie basieren auf dem ursprünglichen 802.11 Standard und erweitern diesen um neue Funktionalität, Frequenzen und höheren Datenraten.
 
-\subsection{BSSID}
+\TODO{Quelle: https://www.elektronik-kompendium.de/sites/net/0610051.htm; Konnte jabref nicht installieren da ein java repo ein 504 wirft...}
+
+Für die Funktionsweise des Paper-Trackers muss der Teil der \enquote{Service Sets} der Spezifikation detailiert erleutert werden.
+Unter einem Service Set versteht man im Allgemeinen alle Geräte in einem \gls{WLAN}-Netzwerk.
+Auf diesen basiert die Lokalisierung der Dokumente.
+
+\subsection{\gls{BSS}}
+
+Ein \gls{BSS} ist Service Set, in dem es nur einen \gls{AP} und damit ein Gerät, dass das Funknetz aufbaut, gibt.
+Zu diesem \gls{AP} können beliebig viele Klienten verbunden sein.
+In einem solchen Netzwerk besitzt der \gls{AP} eine \gls{SSID} und eine \gls{BSSID}.
+Die \gls{SSID} ist der Name des Netzwerks, das von einem Endbenutzer ausgewählt wird, um sich mit dem \gls{WLAN} zu verbinden.
+Da mehrere \gls{BSS} die gleiche \gls{SSID} verwenden können, besitzt der \gls{AP} auch eine \gls{BSSID}.
+Diese ist meist die \gls{MAC}-Adresse des \gls{AP}, welche per Definition einzigartig ist. \TODO{https://www.ip-insider.de/was-ist-eine-mac-adresse-a-665074/}
+Mit Hilfe dieser \gls{BSSID} können Klienten zwischen den verschiedenen Netzwerken mit identischer \gls{SSID} unterscheiden.
+
+\subsection{\gls{ESS}}
+
+In einem \gls{ESS} existieren mehrere \gls{BSS}, die miteinander z.B. über ein \gls{LAN} verbunden sind.
+Alle \gls{BSS} in diesem Service Set haben eine eigene \gls{BSSID} aber bauen ein Netz mit der gleichen \gls{SSID} auf.
+So können Klienten z.B. in größeren Gebäuden zwischen verschiedenen \gls{BSS} wechseln, ohne es zu bemerken.
+
+\TODO{https://www.wifi-professionals.com/2019/03/802-11-topologies-aka-service-sets}
 
 \subsection{Signalstärke RSSI}
+ 
+\TODO{Oder Messen wir doch eher in dBm?!}
 
 \section{Beispiel eines Workflows}
 
