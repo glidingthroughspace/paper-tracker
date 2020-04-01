@@ -1,8 +1,46 @@
-\chapter{Implementierung und Validierung}
+\chapter{Implementierung}
 
 \section{Backend-Server}
 
 \subsection{Verwendete Technologien}
+
+Die grundlegend verwendete Technologie für den Backend-Server ist die Programmiersprache \enquote{Go}.
+Go wurde ausgewählt, da es eine einfach zu verstehende Programmiersprache ist, die optimiert für Server-Anwendungen ist (vgl. \cite{Weigend2019}).
+Zudem sind alle am Projekt beteiligten Personen schon mit der Sprache vertraut.
+
+Go stellt eine gute Standardbibliothek zur Verfügung, die an vielen Stellen verwendet wird.
+Trotzdem werden zusätzlich einige externe Bibliotheken verwendet.
+Diese dienen hauptsächlich dazu, die externen Schnittstellen (\gls{HTTP} und \gls{CoAP}) mit den dazugehörigen Datenformaten zur Verfügung zu stellen.
+Auch werden Bibliotheken für ein einfacheres Testing verwendet.
+
+Im Folgenden sind die verwendeten Bibliotheken aufgelistet:
+\begin{description}
+	\item[logrus (https://github.com/sirupsen/logrus)] \hfill \\
+		\enquote{logrus} ist strukturiertes Logging-Tool, dass für jegliche Logs innerhalb des Servers verwendet wird. 
+	\item[gorm (https://github.com/jinzhu/gorm)] \hfill \\
+		\enquote{gorm} ist ein \gls{ORM} Framework, dass die Datenbankanbindung für den Server zur Verfügung stellt.
+	\item[Gin (https://github.com/gin-gonic/gin)] \hfill \\
+		\enquote{Gin} ist ein HTTP Framework, dass Routing, Parameter-Matching, etc. übernimmt. Zudem kann es standardmäßig \gls{JSON} verstehen.  
+	\item[go-coap (https://github.com/go-ocf/go-coap)] \hfill \\
+		\enquote{go-coap} ist ein \gls{CoAP} Framework, dass hauptsächlich das Routing übernimmt. Einige weitere Aufgaben, die z.B. \enquote{Gin} übernimmt, müssen selbst programmiert werden.
+	\item[go-codec (https://github.com/ugorji/go)] \hfill \\
+		\enquote{go-codec} stellt die Codierung für \gls{CBOR} zur Verfügung.
+	\item[ginkgo (https://github.com/onsi/ginkgo)] \hfill \\
+		Mit \enquote{ginkgo} können Tests in \gls{BDD} Technik geschrieben werden.
+	\item[gomega (https://github.com/onsi/gomega)] \hfill \\
+		\enquote{gomega} ist eine Matching Library, die zu \enquote{ginkgo} gehört. Sie stellt Vergleiche zwischen erwarteten Werten und tatsächlichen Werten zur Verfügung.
+	\item[GoMock (https://github.com/golang/mock)] \hfill \\
+		\enquote{GoMock} ist ein Mocking Framework, dass für verschiedene Tests verwendet wird.
+\end{description}
+
+Als Datenbank wird in Kombination mit \enquote{gorm} eine \enquote{SQLite} verwendet.
+Der große Vorteil ist, dass eine SQLite Datenbank eine einfache Datei ist und kein externer Server aufgesetzt werden muss.
+Dies vereinfacht vor allem die Entwicklung.
+Zum Beispiel ist ein einfaches Zurücksetzten der Daten durch ein Löschen der Datei möglich.
+
+In einem späteren Einsatz des Paper-Trackers kann dank der \enquote{gorm} Bibliothek auch andere Datenbanken verwendet werden, die eher für einen dauerhaften und sichereren Einsatz vorgesehen sind.
+Möglich sind dafür \enquote{MySQL}, \enquote{PostgreSQL}, \enquote{Microsoft SQL Server} und wie erwähnt SQLite.
+Im Code des Servers muss hierfür lediglich eine erweiterte Konfiguration ermöglicht werden. (vgl. \cite{Jinzhu2020})
 
 \subsection{Architektur}
 
