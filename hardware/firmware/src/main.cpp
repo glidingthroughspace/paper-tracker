@@ -56,11 +56,12 @@ void setup() {
   Power::print_wakeup_reason();
 
   #ifndef NDEBUG
+  Power::get_battery_percentage();
+  Power::is_charging();
   pinMode(4, INPUT_PULLDOWN);
   auto should_clear_storage = digitalRead(4);
-  logln(should_clear_storage);
   if (should_clear_storage) {
-    logln("Clearing storage since pin 33 (GPIO 13) is pulled low");
+    logln("Clearing storage since pin 4 is pulled high");
     Storage::clear();
   }
   #endif
