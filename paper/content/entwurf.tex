@@ -247,6 +247,27 @@ Die Architektur des Backend-Servers ist in folgendem Klassendiagramm \ref{fig:so
 \end{figure}
 \TODO{Layout verbessern, Erstellung der DB Verbindung reinpacken}
 
+Generell kann die Architektur in drei verschiedene Schichten aufgeteilt werden.
+Die erste Schicht bildet das Paket \enquote{router}, die zweite Schicht das Paket \enquote{managers} und die dritte Schicht das Paket \enquote{repositories}.
+
+Im \enquote{router} Paket befinden sich die Router für die zwei externen Schnittstellen des Servers.
+Die \gls{HTTP} Schnittstelle für die App befindet sich in der \enquote{HttpRouter}-Klasse und die \gls{CoAP} Schnittstelle für den Tracker befindet sich in der \enquote{CoapRouter}-Klasse.
+Beide Klassen besitzen eine Methode \enquote{Serve}.
+Mit dieser Methode werden die Router letztendlich gestartet so, dass sie Verbingungen annehmen können.
+Als Parameter bekommen sie die Adresse, auf die sie Verbindungen annehmen, und im Falle des \enquote{CoapRouter} auch das Transport-Protokoll.
+
+Das \enquote{managers} Paket beinhaltet sechs verschiedene Manager, die die Businesslogik für verschiedene Teilbereiche des Servers beinhalten.
+Ein Beispiel ist der \enquote{TrackerManager}, über den Tracker angelegt, abgefragt, verändert und auch gelöscht werden können.
+Weitere Methoden für z.B. das Abfragen eines Kommandos für einen Tracker sind auch beinhaltet.
+Alle Manager sind als Singleton implementiert so, dass sie sich auch untereinander problemlos aufrufen können.
+
+Die unterste Schicht bildet das \enquote{repositories} Paket.
+Dieses enthält verschiedene Datenbank-Repositories, die die Datenbank und damit die Datenpersistenz des Servers abbilden.
+Alle Methoden eines Repository bilden direkte Anfragen an die Datenbank.
+Dabei ist ein Repository meist für eine Modellklasse verantwortlich.
+
+Die main-Klasse ist für das Starten des Servers und das Erstellen der einzelnen Komponenten verantwortlich.
+
 \FloatBarrier
 \subsection{App für Mobilgeräte} \label{sec:app}
 
