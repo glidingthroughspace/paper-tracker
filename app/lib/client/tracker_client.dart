@@ -4,6 +4,7 @@ import 'package:paper_tracker/client/api_client.dart';
 import 'package:paper_tracker/model/communication/learningFinishRequest.dart';
 import 'package:paper_tracker/model/communication/learningStartResponse.dart';
 import 'package:paper_tracker/model/communication/learningStatusResponse.dart';
+import 'package:paper_tracker/model/communication/trackerNextPollResponse.dart';
 import 'package:paper_tracker/model/tracker.dart';
 
 class TrackerClient {
@@ -82,6 +83,15 @@ class TrackerClient {
     final response = await apiClient.delete("/tracker/$trackerID");
     if (response.statusCode != 200) {
       throw Exception("Failed to delete tracker");
+    }
+  }
+
+  Future<int> getNextPollSecs(int trackerID) async {
+    final response = await apiClient.get("/tracker/$trackerID/next_poll");
+    if (response.statusCode == 200) {
+      return TrackerNextPollResponse.fromJson(json.decode(response.body)).nextPollSec;
+    } else {
+      throw Exception("Failed to get next poll secs for tracker $trackerID");
     }
   }
 }

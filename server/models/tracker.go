@@ -11,7 +11,7 @@ type Tracker struct {
 	// LastPoll indicates when the tracker has last polled for a command
 	LastPoll time.Time `json:"last_poll" codec:"-"`
 	// LastSleepTimeSec saves the last sleep time the tracker received
-	LastSleepTimeSec int `json:"last_sleep_time" codec:"-"`
+	LastSleepTimeSec int `json:"-" codec:"-"`
 	// LastBatteryUpdate indicates when the tracker's battery status has last been updated
 	LastBatteryUpdate time.Time `json:"last_battery_update" codec:"-"`
 	// LastRoom is the last known room in which the tracker was located
