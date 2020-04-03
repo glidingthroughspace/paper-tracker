@@ -23,6 +23,7 @@ class ApiClient {
     void requestTrackerID(std::function<void(int16_t)> callback);
     static bool isErrorResponse(const coap::Packet& packet);
     void writeTrackingData(uint16_t trackerID, std::vector<uint8_t> scanResults, std::function<void(void)> callback);
+    void writeInfoResponse(uint16_t trackerID, std::vector<uint8_t> infoResponse);
 
     struct Callback {
       utils::time::seconds timeout;

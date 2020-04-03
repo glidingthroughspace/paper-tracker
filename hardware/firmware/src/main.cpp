@@ -5,6 +5,7 @@
 #include <log.hpp>
 #include <models/scanResult.hpp>
 #include <models/trackerResponse.hpp>
+#include <models/infoResponse.hpp>
 #include <serialization/cbor/CBORDocument.hpp>
 #include <wifi.hpp>
 #include <apiClient.hpp>
@@ -19,6 +20,7 @@ ApiClient apiClient(&wifi.getUDP(), SERVER_IP);
 
 void haltIf(bool condition, const char* message);
 void sendScanResultsInChunks(std::vector<ScanResult>&);
+void sendStatusInformation();
 bool hasTrackerID();
 void requestNextCommand();
 
@@ -40,6 +42,9 @@ static void onCommandReceived(Command& command) {
         }
       }
       break;
+    case CommandType::SEND_INFO: {
+        sendStatusInformation();
+     }
     default:
       // We already sleep & reset the tracker when deserializing the command, so this should never
       // be reached.
@@ -124,6 +129,13 @@ void sendScanResultsInChunks(std::vector<ScanResult>& scanResults) {
       logln("Sent scan results to server");
     });
   }
+}
+
+void sendStatusInformation() {
+  InfoResponse infoResponse{Power::get_battery_percentage(), Power::is_charging()};
+  CBORDocument cborDocument;
+  infoResponse.toCBOR(cborDocument);
+  apiClient.writeInfoResponse(Storage::get(Storage::TRACKER_ID), cborDocument.serialize());
 }
 
 void haltIf(bool condition, const char* message) {

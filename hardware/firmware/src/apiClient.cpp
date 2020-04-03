@@ -102,6 +102,26 @@ void ApiClient::writeTrackingData(uint16_t trackerID, std::vector<uint8_t> scanR
   });
 }
 
+void ApiClient::writeInfoResponse(uint16_t trackerID, std::vector<uint8_t> infoResponse) {
+  logln("Posting battery information to server");
+  char param[15];
+  auto qp = getTrackerIDQueryParam(param, 15, trackerID);
+  auto msgID = coap.post(serverIP, "tracker/status", qp, infoResponse, ContentType::APPLICATION_CBOR);
+  storeCallback(msgID, [] (coap::Packet& packet, bool timed_out) {
+    if (timed_out) {
+      logln("Request to send battery info timed out, continuing");
+    }
+    if (ApiClient::isErrorResponse(packet)) {
+      logln("Failed to info response data");
+      logln(packet.code);
+      return;
+    }
+    logln("Sent battery info");
+  });
+}
+
+
+
 void ApiClient::coap_response_callback(coap::Packet& packet, IPAddress ip, int port) {
   logln("Got a CoAP response, payload is: ");
 
