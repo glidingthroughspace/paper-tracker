@@ -18,6 +18,24 @@ type HttpRouter struct {
 	engine *gin.Engine
 }
 
+type RouterMode string
+
+const (
+	DebugMode   RouterMode = "debug"
+	ReleaseMode RouterMode = "release"
+)
+
+// SetMode configures the operational mode of the router(s)
+// Currently this just sets gin's mode to reduce spammy logs in production
+func SetMode(mode RouterMode) {
+	switch mode {
+	case DebugMode:
+		gin.SetMode(gin.DebugMode)
+	default:
+		gin.SetMode(gin.ReleaseMode)
+	}
+}
+
 func NewHttpRouter() *HttpRouter {
 	r := &HttpRouter{
 		engine: gin.New(),

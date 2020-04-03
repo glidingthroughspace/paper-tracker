@@ -13,8 +13,10 @@ import (
 )
 
 func init() {
+	router.SetMode(router.ReleaseMode)
 	if debug := os.Getenv("DEBUG"); debug != "" {
 		log.SetLevel(log.DebugLevel)
+		router.SetMode(router.DebugMode)
 	}
 }
 
