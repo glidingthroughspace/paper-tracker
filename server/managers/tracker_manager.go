@@ -145,7 +145,7 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 	switch tracker.Status {
 	case models.TrackerStatusIdle, models.TrackerStatusLearningFinished:
 		// If the tracker is idling, we want to periodically check for battery stats.
-		if int(time.Since(tracker.LastPoll).Seconds()) > mgr.sendInfoIntervalSec {
+		if int(time.Since(tracker.LastBatteryUpdate).Seconds()) > mgr.sendInfoIntervalSec {
 			cmd = &models.Command{
 				Type:         models.CmdSendInformation,
 				SleepTimeSec: mgr.sendInfoSleepSec,
@@ -168,6 +168,12 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 		}
 	}
 
+	err = mgr.trackerRep.UpdateLastPoll(tracker)
+	if err != nil {
+		pollLog.WithError(err).Error("Failed to update last poll time of tracker, ignoring")
+		err = nil
+	}
+
 	return
 }
 
@@ -182,6 +188,7 @@ func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp c
 
 	tracker.BatteryPercentage = resp.BatteryPercentage
 	tracker.IsCharging = resp.IsCharging
+	tracker.LastBatteryUpdate = time.Now()
 
 	updateLog.Debugf("Tracker %ds battery is at %d%% capacity", tracker.ID, resp.BatteryPercentage)
 	err = mgr.trackerRep.Update(tracker)

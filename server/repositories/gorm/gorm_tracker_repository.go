@@ -1,6 +1,9 @@
 package gorm
 
-import "paper-tracker/models"
+import (
+	"paper-tracker/models"
+	"time"
+)
 
 // Add used models to enable auto migration for them
 func init() {
@@ -39,6 +42,11 @@ func (rep *GormTrackerRepository) GetByID(trackerID models.TrackerID) (tracker *
 func (rep *GormTrackerRepository) Update(tracker *models.Tracker) (err error) {
 	err = databaseConnection.Save(tracker).Error
 	return
+}
+
+func (rep *GormTrackerRepository) UpdateLastPoll(tracker *models.Tracker) (err error) {
+	tracker.LastPoll = time.Now()
+	return rep.Update(tracker)
 }
 
 func (rep *GormTrackerRepository) SetStatusByID(trackerID models.TrackerID, status models.TrackerStatus) (err error) {
