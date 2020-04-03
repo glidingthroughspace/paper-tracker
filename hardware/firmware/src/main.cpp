@@ -43,8 +43,10 @@ static void onCommandReceived(Command& command) {
       }
       break;
     case CommandType::SEND_INFO: {
-        sendStatusInformation();
+      sendStatusInformation();
+      Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
      }
+     break;
     default:
       // We already sleep & reset the tracker when deserializing the command, so this should never
       // be reached.
