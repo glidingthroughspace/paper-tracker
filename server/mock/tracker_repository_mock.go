@@ -91,6 +91,20 @@ func (mr *MockTrackerRepositoryMockRecorder) Update(tracker interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockTrackerRepository)(nil).Update), tracker)
 }
 
+// UpdateLastPoll mocks base method
+func (m *MockTrackerRepository) UpdateLastPoll(tracker *models.Tracker) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateLastPoll", tracker)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateLastPoll indicates an expected call of UpdateLastPoll
+func (mr *MockTrackerRepositoryMockRecorder) UpdateLastPoll(tracker interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLastPoll", reflect.TypeOf((*MockTrackerRepository)(nil).UpdateLastPoll), tracker)
+}
+
 // SetStatusByID mocks base method
 func (m *MockTrackerRepository) SetStatusByID(trackerID models.TrackerID, status models.TrackerStatus) error {
 	m.ctrl.T.Helper()

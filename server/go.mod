@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-ocf/go-coap v0.0.0-20191015202911-fb71e4849cb6
-	github.com/golang/mock v1.4.1
+	github.com/golang/mock v1.4.3
 	github.com/jinzhu/gorm v1.9.11
 	github.com/montanaflynn/stats v0.6.3
 	github.com/onsi/ginkgo v1.7.0
