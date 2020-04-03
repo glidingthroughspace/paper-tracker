@@ -13,6 +13,7 @@ func (r *CoapRouter) buildTrackerAPIRoutes() {
 	r.addRoute("/tracker/new", &routeHandlers{Post: r.trackerNewHandler()})
 	r.addRoute("/tracker/poll", &routeHandlers{Get: r.trackerPollHandler()})
 	r.addRoute("/tracker/tracking", &routeHandlers{Post: r.trackerTrackingData()})
+	r.addRoute("/tracker/status", &routeHandlers{Post: r.trackerBatteryInformation()})
 }
 
 func (r *CoapRouter) trackerNewHandler() coap.HandlerFunc {
@@ -86,6 +87,39 @@ func (r *CoapRouter) trackerTrackingData() coap.HandlerFunc {
 		if err != nil {
 			r.writeError(w, coap.InternalServerError, err)
 			reqLogger.WithError(err).Warning("Coap router: Failed to save tracking data")
+			return
+		}
+
+		w.SetCode(coap.Empty)
+	}
+}
+
+func (r *CoapRouter) trackerBatteryInformation() coap.HandlerFunc {
+	return func(w coap.ResponseWriter, req *coap.Request) {
+		reqLogger := log.WithField("clientIP", req.Client.RemoteAddr().String)
+
+		trackerID, err := r.extractTrackerID(req)
+		if err != nil {
+			r.writeError(w, coap.BadRequest, err)
+			log.WithFields(log.Fields{"clientIP": req.Client.RemoteAddr().String, "err": err}).Warning("Coap router: Failed to extract tracker ID")
+			return
+		}
+
+		reqLogger = reqLogger.WithField("trackerID", trackerID)
+
+		dec := codec.NewDecoderBytes(req.Msg.Payload(), r.cborHandle)
+		defer dec.Release()
+
+		resp := &communication.TrackerCmdResponse{}
+		err = dec.Decode(resp)
+		if err != nil {
+			reqLogger.WithError(err).Warning("Coap router: Failed decode battery information data")
+		}
+
+		err = managers.GetTrackerManager().UpdateFromResponse(trackerID, *resp)
+		if err != nil {
+			reqLogger.WithError(err).Error("Failed to update tracker from response - ignore for request")
+			r.writeError(w, coap.InternalServerError, err)
 			return
 		}
 

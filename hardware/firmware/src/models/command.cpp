@@ -65,6 +65,8 @@ const char* Command::getTypeString() const {
       return "SignalLocation";
     case (uint8_t)CommandType::SLEEP:
       return "Sleep";
+    case (uint8_t)CommandType::SEND_INFO:
+      return "SendInfo";
     default:
       return "INVALID";
   }

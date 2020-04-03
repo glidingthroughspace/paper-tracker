@@ -9,6 +9,7 @@ enum class CommandType {
   SEND_TRACKING_INFO = 0,
   SIGNAL_LOCATION    = 1,
   SLEEP              = 2,
+  SEND_INFO          = 3,
   INVALID            = 255,
 };
 
@@ -16,7 +17,7 @@ class Command {
   private:
     CBORUint16 sleepTimeSec{"sleep_time_sec"};
     CBORUint8 type{"type"};
-    bool isValidType(uint8_t type) const { return (type <= 2); }
+    bool isValidType(uint8_t type) const { return (type <= 3); }
     bool parseType(CBORParser&);
   public:
     bool fromCBOR(uint8_t* buffer, size_t bufferSize);
