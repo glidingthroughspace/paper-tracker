@@ -15,8 +15,6 @@ class Tracker implements DropdownCapable {
   String label;
   @JsonKey(name: "last_poll")
   DateTime lastPoll;
-  @JsonKey(name: "last_sleep_time")
-  DateTime lastSleepTime;
   @JsonKey(name: "last_room")
   int lastRoom;
   @JsonKey(name: "status")
@@ -26,15 +24,7 @@ class Tracker implements DropdownCapable {
   @JsonKey(name: "is_charging", defaultValue: false)
   bool isCharging;
 
-  Tracker(
-      {this.id,
-      this.label,
-      this.lastPoll,
-      this.lastSleepTime,
-      this.lastRoom,
-      this.status,
-      this.batteryPercentage,
-      this.isCharging});
+  Tracker({this.id, this.label, this.lastPoll, this.lastRoom, this.status, this.batteryPercentage, this.isCharging});
 
   factory Tracker.fromJson(Map<String, dynamic> json) => _$TrackerFromJson(json);
 

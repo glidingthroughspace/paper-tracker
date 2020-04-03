@@ -16,13 +16,13 @@ func (r *HttpRouter) buildAppTrackerAPIRoutes() {
 	tracker.GET("", r.trackerListHandler())
 	tracker.PUT("/:id", extractSimpleID(), r.trackerUpdateHandler())
 	tracker.DELETE("/:id", extractSimpleID(), r.trackerDeleteHandler())
+	tracker.GET("/:id/next_poll", extractSimpleID(), r.trackerGetNextPollHandler())
 
 	trackerLearn := tracker.Group("/:id/learn", extractSimpleID())
-	trackerLearn.POST("/start", r.trackerLearnStartHandler())
-	trackerLearn.GET("/status", r.trackerLearnStatusHandler())
+	trackerLearn.POST("", r.trackerLearnStartHandler())
+	trackerLearn.GET("", r.trackerLearnStatusHandler())
 	trackerLearn.POST("/finish", r.trackerLearnFinishHandler())
-	trackerLearn.POST("/cancel", r.trackerLearnCancelHandler())
-
+	trackerLearn.DELETE("", r.trackerLearnCancelHandler())
 }
 
 func (r *HttpRouter) trackerListHandler() gin.HandlerFunc {
@@ -70,6 +70,20 @@ func (r *HttpRouter) trackerDeleteHandler() gin.HandlerFunc {
 			return
 		}
 		ctx.Status(http.StatusOK)
+	}
+}
+
+func (r *HttpRouter) trackerGetNextPollHandler() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		trackerID := models.TrackerID(ctx.GetInt(httpParamIDName))
+
+		tracker, err := managers.GetTrackerManager().GetTrackerByID(trackerID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, &communication.ErrorResponse{Error: err.Error()})
+			log.WithError(err).Warn("TrackerDelete request failed")
+			return
+		}
+		ctx.JSON(http.StatusOK, &communication.TrackerNextPollResponse{NextPollSec: tracker.GetSecondsToNextPoll()})
 	}
 }
 

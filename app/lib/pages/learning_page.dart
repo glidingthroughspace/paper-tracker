@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/room_client.dart';
@@ -10,7 +11,9 @@ import 'package:paper_tracker/widgets/conditional_builder.dart';
 import 'package:paper_tracker/widgets/countdown_timer.dart';
 import 'package:paper_tracker/widgets/detail_content.dart';
 import 'package:paper_tracker/widgets/dialogs/confirm_icon_text_dialog.dart';
+import 'package:paper_tracker/widgets/dialogs/wait_tracker_poll_dialog.dart';
 import 'package:paper_tracker/widgets/dropdown.dart';
+import 'package:paper_tracker/widgets/label.dart';
 import 'package:paper_tracker/widgets/lists/check_card_list.dart';
 
 class LearningPage extends StatefulWidget {
@@ -31,6 +34,12 @@ class _LearningPageState extends State<LearningPage> {
   var checkCardListController = CheckCardListController();
   var roomDropdownController = DropdownController();
   var trackerDropdownController = DropdownController();
+
+  @override
+  void dispose() {
+    ssidTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +65,9 @@ class _LearningPageState extends State<LearningPage> {
           padding: EdgeInsets.all(15.0),
           child: Column(
             children: [
+              Row(children: [Label("Select a room to learn:"), Spacer()]),
               buildRoomDropdown(),
+              Row(children: [Label("Select a tracker to learn with:"), Spacer()]),
               buildTrackerDropdown(),
               SizedBox(height: 15.0),
               buildButtonOrCountdown(context),
@@ -85,7 +96,7 @@ class _LearningPageState extends State<LearningPage> {
       conditional: state == _learningState.Init,
       truthy: MaterialButton(
         onPressed: roomDropdownController.selectedItem != null && trackerDropdownController.selectedItem != null
-            ? onStartLearning
+            ? onWaitForPoll
             : null,
         child: Text("Start learning"),
         color: Theme.of(context).accentColor,
@@ -134,6 +145,17 @@ class _LearningPageState extends State<LearningPage> {
         controller: checkCardListController,
       ),
     ];
+  }
+
+  void onWaitForPoll() async {
+    showDialog(
+      context: context,
+      child: WaitTrackerPollDialog(
+        trackerID: trackerDropdownController.selectedItem.id,
+        onWaitFinished: onStartLearning,
+        trackerClient: trackerClient,
+      ),
+    );
   }
 
   void onStartLearning() async {

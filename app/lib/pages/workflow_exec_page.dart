@@ -82,7 +82,7 @@ class _WorkflowExecPageState extends State<WorkflowExecPage> {
               primaryScroll: false,
               stepInfos: exec.stepInfos,
               currentStep: exec.currentStepID,
-              onTap: onStepTap,
+              onTap: exec.status != WorkflowExecStatus.Finished ? onStepTap : null,
             ),
           );
         }

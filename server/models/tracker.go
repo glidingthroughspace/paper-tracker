@@ -9,8 +9,9 @@ type Tracker struct {
 	// Label is a human-readable name for the tracker
 	Label string `json:"label" codec:"-"`
 	// LastPoll indicates when the tracker has last polled for a command
-	LastPoll      time.Time `json:"last_poll" codec:"-"`
-	LastSleepTime time.Time `json:"last_sleep_time" codec:"-"`
+	LastPoll time.Time `json:"last_poll" codec:"-"`
+	// LastSleepTimeSec saves the last sleep time the tracker received
+	LastSleepTimeSec int `json:"-" codec:"-"`
 	// LastBatteryUpdate indicates when the tracker's battery status has last been updated
 	LastBatteryUpdate time.Time `json:"last_battery_update" codec:"-"`
 	// LastRoom is the last known room in which the tracker was located
@@ -19,6 +20,14 @@ type Tracker struct {
 	Status            TrackerStatus `json:"status" codec:"-"`
 	BatteryPercentage int           `json:"battery_percentage" codec:"-"`
 	IsCharging        bool          `json:"is_charging" codec:"-"`
+}
+
+func (tracker *Tracker) GetSecondsToNextPoll() int {
+	pollSecs := tracker.LastPoll.Add(time.Second * time.Duration(tracker.LastSleepTimeSec)).Sub(time.Now()).Seconds()
+	if pollSecs < 0 {
+		return 0
+	}
+	return int(pollSecs)
 }
 
 type TrackerStatus int8

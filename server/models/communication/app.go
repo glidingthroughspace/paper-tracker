@@ -47,3 +47,7 @@ func StepMoveDirectionFromString(raw string) (direction StepMoveDirection, err e
 	err = fmt.Errorf("Could not parse '%s' as StepMoveDirection", raw)
 	return
 }
+
+type TrackerNextPollResponse struct {
+	NextPollSec int `json:"next_poll_sec"`
+}

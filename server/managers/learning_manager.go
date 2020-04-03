@@ -3,6 +3,7 @@ package managers
 import (
 	"errors"
 	"fmt"
+	"math"
 	"paper-tracker/models"
 	"paper-tracker/repositories"
 	"time"
@@ -56,7 +57,9 @@ func (mgr *LearningManager) StartLearning(trackerID models.TrackerID) (learnTime
 
 	go mgr.learningRoutine(trackerID, learnLog)
 
-	learnTimeSec = mgr.learnCount * mgr.learnSleepSec
+	// Send a learn time 20% higher to take response time of tracker into account
+	learnTime := float64(mgr.learnCount) * float64(mgr.learnSleepSec) * 1.2
+	learnTimeSec = int(math.RoundToEven(learnTime))
 	return
 }
 
@@ -94,7 +97,7 @@ func (mgr *LearningManager) checkLearningCanceled(trackerID models.TrackerID, lo
 			return true
 		}
 
-		time.Sleep(time.Duration(mgr.learnSleepSec-1) * time.Second)
+		time.Sleep(time.Duration(mgr.learnSleepSec) * time.Second)
 	}
 	logger.Info("Finished checking for canceled learning")
 
