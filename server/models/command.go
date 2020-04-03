@@ -11,4 +11,5 @@ const (
 	CmdSendTrackingInformation CommandType = 0
 	CmdSignalLocation          CommandType = 1
 	CmdSleep                   CommandType = 2
+	CmdSendInformation         CommandType = 3
 )

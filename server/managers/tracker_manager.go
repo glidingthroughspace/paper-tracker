@@ -7,6 +7,7 @@ import (
 	"paper-tracker/models/communication"
 	"paper-tracker/repositories"
 	"sync"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -27,21 +28,25 @@ type TrackerManager struct {
 	idleSleepSec          int
 	trackingSleepSec      int
 	learningSleepSec      int
+	sendInfoSleepSec      int
+	sendInfoIntervalSec   int
 	done                  chan struct{}
 }
 
-func CreateTrackerManager(trackerRep repositories.TrackerRepository, idleSleepSec, trackingSleepSec, learningSleepSec int) *TrackerManager {
+func CreateTrackerManager(trackerRep repositories.TrackerRepository, idleSleepSec, trackingSleepSec, learningSleepSec, sendInfoSleepSec, sendInfoIntervalSec int) *TrackerManager {
 	if trackerManager != nil {
 		return trackerManager
 	}
 
 	trackerManager = &TrackerManager{
-		trackerRep:       trackerRep,
-		idleSleepSec:     idleSleepSec,
-		trackingSleepSec: trackingSleepSec,
-		learningSleepSec: learningSleepSec,
-		done:             make(chan struct{}),
-		scanResultsCache: make(map[models.TrackerID]CachedScanResults),
+		trackerRep:          trackerRep,
+		idleSleepSec:        idleSleepSec,
+		trackingSleepSec:    trackingSleepSec,
+		learningSleepSec:    learningSleepSec,
+		sendInfoSleepSec:    sendInfoSleepSec,
+		sendInfoIntervalSec: sendInfoIntervalSec,
+		done:                make(chan struct{}),
+		scanResultsCache:    make(map[models.TrackerID]CachedScanResults),
 	}
 
 	return trackerManager
@@ -139,9 +144,17 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 
 	switch tracker.Status {
 	case models.TrackerStatusIdle, models.TrackerStatusLearningFinished:
-		cmd = &models.Command{
-			Type:         models.CmdSleep,
-			SleepTimeSec: mgr.idleSleepSec,
+		// If the tracker is idling, we want to periodically check for battery stats.
+		if int(time.Since(tracker.LastPoll).Seconds()) > mgr.sendInfoIntervalSec {
+			cmd = &models.Command{
+				Type:         models.CmdSendInformation,
+				SleepTimeSec: mgr.sendInfoSleepSec,
+			}
+		} else {
+			cmd = &models.Command{
+				Type:         models.CmdSleep,
+				SleepTimeSec: mgr.idleSleepSec,
+			}
 		}
 	case models.TrackerStatusTracking:
 		cmd = &models.Command{

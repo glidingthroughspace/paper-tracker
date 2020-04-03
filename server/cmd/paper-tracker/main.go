@@ -25,6 +25,8 @@ func main() {
 	httpPortPtr := flag.Int("http-port", 8080, "Port on which the application will listen for http requests")
 
 	idleSleepSecPtr := flag.Int("idle-sleep", 5, "Sleep duration for the tracker before polling for new command in idle")
+	sendInfoSleepSecPtr := flag.Int("info-sleep", 5, "Sleep duration for the tracker before sending battery stats when idling")
+	sendInfoIntervalSecPtr := flag.Int("info-interval", 60, "Interval for the tracker to send battery stats when idling")
 	trackingSleepSecPtr := flag.Int("tracking-sleep", 5, "Sleep duration for the tracker before polling for new command in tracking")
 	learnSleepSecPtr := flag.Int("learn-sleep", 5, "Sleep duration for the tracker before polling for new command in learning")
 	learnCountPtr := flag.Int("learn-count", 5, "Total times the WiFi is scanned when learning a room")
@@ -55,7 +57,7 @@ func main() {
 		log.Fatal("Abort: Failed to create workflow repository")
 	}
 
-	managers.CreateTrackerManager(trackerRep, *idleSleepSecPtr, *trackingSleepSecPtr, *learnSleepSecPtr)
+	managers.CreateTrackerManager(trackerRep, *idleSleepSecPtr, *trackingSleepSecPtr, *learnSleepSecPtr, *sendInfoSleepSecPtr, *sendInfoIntervalSecPtr)
 	managers.CreateRoomManager(roomRep)
 	managers.CreateLearningManager(scanResultRep, *learnCountPtr, *learnSleepSecPtr)
 	managers.CreateWorkflowTemplateManager(workflowTemplateRep)
