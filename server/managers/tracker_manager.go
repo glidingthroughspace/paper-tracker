@@ -168,7 +168,9 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 		}
 	}
 
-	err = mgr.trackerRep.UpdateLastPoll(tracker)
+	tracker.LastPoll = time.Now()
+	tracker.LastSleepTimeSec = cmd.SleepTimeSec
+	err = mgr.trackerRep.Update(tracker)
 	if err != nil {
 		pollLog.WithError(err).Error("Failed to update last poll time of tracker, ignoring")
 		err = nil
