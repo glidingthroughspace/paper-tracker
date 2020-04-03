@@ -40,7 +40,7 @@ class TrackerClient {
   }
 
   Future<LearningStartResponse> startLearning(int id) async {
-    final response = await apiClient.post("/tracker/$id/learn/start", null);
+    final response = await apiClient.post("/tracker/$id/learn", null);
     if (response.statusCode == 200) {
       return LearningStartResponse.fromJson(json.decode(response.body));
     } else {
@@ -49,7 +49,7 @@ class TrackerClient {
   }
 
   Future<LearningStatusResponse> getLearningStatus(int id) async {
-    final response = await apiClient.get("/tracker/$id/learn/status");
+    final response = await apiClient.get("/tracker/$id/learn");
     if (response.statusCode == 200) {
       return LearningStatusResponse.fromJson(json.decode(response.body));
     } else {
@@ -66,7 +66,7 @@ class TrackerClient {
   }
 
   Future<void> cancelLearning(int trackerID) async {
-    final response = await apiClient.post("/tracker/$trackerID/learn/cancel", null);
+    final response = await apiClient.delete("/tracker/$trackerID/learn", null);
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Failed to cancel learning");
     }

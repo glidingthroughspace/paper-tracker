@@ -19,11 +19,10 @@ func (r *HttpRouter) buildAppTrackerAPIRoutes() {
 	tracker.GET("/:id/next_poll", extractSimpleID(), r.trackerGetNextPollHandler())
 
 	trackerLearn := tracker.Group("/:id/learn", extractSimpleID())
-	trackerLearn.POST("/start", r.trackerLearnStartHandler())
-	trackerLearn.GET("/status", r.trackerLearnStatusHandler())
+	trackerLearn.POST("", r.trackerLearnStartHandler())
+	trackerLearn.GET("", r.trackerLearnStatusHandler())
 	trackerLearn.POST("/finish", r.trackerLearnFinishHandler())
-	trackerLearn.POST("/cancel", r.trackerLearnCancelHandler())
-
+	trackerLearn.DELETE("", r.trackerLearnCancelHandler())
 }
 
 func (r *HttpRouter) trackerListHandler() gin.HandlerFunc {
