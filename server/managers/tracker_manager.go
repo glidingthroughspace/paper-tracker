@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jinzhu/now"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -30,10 +31,24 @@ type TrackerManager struct {
 	learningSleepSec      int
 	sendInfoSleepSec      int
 	sendInfoIntervalSec   int
+	maxSleepSec           int
+	workStartHour         int
+	workEndHour           int
+	workOnWeekend         bool
 	done                  chan struct{}
 }
 
-func CreateTrackerManager(trackerRep repositories.TrackerRepository, idleSleepSec, trackingSleepSec, learningSleepSec, sendInfoSleepSec, sendInfoIntervalSec int) *TrackerManager {
+func CreateTrackerManager(
+	trackerRep repositories.TrackerRepository,
+	idleSleepSec,
+	trackingSleepSec,
+	learningSleepSec,
+	sendInfoSleepSec,
+	sendInfoIntervalSec,
+	maxSleepSec,
+	workStartHour,
+	workEndHour int,
+	workOnWeekend bool) *TrackerManager {
 	if trackerManager != nil {
 		return trackerManager
 	}
@@ -45,6 +60,10 @@ func CreateTrackerManager(trackerRep repositories.TrackerRepository, idleSleepSe
 		learningSleepSec:    learningSleepSec,
 		sendInfoSleepSec:    sendInfoSleepSec,
 		sendInfoIntervalSec: sendInfoIntervalSec,
+		maxSleepSec:         maxSleepSec,
+		workStartHour:       workStartHour,
+		workEndHour:         workEndHour,
+		workOnWeekend:       workOnWeekend,
 		done:                make(chan struct{}),
 		scanResultsCache:    make(map[models.TrackerID]CachedScanResults),
 	}
@@ -168,6 +187,15 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 		}
 	}
 
+	if inWorkHours, toWorkHours := mgr.InWorkingHours(); !inWorkHours {
+		toWorkHoursSec := int(toWorkHours.Seconds())
+		if toWorkHoursSec > mgr.maxSleepSec {
+			cmd.SleepTimeSec = mgr.maxSleepSec
+		} else {
+			cmd.SleepTimeSec = toWorkHoursSec
+		}
+	}
+
 	tracker.LastPoll = time.Now()
 	tracker.LastSleepTimeSec = cmd.SleepTimeSec
 	err = mgr.trackerRep.Update(tracker)
@@ -176,6 +204,37 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 		err = nil
 	}
 
+	return
+}
+
+//TODO: Write test and somehow mock time.Now() for that
+// InWorkingHours returns whether we are currently in working hours and if not, how long it will be until working hour
+func (mgr *TrackerManager) InWorkingHours() (inHours bool, toStart time.Duration) {
+	if mgr.workStartHour < 0 || mgr.workEndHour < 0 {
+		return true, time.Duration(0)
+	}
+
+	toStartDuration := time.Duration(mgr.workStartHour) * time.Hour // Time from midnight to work start
+	timeDay := time.Hour * 24
+
+	currentTime := time.Now().Local()
+	var startTime time.Time
+	if day := currentTime.Weekday(); !mgr.workOnWeekend && (day == time.Saturday || day == time.Sunday) {
+		// If we don't work on the weekend, check if we have Saturday/Sunday
+		// startTime of next working day is the Monday of next week at the proper hour
+		startTime = now.With(currentTime.Add(timeDay * 3)).Monday().Add(toStartDuration)
+	} else if currentTime.Hour() < mgr.workStartHour {
+		// If we have a workday but are BEFORE the working hours
+		// startTime is today at the proper hour
+		startTime = now.With(currentTime.Add(timeDay)).BeginningOfDay().Add(toStartDuration)
+	} else if currentTime.Hour() > mgr.workEndHour {
+		// If we have a workday but are AFTER the working hours
+		// startTime is the next day at the proper hour (ignore transition to the weekend for now)
+		startTime = now.With(currentTime).BeginningOfDay().Add(toStartDuration)
+	} else {
+		inHours = true
+	}
+	toStart = startTime.Sub(currentTime)
 	return
 }
 
