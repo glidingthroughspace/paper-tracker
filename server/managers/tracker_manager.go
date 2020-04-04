@@ -188,7 +188,7 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 	}
 
 	if inWorkHours, toWorkHours := mgr.InWorkingHours(); !inWorkHours {
-		toWorkHoursSec := int(toWorkHours / time.Second)
+		toWorkHoursSec := int(toWorkHours.Seconds())
 		if toWorkHoursSec > mgr.maxSleepSec {
 			cmd.SleepTimeSec = mgr.maxSleepSec
 		} else {
@@ -214,16 +214,22 @@ func (mgr *TrackerManager) InWorkingHours() (inHours bool, toStart time.Duration
 		return true, time.Duration(0)
 	}
 
-	toStartDuration := time.Duration(mgr.workStartHour) * time.Hour
+	toStartDuration := time.Duration(mgr.workStartHour) * time.Hour // Time from midnight to work start
 	timeDay := time.Hour * 24
 
 	currentTime := time.Now().Local()
 	var startTime time.Time
 	if day := currentTime.Weekday(); !mgr.workOnWeekend && (day == time.Saturday || day == time.Sunday) {
+		// If we don't work on the weekend, check if we have Saturday/Sunday
+		// startTime of next working day is the Monday of next week at the proper hour
 		startTime = now.With(currentTime.Add(timeDay * 3)).Monday().Add(toStartDuration)
 	} else if currentTime.Hour() < mgr.workStartHour {
+		// If we have a workday but are BEFORE the working hours
+		// startTime is today at the proper hour
 		startTime = now.With(currentTime.Add(timeDay)).BeginningOfDay().Add(toStartDuration)
 	} else if currentTime.Hour() > mgr.workEndHour {
+		// If we have a workday but are AFTER the working hours
+		// startTime is the next day at the proper hour (ignore transition to the weekend for now)
 		startTime = now.With(currentTime).BeginningOfDay().Add(toStartDuration)
 	} else {
 		inHours = true

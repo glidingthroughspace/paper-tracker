@@ -36,7 +36,7 @@ func main() {
 
 	workStartHourPtr := flag.Int("work-start-hour", -1, "Hour of the day the tracker should become active. In 24-Hour format. Set this or end value to -1 to disable.")
 	workEndHourPtr := flag.Int("work-end-hour", -1, "Hour of the day the tracker should become inactive. In 24-Hour format. Set this or start value to -1 to disable.")
-	workOnWeekend := flag.Bool("work-on-weekend", false, "Whether the tracker should be inactive on weekends")
+	workOnWeekend := flag.Bool("work-on-weekend", false, "Whether the tracker should be active on weekends")
 
 	err := gorm.InitDatabaseConnection(*dbNamePtr)
 	if err != nil {
