@@ -1,0 +1,185 @@
+@startuml
+package cmd {
+  class Main {
+  }
+}
+
+package router {
+  class HttpRouter {
+    NewHttpRouter()
+    Serve(String addr)
+  }
+  
+  class CoapRouter {
+    NewCoapRouter()
+    Serve(String network, String addr)
+  }
+}
+
+package managers {
+  class LearningManager {
+    int learnCount
+    int learnSleepSec
+    
+    CreateLearningManager(ScanResultRepository scanResRepo, int learnCount, int learnSleepSec) : LearningManager
+    GetLearningManager() : LearningManager
+    StartLearning(int trackerID)
+    FinishLearning(int trackerID, int roomID)
+    CancelLearning(int trackerID)
+    GetLearningStatus(int trackerID)
+  }
+  
+  class RoomManager {
+  	CreateRoomManager(RoomRepository roomRep) : RoomManager
+    GetRoomManager() : RoomManager
+    CreateRoom(Room room)
+    GetRoomByID(int roomID) : Room
+    GetAllRooms() : Room[]
+    SetRoomLearned(int roomID, bool learned)
+    UpdateRoom(Room room)
+    DeleteRoom(int roomID)
+  }
+  
+  class TrackerManager {
+  	int idleSleepSec
+    int learningSleepSec
+    int trackingSleepSec
+  
+    CreateTrackerManager(TrackerRepository trackerRep, int idleSleepSec, int learningSleepSec, int trackingSleepSec) : TrackerManager
+    GetTrackerManager() : TrackerManager
+    NotifyNewTracker() : Tracker
+    GetTrackerByID(int trackerID) : Tracker
+    GetAllTrackers() : Tracker[]
+    SetTrackerStatus(int trackerID, TrackerStatus status)
+    UpdateTrackerLabel(int trackerID, String label)
+    DeleteTracker(int trackerID)
+    PollCommand(int trackerID) : Command
+    UpdateFromResponse(int trackerID, TrackerCmdResponse resp)
+    UpdateRoom(int trackerID, int roomID)
+    NewTrackingData(int trackerID, scanRes ScanResult[])
+  }
+  
+  class TrackingManager {
+    CreateTrackingManager() : TrackingManager
+    GetTrackingManager() : TrackingManager
+    ConsolidateScanResults(ScanResult[] scanResults) : BSSIDTrackingData[]
+    GetRoomMatchingBest(Room[] rooms, ScanResult[] scanResults) : Room
+  }
+  
+  class WorkflowExecManager {
+    CreateWorkflowExecManager(WorkflowExecRepository execRep) : WorkflowExecManager
+    GetWorkflowExecManager() : WorkflowExecManager
+    GetExecCountByTemplate(int templateID) : int
+    GetAllExec() : WorkflowExec[]
+    GetExec(int execID) : WorkflowExec
+    GetExecByTrackerID(int trackerID) : WorkflowExec
+    StartExecution(WorkflowExec exec)
+    ProgressToTrackerRoom(int trackerID, int roomID)
+    ProgressToStep(int execID, int stepID)
+    SetExecutionFinished(int execID)
+    CancelExec(int execID)
+  }
+  
+  class WorkflowTemplateManager {
+    CreateWorkflowTemplateManager(WorkflowTemplateRepository tempRep) : WorkflowTemplateManager
+    GetWorkflowTemplateManager() : WorkflowTemplateManager
+    CreateTemplate(WorkflowTemplate template)
+    CreateTemplateStart(int templateID, Step step)
+    AddTemplateStep(int templateID, int prevStepID, Step step)
+    GetAllTemplates() : WorkflowTemplate[]
+    GetTemplate(int templateID) : WorkflowTemplate
+    UpdateTemplateLabel(int templateID, String label)
+    GetStepByID(int templateID, int stepID) : Step
+    UpdateStep(int templateID, Step step)
+    DeleteStep(int templateID, int stepID)
+    MoveStep(int templateID, int stepID, String direction)
+    NumberOfStepsRefferingToRoom(int roomID)
+    CreateNewRevision(int templateID, String revisionLabel)
+    DeleteTemplate(int templateID)
+  }
+}
+
+package repositories {
+  class RoomRepository {
+    Create(Room room)
+    GetByID(int id) : Room
+    GetAll() : Room[]
+    Delete(int id)
+    SetLearnedByID(int id, bool learned)
+    Update(Room room)
+  }
+  
+  class ScanResultRepository {
+    CreateAll(ScanResult[] scanResults)
+    GetAllForTracker(int trackerID) : ScanResult[]
+    DeleteForTracker(int trackerID)
+  }
+  
+  class TrackerRepository {
+    Create(Tracker tracker)
+    GetAll() : Tracker[]
+    GetByID(int trackerID) : Tracker
+    Update(Tracker tracker)
+    SetStatusByID(int trackerID, TrackerStatus status)
+    Delete(int trackerID)
+  }
+  
+  class WorkflowExecRepository {
+	CreateExec(WorkflowExec exec)
+	GetAllExec() : models.WorkflowExec[]
+	GetExecByID(int execID) : WorkflowExec
+	GetRunningExecByTrackerID(int trackerID) : models.WorkflowExec
+	GetExecsByTemplateID(int templateID) : models.WorkflowExec[]
+	UpdateExec(models.WorkflowExec exec)
+	DeleteExec(int execID)
+	CreateExecStepInfo(ExecStepInfo execStepInfo)
+	GetExecStepInfoByID(int execID, int stepID) : ExecStepInfo
+	GetExecStepInfoForExecID(int execID) : models.ExecStepInfo[]
+	UpdateExecStepInfo(ExecStepInfo execStepInfo)
+	DeleteExecStepInfo(int execID, int stepID)
+  }
+  
+  class WorkflowTemplateRepository {
+	CreateTemplate(WorkflowTemplate template)
+	GetAllTemplates() WorkflowTemplate[]
+	GetTemplateByID(int templateID) : WorkflowTemplate
+	UpdateTemplate(WorkflowTemplate template)
+	DeleteTemplate(int templateID)
+	CreateStep(Step step)
+	GetStepByID(int stepID) : Step
+	GetStepsByRoomID(int roomID) : models.Step[]
+	UpdateStep(Step step)
+	DeleteStep(int stepID)
+	CreateNextStep(NextStep nextStep)
+	UpdateNextStep(NextStep nextStep)
+	DeleteNextStep(int prevStepID, int nextStepID)
+	GetLinearNextStepID(int stepID) : StepID
+	GetNextStepByNextID(int stepID) : models.NextStep
+	GetNextStepByDecison(int stepID, String decision) : models.StepID
+	GetDecisions(int stepID) : models.NextStep[]
+  }
+}
+
+  
+LearningManager -- LearningManager : instance
+RoomManager -- RoomManager : instance
+TrackerManager -- TrackerManager : instance
+TrackingManager -- TrackingManager : instance
+WorkflowExecManager -- WorkflowExecManager : instance
+WorkflowTemplateManager -- WorkflowTemplateManager : instance
+  
+LearningManager --> ScanResultRepository
+RoomManager --> RoomRepository
+TrackerManager --> TrackerRepository
+WorkflowExecManager --> WorkflowExecRepository
+WorkflowTemplateManager --> WorkflowTemplateRepository
+
+Main ..> LearningManager : <creates>
+Main ..> RoomManager : <creates>
+Main ..> TrackerManager : <creates>
+Main ..> TrackingManager : <creates>
+Main ..> WorkflowExecManager : <creates>
+Main ..> WorkflowTemplateManager : <creates>
+Main .> HttpRouter : <starts>
+Main .> CoapRouter : <starts>
+@enduml

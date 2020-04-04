@@ -66,7 +66,7 @@ Da die Positionsdaten ohnehin zur Auswertung an das Backend übertragen werden m
 \gls{WLAN}-Verbindung notwendig ist, wird diese Methode eingesetzt.
 Die gesammelten Daten werden dann im Anschluss an das Backend übermittelt.
 
-% TODO: Lifecycle des Paper-Trackers erläutern
+\TODO{Lifecycle des Paper-Trackers erläutern}
 
 \subsection{Backend-Anwendung} \label{sec:backend}
 
@@ -148,11 +148,11 @@ Dies wird über ein entsprechendes Protokoll und einem Datenformat erreicht.
 Das verwendete Protokoll ist das \acrfull{CoAP} Protokoll und das Datenformat ist \acrfull{CBOR}.
 
 Bei \gls{CoAP} handelt es sich um ein spezialisiertes Protokoll für die Verwendung in
-\gls{IoT}-Hardware, welches dafür optimiert wurde möglichst wenig Overhead zu haben.
-\TODO{Glossar: Overhead}
+\gls{IoT}-Hardware, welches dafür optimiert wurde möglichst wenig \gls{Overhead} zu haben.
+
 Im \gls{IoT}-Bereich haben sich einige Protokolle durchsetzen können. Dazu zählen vor allem
 \gls{HTTP}, \gls{MQTT}, \gls{AMQP} und \gls{CoAP}.
-Da die Tracker Batteriebetrieben sind, ist für diesen Anwendungsfall besonders die Performance des
+Da die Tracker batteriebetrieben sind, ist für diesen Anwendungsfall besonders die Performance des
 eingesetzten Protokolles wichtig. Je weniger Overhead das Protokoll aufweist, desto weniger
 Instruktionen müssen vom Prozessor des Trackers durchgeführt werden, was zu einer längeren Laufzeit
 führt.
@@ -169,7 +169,7 @@ Bei einem Vergleich zwischen der \gls{CBOR} Bibliothek \enquote{libCBOR} und der
 konnte zudem festgestellt werden, dass bei gleicher Nachricht das \gls{CBOR} Format ca. 26.5\% kleinere Nachrichten
 in 83.3\% der Zeit schnellerer Zeit serialisiert hat.
 
-% TODO: Hier das Polling-Prinzip oder unter Hardware?!
+\TODO{Hier das Polling-Prinzip oder unter Hardware?!}
 
 Die Tracker-Schnittstelle soll drei Endpunkte zur Verfügung stellen.
 Diese sind in \autoref{tab:coap-api} aufgelistet.
@@ -181,7 +181,7 @@ Der Endpunkt zum Speichern der Tracking Ergebnisse hat zudem als Parameter die E
 \textbf{Verb} & \textbf{Pfad}     & \textbf{Aktion}                   & \textbf{Rückgabe-Wert}    \\ \hline
 POST          & /tracker/new      & Neuen Tracker erstellen           & Tracker ID \\ \hline
 GET           & /tracker/poll     & Kommando für Tracker abfragen     & Tracker Kommando   \\ \hline
-POST          & /tracker/tracking & Ergebnisse des Tracking speichern & -                        
+POST          & /tracker/tracking & Ergebnisse des Tracking speichern & -
 \end{tabular}
 \caption{\label{tab:coap-api}Verfügbare Endpunkte der Tracker-Schnittstelle}
 \end{table}
@@ -189,18 +189,19 @@ POST          & /tracker/tracking & Ergebnisse des Tracking speichern & -
 \FloatBarrier
 \paragraph{App-Schnittstelle}
 Die Schnittstelle für die App hat keine besonderen Anforderungen und kann daher frei gewählt werden.
-Aus diesem Grund werden Protokolle und Datenformate verwendet, die momentan dem aktuellen Stand der Technik entsprechen. % TODO: Quelle
+Aus diesem Grund werden Protokolle und Datenformate verwendet, die momentan dem aktuellen Stand der
+Technik entsprechen. \TODO{Quelle für aktuelle Protokolle}
 Dies ergibt den Vorteil, dass sie mit allen anderen gewählten Technologien sehr gut kombinierbar sind und entsprechende Bibliotheken vorhanden sind.
 Das verwendete Protokoll ist das \gls{HTTP}-Protokoll und das Datenformat ist \gls{JSON}.
-Die Schnittstelle basiert auf dem \gls{REST} Paradigma. % TODO: Erläutern?
+Die Schnittstelle basiert auf dem \gls{REST} Paradigma. \TODO{Soll REST erläutert werden?}
 Alle verfügbaren Endpunkte der App-Schnittstelle sind in \autoref{tab:http-api} dargestellt.
 
-% TODO: Zwischen"überschriften" hinzufügen für Room, Tracker, etc.
-% TODO: Erläuterung der einen Abkürzung?
-% TODO: Add caption -> throws errors
+\TODO{Zwischen"überschriften" hinzufügen für Room, Tracker, etc.}
+\TODO{Erläuterung der einen Abkürzung (wf)?}
+\FIXME{Hinzufügen einer caption führt zu Fehlern}
 \begin{small}
 \begin{landscape}
-\begin{longtable}{l|l|l|l|l}
+	\begin{longtable}{l|l|l|l|l} \label{tab:http-api}
 \textbf{Verb} & \textbf{Pfad}                   & \textbf{Aktion}                     & \textbf{Parameter}                                          & \textbf{Rückgabe-Wert}                                                  \\ \hline
 \endhead
 %
@@ -229,10 +230,44 @@ POST          & /workflow/template/revision     & Template Revision erstellen   
 GET           & /workflow/exec                  & Auflistung der Ausführungen         & -                                                           & Execution                                                               \\ \hline
 POST          & /workflow/exec                  & Ausführung erstellen                & Execution                                                   & Erstelle Execution                                                      \\ \hline
 POST          & /workflow/exec/:id/progress/:id & Ausführung zu Schritt progressieren & -                                                           & -                                                                       \\ \hline
-POST          & /workflow/exec/:id/cancel       & Ausführung abbrechen                & -                                                           & -                                                                      
+POST          & /workflow/exec/:id/cancel       & Ausführung abbrechen                & -                                                           & -
 \end{longtable}
 \end{landscape}
 \end{small}
 
+\subsubsection{Software-Architektur}
+\FloatBarrier
+Die Architektur des Backend-Servers ist in folgendem Klassendiagramm \ref{fig:software-architecture} dargestellt.
+
+\begin{figure}
+	\includegraphics[width=\textwidth]{images/server_architecture.png}
+	\centering
+	\caption{Software-Architektur für die Backend-Anwendung}
+	\label{fig:software-architecture}
+\end{figure}
+\TODO{Layout verbessern, Erstellung der DB Verbindung reinpacken}
+
+Generell kann die Architektur in drei verschiedene Schichten aufgeteilt werden.
+Die erste Schicht bildet das Paket \enquote{router}, die zweite Schicht das Paket \enquote{managers} und die dritte Schicht das Paket \enquote{repositories}.
+
+Im \enquote{router} Paket befinden sich die Router für die zwei externen Schnittstellen des Servers.
+Die \gls{HTTP} Schnittstelle für die App befindet sich in der \enquote{HttpRouter}-Klasse und die \gls{CoAP} Schnittstelle für den Tracker befindet sich in der \enquote{CoapRouter}-Klasse.
+Beide Klassen besitzen eine Methode \enquote{Serve}.
+Mit dieser Methode werden die Router letztendlich gestartet so, dass sie Verbingungen annehmen können.
+Als Parameter bekommen sie die Adresse, auf die sie Verbindungen annehmen, und im Falle des \enquote{CoapRouter} auch das Transport-Protokoll.
+
+Das \enquote{managers} Paket beinhaltet sechs verschiedene Manager, die die Businesslogik für verschiedene Teilbereiche des Servers beinhalten.
+Ein Beispiel ist der \enquote{TrackerManager}, über den Tracker angelegt, abgefragt, verändert und auch gelöscht werden können.
+Weitere Methoden für z.B. das Abfragen eines Kommandos für einen Tracker sind auch beinhaltet.
+Alle Manager sind als Singleton implementiert so, dass sie sich auch untereinander problemlos aufrufen können.
+
+Die unterste Schicht bildet das \enquote{repositories} Paket.
+Dieses enthält verschiedene Datenbank-Repositories, die die Datenbank und damit die Datenpersistenz des Servers abbilden.
+Alle Methoden eines Repository bilden direkte Anfragen an die Datenbank.
+Dabei ist ein Repository meist für eine Modellklasse verantwortlich.
+
+Die main-Klasse ist für das Starten des Servers und das Erstellen der einzelnen Komponenten verantwortlich.
+
+\FloatBarrier
 \subsection{App für Mobilgeräte} \label{sec:app}
 

@@ -3,14 +3,53 @@
 \section{Projektumfeld}
 
 Das Projekt wird im Umfeld der \gls{DHBW} Karlsruhe durchgeführt.
+\TODO{}
 
-\section{Funktionsweise WLAN}
+\section{Funktionsweise \gls{WLAN}}
 
-\subsection{SSID}
+Unter \gls{WLAN} versteht man im Allgemeinen ein Funknetz nach einem Standard der \gls{IEEE} 802.11 Familie.
+Alle Standards der Familie basieren auf dem ursprünglichen 802.11 Standard und erweitern diesen um neue Funktionalität, Frequenzen und höheren Datenraten.
+(vgl. \cite{Schnabel2020})
+\TODO{Primärquelle finden}
 
-\subsection{BSSID}
+Für die Funktionsweise des Paper-Trackers muss der Teil der \enquote{Service Sets} der Spezifikation detailiert erleutert werden.
+Unter einem Service Set versteht man im Allgemeinen alle Geräte in einem \gls{WLAN}-Netzwerk.
+Auf diesen basiert die Lokalisierung der Dokumente.
 
-\subsection{Signalstärke RSSI}
+\subsection{\gls{BSS}}
+
+Ein \gls{BSS} ist Service Set, in dem es nur einen \gls{AP} und damit ein Gerät, dass das Funknetz aufbaut, gibt.
+Zu diesem \gls{AP} können beliebig viele Klienten verbunden sein.
+In einem solchen Netzwerk besitzt der \gls{AP} eine \gls{SSID} und eine \gls{BSSID}.
+Die \gls{SSID} ist der Name des Netzwerks, das von einem Endbenutzer ausgewählt wird, um sich mit dem \gls{WLAN} zu verbinden.
+Da mehrere \gls{BSS} die gleiche \gls{SSID} verwenden können, besitzt der \gls{AP} auch eine \gls{BSSID}.
+Diese ist meist die \gls{MAC}-Adresse des \gls{AP}, welche per Definition einzigartig ist.
+(vgl. \cite{Luber2018})
+\TODO{Primärquelle finden (IEEE RFC)}
+Mit Hilfe dieser \gls{BSSID} können Klienten zwischen den verschiedenen Netzwerken mit identischer \gls{SSID} unterscheiden.
+
+\subsection{\gls{ESS}}
+
+In einem \gls{ESS} existieren mehrere \gls{BSS}, die miteinander z.B. über ein \gls{LAN} verbunden sind.
+Alle \gls{BSS} in diesem Service Set haben eine eigene \gls{BSSID} aber bauen ein Netz mit der gleichen \gls{SSID} auf.
+So können Klienten z.B. in größeren Gebäuden zwischen verschiedenen \gls{BSS} wechseln, ohne es zu bemerken.
+(vgl. \cite{Haider2019})
+\TODO{Primärquelle finden}
+
+\subsection{Signalstärke \gls{RSSI}}
+
+Die \gls{RSSI} ist eine Größe, welche im Allgemeinen die Energie eines Radiosignals repräsentiert.
+Es gibt keine Standardisierung hinsichtlich der Messmethode oder der entstehenden Einheit, in
+welcher die \gls{RSSI} angegeben wird. Da sie ein Maß für Dämpfung ist, wird jedoch immer eine
+negative Zahl angegeben. Je näher sich diese Zahl null nähert, desto stärker ist das Signal.
+Typischerweise liegt der Messwert im Bereich zwischen null und $-100$.
+
+Als standardisierter Ersatz für die \gls{RSSI} wurde der \gls{RCPI} eingeführt. Diese Größe wird
+immer in der Einheit dBm angegeben und wird über ein definiertes Intervall gemessen. Der
+Wertebereich bewegt sich dabei zwischen $-110 dBm$ und $0 dBm$. Repräsentiert wird die Messung als
+8-Bit-Ganzzahl, was abzüglich einiger reservierter Werte zu einer maximalen Auflösung von $0.5 dBm$
+führt. Auch standardisiert ist die zu erreichende Genauigkeit, so soll die Abweichung bei maximial
+$5 dBm$ liegen. (vgl. \cite{IEEE802.11-2012})
 
 \section{Beispiel eines Workflows}
 
@@ -18,11 +57,11 @@ In folgender \autoref{fig:beschaffungsverfahren} ist ein Beispiel für einen Pro
 Es ist das \enquote{Beschaffungs-Genehmigungsverfahren}, das benötigt wird, um eine Bestellung für die \gls{DHBW} durchzuführen.
 
 \begin{figure}
-	\includegraphics[width=\textwidth]{images/beschaffungs-genehmigungsverfahren.png} 
+	\includegraphics[width=\textwidth]{images/beschaffungs-genehmigungsverfahren.png}
 	\centering
 	\caption{Beschaffungs-Genehmigungsverfahren der \gls{DHBW}}
 	\label{fig:beschaffungsverfahren}
-\end{figure} 
+\end{figure}
 
 Der Prozess beginnt mit dem Antragsteller, welcher den Beschaffungsantrag stellt.
 Der Antrag geht zum Fachvorgesetzten des Antragsteller, welcher diesen fachlich prüft.
