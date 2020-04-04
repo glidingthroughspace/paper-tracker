@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/api_client.dart';
 import 'package:paper_tracker/config.dart';
 import 'package:paper_tracker/pages/main_page.dart';
+import 'package:paper_tracker/pages/tutorial_page.dart';
 import 'package:paper_tracker/widgets/dialogs/confirm_icon_text_dialog.dart';
 import 'package:paper_tracker/widgets/dialogs/waiting_text_dialog.dart';
 
@@ -41,6 +42,9 @@ class _ConfigPageState extends State<ConfigPage> {
   @override
   void initState() {
     config.getServerURL().then((url) {
+      if (url == null) {
+        Navigator.of(context).pushNamed(TutorialPage.Route);
+      }
       urlEditController.text = url;
     });
     super.initState();
@@ -55,6 +59,12 @@ class _ConfigPageState extends State<ConfigPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      persistentFooterButtons: [
+        IconButton(
+          icon: Icon(Icons.help),
+          onPressed: () => Navigator.of(context).pushNamed(TutorialPage.Route),
+        )
+      ],
       body: Container(
         padding: EdgeInsets.all(30.0),
         child: Column(children: [
@@ -95,7 +105,7 @@ class _ConfigPageState extends State<ConfigPage> {
             child: Text("Submit"),
             onPressed: onSubmit,
             color: Theme.of(context).accentColor,
-          )
+          ),
         ]),
       ),
     );
