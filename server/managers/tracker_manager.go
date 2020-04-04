@@ -30,10 +30,22 @@ type TrackerManager struct {
 	learningSleepSec      int
 	sendInfoSleepSec      int
 	sendInfoIntervalSec   int
+	workStartHour         int
+	workEndHour           int
+	workOnWeekend         bool
 	done                  chan struct{}
 }
 
-func CreateTrackerManager(trackerRep repositories.TrackerRepository, idleSleepSec, trackingSleepSec, learningSleepSec, sendInfoSleepSec, sendInfoIntervalSec int) *TrackerManager {
+func CreateTrackerManager(
+	trackerRep repositories.TrackerRepository,
+	idleSleepSec,
+	trackingSleepSec,
+	learningSleepSec,
+	sendInfoSleepSec,
+	sendInfoIntervalSec,
+	workStartHour,
+	workEndHour int,
+	workOnWeekend bool) *TrackerManager {
 	if trackerManager != nil {
 		return trackerManager
 	}
@@ -168,6 +180,10 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 		}
 	}
 
+	if !mgr.InWorkingHours() {
+		cmd.SleepTimeSec = 100 //TODO: Figure out max sleep time
+	}
+
 	tracker.LastPoll = time.Now()
 	tracker.LastSleepTimeSec = cmd.SleepTimeSec
 	err = mgr.trackerRep.Update(tracker)
@@ -177,6 +193,21 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 	}
 
 	return
+}
+
+//TODO: Write test and somehow mock time.Now() for that
+func (mgr *TrackerManager) InWorkingHours() bool {
+	if mgr.workStartHour < 0 || mgr.workEndHour < 0 {
+		return true
+	}
+
+	currentTime := time.Now().Local()
+	if day := currentTime.Weekday(); !mgr.workOnWeekend && (day == time.Saturday || day == time.Sunday) {
+		return false
+	} else if hour := currentTime.Hour(); hour < mgr.workStartHour || hour > mgr.workEndHour {
+		return false
+	}
+	return true
 }
 
 func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp communication.TrackerCmdResponse) (err error) {
