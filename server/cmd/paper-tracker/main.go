@@ -32,6 +32,7 @@ func main() {
 	trackingSleepSecPtr := flag.Int("tracking-sleep", 5, "Sleep duration for the tracker before polling for new command in tracking")
 	learnSleepSecPtr := flag.Int("learn-sleep", 5, "Sleep duration for the tracker before polling for new command in learning")
 	learnCountPtr := flag.Int("learn-count", 5, "Total times the WiFi is scanned when learning a room")
+	maxSleepSecPtr := flag.Int("max-sleep", 1800, "Maximum possible sleep time")
 
 	workStartHourPtr := flag.Int("work-start-hour", -1, "Hour of the day the tracker should become active. In 24-Hour format. Set this or end value to -1 to disable.")
 	workEndHourPtr := flag.Int("work-end-hour", -1, "Hour of the day the tracker should become inactive. In 24-Hour format. Set this or start value to -1 to disable.")
@@ -64,7 +65,7 @@ func main() {
 	}
 
 	managers.CreateTrackerManager(trackerRep, *idleSleepSecPtr, *trackingSleepSecPtr, *learnSleepSecPtr,
-		*sendInfoSleepSecPtr, *sendInfoIntervalSecPtr, *workStartHourPtr, *workEndHourPtr, *workOnWeekend)
+		*sendInfoSleepSecPtr, *sendInfoIntervalSecPtr, *maxSleepSecPtr, *workStartHourPtr, *workEndHourPtr, *workOnWeekend)
 	managers.CreateRoomManager(roomRep)
 	managers.CreateLearningManager(scanResultRep, *learnCountPtr, *learnSleepSecPtr)
 	managers.CreateWorkflowTemplateManager(workflowTemplateRep)
