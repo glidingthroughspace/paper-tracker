@@ -31,8 +31,8 @@ static void onCommandReceived(Command& command) {
   switch (command.getType()) {
     case CommandType::SLEEP: {
         Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
-        break;
       }
+      break;
     case CommandType::SEND_TRACKING_INFO: {
         auto scanResults = wifi.getAllVisibleNetworks();
         sendScanResultsInChunks(scanResults);
@@ -47,10 +47,10 @@ static void onCommandReceived(Command& command) {
       }
       break;
     case CommandType::SEND_INFO: {
-      sendStatusInformation();
-      Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
-     }
-     break;
+        sendStatusInformation();
+        Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
+      }
+      break;
     default:
       // We already sleep & reset the tracker when deserializing the command, so this should never
       // be reached.
