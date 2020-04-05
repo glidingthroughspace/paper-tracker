@@ -12,6 +12,7 @@
 #include <power.hpp>
 #include <storage.hpp>
 #include <cmath>
+#include <utils.hpp>
 
 #include <credentials.hpp>
 
@@ -28,13 +29,16 @@ static void onCommandReceived(Command& command) {
   command.print();
 
   switch (command.getType()) {
-    case CommandType::SLEEP:
-      Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
-      break;
+    case CommandType::SLEEP: {
+        Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
+        break;
+      }
     case CommandType::SEND_TRACKING_INFO: {
         auto scanResults = wifi.getAllVisibleNetworks();
         sendScanResultsInChunks(scanResults);
-        if (command.getSleepTimeInSeconds() > 0) {
+        if (command.getSleepTimeInSeconds() > 0 && command.getSleepTimeInSeconds() <= 10) {
+          utils::time::wait_for_seconds(command.getSleepTimeInSeconds());
+        } else if (command.getSleepTimeInSeconds() > 10) {
           Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
         } else {
           logln("Not sleeping, since sleep time is 0");

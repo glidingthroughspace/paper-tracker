@@ -15,5 +15,12 @@ namespace time {
   bool current_time_is_after(timestamp ts) {
     return millis() > ts;
   }
+
+  void wait_for_seconds(seconds value) {
+    timestamp end_time = current() + to_millis(value);
+    while (!current_time_is_after(end_time)) {
+      yield();
+    }
+  }
 }
 }
