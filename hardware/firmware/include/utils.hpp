@@ -10,5 +10,6 @@ namespace time {
   timestamp current();
   milliseconds to_millis(seconds);
   bool current_time_is_after(timestamp);
+  void wait_for_seconds(seconds value);
 }
 }
