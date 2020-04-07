@@ -288,12 +288,15 @@ Im Folgenden werden einige dieser Prototypen vorgestellt.
 In \autoref{fig:ui-main-page} ist der Prototyp der Hauptseite der App zu sehen.
 Die Hauptseite soll der zentrale Einstiegspunkt der App sein und eine Übersicht der grundlegenden Informationen bieten.
 
-Allgemein ist die Hauptseite in verschiedene Tabs aufgeteilt, die jeweils für eine Klasse im Datenmodell stehen.
+Allgemein ist die Hauptseite einen Kopfbereich und einen Inhaltsbereich aufgeteilt.
+Der Kopfbereicht zeigt lediglich den Titel der App "Paper-Tracker" an und einen Button, mit dem das Tutorial aufgerufen werden kann.
+Das Tutorial ist weiter in \autoref{sec:app-tutorial} beschrieben.
+Im Inhaltsbereich gibt es weiter eine Aufteilung in verschiedene Tabs, die jeweils für eine Klasse im Datenmodell stehen.
 Es soll einen Tab für Workflows in der Ausführung, Workflow-Templates, Räume und Tracker geben.
 Jeder Tab und damit jede Klasse soll ein eindeutiges Icon zugewiesen bekommen, mit dem die Klassen auf verschiedenen Seiten der App wiedererkannt werden können.
 Die Tabs sollen über ein Wischen nach links und rechts oder über ein Auswählen in der Tableiste gewechselt werden können.
 
-Jeder Tab beinhaltet eine Liste aller Objekte der entsprechenden Klasse mit den wichtigsten dazugehörigen Informationen.
+In den Tabs wird eine Liste aller Objekte der entsprechenden Klasse mit den wichtigsten dazugehörigen Informationen angezeigt.
 Wenn der Nutzer einen Eintrag der Liste auswählt, soll sich eine Detail-Seite zu diesem Objekt öffnen.
 Ein Design-Prototyp dazu ist in \autoref{sec:app-room} dargestellt.
 
@@ -309,17 +312,45 @@ Dazu ist weiter unten in \autoref{sec:app-dialog} auch ein Design-Prototyp besch
 	\label{fig:ui-main-page}
 \end{figure}
 
-\FloatBarrier
 \subsubsection{Darstellung von Workflows}
 
-\FloatBarrier
+\autoref{fig:ui-workflow} zeigt den Prototyp für die Darstellung von Workflows.
+Dies können sowohl Workflows in der Ausführung als auch Templates sein.
+
+Die einzelnen Schritte eines Workflows sollen als Boxen in einer Liste dargestellt werden.
+Der Nutzer muss in dieser Liste scrollen können.
+Als letzte Box in der Liste wird ein Button angezeigt, mit dem der Nutzer einen neuen Schritt an die Liste anhängen kann.
+Die Eingabe der Informationen des neuen Schritts soll in einem Dialog erfolgen.
+Diese Box wird nur angezeigt, falls der anzuzeigende Workflow bearbeitbar ist.
+
+In den Boxen zu den Schritten sollen einige Informationen angezeit werden.
+Es sollen zum Beispiel der Name des Schrittes, der dem Schritt zugewiesenen Raum und die Optionen dargestellt werden.
+Die Optionen sind jeweils einzelne Buttons.
+Durch ein Auswählen eines Options-Button, werden die zu diesem Button gehörenden Schritte unter dem Schritt eingerückt angezeigt.
+Diese Schritte werden wie oben beschrieben in einer identischen Liste angezeigt und unterstützen auch das Einfügen neuer Schritte.
+
+\begin{figure}
+	\includegraphics[height=400px]{images/ui-prototype/workflow.jpg}
+	\centering
+	\caption{Design-Prototyp der Darstellung von Workflows}
+	\label{fig:ui-workflow}
+\end{figure}
+
 \subsubsection{Detail-Seite für Räume} \label{sec:app-room}
 
-\FloatBarrier
 \subsubsection{Dialoge zum Erstellen und Bearbeiten von Objekten} \label{sec:app-dialog}
 
-\FloatBarrier
-\subsubsection{Tutorial-Seite}
+\subsubsection{Tutorial-Seite} \label{sec:app-tutorial}
+
+Beim ersten Start der App soll automatisch ein Tutorial gestartet werden, welches die Bedienung der App erklärt.
+Der Nutzer soll dieses Tutorial auch von der Hauptseite aus aufrufen können.
+
+Das Layout des Tutorials ist schlicht gehalten.
+Im Zentrum ist eine Box dargestellt, in der es ein Titel, ein Bild und eine Beschreibung gibt.
+Durch eine Liste an solchen Boxen kann durch ein Wischen nach links und rechts durchgegangen werden.
+Jede Box soll mit ihrem Inhalt einen Aspekt der App näher erläutern und dem Nutzer erklären.
+Unter der Box ist eine Anzeige, die dem Nutzer signalisiert, wie weit er in der Liste ist indem es den Index der aktuellen Box und die Anzahl der Boxen anzeigt.
+Zum Schluss gibt es am unteren Teil der Seite einen Button, mit dem das Tutorial beendet wird.
 
 \begin{figure}
 	\includegraphics[height=350px]{images/ui-prototype/tutorial.png}
