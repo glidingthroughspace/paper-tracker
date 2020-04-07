@@ -271,3 +271,59 @@ Die main-Klasse ist für das Starten des Servers und das Erstellen der einzelnen
 \FloatBarrier
 \subsection{App für Mobilgeräte} \label{sec:app}
 
+Die App für Mobilgeräte soll dem Endbenutzer die Möglichkeit geben, alles um den Paper-Tracker und die damit verbundenen Workflows einzusehen und zu bearbeiten.
+Sie soll dafür die oben erwähnte \gls{REST}-Schnittstelle nutzen und deren Operationen dem Endbenutzer zur Verfügung stellen.
+
+Die Oberfläche selbst soll möglichst intuitiv sein.
+Um dies zu erreichen, wurde als Entwurf für die App einige Design-Prototypen entworfen, die die grundlegenden Elemente der App darstellen.
+Diese Prototypen wurden zum Teil per Hand auf Papier gezeichnet und zum Teil digital entworfen.
+
+Alle Designs wurden größtenteils mit Designelementen entworfen, die im zu verwendenden \gls{UI}-Framework vorhanden sind.
+Daher wurden auf Bausteine des Flutter-Frameworks\footnote{https://flutter.dev/docs/development/ui/widgets} zurückgegriffen, die selbst im Material-Design sind.
+Im Folgenden werden einige dieser Prototypen vorgestellt.
+
+\FloatBarrier
+\subsubsection{Hauptseite}
+
+In \autoref{fig:ui-main-page} ist der Prototyp der Hauptseite der App zu sehen.
+Die Hauptseite soll der zentrale Einstiegspunkt der App sein und eine Übersicht der grundlegenden Informationen bieten.
+
+Allgemein ist die Hauptseite in verschiedene Tabs aufgeteilt, die jeweils für eine Klasse im Datenmodell stehen.
+Es soll einen Tab für Workflows in der Ausführung, Workflow-Templates, Räume und Tracker geben.
+Jeder Tab und damit jede Klasse soll ein eindeutiges Icon zugewiesen bekommen, mit dem die Klassen auf verschiedenen Seiten der App wiedererkannt werden können.
+Die Tabs sollen über ein Wischen nach links und rechts oder über ein Auswählen in der Tableiste gewechselt werden können.
+
+Jeder Tab beinhaltet eine Liste aller Objekte der entsprechenden Klasse mit den wichtigsten dazugehörigen Informationen.
+Wenn der Nutzer einen Eintrag der Liste auswählt, soll sich eine Detail-Seite zu diesem Objekt öffnen.
+Ein Design-Prototyp dazu ist in \autoref{sec:app-room} dargestellt.
+
+Dies ist zum Beispiel für einen Tracker der aktuelle Raum oder der Batteriestatus.
+Unten rechts in der Ecke ist ein \enquote{Floating Action Button} untergebracht.
+Über diesen soll ein Dialog geöffnet werden, in dem ein neues Objekt der entsprechenden Klasse erzeugt werden kann.
+Dazu ist weiter unten in \autoref{sec:app-dialog} auch ein Design-Prototyp beschrieben.
+
+\begin{figure}
+	\includegraphics[height=300px]{images/ui-prototype/main_page.jpg}
+	\centering
+	\caption{Design-Prototyp der Hauptseite}
+	\label{fig:ui-main-page}
+\end{figure}
+
+\FloatBarrier
+\subsubsection{Darstellung von Workflows}
+
+\FloatBarrier
+\subsubsection{Detail-Seite für Räume} \label{sec:app-room}
+
+\FloatBarrier
+\subsubsection{Dialoge zum Erstellen und Bearbeiten von Objekten} \label{sec:app-dialog}
+
+\FloatBarrier
+\subsubsection{Tutorial-Seite}
+
+\begin{figure}
+	\includegraphics[height=350px]{images/ui-prototype/tutorial.png}
+	\centering
+	\caption{Design-Prototyp des Tutorials}
+	\label{fig:ui-tutorial}
+\end{figure}
