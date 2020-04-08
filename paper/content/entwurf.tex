@@ -337,10 +337,73 @@ Diese Schritte werden wie oben beschrieben in einer identischen Liste angezeigt 
 \end{figure}
 
 \subsubsection{Detail-Seite für Räume} \label{sec:app-room}
-\TODO{=> images/ui-prototype/detail_page.jpg, wiedererkennung icon, welche Daten? => ggf. Tabelle}
+In \autoref{fig:ui-detail-page} ist der Design-Prototyp für eine Detail-Seite dargestellt.
+Für die Detail-Seite wurde hier ein Tracker verwendet.
 
-\subsubsection{Dialoge zum Erstellen und Bearbeiten von Objekten} \label{sec:app-dialog}
-\TODO{=> images/ui-prototype/popup.png}
+Im Kopfbereich der Seite ist neben einem Button für die Navigation das Icon für die Tracker Klasse und der Name des Trackers dargestellt.
+Der Inhaltsbereich der Seite beihaltet eine Liste mit allen wichtigen Attributen des Trackers.
+Jeder Eintrag besteht aus dem Namen des Attributs links und dem Attribut selbst rechts.
+Wenn möglich soll das Attribut selbst in einem modifizierbaren Feld dargestellt werden, das vorerst gesperrt ist.
+
+Der Fußbereich einer Detail-Seite besteht aus zwei Buttons.
+Mit dem linken Button können die editierbaren Attribute freigeschaltet werden.
+Dabei wird aus dem \enquote{Stift}-Icon ein \enquote{Speichern}-Icon und über den Button können die bearbeiteten Attribute gespeichert werden.
+Der rechte Button dient zum Löschen des dargestellten Objekts.
+
+Je nach Klasse des dargestellten Objekts ändert sich das Icon im Kopfbereich und die angezeigten Attribute.
+In folgender \autoref{tab:detail-attributes} ist gelistet, für welche Klassen welche Attribute angezeigt werden und, ob diese editierbar sind.
+
+\begin{table}[]
+\centering
+\begin{tabular}{l|l|r}
+\textbf{Klasse}  & \textbf{Attribut} & \multicolumn{1}{l}{\textbf{Editierbar}} \\ \hline
+Tracker          &                   &                                         \\
+                 & Label             & Ja                                      \\
+                 & Raum              & Nein                                    \\
+                 & Batterie          & Nein                                    \\
+                 & Status            & Nein                                    \\ \hline
+Raum             &                   & \multicolumn{1}{l}{}                    \\
+                 & Label             & Ja                                      \\
+                 & Eingelernt        & Über Button                             \\ \hline
+WorkflowTemplate &                   & \multicolumn{1}{l}{}                    \\
+                 & Label             & Ja                                      \\
+                 & Initiale Revision & Nein                                    \\
+                 & Schritte          & siehe Workflow Darstellung              \\ \hline
+WorkflowExec     &                   & \multicolumn{1}{l}{}                    \\
+                 & Status            & Nein                                    \\
+                 & Schritte          & Nein                                    
+\end{tabular}
+\caption{Dargestellte Attribute der Klassen}
+\label{tab:detail-attributes}
+\end{table}
+
+\begin{figure}
+	\includegraphics[height=300px]{images/ui-prototype/detail_page.jpg}
+	\centering
+	\caption{Design-Prototyp der Detailseite eines Trackers}
+	\label{fig:ui-detail-page}
+\end{figure}
+
+\subsubsection{Seite zum Einlernen eines Raumes}
+\TODO{}
+
+\subsubsection{Dialoge zum Erstellen von Objekten} \label{sec:app-dialog}
+
+Das Hinzufügen eines neuen Objektes einer Klasse kann über den \enquote{Floating Action Button} auf der Haupt-Seite angestoßen werden.
+Durch den Button soll ein Dialog geöffnet werden, deren Design-Prototyp in \autoref{fig:ui-popup} dargestellt ist.
+
+Der Dialog wird durch ein Pop-up realisiert.
+Dieses hat eine Überschrift, die angibt welches Objekt erzeugt wird.
+Unter der Überschrift können in einer Liste alle benötigten Attribute des Objekts eingegeben werden.
+Wenn möglich, wie zum Beispiel bei der Auswahl eines Raumes, soll eine Dropdown-Auswahl verwendet werden.
+Zu dem Dropdown soll auch wieder das Icon der Klasse, aus welcher ein Objekt ausgewählt werden soll, dargestellt werden.
+
+\begin{figure}
+	\includegraphics[height=200px]{images/ui-prototype/popup.png}
+	\centering
+	\caption{Design-Prototyp eines Pop-ups zum Erstellen eines Raumes}
+	\label{fig:ui-popup}
+\end{figure}
 
 \subsubsection{Tutorial-Seite} \label{sec:app-tutorial}
 
@@ -362,4 +425,17 @@ Zum Schluss gibt es am unteren Teil der Seite einen Button, mit dem das Tutorial
 \end{figure}
 
 \subsubsection{Icons für zentrale Klassen}
-\TODO{Welche Icons wurden für Room, Tracker, etc. verwendet?}
+
+Wie schon zu der Haupt-Seite und Detail-Seite angemerkt, gibt es für jede zentrale Klasse ein zugehöriges Icon.
+Die soll ermöglichen, dass der Endbenutzer in der App über die Icons die dazugehörige Klasse wiedererkennen kann.
+So kann direkt erkannt werden, was für ein Objekt von der Detailseite angezeigt wird oder welche Objekt in einer Dropdown-Auswahl ausgewählt wird.
+Zusätzlich kann das Icon abgeändert werden, wenn sich zum Beispiel der Zustand eines Objektes ändert.
+Dies wird bei der Workflow Ausführung verwendet, die ein anderes Icon besitzt, falls die Ausführung abgeschlossen ist.
+Eine Übersicht der zu verwendenden Icons ist in \autoref{fig:ui-icons} gegeben.
+
+\begin{figure}
+	\includegraphics[height=150px]{images/ui-prototype/class-icons.png}
+	\centering
+	\caption{Icons für Klassen}
+	\label{fig:ui-icons}
+\end{figure}
