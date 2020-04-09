@@ -63,13 +63,13 @@ def flash(values, window, output):
 
 pio_devices = getPIODevices()
 input_layout = [  [sg.Text(TITLE, font='any 20')],
-            [sg.Text('Firmware Directory:', size=(15, 1)), sg.Input(key=KEY_FW_DIR), sg.FolderBrowse()],
-            [sg.Text('WiFi SSID:', size=(15, 1)), sg.InputText(key=KEY_SSID)],
-            [sg.Text('WiFi Username:', size=(15, 1)), sg.InputText(key=KEY_USERNAME)],
-            [sg.Text('WiFi Password:', size=(15, 1)), sg.InputText(key=KEY_PASSWORD, password_char='*')],
-            [sg.Text('Server IP:', size=(15, 1)), sg.InputText(key=KEY_IP)],
-            [sg.Text('Port', size=(15, 1)), sg.Combo(values=pio_devices, default_value=pio_devices[0], size=(40, 1), key=KEY_PORT)],
-            [sg.Button('Flash', size=(15, 1)), sg.Button('Cancel')] ]
+            [sg.Text('Firmware Directory:', size=(22, 1)), sg.Input(key=KEY_FW_DIR), sg.FolderBrowse()],
+            [sg.Text('WiFi SSID:', size=(22, 1)), sg.InputText(key=KEY_SSID)],
+            [sg.Text('WiFi Username (optional):', size=(22, 1)), sg.InputText(key=KEY_USERNAME)],
+            [sg.Text('WiFi Password:', size=(22, 1)), sg.InputText(key=KEY_PASSWORD, password_char='*')],
+            [sg.Text('Server IP:', size=(22, 1)), sg.InputText(key=KEY_IP)],
+            [sg.Text('Port', size=(22, 1)), sg.Combo(values=pio_devices, default_value=pio_devices[0], size=(40, 1), key=KEY_PORT)],
+            [sg.Button('Flash', size=(22, 1)), sg.Button('Cancel')] ]
 
 flash_layout = [  [sg.Text(TITLE, font='any 20')],
             [sg.Text('Flashing...')],
@@ -90,13 +90,13 @@ def main():
     close = flash_window.FindElement(KEY_CLOSE)
 
     try:
-        output.Update(value='Generate Credentials File...\n', append=True)
+        output.Update(value='Generating Credentials File...\n', append=True)
         flash_window.Refresh()
         generateCredentials(values)
         output.Update(value='...Done\n', append=True)
         flash_window.Refresh()
 
-        output.Update(value='Flash firmware...\n\n', append=True)
+        output.Update(value='Flashing firmware...\n\n', append=True)
         flash_window.Refresh()
         flash(values, flash_window, output)
         output.Update(value='\n\n...Done\n\nFlashing finished!\n', append=True)
@@ -109,7 +109,7 @@ def main():
 
     if not args.keep_credentials:
         try:
-            output.Update(value='Remove credentials file...\n', append=True)
+            output.Update(value='Removing credentials file...\n', append=True)
             flash_window.Refresh()
             os.remove(values[KEY_FW_DIR]+'/include/credentials.hpp')
             output.Update(value='...Done\n', append=True)
@@ -120,7 +120,7 @@ def main():
             output.Update(value=text, append=True)
             flash_window.Refresh()
 
-    output.Update(value='\nThis windows can now be closed!', append=True)
+    output.Update(value='\nThis window can now be closed!', append=True)
     close.Update(disabled=False)
 
     flash_window.read()
