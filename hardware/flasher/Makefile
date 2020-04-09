@@ -2,7 +2,7 @@ dependencies:
 	pip3 install -r requirements.txt
 
 run:
-	python3 main.py
+	python3 flasher.py
 
 executable:
 	pyinstaller --onefile flasher.py
