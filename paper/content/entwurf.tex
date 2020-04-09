@@ -297,6 +297,7 @@ Jeder Tab und damit jede Klasse soll ein eindeutiges Icon zugewiesen bekommen, m
 Die Tabs sollen über ein Wischen nach links und rechts oder über ein Auswählen in der Tableiste gewechselt werden können.
 
 In den Tabs wird eine Liste aller Objekte der entsprechenden Klasse mit den wichtigsten dazugehörigen Informationen angezeigt.
+Über ein Pull-Down\footnote{Herunterziehen der Liste über den eigentlichen Inhalt hinaus.} der jeweiligen Liste, kann diese aktualisiert werden.
 Wenn der Nutzer einen Eintrag der Liste auswählt, soll sich eine Detail-Seite zu diesem Objekt öffnen.
 Ein Design-Prototyp dazu ist in \autoref{sec:app-room} dargestellt.
 
@@ -380,12 +381,30 @@ WorkflowExec     &                   & \multicolumn{1}{l}{}                    \
 \begin{figure}
 	\includegraphics[height=300px]{images/ui-prototype/detail_page.jpg}
 	\centering
-	\caption{Design-Prototyp der Detailseite eines Trackers}
+	\caption{Design-Prototyp der Detail-Seite eines Trackers}
 	\label{fig:ui-detail-page}
 \end{figure}
 
 \subsubsection{Seite zum Einlernen eines Raumes}
-\TODO{}
+
+Weiter ist in \autoref{fig:ui-learning-page} der Protoyp der Einlern-Seite dargestellt.
+Auf dieser Seite kann der Endbenutzer einen Raum einlernen.
+Dazu muss in zwei Dropdowns der zu lernende Raum und der zum Lernen verwendete Tracker ausgewählt werden.
+Wird von einer Detailseite eines Raumes oder Trackers auf die Lernseite navigiert, so wird dieses Objekt entsprechend in einem der Dropdowns vorausgewählt.
+Sind Raum und Tracker ausgewählt, kann das Einlernen gestartet werden.
+
+In diesem Fall werden statt dem Button zum Starten des Lernen eine Liste der gefundenen \gls{SSID} angezeigt.
+Der Nutzer kann in dieser Liste auswählen, welche \gls{SSID}s zum Einlernen des Raumes verwendet werden sollen. 
+Die Liste wird während des Vorgangs stetig mit neu gefundenen \gls{SSID} erweitert.
+Sobald der Vorgang beendet wird, kann am Ende der Seite das Einlernen über einen Button abgeschlossen werden.
+Sobald dies geschieht, soll von der Seite automatisch auf die vorherige zurücknavigiert werden.
+
+\begin{figure}
+	\includegraphics[height=300px]{images/ui-prototype/learning_page.jpg}
+	\centering
+	\caption{Design-Prototyp der Einlern-Seite}
+	\label{fig:ui-learning-page}
+\end{figure}
 
 \subsubsection{Dialoge zum Erstellen von Objekten} \label{sec:app-dialog}
 
@@ -423,6 +442,23 @@ Zum Schluss gibt es am unteren Teil der Seite einen Button, mit dem das Tutorial
 	\caption{Design-Prototyp des Tutorials}
 	\label{fig:ui-tutorial}
 \end{figure}
+
+Der Inhalt des Tutorials soll alle wichtigen Funktionen der App und auch die Konfiguration des Trackers selbst abdecken.
+Dafür sind die folgenden Inhalte angedacht:
+
+\begin{enumerate}
+	\item Konfiguration der App mit der Backend-Server URL mit Protokoll
+	\item Haupt-Seite mit Unterteilung in vier Tabs und des Buttons für das Tutorial
+	\item Tracker-Tab mit leerer Liste an Trackern und Hinweis, dass über den Flasher ein Tracker konfiguriert werden kann
+	\item Pull-Down der Liste zum Aktualisieren. Der zuvor konfigurierte Tracker erscheint
+	\item Tracker-Detail-Seite und das Bearbeiten eines Trackers
+	\item Raum-Liste und das Erstellen eines neuen Raumes
+	\item Funktionsweise des Einlernen eines Raumes
+	\item Template-Liste und das Erstellen eines Templates
+	\item Editieren eines Templates in der Detail-Seite des Templates
+	\item Workflow-Ausführungs-Liste und das Starten einer neuen Ausführung
+	\item Menü mit Aktionen zu einem Schritt in einer Workflow-Ausführung 
+\end{enumerate}
 
 \subsubsection{Icons für zentrale Klassen}
 
