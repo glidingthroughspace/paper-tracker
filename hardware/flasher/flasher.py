@@ -3,6 +3,11 @@ import os
 import traceback
 import json
 import PySimpleGUI as sg
+import argparse
+
+parser = argparse.ArgumentParser(description='Flash the Paper-Tracker firmware')
+parser.add_argument("--keep_credentials", action='store_true')
+args = parser.parse_args()
 
 sg.theme('DarkAmber')
 
@@ -100,17 +105,18 @@ def main():
         output.Update(value=text, append=True)
         flash_window.Refresh()
 
-    try:
-        output.Update(value='Remove credentials file...\n', append=True)
-        flash_window.Refresh()
-        os.remove(values[KEY_FW_DIR]+'/include/credentials.hpp')
-        output.Update(value='...Done\n', append=True)
-        flash_window.Refresh()
-    except Exception as e:
-        traceback.print_exc()
-        text = '..Failed: ' + str(e) + '\n'
-        output.Update(value=text, append=True)
-        flash_window.Refresh()
+    if not args.keep_credentials:
+        try:
+            output.Update(value='Remove credentials file...\n', append=True)
+            flash_window.Refresh()
+            os.remove(values[KEY_FW_DIR]+'/include/credentials.hpp')
+            output.Update(value='...Done\n', append=True)
+            flash_window.Refresh()
+        except Exception as e:
+            traceback.print_exc()
+            text = '..Failed: ' + str(e) + '\n'
+            output.Update(value=text, append=True)
+            flash_window.Refresh()
 
     output.Update(value='\nThis windows can now be closed!', append=True)
     close.Update(disabled=False)
