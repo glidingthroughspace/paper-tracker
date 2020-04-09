@@ -36,7 +36,10 @@ def generateCredentials(values):
         content = content.replace('0xF'+str(it), ip[it])
 
     content = content.replace('$$WIFI_SSID$$', values[KEY_SSID])
-    content = content.replace('$$WIFI_USERNAME$$', values[KEY_USERNAME])
+    if values[KEY_USERNAME] != "":
+        content = content.replace('$$WIFI_USERNAME$$', values[KEY_USERNAME])
+    else:
+        content = content.replace('"$$WIFI_USERNAME$$"', 'nullptr')
     content = content.replace('$$WIFI_PASSWORD$$', values[KEY_PASSWORD])
 
     with open(values[KEY_FW_DIR]+'/include/credentials.hpp', 'w') as file:

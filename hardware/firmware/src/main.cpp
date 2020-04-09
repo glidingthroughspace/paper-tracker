@@ -77,7 +77,7 @@ void setup() {
   }
   #endif
 
-  if (WIFI_USERNAME != "")
+  if (WIFI_USERNAME != nullptr)
     haltIf(!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD), "Failed to connect to WiFi");
   else
     haltIf(!wifi.connect(WIFI_SSID, WIFI_PASSWORD), "Failed to connect to WiFi");
