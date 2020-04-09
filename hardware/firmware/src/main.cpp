@@ -77,11 +77,10 @@ void setup() {
   }
   #endif
 
-  #ifdef WIFI_USERNAME
-  haltIf(!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD), "Failed to connect to WiFi");
-  #else
-  haltIf(!wifi.connect(WIFI_SSID, WIFI_PASSWORD), "Failed to connect to WiFi");
-  #endif
+  if (WIFI_USERNAME != "")
+    haltIf(!wifi.connect(WIFI_SSID, WIFI_USERNAME, WIFI_PASSWORD), "Failed to connect to WiFi");
+  else
+    haltIf(!wifi.connect(WIFI_SSID, WIFI_PASSWORD), "Failed to connect to WiFi");
 
   haltIf(!apiClient.start(), "Failed to start the API client");
 

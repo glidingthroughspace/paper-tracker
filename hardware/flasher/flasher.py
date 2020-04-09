@@ -27,18 +27,17 @@ def getPIODevices():
     return tuple(result['port']+' ('+result['description']+')' for result in results)
 
 def generateCredentials(values):
-    example_content = None
+    content = None
     with open(values[KEY_FW_DIR]+'/include/credentials.example.hpp', 'r') as example_file:
-        example_content = example_file.read()
+        content = example_file.read()
 
-    content = example_content.replace('$$WIFI_SSID$$', values[KEY_SSID])
+    ip = values[KEY_IP].split('.')
+    for it in range(len(ip)):
+        content = content.replace('0xF'+str(it), ip[it])
+
+    content = content.replace('$$WIFI_SSID$$', values[KEY_SSID])
     content = content.replace('$$WIFI_USERNAME$$', values[KEY_USERNAME])
     content = content.replace('$$WIFI_PASSWORD$$', values[KEY_PASSWORD])
-    ip = values[KEY_IP].split('.')
-    content = content.replace('$$IP_1$$', ip[0])
-    content = content.replace('$$IP_2$$', ip[1])
-    content = content.replace('$$IP_3$$', ip[2])
-    content = content.replace('$$IP_4$$', ip[3])
 
     with open(values[KEY_FW_DIR]+'/include/credentials.hpp', 'w') as file:
         file.write(content)
