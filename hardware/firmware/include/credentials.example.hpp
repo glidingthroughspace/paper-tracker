@@ -1,6 +1,6 @@
 #pragma once
 
-#define WIFI_SSID "NONE"
-#define WIFI_USERNAME "anonymous@example.com"
-#define WIFI_PASSWORD "example"
-#define SERVER_IP IPAddress(172,16,15,230)
+#define WIFI_SSID "$$WIFI_SSID$$"
+#define WIFI_USERNAME "$$WIFI_USERNAME$$"
+#define WIFI_PASSWORD "$$WIFI_PASSWORD$$"
+#define SERVER_IP IPAddress(0xF0, 0xF1, 0xF2, 0xF3)
