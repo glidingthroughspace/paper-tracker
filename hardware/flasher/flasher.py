@@ -19,7 +19,6 @@ KEY_CLOSE = 'flash-close'
 def getPIODevices():
     raw_results = subprocess.check_output(['pio', 'device', 'list', '--json-output'], text=True)
     results = json.loads(raw_results)
-    print(results)
     return tuple(result['port']+' ('+result['description']+')' for result in results)
 
 def generateCredentials(values):

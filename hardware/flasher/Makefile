@@ -5,7 +5,7 @@ run:
 	python3 main.py
 
 executable:
-	pyinstaller -wF main.py
+	pyinstaller --onefile flasher.py
 
 executable_mac:
-	pyinstaller --onefile --add-binary='/System/Library/Frameworks/Tk.framework/Tk':'tk' --add-binary='/System/Library/Frameworks/Tcl.framework/Tcl':'tcl' main.py
+	pyinstaller --onefile --add-binary='/System/Library/Frameworks/Tk.framework/Tk':'tk' --add-binary='/System/Library/Frameworks/Tcl.framework/Tcl':'tcl' flasher.py
