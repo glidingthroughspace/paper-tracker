@@ -1,6 +1,7 @@
 import subprocess
 import os
 import traceback
+import json
 import PySimpleGUI as sg
 
 sg.theme('DarkAmber')
@@ -15,15 +16,11 @@ KEY_PORT = 'device-port'
 KEY_FLASH_OUTPUT = 'flash-output'
 KEY_CLOSE = 'flash-close'
 
-def filterPIODeviceList(device):
-    if device.strip() == '' or device.startswith('Hardware') or device.startswith('Description') or device.startswith('---'):
-        return False
-    else:
-        return True
-
 def getPIODevices():
-    raw_results = subprocess.check_output(['pio', 'device', 'list'], text=True).strip().split('\n')
-    return tuple(filter(filterPIODeviceList, raw_results))
+    raw_results = subprocess.check_output(['pio', 'device', 'list', '--json-output'], text=True)
+    results = json.loads(raw_results)
+    print(results)
+    return tuple(result['port']+' ('+result['description']+')' for result in results)
 
 def generateCredentials(values):
     example_content = None
@@ -43,7 +40,8 @@ def generateCredentials(values):
         file.write(content)
 
 def flash(values, window, output):
-    cmd = ['pio', 'run', '-e', 'tinypico', '-t', 'upload', '--upload-port', values[KEY_PORT]]
+    port = values[KEY_PORT].split(' ')[0]
+    cmd = ['pio', 'run', '-e', 'tinypico', '-t', 'upload', '--upload-port', port]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True ,cwd=values[KEY_FW_DIR])
     while True:
         if process.poll() is not None:
@@ -57,13 +55,14 @@ def flash(values, window, output):
     if rc != 0:
         raise subprocess.CalledProcessError(rc, cmd)
 
+pio_devices = getPIODevices()
 input_layout = [  [sg.Text(TITLE, font='any 20')],
             [sg.Text('Firmware Directory:', size=(15, 1)), sg.Input(key=KEY_FW_DIR), sg.FolderBrowse()],
             [sg.Text('WiFi SSID:', size=(15, 1)), sg.InputText(key=KEY_SSID)],
             [sg.Text('WiFi Username:', size=(15, 1)), sg.InputText(key=KEY_USERNAME)],
             [sg.Text('WiFi Password:', size=(15, 1)), sg.InputText(key=KEY_PASSWORD)],
             [sg.Text('Server IP:', size=(15, 1)), sg.InputText(key=KEY_IP)],
-            [sg.Text('Port', size=(15, 1)), sg.Combo(values=getPIODevices(), size=(15, 1), key=KEY_PORT)],
+            [sg.Text('Port', size=(15, 1)), sg.Combo(values=pio_devices, default_value=pio_devices[0], size=(40, 1), key=KEY_PORT)],
             [sg.Button('Flash', size=(15, 1)), sg.Button('Cancel')] ]
 
 flash_layout = [  [sg.Text(TITLE, font='any 20')],
