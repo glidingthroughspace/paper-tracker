@@ -37,7 +37,7 @@ static void onCommandReceived(Command& command) {
         auto scanResults = wifi.getAllVisibleNetworks();
         sendScanResultsInChunks(scanResults);
         if (command.getSleepTimeInSeconds() > 0 && command.getSleepTimeInSeconds() <= 10) {
-          utils::time::wait_for_seconds(command.getSleepTimeInSeconds());
+          utils::time::wait_for(command.getSleepTimeInSeconds());
         } else if (command.getSleepTimeInSeconds() > 10) {
           Power::deep_sleep_for_seconds(command.getSleepTimeInSeconds());
         } else {

@@ -4,23 +4,32 @@
 
 namespace utils {
 namespace time {
-  timestamp current() {
-    return millis();
+  timestamp now() {
+    return timestamp(millis());
   }
 
   milliseconds to_millis(seconds value) {
     return value * 1000;
   }
 
-  bool current_time_is_after(timestamp ts) {
-    return millis() > ts;
-  }
-
-  void wait_for_seconds(seconds value) {
-    timestamp end_time = current() + to_millis(value);
-    while (!current_time_is_after(end_time)) {
+  void wait_for(seconds value) {
+    timestamp end_time = now() + value;
+    while (!now().is_after(end_time)) {
       yield();
     }
+  }
+
+  void wait_for(milliseconds value) {
+    timestamp end_time = now() + value;
+    while (!now().is_after(end_time)) {
+      yield();
+    }
+  }
+
+  timestamp::timestamp(const milliseconds v) : value{v} {}
+  timestamp::timestamp(const seconds v) : value{v * 1000} {}
+  const bool timestamp::is_after(const timestamp &other) const {
+    return value > other.value;
   }
 }
 }

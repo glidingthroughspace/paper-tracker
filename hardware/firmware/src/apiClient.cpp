@@ -132,10 +132,11 @@ void ApiClient::coap_response_callback(coap::Packet& packet, IPAddress ip, int p
 
   auto it = callbacks.find(packet.messageid);
   if (it == callbacks.end()) {
-    log("No callback registered for message with ID ");
-    logln(packet.messageid);
+    logf("No callback registered for message with ID %d\n", packet.messageid);
     return;
   }
+  it->second.response_received = true;
+  callbacks.erase(it);
   it->second.function(packet, false);
 }
 
@@ -144,11 +145,11 @@ void ApiClient::storeCallback(uint16_t messageID, coap_callback callback, utils:
     logln("Sending the message failed");
     return;
   }
-  log("Message has ID ");
-  logln(messageID);
+  logf("Message has ID %d\n", messageID);
   callbacks[messageID] = Callback{
     timeout,
-    utils::time::current(),
+    utils::time::now(),
+    false,
     callback,
   };
 }
@@ -161,20 +162,21 @@ std::vector<char*> ApiClient::getTrackerIDQueryParam(char* buffer, size_t buffer
   std::vector<char*> queryParams;
   snprintf(buffer, bufferlen, "trackerid=%d", trackerID);
   queryParams.push_back(buffer);
-  logln("Quey parameters:");
+  logln("Query parameters:");
   for (auto qp : queryParams) {
-    logln(qp);
+    logf("  %s\n", qp)
   }
   return queryParams;
 }
 
 void ApiClient::update_request_timeouts() {
-  for (auto& callback : callbacks) {
-    auto cb = callback.second;
-    if (utils::time::current_time_is_after(cb.request_started_at + utils::time::to_millis(cb.timeout))) {
-      log("Request with ID ");
-      log(callback.first);
-      logln(" timed out");
+  for (auto& it : callbacks) {
+    auto& cb = it.second;
+    if (cb.response_received == true) {
+      logf("Already received a response for request with ID %d, removing from callback list\n", it.first);
+      callbacks.erase(it.first);
+    } else if (utils::time::now().is_after(cb.request_started_at + cb.timeout)) {
+      logf("Request with ID %d timed out\n", it.first);
       coap::Packet empty_packet;
       cb.function(empty_packet, true);
     }
