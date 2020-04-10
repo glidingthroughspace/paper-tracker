@@ -16,11 +16,11 @@ Auch werden Bibliotheken für ein einfacheres Testing verwendet.
 Im Folgenden sind die verwendeten Bibliotheken aufgelistet:
 \begin{description}
 	\item[logrus (https://github.com/sirupsen/logrus)] \hfill \\
-		\enquote{logrus} ist strukturiertes Logging-Tool, dass für jegliche Logs innerhalb des Servers verwendet wird. 
+		\enquote{logrus} ist strukturiertes Logging-Tool, dass für jegliche Logs innerhalb des Servers verwendet wird.
 	\item[gorm (https://github.com/jinzhu/gorm)] \hfill \\
 		\enquote{gorm} ist ein \gls{ORM} Framework, dass die Datenbankanbindung für den Server zur Verfügung stellt.
 	\item[Gin (https://github.com/gin-gonic/gin)] \hfill \\
-		\enquote{Gin} ist ein HTTP Framework, dass Routing, Parameter-Matching, etc. übernimmt. Zudem kann es standardmäßig \gls{JSON} verstehen.  
+		\enquote{Gin} ist ein HTTP Framework, dass Routing, Parameter-Matching, etc. übernimmt. Zudem kann es standardmäßig \gls{JSON} verstehen.
 	\item[go-coap (https://github.com/go-ocf/go-coap)] \hfill \\
 		\enquote{go-coap} ist ein \gls{CoAP} Framework, dass hauptsächlich das Routing übernimmt. Einige weitere Aufgaben, die z.B. \enquote{Gin} übernimmt, müssen selbst programmiert werden.
 	\item[go-codec (https://github.com/ugorji/go)] \hfill \\
@@ -77,30 +77,37 @@ Die Firmware wurde in der Programmiersprache C++ auf Basis des Arduino-Framework
 Framework wurde gewählt, da es auf vielen Plattformen, wie auch dem ESP32 lauffähig ist, weit
 verbreitet ist und somit viele Bibliotheken für das Framework existieren.
 
-Das \enquote{Flasher} Tool zum Programmieren und konfigurieren der Firmware wurde in Python geschrieben.
-Der Grund dafür liegt in Möglichkeit sehr schnell und simpel ein Programm und auch ein \gls{GUI} zu schreiben.
+Das \enquote{Flasher}-Tool zum Programmieren und Konfigurieren der Firmware wurde in Python
+entwickelt.
+Der Grund dafür liegt in Möglichkeit sehr schnell und simpel ein Programm und auch ein \gls{GUI} zu
+programmieren.
 Dies wird durch die Bibliothek \enquote{PySimpleGUI} ermöglicht, die lediglich mit einer groben Layout-Beschreibung
 ein Oberfläche zusammenstellt.
 Alle weiteren benötigten Bibliotheken sind in der Python-Standardbibliothek enthalten.
 Vor allem ist hierbei die \enquote{multiprocessing}-Bibliothek wichtig, mit welcher andere Programme aufgerufen werden können.
-Um aus dem enstandenen Python Skript eine ausführbare Datei für die verbreitesten Betriebssysteme zu erstellen, wird \enquote{PyInstaller} verwendet.
+Um aus dem enstandenen Python-Skript eine ausführbare Datei für die verbreitesten Betriebssysteme zu erstellen, wird \enquote{PyInstaller} verwendet.
 Die daraus enstehende Datei beinhaltet bis auf das PlatformIO-Tooling alle benötigten Ressourcen. \TODO{Kann man das mit bundeln?!}
 
 \subsection{Flasher}
 \TODO{Irgendwie im Entwurf erwähnen}
 
 Aufgrund der angestrebten Einfachheit dieses Programmes, besteht es aus insgesamt nur drei Dateien.
-Das erste ist das eigentliche Python Skript.
-Dazu kommt die Datei \enquote{requirements.txt}, die alle Bibliotheken für den Bibliotheksmanager \enquote{pip} auflistet. 
+Der Hauptbestandteil des Flashers ist das eigentliche Python-Skript.
+Zusätzlich wird die Datei \enquote{requirements.txt} benötigt, welche alle Bibliotheken für den
+Bibliotheksmanager \enquote{pip} auflistet.
 In dieser Datei sind lediglich, wie oben erwähnt, \enquote{pysimplegui} und \enquote{pyinstaller} aufgeführt.
-Die dritte und letzte Datei ist ein \enquote{Makefile}, dass einige Befehle zum Installieren der Bibliotheken,
-Ausführen des Skripts oder Erstellen der ausführbaren Datei.
+Die dritte und letzte Datei ist ein \enquote{Makefile}, welches einige Befehle zum Installieren der Bibliotheken,
+Ausführen des Skripts oder Erstellen der ausführbaren Datei bereitstellt.
 
-Das Skript selbst, beginnt nach dem Importieren der benötigten Bibliotheken mit dem Parsen der Kommandozeilenargumente.
-Möglich ist nur das Argument \enquote{--keep-credentials}.
-Dieses ermöglicht, dass die generierte Datei für die Firmware mit der Konfiguration und damit auch
-sensitiven Daten nach Beendigung der Programmierung nicht gelöscht wird.
-Vorteilhaft ist die während der Entwicklung der Firmware selbst.
+Das Skript selbst beginnt nach dem Importieren der benötigten Bibliotheken mit dem Parsen der
+Kommandozeilenargumente.
+Möglich ist nur das Argument \texttt{--keep-credentials}.
+Das Skript erzeugt eine Datei, in welcher die Zugangsdaten für das vom Tracker zu verwendende
+\gls{WLAN}-Netzwerk, sowie weitere potentiell sensitiven Informationen enthalten sind. Im
+Standardfall wird diese Datei nach dem Erstelln der Firmware und der Programmierung des Trackers
+gelöscht. Ist das Kommandozeilenargument \texttt{--keep-credentials} gegeben, wir die Datei nach
+Erfolgreichem Abschluss des Programmiervorganges nicht gelöscht, was vor allem in der
+Entwicklungsphase der Software vorteilhaft ist.
 
 Weiter werden einige Konstanten definiert.
 Diese sind zum einen der Titel des Programm-Fensters und einige sogenannte \enquote{Keys},
@@ -170,7 +177,7 @@ kompiliert werden können, ohne den Quellcode anpassen zu müssen. Auch eine Lau
 Desktopcomputer unter Windows, macOS und GNU/Linux befindet sich aktuell im Teststadium, sodass die
 Paper-Tracker App gegebenenfalles auch auf Arbeitsplatzrechnern verwendet werden kann.
 
-Auch für die Entwicklung der App wurden einige Bibliotheken verwendet, die die Entwicklung vereinfachen.
+Auch für das Erstellen der App wurden einige Bibliotheken verwendet, die die Entwicklung vereinfachen.
 Vor allem werden zum Beispiel Bibliotheken verwendet, um die Kommunikation mit dem Backend-Server zu ermöglichen.
 Die verwendeten Bibliotheken sind im Folgenden aufgelistet:
 \begin{description}
@@ -181,7 +188,9 @@ Die verwendeten Bibliotheken sind im Folgenden aufgelistet:
 	\item[shared\_preferences (https://pub.dev/packages/shared\_preferences)] \hfill \\
 		Durch die \enquote{shared\_preferences} Bibliothek können einfache Konfigurationen als Schlüssel-Wert-Paare abgespeichert werden. Dies wird für die \gls{URL} des Backend-Servers verwendet.
 	\item[material\_design\_icons (https://pub.dev/packages/material\_design\_icons\_flutter)] \hfill \\
-		\enquote{material\_design\_icons} stellt zusätzliche Material\footnote{Eine Designsprache von Google, die in fast allen Google-Produkten eingesetzt wird und auf Minimalismus setzt. \cite{Google}}-Icons zur Verfügung. Dies ist notwendig, da die standardmäßig verfügbaren Icons in Flutter nicht ausreichend sind.
+		\enquote{material\_design\_icons} stellt zusätzliche Material\footnote{Eine Designsprache von
+			Google, die in fast allen Google-Produkten eingesetzt wird und auf Minimalismus setzt.
+			\cite{Google2020}}-Icons zur Verfügung. Dies ist notwendig, da die standardmäßig verfügbaren Icons in Flutter nicht ausreichend sind.
 	\item[fluttertoast (https://pub.dev/packages/fluttertoast)] \hfill \\
 		Mit \enquote{fluttertoast} können kleine Pop-ups dargestellt werden, die dem Nutzer der App einfach und schnell Feedback zu einer Aktion geben können.
 \end{description}
