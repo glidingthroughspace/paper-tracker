@@ -6,7 +6,7 @@ import PySimpleGUI as sg
 import argparse
 
 parser = argparse.ArgumentParser(description='Flash the Paper-Tracker firmware')
-parser.add_argument("--keep_credentials", action='store_true')
+parser.add_argument("--keep-credentials", action='store_true')
 args = parser.parse_args()
 
 sg.theme('DarkAmber')
