@@ -271,3 +271,225 @@ Die main-Klasse ist für das Starten des Servers und das Erstellen der einzelnen
 \FloatBarrier
 \subsection{App für Mobilgeräte} \label{sec:app}
 
+Die App für Mobilgeräte soll dem Endbenutzer die Möglichkeit geben, alles um den Paper-Tracker und die damit verbundenen Workflows einzusehen und zu bearbeiten.
+Sie soll dafür die oben erwähnte \gls{REST}-Schnittstelle nutzen und deren Operationen dem Endbenutzer zur Verfügung stellen.
+
+Die Oberfläche selbst soll möglichst intuitiv sein.
+Um dies zu erreichen, wurden als Entwurf für die App einige Design-Prototypen erstellt, welche die grundlegenden Elemente der App darstellen.
+Diese Prototypen wurden zum Teil per Hand auf Papier gezeichnet und zum Teil digital entworfen.
+
+Alle Designs wurden größtenteils mit Designelementen entworfen, die im zu verwendenden \gls{UI}-Framework vorhanden sind.
+Daher wurden auf Bausteine des
+Flutter-Frameworks\footnote{https://flutter.dev/docs/development/ui/widgets} zurückgegriffen, welche
+sich an die von Google entworfene Material-Designsprache halten. (vgl. \cite{Google2020})
+Im Folgenden werden einige dieser Prototypen vorgestellt.
+
+\FloatBarrier
+\subsubsection{Hauptseite}
+
+In \autoref{fig:ui-main-page} ist der Prototyp der Hauptseite der App zu sehen.
+Die Hauptseite ist der zentrale Einstiegspunkt der App und bietet eine Übersicht über grundlegende
+Informationen.
+
+Allgemein ist die Hauptseite in einen Kopfbereich und einen Inhaltsbereich aufgeteilt.
+Der Kopfbereicht zeigt lediglich den Titel der App \enquote{Paper-Tracker} an und einen Button, mit dem das Tutorial aufgerufen werden kann.
+Das Tutorial ist weiter in \autoref{sec:app-tutorial} beschrieben.
+Im Inhaltsbereich gibt es weiter eine Aufteilung in verschiedene Tabs, die jeweils für eine Klasse im Datenmodell stehen.
+Es soll einen Tab für Workflows in der Ausführung, Workflow-Templates, Räume und Tracker geben.
+Jeder Tab und damit jede Klasse soll ein eindeutiges Icon zugewiesen bekommen, mit dem die Klassen auf verschiedenen Seiten der App wiedererkannt werden können.
+Die Tabs sollen über ein Wischen nach links und rechts oder über ein Auswählen in der Tableiste gewechselt werden können.
+
+In den Tabs wird eine Liste aller Objekte der entsprechenden Klasse mit den wichtigsten dazugehörigen Informationen angezeigt.
+Dies ist zum Beispiel für einen Tracker der aktuelle Raum oder der Batteriestatus.
+
+Über ein Pull-Down\footnote{Herunterziehen der Liste über den eigentlichen Inhalt hinaus.} der jeweiligen Liste, kann diese aktualisiert werden.
+Wenn der Nutzer einen Eintrag der Liste auswählt, soll sich eine Detailseite zu diesem Objekt öffnen.
+Ein Design-Prototyp dazu ist in \autoref{sec:app-room} dargestellt.
+
+Unten rechts in der Ecke ist ein \enquote{Floating Action Button} untergebracht.
+Über diesen soll ein Dialog geöffnet werden, in dem ein neues Objekt der entsprechenden Klasse erzeugt werden kann.
+Dazu ist weiter unten in \autoref{sec:app-dialog} auch ein Design-Prototyp beschrieben.
+
+\begin{figure}[h!tbp]
+	\includegraphics[width=.4\textwidth]{images/ui-prototype/main_page.jpg}
+	\centering
+	\caption{Design-Prototyp der Hauptseite}
+	\label{fig:ui-main-page}
+\end{figure}
+
+\FloatBarrier
+
+\subsubsection{Darstellung von Workflows}
+
+\autoref{fig:ui-workflow} zeigt den Prototyp für die Darstellung von Workflows.
+Dies können sowohl Workflows in der Ausführung als auch Templates sein.
+
+Die einzelnen Schritte eines Workflows sollen als Boxen in einer Liste dargestellt werden.
+Der Nutzer muss in dieser Liste scrollen können, falls es in einem Workflow zu viele Einzelschritte
+gibt, um diese auf einem Bildschirm anzeigen zu können.
+Als letzte Box in der Liste wird ein Button angezeigt, mit dem der Nutzer einen neuen Schritt an die Liste anhängen kann.
+Die Eingabe der Informationen des neuen Schritts soll in einem Dialog erfolgen.
+Diese Box wird nur angezeigt, falls der anzuzeigende Workflow bearbeitbar ist.
+\TODO{Ist schon irgendwo erläutert, wann ein Workflow nicht mehr bearbeitbar ist?}
+
+In den Boxen zu den Schritten sollen einige Informationen angezeit werden.
+So werden beispielsweise der Name des Schrittes, der dem Schritt zugewiesenen Raum und die
+verfügbaren Optionen dargestellt.
+Die Optionen sind jeweils einzelne Buttons.
+Durch ein Auswählen eines Options-Button, werden die zu diesem Button gehörenden Schritte unter dem Schritt eingerückt angezeigt.
+Diese Schritte werden wie oben beschrieben in einer identischen Liste angezeigt und unterstützen auch das Einfügen neuer Schritte.
+
+\begin{figure}[h!tbp]
+	\includegraphics[width=.7\textwidth]{images/ui-prototype/workflow.jpg}
+	\centering
+	\caption{Design-Prototyp der Darstellung von Workflows}
+	\label{fig:ui-workflow}
+\end{figure}
+
+\subsubsection{Detailseite für Räume} \label{sec:app-room}
+In \autoref{fig:ui-detail-page} ist der Design-Prototyp für eine Detailseite dargestellt.
+Beispielhaft wird hier die Tracker-Detailseite behandelt.
+
+Im Kopfbereich der Seite ist neben einem Button für die Navigation das Icon für die Klasse Tracker und der Name des Trackers dargestellt.
+Der Inhaltsbereich der Seite beihaltet eine Liste mit allen wichtigen Attributen des Trackers.
+Jeder Eintrag besteht aus dem Namen des Attributs links und dem Attribut selbst rechts.
+Wenn möglich soll das Attribut selbst in einem modifizierbaren Feld dargestellt werden, das vorerst gesperrt ist.
+
+Der Fußbereich einer Detailseite besteht aus zwei Buttons.
+Mit dem linken Button können die editierbaren Attribute freigeschaltet werden.
+Dabei wird aus dem \enquote{Stift}-Icon ein \enquote{Speichern}-Icon und über den Button können die bearbeiteten Attribute gespeichert werden.
+Der rechte Button dient zum Löschen des dargestellten Objekts.
+
+Je nach Klasse des dargestellten Objekts ändert sich das Icon im Kopfbereich und die angezeigten Attribute.
+In folgender \autoref{tab:detail-attributes} ist gelistet, für welche Klassen welche Attribute angezeigt werden und, ob diese editierbar sind.
+
+\begin{table}[]
+\centering
+\begin{tabular}{l|l|r}
+\textbf{Klasse}  & \textbf{Attribut} & \multicolumn{1}{l}{\textbf{Editierbar}} \\ \hline
+Tracker          &                   &                                         \\
+                 & Label             & Ja                                      \\
+                 & Raum              & Nein                                    \\
+                 & Batterie          & Nein                                    \\
+                 & Status            & Nein                                    \\ \hline
+Raum             &                   & \multicolumn{1}{l}{}                    \\
+                 & Label             & Ja                                      \\
+                 & Eingelernt        & Über Button                             \\ \hline
+WorkflowTemplate &                   & \multicolumn{1}{l}{}                    \\
+                 & Label             & Ja                                      \\
+                 & Initiale Revision & Nein                                    \\
+                 & Schritte          & siehe Workflow-Darstellung              \\ \hline
+WorkflowExec     &                   & \multicolumn{1}{l}{}                    \\
+                 & Status            & Nein                                    \\
+                 & Schritte          & Nein
+\end{tabular}
+\caption{Dargestellte Attribute der Klassen}
+\label{tab:detail-attributes}
+\end{table}
+
+\begin{figure}[h!tbp]
+	\includegraphics[width=.5\textwidth]{images/ui-prototype/detail_page.jpg}
+	\centering
+	\caption{Design-Prototyp der Detailseite eines Trackers}
+	\label{fig:ui-detail-page}
+\end{figure}
+
+\subsubsection{Seite zum Einlernen eines Raumes}
+
+Weiter ist in \autoref{fig:ui-learning-page} der Protoyp der Einlern-Seite dargestellt.
+Auf dieser Seite kann der Endbenutzer einen Raum einlernen.
+Dazu muss in zwei Dropdowns der zu lernende Raum und der zum Lernen verwendete Tracker ausgewählt werden.
+Wird von einer Detailseite eines Raumes oder Trackers auf die Lernseite navigiert, so wird dieses Objekt entsprechend in einem der Dropdowns vorausgewählt.
+Sind Raum und Tracker ausgewählt, kann der Einlernvorgang gestartet werden.
+
+In diesem Fall wird statt dem Button zum Starten des Lernens eine Liste der gefundenen \glspl{SSID} angezeigt.
+Der Nutzer kann in dieser Liste auswählen, welche \glspl{SSID} zum Einlernen des Raumes verwendet werden sollen.
+Die Liste wird während des Vorgangs stetig mit neu gefundenen \glspl{SSID} erweitert.
+Sobald der Vorgang beendet wird, kann am Ende der Seite das Einlernen über einen Button abgeschlossen werden.
+Wird dieser betätigt, wird von der Seite automatisch auf die vorherige zurücknavigiert.
+
+\begin{figure}[h!tbp]
+	\includegraphics[width=.7\textwidth]{images/ui-prototype/learning_page.jpg}
+	\centering
+	\caption{Design-Prototyp der Einlern-Seite}
+	\label{fig:ui-learning-page}
+\end{figure}
+
+\subsubsection{Dialoge zum Erstellen von Objekten} \label{sec:app-dialog}
+
+Das Hinzufügen eines neuen Objektes einer Klasse kann über den \enquote{Floating Action Button} auf der Hauptseite angestoßen werden.
+Durch den Button soll ein Dialog geöffnet werden, deren Design-Prototyp in \autoref{fig:ui-popup} dargestellt ist.
+
+Der Dialog wird durch ein Pop-up realisiert.
+Dieses hat eine Überschrift, die angibt welches Objekt erzeugt wird.
+Unter der Überschrift können in einer Liste alle benötigten Attribute des Objekts eingegeben werden.
+Wenn möglich, wie zum Beispiel bei der Auswahl eines Raumes, soll eine Dropdown-Auswahl verwendet werden.
+Zu dem Dropdown soll auch wieder das Icon der Klasse, aus welcher ein Objekt ausgewählt werden soll, dargestellt werden.
+
+\begin{figure}[h!tbp]
+	\includegraphics[width=.5\textwidth]{images/ui-prototype/popup.png}
+	\centering
+	\caption{Design-Prototyp eines Pop-ups zum Erstellen eines Raumes}
+	\label{fig:ui-popup}
+\end{figure}
+
+\subsubsection{Tutorial-Seite} \label{sec:app-tutorial}
+
+Beim ersten Start der App soll automatisch ein Tutorial gestartet werden, welches die Bedienung der App erklärt.
+Der Nutzer soll dieses Tutorial auch von der Hauptseite aus aufrufen können.
+
+Das Layout des Tutorials ist schlicht gehalten.
+Im Zentrum ist eine Box dargestellt, in der es ein Titel, ein Bild und eine Beschreibung gibt.
+Durch eine Liste an solchen Boxen kann durch ein Wischen nach links und rechts geblättert werden.
+Jede Box soll mit ihrem Inhalt einen Aspekt der App näher erläutern und dem Nutzer erklären.
+Unter der Box wird dem Nutzer signalisiert, wie weit dieser durch die Liste fortgeschritten ist,
+indem der Index der aktuellen Box und die Gesamtzahl der Boxen angezeigt werden.
+Am unteren Teil der Seite gibt es einen Button, mit dem das Tutorial beendet wird.
+
+\begin{figure}[h!tbp]
+	\includegraphics[height=.6\textheight]{images/ui-prototype/tutorial.png}
+	\centering
+	\caption{Design-Prototyp des Tutorials}
+	\label{fig:ui-tutorial}
+\end{figure}
+
+
+\FloatBarrier
+
+Der Inhalt des Tutorials soll alle wichtigen Funktionen der App und auch die Konfiguration des Trackers selbst abdecken.
+Dafür sind die folgenden Inhalte angedacht:
+
+\begin{enumerate}
+	\item Konfiguration der App mit der Backend-Server URL mit Protokoll
+	\item Hauptseite mit Unterteilung in vier Tabs und des Buttons für das Tutorial
+	\item Tracker-Tab mit leerer Liste an Trackern und Hinweis, dass über den Flasher ein Tracker konfiguriert werden kann
+	\item Pull-Down der Liste zum Aktualisieren. Der zuvor konfigurierte Tracker erscheint
+	\item Tracker-Detailseite und das Bearbeiten eines Trackers
+	\item Raum-Liste und das Erstellen eines neuen Raumes
+	\item Funktionsweise des Einlernen eines Raumes
+	\item Template-Liste und das Erstellen eines Templates
+	\item Editieren eines Templates in der Detailseite des Templates
+	\item Workflow-Ausführungs-Liste und das Starten einer neuen Ausführung
+	\item Menü mit Aktionen zu einem Schritt in einer Workflow-Ausführung
+\end{enumerate}
+
+\subsubsection{Icons für zentrale Klassen}
+
+\TODO{Studie über Nutzen von Icons zur Wiedererkennung von Schlüsselwörtern einbringen}
+
+Wie schon zu der Hauptseite und Detailseite angemerkt, gibt es für jede zentrale Klasse ein zugehöriges Icon.
+Die soll ermöglichen, dass der Endbenutzer in der App über die Icons die dazugehörige Klasse wiedererkennen kann.
+So kann direkt erkannt werden, welcher Objekttyp auf der Detailseite angezeigt wird, oder welche
+Objekte in einem Dropdown ausgewählt werden.
+Zusätzlich kann das Icon abgeändert werden, wenn sich zum Beispiel der Zustand eines Objektes ändert.
+Dies wird bei der Workflow-Ausführung verwendet, die ein anderes Icon besitzt, falls die Ausführung abgeschlossen ist.
+Eine Übersicht der zu verwendenden Icons ist in \autoref{fig:ui-icons} gegeben.
+
+\begin{figure}[h!tbp]
+	\includegraphics[height=150px]{images/ui-prototype/class-icons.png}
+	\centering
+	\caption{Icons für Klassen}
+	\label{fig:ui-icons}
+\end{figure}
+\TODO{Schriftgröße einheitlich}
+\TODO{WorkflowExec -> unklar für Leser}
