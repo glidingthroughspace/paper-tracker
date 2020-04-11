@@ -49,7 +49,14 @@ class _CheckCardListState extends State<CheckCardList> {
     var listChildren = widget.controller.contentMap
         .map((title, checked) => MapEntry(
             ListCard(
-                title: Text(title), trailing: Checkbox(value: checked, onChanged: null), object: title, onTap: onTap),
+                title: Text(title),
+                trailing: Checkbox(
+                  value: checked,
+                  onChanged: (foo) {},
+                  activeColor: Theme.of(context).accentColor,
+                ),
+                object: title,
+                onTap: onTap),
             null))
         .keys
         .toList();
