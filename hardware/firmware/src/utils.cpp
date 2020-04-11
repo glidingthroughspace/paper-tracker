@@ -12,6 +12,10 @@ namespace time {
     return value * 1000;
   }
 
+  microseconds to_micros(seconds value) {
+    return to_millis(value) * 1000;
+  }
+
   void wait_for(seconds value) {
     timestamp end_time = now() + value;
     while (!now().is_after(end_time)) {
@@ -28,6 +32,7 @@ namespace time {
 
   timestamp::timestamp(const milliseconds v) : value{v} {}
   timestamp::timestamp(const seconds v) : value{v * 1000} {}
+  timestamp::timestamp(): value{0} {}
   const bool timestamp::is_after(const timestamp &other) const {
     return value > other.value;
   }

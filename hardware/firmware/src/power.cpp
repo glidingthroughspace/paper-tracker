@@ -15,8 +15,8 @@ void Power::print_wakeup_reason() {
   #ifndef NDEBUG
   auto wakeup_reason = esp_sleep_get_wakeup_cause();
   switch(wakeup_reason) {
-    case ESP_SLEEP_WAKEUP_TIMER : logln("Wakeup by timer"); break;
-    case ESP_SLEEP_WAKEUP_ULP : logln("Wakeup by ULP"); break;
+    case ESP_SLEEP_WAKEUP_TIMER : logln("[Power] Wakeup by timer"); break;
+    case ESP_SLEEP_WAKEUP_ULP : logln("[Power] Wakeup by ULP"); break;
     default: break;
   }
   #endif
@@ -26,10 +26,9 @@ void Power::enable_powersavings() {
   Power::tinypico.DotStar_SetPower(false);
 }
 
-void Power::deep_sleep_for_seconds(const uint64_t seconds) {
-  logln("Going to sleep");
-  esp_sleep_enable_timer_wakeup(seconds_to_microseconds(seconds));
-  esp_deep_sleep_start();
+void Power::deep_sleep_for(const utils::time::seconds secs) {
+  logf("[Power] Going to sleep for %ds\n", secs);
+  esp_deep_sleep(utils::time::to_micros(secs));
 }
 
 uint64_t Power::seconds_to_microseconds(const uint64_t seconds) {
@@ -38,19 +37,15 @@ uint64_t Power::seconds_to_microseconds(const uint64_t seconds) {
 
 uint8_t Power::get_battery_percentage() {
   auto voltage = tinypico.GetBatteryVoltage();
-  log("The battery voltage is: ");
-  log(voltage);
   uint8_t percentage = (uint8_t)((voltage - min_battery_voltage) / (max_battery_voltage - min_battery_voltage) * 100);
   // Clip to 100%
   percentage = percentage < 100 ? percentage : 100;
-  log(", this equals a percentage of: ");
-  logln(percentage);
+  logf("[Power] The battery is %d%% charged (%fV)\n", percentage, voltage);
   return percentage;
 }
 
 bool Power::is_charging() {
   auto charging = tinypico.IsChargingBattery();
-  log("We are charging: ");
-  logln(charging);
+  logf("[Power] The battery is %s\n", charging ? "charging" : "discharging");
   return charging;
 }

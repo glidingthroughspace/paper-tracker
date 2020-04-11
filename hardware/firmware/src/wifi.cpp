@@ -1,10 +1,11 @@
 #include <wifi.hpp>
 
-#include <log.hpp>
-#include <power.hpp>
-
 #include <cstdio>
 #include <cstring>
+
+#include <log.hpp>
+#include <power.hpp>
+#include <utils.hpp>
 
 #ifndef NDEBUG
 #define WIFI_CONNECTION_DELAY 250
@@ -32,18 +33,14 @@ WiFiUDP& WIFI::getUDP() {
 }
 
 bool WIFI::connect(const char* ssid, const char* password) {
-  log("Connecting to WiFi SSID ");
-  logln(ssid);
+  logf("[WiFi] Connecting to WiFi SSID %s\n", ssid);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   return connectLoop();
 }
 
 bool WIFI::connect(const char* ssid, const char* username, const char* password) {
-  log("Connecting to WiFi SSID ");
-  log(ssid);
-  log(" with user ");
-  logln(username);
+  logf("[WiFi] Connecting to WiFi SSID %s with user %s\n", ssid, username);
   WiFi.mode(WIFI_STA);
 
   esp_wifi_sta_wpa2_ent_set_identity((uint8_t*)username, strlen(username));
@@ -53,11 +50,11 @@ bool WIFI::connect(const char* ssid, const char* username, const char* password)
   esp_wpa2_config_t config = WPA2_CONFIG_INIT_DEFAULT();
 
   if (esp_wifi_sta_wpa2_ent_enable(&config)) {
-    logln("Failed to enable WPA2");
+    logln("[WiFi] Failed to enable WPA2");
     return false;
   }
 
-  logln("Initialized wifi config");
+  logln("[WiFi] Initialized wifi config");
   WiFi.begin(ssid);
   return connectLoop();
 }
@@ -72,13 +69,12 @@ bool WIFI::connectLoop() {
     // Try for 10 seconds
     if (counter > (CONNECTION_TIMEOUT_SECONDS * 1000) / WIFI_CONNECTION_DELAY) {
       logln();
-      logln("Connection timeout reached");
-      Power::deep_sleep_for_seconds(10);
+      logln("[WiFi] Connection timeout reached");
+      Power::deep_sleep_for(utils::time::seconds(10));
     }
   }
   logln();
-  log("Connected, IP address is: ");
-  logln(WiFi.localIP());
+  logf("[WiFi] Connected, IP address is %s\n", WiFi.localIP().toString().c_str());
   udp.begin(LOCAL_UDP_PORT);
   return true;
 }
@@ -88,11 +84,9 @@ uint8_t WIFI::getVisibleNetworkCount() const {
 }
 
 uint8_t WIFI::scanVisibleNetworks() {
-  logln("Scanning for networks...");
+  logln("[WiFi] Scanning for networks...");
   visibleNetworkCount = WiFi.scanNetworks();
-  log("Found ");
-  log(visibleNetworkCount);
-  logln(" networks in reach");
+  logf("[WiFi] Found %d access points in reach\n", visibleNetworkCount);
   return visibleNetworkCount;
 }
 

@@ -1,6 +1,7 @@
 #include <models/command.hpp>
 
 #include <log.hpp>
+#include <utils.hpp>
 #include <serialization/cbor/CBORParser.hpp>
 
 bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
@@ -37,7 +38,7 @@ bool Command::fromCBOR(std::vector<uint8_t> data) {
   return fromCBOR(data.data(), data.size());
 }
 
-uint16_t Command::getSleepTimeInSeconds() const {
+utils::time::seconds Command::getSleepTime() const {
   return sleepTimeSec.value;
 }
 
@@ -73,8 +74,5 @@ const char* Command::getTypeString() const {
 }
 
 void Command::print() const {
-  log("Command is ");
-  log(getTypeString());
-  log(" and sleep time in seconds is ");
-  logln(getSleepTimeInSeconds());
+  logf("[Command] Command is %s and sleep time is %ds\n", getTypeString(), getSleepTime());
 }
