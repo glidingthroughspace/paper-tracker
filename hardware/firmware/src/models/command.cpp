@@ -1,6 +1,7 @@
 #include <models/command.hpp>
 
 #include <log.hpp>
+#include <utils.hpp>
 #include <serialization/cbor/CBORParser.hpp>
 
 bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
@@ -10,14 +11,14 @@ bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
   bool parsedSleepTime = false;
 
   if (!cbor.isWellformedModel()) {
-    logln("Malformed CBOR data while parsing Command");
+    logln("[Command] Malformed CBOR data while parsing Command");
     return false;
   }
 
   while(cbor.advance()) {
     auto key = cbor.findNextKey();
     if (key == nullptr) {
-      logln("Unexpected token in CBOR input, continuing with next token");
+      logln("[Command] Unexpected token in CBOR input, continuing with next token");
       continue;
     }
     if (type.matchesKey(key)) {
@@ -25,8 +26,7 @@ bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
     } else if (sleepTimeSec.matchesKey(key)) {
       parsedSleepTime = sleepTimeSec.deserializeFrom(cbor);
     } else {
-      log("Command data has unknown key ");
-      logln(key);
+      logf("[Command] Command data has unknown key %s\n", key);
     }
   }
 
@@ -37,7 +37,7 @@ bool Command::fromCBOR(std::vector<uint8_t> data) {
   return fromCBOR(data.data(), data.size());
 }
 
-uint16_t Command::getSleepTimeInSeconds() const {
+utils::time::seconds Command::getSleepTime() const {
   return sleepTimeSec.value;
 }
 
@@ -50,7 +50,7 @@ bool Command::parseType(CBORParser& cbor) {
     return false;
   }
   if (!isValidType(type.value)) {
-    logln("Found unknown command number");
+    logf("[Command] Found unknown command number %d\n", type.value);
     type.value = static_cast<uint8_t>(CommandType::INVALID);
     return false;
   }
@@ -73,8 +73,5 @@ const char* Command::getTypeString() const {
 }
 
 void Command::print() const {
-  log("Command is ");
-  log(getTypeString());
-  log(" and sleep time in seconds is ");
-  logln(getSleepTimeInSeconds());
+  logf("[Command] Command is %s and sleep time is %ds\n", getTypeString(), getSleepTime());
 }

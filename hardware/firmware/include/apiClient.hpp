@@ -28,6 +28,7 @@ class ApiClient {
     struct Callback {
       utils::time::seconds timeout;
       utils::time::timestamp request_started_at;
+      bool response_received;
       coap_callback function;
     };
   private:

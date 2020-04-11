@@ -1,9 +1,11 @@
 #include <apiClient.hpp>
 
+#include <string.h>
+
 #include <log.hpp>
 #include <power.hpp>
 #include <types.hpp>
-#include <string.h>
+#include <utils.hpp>
 
 #include <models/newIDResponse.hpp>
 
@@ -25,23 +27,23 @@ bool ApiClient::loop() {
 }
 
 void ApiClient::requestTrackerID(std::function<void(int16_t)> callback) {
-  logln("Requesting new tracker ID from server");
+  logln("[Api] Requesting new tracker ID from server");
   auto message_id = coap.post(serverIP, "tracker/new");
   storeCallback(message_id, [callback] (coap::Packet& packet, bool timed_out) {
     if (timed_out) {
-      logln("Requesting a new tracker ID timed out. Cannot continue operation, going to sleep");
-      Power::deep_sleep_for_seconds(10);
+      logln("[Api] Requesting a new tracker ID timed out. Cannot continue operation, going to sleep");
+      Power::deep_sleep_for(utils::time::seconds(10));
       return;
     }
     if (ApiClient::isErrorResponse(packet)) {
-      logln("Requesting a new tracker ID failed. Cannot continue operation, sleeping 10 seconds");
-      Power::deep_sleep_for_seconds(10);
+      logln("[Api] Requesting a new tracker ID failed. Cannot continue operation, sleeping 10 seconds");
+      Power::deep_sleep_for(utils::time::seconds(10));
       return;
     }
     NewIDResponse nid;
     if (!nid.fromCBOR(packet.payload)) {
-      logln("Could not deserialize new tracker ID. Cannot continue operation, sleeping 10 seconds");
-      Power::deep_sleep_for_seconds(10);
+      logln("[Api] Could not deserialize new tracker ID. Cannot continue operation, sleeping 10 seconds");
+      Power::deep_sleep_for(utils::time::seconds(10));
       return;
     }
     callback(nid.getID());
@@ -49,7 +51,7 @@ void ApiClient::requestTrackerID(std::function<void(int16_t)> callback) {
 }
 
 void ApiClient::requestNextCommand(uint16_t trackerID, std::function<void(Command&)> callback) {
-  logln("Requesting next action from server");
+  logln("[Api] Requesting next action from server");
   // FIXME: It is (in theory) possible for the server to answer so quickly that the response
   // callback is not registered yet. This is highly unlikely though.
   char param[15];
@@ -57,19 +59,19 @@ void ApiClient::requestNextCommand(uint16_t trackerID, std::function<void(Comman
   uint16_t messageID = coap.get(serverIP, "tracker/poll", qp);
   storeCallback(messageID, [callback] (coap::Packet& packet, bool timed_out) {
     if (timed_out) {
-      logln("Requesting the next action timed out, going to sleep");
-      Power::deep_sleep_for_seconds(10);
+      logln("[Api] Requesting the next action timed out, going to sleep");
+      Power::deep_sleep_for(utils::time::seconds(10));
       return;
     }
     if (ApiClient::isErrorResponse(packet)) {
-      logln("Requesting the next action failed, going to sleep for 10 seconds");
-      Power::deep_sleep_for_seconds(10);
+      logln("[Api] Requesting the next action failed, going to sleep for 10 seconds");
+      Power::deep_sleep_for(utils::time::seconds(10));
       return;
     }
     Command cmd;
     if (!cmd.fromCBOR(packet.payload)) {
-      logln("Could not deserialize next command, going to sleep for 10 seconds");
-      Power::deep_sleep_for_seconds(10);
+      logln("[Api] Could not deserialize next command, going to sleep for 10 seconds");
+      Power::deep_sleep_for(utils::time::seconds(10));
       return;
     }
 
@@ -79,51 +81,46 @@ void ApiClient::requestNextCommand(uint16_t trackerID, std::function<void(Comman
 
 
 void ApiClient::writeTrackingData(uint16_t trackerID, std::vector<uint8_t> scanResults, std::function<void(void)> callback) {
-  logln("Posting scan results to server");
-  log("Sending ");
-  log(scanResults.size());
-  logln(" scan result bytes");
+  logf("[Api] Posting scan results to server, sending %d scan result bytes\n", scanResults.size());
   char param[15];
   auto qp = getTrackerIDQueryParam(param, 15, trackerID);
   auto msgID = coap.post(serverIP, "tracker/tracking", qp, scanResults, ContentType::APPLICATION_CBOR);
   storeCallback(msgID, [callback] (coap::Packet& packet, bool timed_out) {
     if (timed_out) {
-      logln("Request to send tracking data timed out, continuing");
+      logln("[Api] Request to send tracking data timed out, continuing");
       callback();
     }
     if (ApiClient::isErrorResponse(packet)) {
-      logln("Failed to send tracking data");
-      logln(packet.code);
+      logf("[Api] Failed to send tracking data: %d\n", packet.code);
       return;
     }
-    logln("Got response");
+    logln("[Api] Got response to tracking data request");
 
     callback();
   });
 }
 
 void ApiClient::writeInfoResponse(uint16_t trackerID, std::vector<uint8_t> infoResponse) {
-  logln("Posting battery information to server");
+  logln("[Api] Posting battery information to server");
   char param[15];
   auto qp = getTrackerIDQueryParam(param, 15, trackerID);
   auto msgID = coap.post(serverIP, "tracker/status", qp, infoResponse, ContentType::APPLICATION_CBOR);
   storeCallback(msgID, [] (coap::Packet& packet, bool timed_out) {
     if (timed_out) {
-      logln("Request to send battery info timed out, continuing");
+      logln("[Api] Request to send battery info timed out, continuing");
     }
     if (ApiClient::isErrorResponse(packet)) {
-      logln("Failed to info response data");
-      logln(packet.code);
+      logf("[Api] Failed to info response data: %d\n", packet.code);
       return;
     }
-    logln("Sent battery info");
+    logln("[Api] Sent battery info");
   });
 }
 
 
 
 void ApiClient::coap_response_callback(coap::Packet& packet, IPAddress ip, int port) {
-  logln("Got a CoAP response, payload is: ");
+  logf("[Api] Got a CoAP response for request with ID %d, payload is: ", packet.messageid);
 
   char p[packet.payload.size() + 1];
   memcpy(p, packet.payload.data(), packet.payload.size());
@@ -132,23 +129,25 @@ void ApiClient::coap_response_callback(coap::Packet& packet, IPAddress ip, int p
 
   auto it = callbacks.find(packet.messageid);
   if (it == callbacks.end()) {
-    log("No callback registered for message with ID ");
-    logln(packet.messageid);
+    logf("[Api] No callback registered for message with ID %d\n", packet.messageid);
     return;
   }
+  it->second.response_received = true;
   it->second.function(packet, false);
+  logf("[Api] Unregistering callback with ID %d\n", packet.messageid);
+  callbacks.erase(it);
 }
 
 void ApiClient::storeCallback(uint16_t messageID, coap_callback callback, utils::time::seconds timeout) {
   if (messageID == 0) {
-    logln("Sending the message failed");
+    logln("[Api] Sending the message failed");
     return;
   }
-  log("Message has ID ");
-  logln(messageID);
+  logf("[Api] Message has ID %d\n", messageID);
   callbacks[messageID] = Callback{
     timeout,
-    utils::time::current(),
+    utils::time::now(),
+    false,
     callback,
   };
 }
@@ -161,22 +160,24 @@ std::vector<char*> ApiClient::getTrackerIDQueryParam(char* buffer, size_t buffer
   std::vector<char*> queryParams;
   snprintf(buffer, bufferlen, "trackerid=%d", trackerID);
   queryParams.push_back(buffer);
-  logln("Quey parameters:");
-  for (auto qp : queryParams) {
-    logln(qp);
-  }
   return queryParams;
 }
 
 void ApiClient::update_request_timeouts() {
-  for (auto& callback : callbacks) {
-    auto cb = callback.second;
-    if (utils::time::current_time_is_after(cb.request_started_at + utils::time::to_millis(cb.timeout))) {
-      log("Request with ID ");
-      log(callback.first);
-      logln(" timed out");
+  for (auto& it : callbacks) {
+    logf("[Api] There is a callback stored for message ID %d, which times out in %ds\n", it.first,
+        utils::time::now().seconds_to(it.second.request_started_at + it.second.timeout));
+  }
+  for (auto& it : callbacks) {
+    auto& cb = it.second;
+    if (cb.response_received == true) {
+      logf("[Api] Already received a response for request with ID %d, removing from callback list\n", it.first);
+      callbacks.erase(it.first);
+    } else if (utils::time::now().is_after(cb.request_started_at + cb.timeout)) {
+      logf("[Api] Request with ID %d timed out\n", it.first);
       coap::Packet empty_packet;
       cb.function(empty_packet, true);
+      callbacks.erase(it.first);
     }
   }
 }

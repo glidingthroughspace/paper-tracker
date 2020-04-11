@@ -34,14 +34,12 @@ bool CBORParser::isAtEOF() const {
 
 char* CBORParser::findNextKey() {
   if (nextDataType != cbor::DataType::kText) {
-    logln("Expected a key, but got none");
-    log("Data type is ");
-    logln(static_cast<uint8_t>(nextDataType));
+    logf("[CBORParser] Expected a key, but got none. Next data type is %d\n", static_cast<unsigned int>(nextDataType));
     return nullptr;
   }
   auto bytesAvailable = reader.bytesAvailable();
   if (bytesAvailable > MAX_KEY_LENGTH - 1) {
-    logln("Key is too large to read");
+    logln("[CBORParser] Key is too large to read");
     return nullptr;
   }
   reader.readBytes((uint8_t*) currentKey, bytesAvailable);
@@ -79,7 +77,7 @@ bool CBORParser::readUnsignedInt(uint16_t& target) {
     return false;
   }
   if (targetBuffer > (2^16)) {
-    Serial.println("value is too large for uint16");
+    logln("[CBORParser] Value is too large for uint16");
     // FIXME: This is happening with a uint containing 24. IDK why.
   }
   target = static_cast<uint16_t>(targetBuffer);

@@ -10,16 +10,11 @@ class ScanResult {
     ScanResult(int32_t rssi, const String& bssid, const String& ssid): RSSI{"rssi", rssi}, BSSID{"bssid", bssid}, SSID{"ssid", ssid} {};
 
     void print() {
-      log("SSID: ");
-      log(SSID.get());
-      log(", BSSID: ");
-      log(BSSID.get());
-      log(", RSSI: ");
-      logln(static_cast<int32_t>(RSSI.value));
+      logf("BSSID: %s, SSID: %s, RSSI: %d\n", BSSID.get().c_str(), SSID.get().c_str(), RSSI.value);
     }
 
     void toCBOR(CBORDocument& cbor) {
-      logln("Serializing scan result:");
+      log("[ScanResult] Serializing: ");
       print();
       cbor.begin_map(3);
       RSSI.serialize_to(cbor);
