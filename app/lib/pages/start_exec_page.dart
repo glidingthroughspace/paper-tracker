@@ -72,6 +72,7 @@ class _StartExecPageState extends State<StartExecPage> {
         hintName: "workflow",
         icon: WorkflowTemplate.IconData,
         setState: setState,
+        onSelected: (foo) => workflowStepsListController.clear(),
       )
     ];
 

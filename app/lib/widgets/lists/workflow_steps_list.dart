@@ -6,6 +6,10 @@ import 'package:paper_tracker/widgets/lists/card_list.dart';
 
 class WorkflowStepsListController {
   var selectedDecisionMap = Map<int, String>();
+
+  void clear() {
+    selectedDecisionMap.clear();
+  }
 }
 
 class WorkflowStepsList extends StatefulWidget {
