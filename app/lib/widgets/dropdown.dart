@@ -19,16 +19,18 @@ class Dropdown extends StatefulWidget {
   final IconData icon;
   final bool itemFixed;
   final void Function(VoidCallback) setState;
+  final void Function(DropdownCapable) onSelected;
 
-  const Dropdown(
-      {Key key,
-      @required this.getItems,
-      @required this.controller,
-      this.hintName = "",
-      this.icon = Icons.adb,
-      this.itemFixed = false,
-      this.setState})
-      : super(key: key);
+  const Dropdown({
+    Key key,
+    @required this.getItems,
+    @required this.controller,
+    this.hintName = "",
+    this.icon = Icons.adb,
+    this.itemFixed = false,
+    this.setState,
+    this.onSelected,
+  }) : super(key: key);
 
   @override
   _DropdownState createState() => _DropdownState();
@@ -65,6 +67,7 @@ class _DropdownState extends State<Dropdown> {
           onChanged: (value) {
             setState(() {
               widget.controller.selectedItem = value;
+              widget.onSelected(value);
               if (widget.setState != null) widget.setState(() {});
             });
           },
