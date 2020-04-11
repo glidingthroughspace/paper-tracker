@@ -11,14 +11,14 @@ bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
   bool parsedSleepTime = false;
 
   if (!cbor.isWellformedModel()) {
-    logln("Malformed CBOR data while parsing Command");
+    logln("[Command] Malformed CBOR data while parsing Command");
     return false;
   }
 
   while(cbor.advance()) {
     auto key = cbor.findNextKey();
     if (key == nullptr) {
-      logln("Unexpected token in CBOR input, continuing with next token");
+      logln("[Command] Unexpected token in CBOR input, continuing with next token");
       continue;
     }
     if (type.matchesKey(key)) {
@@ -26,8 +26,7 @@ bool Command::fromCBOR(uint8_t* buffer, size_t bufferSize) {
     } else if (sleepTimeSec.matchesKey(key)) {
       parsedSleepTime = sleepTimeSec.deserializeFrom(cbor);
     } else {
-      log("Command data has unknown key ");
-      logln(key);
+      logf("[Command] Command data has unknown key %s\n", key);
     }
   }
 
@@ -51,7 +50,7 @@ bool Command::parseType(CBORParser& cbor) {
     return false;
   }
   if (!isValidType(type.value)) {
-    logln("Found unknown command number");
+    logf("[Command] Found unknown command number %d\n", type.value);
     type.value = static_cast<uint8_t>(CommandType::INVALID);
     return false;
   }

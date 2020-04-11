@@ -110,8 +110,7 @@ void ApiClient::writeInfoResponse(uint16_t trackerID, std::vector<uint8_t> infoR
       logln("[Api] Request to send battery info timed out, continuing");
     }
     if (ApiClient::isErrorResponse(packet)) {
-      logln("[Api] Failed to info response data");
-      logln(packet.code);
+      logf("[Api] Failed to info response data: %d\n", packet.code);
       return;
     }
     logln("[Api] Sent battery info");

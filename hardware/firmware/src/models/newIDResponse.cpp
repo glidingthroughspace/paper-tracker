@@ -6,7 +6,7 @@
 bool NewIDResponse::fromCBOR(uint8_t* buffer, size_t bufferSize) {
   auto cbor = CBORParser(buffer, bufferSize);
   if (!cbor.isWellformedModel()) {
-    logln("Malformed CBOR data while parsing NewIDResponse");
+    logln("[NewIDResponse] Malformed CBOR data while parsing NewIDResponse");
     return false;
   }
 
@@ -15,13 +15,11 @@ bool NewIDResponse::fromCBOR(uint8_t* buffer, size_t bufferSize) {
   while (cbor.advance()) {
     auto key = cbor.findNextKey();
     if (key == nullptr) {
-      logln("Unexpected token in CBOR input, continuing with next token");
+      logln("[NewIDResponse] Unexpected token in CBOR input, continuing with next token");
       continue;
     }
     if (id.matchesKey(key)) {
-      logln("Deserializing ID");
       deserializedID = id.deserializeFrom(cbor);
-      logln(deserializedID);
     }
   }
   return deserializedID;
