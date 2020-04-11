@@ -91,6 +91,7 @@ func (r *CoapRouter) trackerTrackingData() coap.HandlerFunc {
 		}
 
 		w.SetCode(coap.Empty)
+		w.Write([]byte{}) // Explicit write is needed for the message to be sent
 	}
 }
 
@@ -124,5 +125,6 @@ func (r *CoapRouter) trackerBatteryInformation() coap.HandlerFunc {
 		}
 
 		w.SetCode(coap.Empty)
+		w.Write([]byte{}) // Explicit write is needed for the message to be sent
 	}
 }
