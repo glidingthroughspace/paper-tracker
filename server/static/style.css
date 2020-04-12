@@ -1,0 +1,34 @@
+body {
+	text-align: center;
+	font-family: 'Roboto', sans-serif;
+	padding: 20px;
+	background-color: rgb(230, 238, 248);
+}
+
+p {
+	margin-top: 15px;
+	margin-bottom: 0;
+}
+
+.row {
+	display: flex;
+	width: 100%;
+	justify-content: center;
+	margin-top: 10px;
+}
+
+.card {
+	background-color: rgb(172, 172, 172);
+	padding: 20px;
+	box-shadow: 6px 3px 3px grey;
+	border-radius: 10px;
+	margin: 40px;
+}
+
+.card > a {
+	padding: 5px;
+	background-color: lightcyan;
+	border-radius: 5px;
+	box-shadow: 6px 3px 3px grey;
+	margin: 5px;
+}
