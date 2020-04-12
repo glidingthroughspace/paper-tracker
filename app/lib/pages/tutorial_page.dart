@@ -47,7 +47,7 @@ class _TutorialPageState extends State<TutorialPage> {
             MaterialButton(
               child: Text("Done"),
               color: Theme.of(context).accentColor,
-              onPressed: currentPage == tutorialList.length - 1 ? () => Navigator.of(context).pop() : null,
+              onPressed: () => Navigator.of(context).pop(),
               minWidth: double.infinity,
             ),
           ],
@@ -64,7 +64,7 @@ var tutorialList = <TutorialStep>[
   TutorialStep("Main Screen",
       "The app is divided into 4 different tabs. Each tab provides you with a list of: workflows in execution, workflow templates, rooms and trackers. On the top right you find this tutorial."),
   TutorialStep("Tracker List",
-      "Switch to the fourth tab for all trackers. If your list is empty use the Flasher tool to setup your tracker."),
+      "Switch to the fourth tab for all trackers. If your list is empty use the Flasher tool to setup your tracker. To download the tool visit the URL you entered for configuration."),
   TutorialStep("Pull to refresh",
       "Pull down the empty list to refresh. It should the show your set up tracker. This works on all tabs and also detail pages."),
   TutorialStep("Tracker Detail",
