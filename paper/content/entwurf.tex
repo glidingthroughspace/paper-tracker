@@ -68,6 +68,29 @@ Empfang zum jeweiligen \gls{AP} ist.
 Da die Positionsdaten ohnehin zur Auswertung an das Backend übertragen werden müssen, wofür eine
 \gls{WLAN}-Verbindung notwendig ist, wird diese Methode eingesetzt.
 Die gesammelten Daten werden dann im Anschluss an das Backend übermittelt.
+\TODO{Papers zu RSSI-Basiertem Tracking einfügen (Microsoft)}
+
+Als Metrik für das Tracking über \gls{WLAN} können die in \autoref{sec:grundlagen-wlan} erläuterten
+\gls{RSSI} oder \gls{RCPI} verwendet werden. Da diese Werte jedoch nicht unbedingt proportional zum
+Abstand zum \gls{AP} wachsen oder fallen, da Funksignale durch unterschiedliche Materialien
+unterscheidlich gedämpft werden, können sie nicht als absolut angesehen und verwendet werden.
+
+Aus diesem Grund muss für jeden Raum die vorherrschende \gls{WLAN}-Umgebung in das System
+\enquote{eingelernt} werden. Zu diesem Zweck gibt es einen eigenen Modus in der Anwendung, in
+welchem ein ausgewählter Tracker ständig die verfügbaren \glspl{AP} und die zu diesen ermittelte
+Signalstärke an den Server sendet. Dieser sammelt die Messwerte und aggregierte sie nach Abschluss
+der Messung, also nach einem definierten Zeitintervall. Aggregriert werden die Metriken so, dass aus
+den \gls{RSSI}-Werten für jeden \gls{AP} das Minimum und Maximum, sowie das erste und dritte Quartil
+und Median und arithmetisches Mittel berechnet werden.
+
+Soll nun ein Tracker lokalisiert werden, scannt dieser die aktuelle \gls{WLAN}-Umgebung und sendet
+die Scanergebnisse an den Server. Dieser berechnet nun für jeden bereits eingelernten Raum einen
+\textit{Score}. Der Score berechnet sich aus der Übereinstimmung der nun gemessenen \glspl{RSSI} mit
+den vorher eingelernten. Hierfür wird über jeden für den Raum ermittelten \gls{AP} iteriert und
+abhängig davon, in welches statistische Maß der neue Messwert fällt, Punkte vergeben. Die konkrete
+Punkteverteilung ist hierbei noch nicht spezifiziert, es handelt sich um Parameter, welche genutzt
+werden können, um die Genauigkeit des Trackings zu optimieren. Daher werden diese in
+\autoref{chap:implementierung} beschrieben.
 
 \TODO{Lifecycle des Paper-Trackers erläutern}
 
@@ -511,13 +534,13 @@ Die benötigten Konfigurationswerte sind in der folgenden Liste dargestellt:
 
 \begin{description}
 	\item[\gls{WLAN} \gls{SSID}] \hfill \\
-		Name des \gls{WLAN} Netzwerkes, mit dem sich der Tracker verbinden soll 
+		Name des \gls{WLAN} Netzwerkes, mit dem sich der Tracker verbinden soll
 	\item[\gls{WLAN} Nutzername] \hfill \\
-		Nutzername, mit dem sich der Tracker am \gls{WLAN} anmelden soll. Diese Konfiguration kann freigelassen werden, falls nur ein Passwort für die Anmeldung ausreicht. 
+		Nutzername, mit dem sich der Tracker am \gls{WLAN} anmelden soll. Diese Konfiguration kann freigelassen werden, falls nur ein Passwort für die Anmeldung ausreicht.
 	\item[\gls{WLAN} Passwort] \hfill \\
-		Passwort, mit dem sich der Tracker am \gls{WLAN} anmelden soll. 
+		Passwort, mit dem sich der Tracker am \gls{WLAN} anmelden soll.
 	\item[Backend-Server \gls{IP}] \hfill \\
-		Die IP-Adresse, unter welcher der Backend-Server aus dem angegebenen \gls{WLAN}-Netz erreichbar ist. 
+		Die IP-Adresse, unter welcher der Backend-Server aus dem angegebenen \gls{WLAN}-Netz erreichbar ist.
 \end{description}
 
 Neben den Konfigurationsdaten müssen noch der Ort der Firmware auf dem ausführenden Computer und der Port, an welchem die Hardware verbunden ist, angegeben werden.
