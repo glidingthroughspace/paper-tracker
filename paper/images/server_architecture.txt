@@ -80,6 +80,7 @@ package managers {
     GetWorkflowExecManager() : WorkflowExecManager
     GetExecCountByTemplate(int templateID) : int
     GetAllExec() : WorkflowExec[]
+    GetExecsByTemplate() : WorkflowExec[]
     GetExec(int execID) : WorkflowExec
     GetExecByTrackerID(int trackerID) : WorkflowExec
     StartExecution(WorkflowExec exec)
@@ -105,6 +106,12 @@ package managers {
     NumberOfStepsRefferingToRoom(int roomID)
     CreateNewRevision(int templateID, String revisionLabel)
     DeleteTemplate(int templateID)
+  }
+  
+  class ExportManager {
+    CreateExportManager() : ExportManager
+    GetExportManager() : ExportManager
+    GenerateExport(writer Writer)
   }
 }
 
