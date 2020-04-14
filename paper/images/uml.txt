@@ -7,9 +7,12 @@ package model {
     UInt16 ID
     String Label
     Time LastPoll <no cbor>
-    Time LastSleepTime <no cbor>
+    int LastSleepTimeSec <no cbor>
+    Time LastBatteryUpdate <no cbor>
     int BatteryPercentage <no cbor>
     bool IsCharging <no cbor>
+    
+    GetSecondsToNextPoll() : int
   }
 
   enum TrackerStatus {

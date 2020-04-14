@@ -215,6 +215,7 @@ DELETE        & /room/:id                       & Raum löschen                 
 GET           & /tracker                        & Auflistung der Tracker              & -                                                           & List aller Tracker                                                      \\ \hline
 PUT           & /tracker/:id                    & Tracker aktualisieren               & Tracker                                                     & Aktualisierter Tracker                                                  \\ \hline
 DELETE        & /tracker/:id                    & Tracker löschen                     & -                                                           & -                                                                       \\ \hline
+GET           & /tracker/:id/next\_poll          & Zeit bis nächste Kommando Abholung & -                                                & Sekunden                                                                \\ \hline
 POST          & /tracker/:id/learn              & Lernen mit Tracker starten          & -                                                           & Lernzeit                                                                \\ \hline
 GET           & /tracker/:id/learn              & Lern Status abfragen                & -                                                           & \begin{tabular}[c]{@{}l@{}}Abgeschlossen\\ Gefundene SSIDs\end{tabular} \\ \hline
 DELETE        & /tracker/:id/learn              & Lernen abbrechen                    & -                                                           & -                                                                       \\ \hline
@@ -241,14 +242,7 @@ POST          & /workflow/exec/:id/cancel       & Ausführung abbrechen         
 \subsubsection{Software-Architektur}
 \FloatBarrier
 Die Architektur des Backend-Servers ist in folgendem Klassendiagramm \ref{fig:software-architecture} dargestellt.
-
-\begin{figure}
-	\includegraphics[width=\textwidth]{images/server_architecture.png}
-	\centering
-	\caption{Software-Architektur für die Backend-Anwendung}
-	\label{fig:software-architecture}
-\end{figure}
-\TODO{Layout verbessern, Erstellung der DB Verbindung reinpacken}
+\TODO{Erstellung der DB Verbindung reinpacken}
 
 Generell kann die Architektur in drei verschiedene Schichten aufgeteilt werden.
 Die erste Schicht bildet das Paket \enquote{router}, die zweite Schicht das Paket \enquote{managers} und die dritte Schicht das Paket \enquote{repositories}.
@@ -270,6 +264,15 @@ Alle Methoden eines Repository bilden direkte Anfragen an die Datenbank.
 Dabei ist ein Repository meist für eine Modellklasse verantwortlich.
 
 Die main-Klasse ist für das Starten des Servers und das Erstellen der einzelnen Komponenten verantwortlich.
+
+\begin{landscape}
+\begin{figure}
+	\includegraphics[width=\textheight]{images/server_architecture.png}
+	\centering
+	\caption{Software-Architektur für die Backend-Anwendung}
+	\label{fig:software-architecture}
+\end{figure}
+\end{landscape}
 
 \FloatBarrier
 \subsection{App für Mobilgeräte} \label{sec:app}
@@ -472,6 +475,7 @@ Dafür sind die folgenden Inhalte angedacht:
 	\item Funktionsweise des Einlernen eines Raumes
 	\item Template-Liste und das Erstellen eines Templates
 	\item Editieren eines Templates in der Detailseite des Templates
+	\item Erstellen einer neuen Revision eines Workflow Templates
 	\item Workflow-Ausführungs-Liste und das Starten einer neuen Ausführung
 	\item Menü mit Aktionen zu einem Schritt in einer Workflow-Ausführung
 \end{enumerate}

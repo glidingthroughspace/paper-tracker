@@ -1,4 +1,6 @@
 @startuml
+skinparam linetype polyline
+
 package cmd {
   class Main {
   }
@@ -44,6 +46,12 @@ package managers {
   	int idleSleepSec
     int learningSleepSec
     int trackingSleepSec
+    int sendInfoSleepSec
+    int sendInfoIntervalSec
+    int maxSleepSec
+    int workStartHour
+    int workEndHour
+    bool workOnWeekend
   
     CreateTrackerManager(TrackerRepository trackerRep, int idleSleepSec, int learningSleepSec, int trackingSleepSec) : TrackerManager
     GetTrackerManager() : TrackerManager
@@ -57,6 +65,7 @@ package managers {
     UpdateFromResponse(int trackerID, TrackerCmdResponse resp)
     UpdateRoom(int trackerID, int roomID)
     NewTrackingData(int trackerID, scanRes ScanResult[])
+    InWorkingHours() : bool
   }
   
   class TrackingManager {
@@ -174,12 +183,14 @@ TrackerManager --> TrackerRepository
 WorkflowExecManager --> WorkflowExecRepository
 WorkflowTemplateManager --> WorkflowTemplateRepository
 
-Main ..> LearningManager : <creates>
-Main ..> RoomManager : <creates>
-Main ..> TrackerManager : <creates>
-Main ..> TrackingManager : <creates>
-Main ..> WorkflowExecManager : <creates>
-Main ..> WorkflowTemplateManager : <creates>
+Main ..> managers : <creates>
 Main .> HttpRouter : <starts>
 Main .> CoapRouter : <starts>
+
+WorkflowTemplateManager -[hidden]- RoomManager
+TrackingManager -[hidden]- LearningManager
+TrackerManager -[hidden]- WorkflowExecManager
+
+WorkflowExecRepository -[hidden]- ScanResultRepository
+RoomRepository -[hidden]- TrackerRepository
 @enduml
