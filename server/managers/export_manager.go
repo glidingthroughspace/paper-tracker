@@ -47,7 +47,7 @@ func (mgr *ExportManager) GenerateExport(writer io.Writer) (err error) {
 type templateExport struct {
 	template                 *models.WorkflowTemplate
 	numExecutions            int
-	percentageCompleted      int
+	percentageCompleted      float64
 	meanCompletedExecTimeHrs float64
 }
 
@@ -78,6 +78,17 @@ func (mgr *ExportManager) fillExportFile(file *xlsx.File) (err error) {
 	}
 
 	// Assemble revision tab based on list
+	sheet, err := file.AddSheet("Original Revisions")
+	if err != nil {
+		log.WithError(err).Error("Failed to create revision sheet for export")
+		return
+	}
+
+	err = mgr.fillRevisionSheet(tmplExports, sheet)
+	if err != nil {
+		log.WithError(err).Error("Failed to fill revision sheet for export")
+		return
+	}
 
 	return
 }
@@ -93,6 +104,9 @@ func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, she
 		log.WithError(err).WithField("templateID", template.ID).Error("Failed to get all execs for export")
 		return
 	}
+
+	var numCompleted int
+	var sumCompletionTime time.Duration
 
 	stepInfoCols := make(map[models.StepID]int)
 	lastStepEndCol := 4
@@ -127,6 +141,18 @@ func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, she
 			sheet.Cell(row, col+3).SetString(stepInfo.Decision)
 			sheet.Cell(row, col+4).SetBool(stepInfo.Skipped)
 		}
+
+		if exec.Status == models.ExecStatusCompleted {
+			numCompleted++
+			sumCompletionTime += exec.CompletedOn.Sub(*exec.StartedOn)
+		}
+	}
+
+	export = &templateExport{
+		numExecutions:            len(execs),
+		percentageCompleted:      (float64(numCompleted) / float64(len(execs))) * 100.0,
+		meanCompletedExecTimeHrs: sumCompletionTime.Hours() / float64(len(execs)),
+		template:                 template,
 	}
 
 	return
@@ -150,4 +176,42 @@ func (mgr *ExportManager) fillStepInfoHeader(sheet *xlsx.Sheet, col int, templat
 	sheet.Cell(0, col+2).SetString(step.Label + " End Time")
 	sheet.Cell(0, col+3).SetString(step.Label + " Decision")
 	sheet.Cell(0, col+4).SetString(step.Label + " Skipped")
+}
+
+func (mgr *ExportManager) fillRevisionSheet(tmplExports map[models.WorkflowTemplateID]*templateExport, sheet *xlsx.Sheet) (err error) {
+	sheet.Cell(0, 0).SetString("Original Revision Label")
+	sheet.Cell(0, 1).SetString("Template Label")
+	sheet.Cell(0, 2).SetString("# Executions")
+	sheet.Cell(0, 3).SetString("% Completed")
+	sheet.Cell(0, 4).SetString("Mean Completion Time in Hours")
+
+	origMap := make(map[models.WorkflowTemplateID][]*templateExport)
+
+	for _, templExport := range tmplExports {
+		if templExport.template.FirstRevisionID != 0 {
+			if revisions, ok := origMap[templExport.template.FirstRevisionID]; ok {
+				origMap[templExport.template.FirstRevisionID] = append(revisions, templExport)
+			} else {
+				origMap[templExport.template.FirstRevisionID] = []*templateExport{
+					tmplExports[templExport.template.FirstRevisionID],
+					templExport,
+				}
+			}
+		}
+	}
+
+	currentOrigRow := 1
+	for origID, revisions := range origMap {
+		sheet.Cell(currentOrigRow, 0).SetString(tmplExports[origID].template.Label)
+
+		for it, revision := range revisions {
+			sheet.Cell(currentOrigRow+it, 1).SetString(revision.template.Label)
+			sheet.Cell(currentOrigRow+it, 2).SetInt(revision.numExecutions)
+			sheet.Cell(currentOrigRow+it, 3).SetFloat(revision.percentageCompleted)
+			sheet.Cell(currentOrigRow+it, 4).SetFloat(revision.meanCompletedExecTimeHrs)
+		}
+		currentOrigRow += 5
+	}
+
+	return
 }
