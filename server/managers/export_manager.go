@@ -2,7 +2,6 @@ package managers
 
 import (
 	"io"
-	"math/rand"
 	"paper-tracker/models"
 	"time"
 
@@ -19,8 +18,6 @@ func CreateExportManager() *ExportManager {
 	if trackingManager != nil {
 		return exportManager
 	}
-
-	rand.Seed(time.Now().UnixNano())
 
 	exportManager = &ExportManager{}
 
