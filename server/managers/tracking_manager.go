@@ -18,6 +18,8 @@ func CreateTrackingManager() *TrackingManager {
 		return trackingManager
 	}
 
+	trackingManager = &TrackingManager{}
+
 	return trackingManager
 }
 

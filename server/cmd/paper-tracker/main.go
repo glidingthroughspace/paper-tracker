@@ -70,6 +70,7 @@ func main() {
 	managers.CreateLearningManager(scanResultRep, *learnCountPtr, *learnSleepSecPtr)
 	managers.CreateWorkflowTemplateManager(workflowTemplateRep)
 	managers.CreateWorkflowExecManager(workflowExecRep)
+	managers.CreateExportManager()
 
 	coapRouter := router.NewCoapRouter()
 	httpRouter := router.NewHttpRouter()
