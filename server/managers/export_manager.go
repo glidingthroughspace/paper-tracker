@@ -58,10 +58,10 @@ func (mgr *ExportManager) fillExportFile(file *xlsx.File) (err error) {
 		return
 	}
 
-	// List to gather templates with export info
+	// List to gather templates with additional export info per template
 	tmplExports := make(map[models.WorkflowTemplateID]*templateExport, len(templates))
 
-	// Go through all templates and fill their own template and save needed data for list
+	// Go through all templates and fill their own template and save needed export info
 	for _, template := range templates {
 		sheet, err := file.AddSheet(template.Label)
 		if err != nil {
@@ -69,7 +69,7 @@ func (mgr *ExportManager) fillExportFile(file *xlsx.File) (err error) {
 			continue
 		}
 
-		err, tmplExport := mgr.fillExportSheet(template, sheet)
+		tmplExport, err := mgr.fillExportSheet(template, sheet)
 		if err != nil {
 			log.WithError(err).WithField("templateID", template.ID).Error("Failed to fill template sheet for export")
 			continue
@@ -93,7 +93,8 @@ func (mgr *ExportManager) fillExportFile(file *xlsx.File) (err error) {
 	return
 }
 
-func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, sheet *xlsx.Sheet) (err error, export *templateExport) {
+func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, sheet *xlsx.Sheet) (export *templateExport, err error) {
+	// Set Header
 	sheet.Cell(0, 0).SetString("Label of execution")
 	sheet.Cell(0, 1).SetString("Status")
 	sheet.Cell(0, 2).SetString("Start Time")
@@ -105,13 +106,15 @@ func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, she
 		return
 	}
 
+	// Needed for export info
 	var numCompleted int
 	var sumCompletionTime time.Duration
 
+	// Remember which columns hold data for which step and if we need to add a new column where we placed the last
 	stepInfoCols := make(map[models.StepID]int)
 	lastStepEndCol := 4
 	for it, exec := range execs {
-		row := it + 1
+		row := it + 1 // Skip header and set basic data
 		sheet.Cell(row, 0).SetString(exec.Label)
 		sheet.Cell(row, 1).SetString(exec.Status.String())
 		if exec.StartedOn != nil {
@@ -123,14 +126,15 @@ func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, she
 
 		for _, stepInfo := range exec.StepInfos {
 			col := -1
-			if savedCol, ok := stepInfoCols[stepInfo.StepID]; ok {
+			if savedCol, ok := stepInfoCols[stepInfo.StepID]; ok { // StepInfo Column exists
 				col = savedCol
-			} else {
+			} else { // Create new StepInfo column with header and remember
 				col = lastStepEndCol + 1
 				lastStepEndCol = col + 5
 				stepInfoCols[stepInfo.StepID] = col
 				mgr.fillStepInfoHeader(sheet, col, template.ID, stepInfo.StepID)
 			}
+			// Set stepInfo data
 			sheet.Cell(row, col).SetBool(true)
 			if stepInfo.StartedOn != nil {
 				sheet.Cell(row, col+1).SetDateTime(*stepInfo.StartedOn)
@@ -142,12 +146,14 @@ func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, she
 			sheet.Cell(row, col+4).SetBool(stepInfo.Skipped)
 		}
 
+		// If exec is completed, add info for export
 		if exec.Status == models.ExecStatusCompleted {
 			numCompleted++
 			sumCompletionTime += exec.CompletedOn.Sub(*exec.StartedOn)
 		}
 	}
 
+	// Assemble export info for this template
 	export = &templateExport{
 		numExecutions:            len(execs),
 		percentageCompleted:      (float64(numCompleted) / float64(len(execs))) * 100.0,
@@ -158,6 +164,7 @@ func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, she
 	return
 }
 
+// Create header for step info
 func (mgr *ExportManager) fillStepInfoHeader(sheet *xlsx.Sheet, col int, templateID models.WorkflowTemplateID, stepID models.StepID) {
 	step, err := GetWorkflowTemplateManager().GetStepByID(templateID, stepID)
 	if err != nil {
@@ -179,19 +186,24 @@ func (mgr *ExportManager) fillStepInfoHeader(sheet *xlsx.Sheet, col int, templat
 }
 
 func (mgr *ExportManager) fillRevisionSheet(tmplExports map[models.WorkflowTemplateID]*templateExport, sheet *xlsx.Sheet) (err error) {
+	// Set Header
 	sheet.Cell(0, 0).SetString("Original Revision Label")
 	sheet.Cell(0, 1).SetString("Template Label")
 	sheet.Cell(0, 2).SetString("# Executions")
 	sheet.Cell(0, 3).SetString("% Completed")
 	sheet.Cell(0, 4).SetString("Mean Completion Time in Hours")
 
+	// Map to hold original revision and all their revisions
 	origMap := make(map[models.WorkflowTemplateID][]*templateExport)
 
 	for _, templExport := range tmplExports {
 		if templExport.template.FirstRevisionID != 0 {
+			// This template has a previous revision
 			if revisions, ok := origMap[templExport.template.FirstRevisionID]; ok {
+				// If there is already a list saved for this orig revision, add to it
 				origMap[templExport.template.FirstRevisionID] = append(revisions, templExport)
 			} else {
+				// There is no list yet, add this revision and also the orig
 				origMap[templExport.template.FirstRevisionID] = []*templateExport{
 					tmplExports[templExport.template.FirstRevisionID],
 					templExport,
