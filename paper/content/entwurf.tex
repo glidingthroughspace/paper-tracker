@@ -22,6 +22,9 @@ Sie kommuniziert ebenfalls mit der Backend-Anwendung und fragt von dieser Inform
 
 Die Entwürfe der drei Komponenten werden in den nachfolgenden Abschnitten im Detail erläutert.
 
+Zusätzlich zu den drei Hauptkomponenten soll es eine Tool geben, dass das Setup eines Hardware-Trackers erleichtert.
+Dieses Tool, genannt \enquote{Flasher}, dient zur Konfiguration der Firmware und dem Programmieren der Firmware auf die Hardware.
+
 \begin{figure}
 	\includegraphics[width=\textwidth]{images/architecture_de.png}
 	\centering
@@ -493,3 +496,27 @@ Eine Übersicht der zu verwendenden Icons ist in \autoref{fig:ui-icons} gegeben.
 \end{figure}
 \TODO{Schriftgröße einheitlich}
 \TODO{WorkflowExec -> unklar für Leser}
+
+\subsection{Flasher-Tool}
+Da das Flasher-Tool nicht zu den Hauptkomponenten des Paper-Trackers zählt, gibt es keinen konkreten Entwurf zum \gls{UI}-Design.
+Trotzdem muss konkret definiert werden, welche Funktionalitäten das Tool beinhaltet.
+
+Das Tool muss plattformübergreifen mit möglichst wenigen externen Abhängigkeiten gestartet werden können.
+Mit dem Start der Anwendung soll der Nutzer in einem \gls{GUI} die Konfigurationsdaten für die Firmware eingeben können.
+Die benötigten Konfigurationswerte sind in der folgenden Liste dargestellt:
+
+\begin{description}
+	\item[\gls{WLAN} \gls{SSID}] \hfill \\
+		Name des \gls{WLAN} Netzwerkes, mit dem sich der Tracker verbinden soll 
+	\item[\gls{WLAN} Nutzername] \hfill \\
+		Nutzername, mit dem sich der Tracker am \gls{WLAN} anmelden soll. Diese Konfiguration kann freigelassen werden, falls nur ein Passwort für die Anmeldung ausreicht. 
+	\item[\gls{WLAN} Passwort] \hfill \\
+		Passwort, mit dem sich der Tracker am \gls{WLAN} anmelden soll. 
+	\item[Backend-Server \gls{IP}] \hfill \\
+		Die IP-Adresse, unter welcher der Backend-Server aus dem angegebenen \gls{WLAN}-Netz erreichbar ist. 
+\end{description}
+
+Neben den Konfigurationsdaten müssen noch der Ort der Firmware auf dem ausführenden Computer und der Port, an welchem die Hardware verbunden ist, angegeben werden.
+
+Nachdem alle Konfigurationsdaten angegeben sind, soll das Tool die Hardware mit den Werten programmieren.
+Dabei soll dem Nutzer der aktuelle Prozess in Form eines Fortschrittsbalken oder durch Anzeige von Protokollen visualisiert werden.
