@@ -129,8 +129,8 @@ func (mgr *WorkflowTemplateManager) findStepInSteps(steps []*models.Step, stepID
 		}
 
 		for _, optionSteps := range step.Options {
-			step, isFirstStep, isLastStep = mgr.findStepInSteps(optionSteps, stepID)
-			if step != nil {
+			foundStep, isFirstStep, isLastStep = mgr.findStepInSteps(optionSteps, stepID)
+			if foundStep != nil {
 				return
 			}
 		}

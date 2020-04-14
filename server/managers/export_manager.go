@@ -4,7 +4,6 @@ import (
 	"io"
 	"math/rand"
 	"paper-tracker/models"
-	"paper-tracker/repositories"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -14,21 +13,16 @@ import (
 var exportManager *ExportManager
 
 type ExportManager struct {
-	workflowTemplateRep repositories.WorkflowTemplateRepository
-	workflowExecRep     repositories.WorkflowExecRepository
 }
 
-func CreateExportManager(workflowTemplateRep repositories.WorkflowTemplateRepository, workflowExecRep repositories.WorkflowExecRepository) *ExportManager {
+func CreateExportManager() *ExportManager {
 	if trackingManager != nil {
 		return exportManager
 	}
 
 	rand.Seed(time.Now().UnixNano())
 
-	exportManager = &ExportManager{
-		workflowTemplateRep: workflowTemplateRep,
-		workflowExecRep:     workflowExecRep,
-	}
+	exportManager = &ExportManager{}
 
 	return exportManager
 }
@@ -58,7 +52,7 @@ type templateExport struct {
 }
 
 func (mgr *ExportManager) fillExportFile(file *xlsx.File) (err error) {
-	templates, err := mgr.workflowTemplateRep.GetAllTemplates()
+	templates, err := GetWorkflowTemplateManager().GetAllTemplates()
 	if err != nil {
 		log.WithError(err).Error("Failed to get templates to export")
 		return
@@ -94,17 +88,66 @@ func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, she
 	sheet.Cell(0, 2).SetString("Start Time")
 	sheet.Cell(0, 3).SetString("End Time")
 
-	execs, err := mgr.workflowExecRep.GetExecsByTemplateID(template.ID)
+	execs, err := GetWorkflowExecManager().GetExecsByTemplate(template.ID)
 	if err != nil {
 		log.WithError(err).WithField("templateID", template.ID).Error("Failed to get all execs for export")
 		return
 	}
+
+	stepInfoCols := make(map[models.StepID]int)
+	lastStepEndCol := 4
 	for it, exec := range execs {
-		sheet.Cell(it+1, 0).SetString(exec.Label)
-		sheet.Cell(it+1, 1).SetString(exec.Status.String())
-		sheet.Cell(it+1, 2).SetDateTime(*exec.StartedOn)
-		sheet.Cell(it+1, 3).SetDateTime(*exec.CompletedOn)
+		row := it + 1
+		sheet.Cell(row, 0).SetString(exec.Label)
+		sheet.Cell(row, 1).SetString(exec.Status.String())
+		if exec.StartedOn != nil {
+			sheet.Cell(row, 2).SetDateTime(*exec.StartedOn)
+		}
+		if exec.CompletedOn != nil {
+			sheet.Cell(row, 3).SetDateTime(*exec.CompletedOn)
+		}
+
+		for _, stepInfo := range exec.StepInfos {
+			col := -1
+			if savedCol, ok := stepInfoCols[stepInfo.StepID]; ok {
+				col = savedCol
+			} else {
+				col = lastStepEndCol + 1
+				lastStepEndCol = col + 5
+				stepInfoCols[stepInfo.StepID] = col
+				mgr.fillStepInfoHeader(sheet, col, template.ID, stepInfo.StepID)
+			}
+			sheet.Cell(row, col).SetBool(true)
+			if stepInfo.StartedOn != nil {
+				sheet.Cell(row, col+1).SetDateTime(*stepInfo.StartedOn)
+			}
+			if stepInfo.CompletedOn != nil {
+				sheet.Cell(row, col+2).SetDateTime(*stepInfo.CompletedOn)
+			}
+			sheet.Cell(row, col+3).SetString(stepInfo.Decision)
+			sheet.Cell(row, col+4).SetBool(stepInfo.Skipped)
+		}
 	}
 
 	return
+}
+
+func (mgr *ExportManager) fillStepInfoHeader(sheet *xlsx.Sheet, col int, templateID models.WorkflowTemplateID, stepID models.StepID) {
+	step, err := GetWorkflowTemplateManager().GetStepByID(templateID, stepID)
+	if err != nil {
+		log.WithError(err).WithField("stepID", stepID).Error("Failed to get step to fill stepInfoHeader for export")
+		return
+	}
+	roomLabel := ""
+	if room, err := GetRoomManager().GetRoomByID(step.RoomID); err == nil {
+		roomLabel = room.Label
+	} else {
+		log.WithError(err).WithField("roomID", stepID).Error("Failed to get room to fill stepInfoHeader for export - ignore for now")
+	}
+
+	sheet.Cell(0, col).SetString(step.Label + " (" + roomLabel + ") Part of Exec")
+	sheet.Cell(0, col+1).SetString(step.Label + "Start Time")
+	sheet.Cell(0, col+2).SetString(step.Label + " End Time")
+	sheet.Cell(0, col+3).SetString(step.Label + " Decision")
+	sheet.Cell(0, col+4).SetString(step.Label + " Skipped")
 }
