@@ -2,7 +2,8 @@ body {
 	text-align: center;
 	font-family: 'Roboto', sans-serif;
 	padding: 20px;
-	background-color: rgb(230, 238, 248);
+	background-color: #f3f3f3;
+	color: #333;
 }
 
 p {
@@ -18,17 +19,19 @@ p {
 }
 
 .card {
-	background-color: rgb(172, 172, 172);
+	background-color: white;
 	padding: 20px;
-	box-shadow: 6px 3px 3px grey;
+	box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
 	border-radius: 10px;
 	margin: 40px;
 }
 
 .card > a {
-	padding: 5px;
-	background-color: lightcyan;
+	padding: 5px 15px;
+	background-color: hsl(213.5, 45.6%, 66.9%);
+	color: hsl(213.9, 100%, 23.9%);
 	border-radius: 5px;
-	box-shadow: 6px 3px 3px grey;
 	margin: 5px;
+	text-decoration: none;
+	cursor: pointer;
 }
