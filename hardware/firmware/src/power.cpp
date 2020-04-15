@@ -26,6 +26,19 @@ void Power::enable_powersavings() {
   Power::tinypico.DotStar_SetPower(false);
 }
 
+void Power::halt_for(const utils::time::seconds secs) {
+  if (secs == utils::time::seconds(0)) {
+    logln("[Power] Not sleeping, since sleep time is 0s");
+    return;
+  }
+  if (secs > Power::MIN_SECONDS_FOR_DEEP_SLEEP) {
+    deep_sleep_for(secs);
+  } else {
+    logf("[Power] Waiting for %ds\n", secs);
+    utils::time::wait_for(secs);
+  }
+}
+
 void Power::deep_sleep_for(const utils::time::seconds secs) {
   logf("[Power] Going to sleep for %ds\n", secs);
   esp_deep_sleep(utils::time::to_micros(secs));
