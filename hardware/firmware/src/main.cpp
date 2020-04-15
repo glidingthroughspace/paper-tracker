@@ -30,25 +30,18 @@ static void onCommandReceived(Command& command) {
 
   switch (command.getType()) {
     case CommandType::SLEEP: {
-        Power::deep_sleep_for(command.getSleepTime());
+        Power::halt_for(command.getSleepTime());
       }
       break;
     case CommandType::SEND_TRACKING_INFO: {
         auto scanResults = wifi.getAllVisibleNetworks();
         sendScanResultsInChunks(scanResults);
-        if (command.getSleepTime() > seconds(0) && command.getSleepTime() <= seconds(10)) {
-          utils::time::wait_for(command.getSleepTime());
-        } else if (command.getSleepTime() > seconds(10)) {
-          Power::deep_sleep_for(command.getSleepTime());
-        } else {
-          logln("[Main] Not sleeping, since sleep time is 0");
-          requestNextCommand();
-        }
+        Power::halt_for(command.getSleepTime());
       }
       break;
     case CommandType::SEND_INFO: {
         sendStatusInformation();
-        Power::deep_sleep_for(command.getSleepTime());
+        Power::halt_for(command.getSleepTime());
       }
       break;
     default:
@@ -56,6 +49,8 @@ static void onCommandReceived(Command& command) {
       // be reached.
       logln("[Main] Unknown command");
   }
+
+  requestNextCommand();
 }
 
 void setup() {
