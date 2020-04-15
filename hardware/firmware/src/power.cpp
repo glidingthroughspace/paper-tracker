@@ -50,11 +50,13 @@ uint64_t Power::seconds_to_microseconds(const uint64_t seconds) {
 
 uint8_t Power::get_battery_percentage() {
   auto voltage = tinypico.GetBatteryVoltage();
-  uint8_t percentage = (uint8_t)((voltage - min_battery_voltage) / (max_battery_voltage - min_battery_voltage) * 100);
+  int8_t percentage = (uint8_t)((voltage - min_battery_voltage) / (max_battery_voltage - min_battery_voltage) * 100);
   // Clip to 100%
   percentage = percentage < 100 ? percentage : 100;
+  // Clip to 0%
+  percentage = percentage > 0 ? percentage : 0;
   logf("[Power] The battery is %d%% charged (%fV)\n", percentage, voltage);
-  return percentage;
+  return static_cast<uint8_t>(percentage);
 }
 
 bool Power::is_charging() {
