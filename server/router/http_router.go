@@ -3,6 +3,7 @@ package router
 import (
 	"sync"
 
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -51,8 +52,11 @@ func (r *HttpRouter) Serve(addr string, wg *sync.WaitGroup) {
 }
 
 func (r *HttpRouter) buildRoutes() {
+	r.engine.Use(static.Serve("/", static.LocalFile("static", true)))
+
 	r.buildAppRoomAPIRoutes()
 	r.buildAppTrackerAPIRoutes()
 	r.buildAppTemplateAPIRoutes()
 	r.buildAppExecAPIRoutes()
+	r.buildAppExportAPIRoutes()
 }

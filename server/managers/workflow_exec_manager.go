@@ -60,6 +60,25 @@ func (mgr *WorkflowExecManager) GetAllExec() (execs []*models.WorkflowExec, err 
 	return
 }
 
+func (mgr *WorkflowExecManager) GetExecsByTemplate(templateID models.WorkflowTemplateID) (execs []*models.WorkflowExec, err error) {
+	rawExecs, err := mgr.workflowRep.GetExecsByTemplateID(templateID)
+	if err != nil {
+		log.WithError(err).WithField("templateID", templateID).Error("Failed to get all execs by template id")
+		return
+	}
+
+	execs = make([]*models.WorkflowExec, len(rawExecs))
+	for it, rawExec := range rawExecs {
+		execs[it], err = mgr.GetExec(rawExec.ID)
+		if err != nil {
+			log.WithFields(log.Fields{"err": err, "rawID": rawExec.ID}).Error("Failed to get workflow exec for list")
+			continue
+		}
+	}
+
+	return
+}
+
 func (mgr *WorkflowExecManager) GetExec(execID models.WorkflowExecID) (exec *models.WorkflowExec, err error) {
 	execLog := log.WithField("execID", execID)
 

@@ -3,6 +3,7 @@ module paper-tracker
 go 1.13
 
 require (
+	github.com/gin-gonic/contrib v0.0.0-20191209060500-d6e26eeaa607
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-ocf/go-coap v0.0.0-20191015202911-fb71e4849cb6
 	github.com/golang/mock v1.4.3
@@ -13,5 +14,6 @@ require (
 	github.com/onsi/gomega v1.7.1
 	github.com/pion/dtls v1.5.3 // indirect
 	github.com/sirupsen/logrus v1.4.2
+	github.com/tealeg/xlsx v1.0.5
 	github.com/ugorji/go v1.1.4
 )

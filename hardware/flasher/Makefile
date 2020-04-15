@@ -9,3 +9,8 @@ executable:
 
 executable_mac:
 	pyinstaller --onefile --add-binary='/System/Library/Frameworks/Tk.framework/Tk':'tk' --add-binary='/System/Library/Frameworks/Tcl.framework/Tcl':'tcl' flasher.py
+
+zip:
+	-rm dist.zip
+	cd dist && zip ../dist.zip flasher*
+	cd .. && zip -r flasher/dist.zip firmware
