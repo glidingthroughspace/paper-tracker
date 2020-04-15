@@ -25,7 +25,7 @@ Die Entwürfe der drei Komponenten werden in den nachfolgenden Abschnitten im De
 Zusätzlich zu den drei Hauptkomponenten soll es eine Tool geben, dass das Setup eines Hardware-Trackers erleichtert.
 Dieses Tool, genannt \enquote{Flasher}, dient zur Konfiguration der Firmware und dem Programmieren der Firmware auf die Hardware.
 
-\begin{figure}
+\begin{figure}[h!tbp]
 	\includegraphics[width=\textwidth]{images/architecture_de.png}
 	\centering
 	\caption{Architektur des Paper-Tracker}
@@ -153,7 +153,7 @@ Die Klasse \enquote{ExecStepInfo} besitzt Informationen über einzelne Schritte 
 Dies sind zum einen die Start-/Endzeit des Schrittes sowie, ob der Schritt übersprungen wurde, und zum anderen die \enquote{Decision}-Information.
 Der \enquote{Decision} String wird im Falle von mehreren Auswahlmöglichkeiten in einem Workflow dazu genutzt, in der Ausführung den richtigen Weg zu wählen.
 
-\begin{figure}
+\begin{figure}[h!tbp]
 	\includegraphics[width=\textwidth]{images/uml.png}
 	\centering
 	\caption{UML-Diagramm für die Backend-Anwendung}
@@ -289,7 +289,7 @@ Dabei ist ein Repository meist für eine Modellklasse verantwortlich.
 Die main-Klasse ist für das Starten des Servers und das Erstellen der einzelnen Komponenten verantwortlich.
 
 \begin{landscape}
-\begin{figure}
+\begin{figure}[h!p]
 	\includegraphics[width=\textheight]{images/server_architecture.png}
 	\centering
 	\caption{Software-Architektur für die Backend-Anwendung}

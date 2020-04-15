@@ -48,12 +48,28 @@ Im Code des Servers muss hierfür lediglich eine erweiterte Konfiguration ermög
 
 \subsection{REST-Schnittstelle}
 
-\subsection{COAP-Schnittstelle}
+\subsection{CoAP-Schnittstelle}
 
-\subsection{Analyse-Algorithmus}
-% Wie wurde das Tracking implementiert -> Überschrift nicht ideal
+\subsection{Tracker-Lokalisierung}
 
+Wie in \autoref{sec:tracking-hardware} beschrieben wird die Lokalisierung der Tracker mit einem
+Score-basierten Sysytem durchgeführt.
 
+Dazu werden zunächst Scanergebnisse vom jeweiligen Tracker gesammelt und dann ausgewertet. Da die
+Datengröße der Scanergebnisse je nach Anzahl der vom Tracker sichtbaren \gls{WLAN}-Netzwerken zu
+groß für ein einzelnes \gls{UDP}-Paket ist\footnote{Im Arduino-Framework gibt es eine
+Limitierung von 1446 Bytes für die Größe eines \gls{UDP}-Paketes. (vgl. \cite{Arduino2020})}, wurde
+das \gls{API} so gestaltet, dass die Ergebnisse in mehreren Paketen an den Server übermittelt werden
+können. Dazu berechnet der Tracker im Vorraus, in wie viele Pakete die Scanergebnisse geteilt werden
+müssen. Diese Zahl, sowie ein für den Ergebnissatz einheitlicher, zufällig erzeugter \gls{ID} sind
+jedem Teilpaket angehängt. So kann der Server erkennen, ob alle Ergebnisse empfangen wurden und
+diese dann verwenden. Dass nicht alle Pakete eines Ergebnissatzes beim Server angekommen sind ist
+dadurch erkennbar, dass ein anderer \gls{ID} empfangen wird. In diesem Fall werden alle vom
+vorherigen Paket empfangenen Scanergebnisse verworfen und die neuen Pakete gespeichert.
+\TODO{Das hier kann vielleicht zu CoAP-Schnittstelle verschoben werden}
+
+Sobald ein vollständiger Ergebnissatz empfangen wurde, wir aus diesem ein Score für jeden Raum
+ermittelt. Dieser Score ist eine positive Ganzzahl
 \section{Hardware und Firmware}
 
 Im Folgenden wird erläutert, wie der Tracker hinsichtlich der verwendeten Hardware und der
@@ -197,7 +213,7 @@ Die verwendeten Bibliotheken sind im Folgenden aufgelistet:
 		Mit \enquote{fluttertoast} können kleine Pop-ups dargestellt werden, die dem Nutzer der App einfach und schnell Feedback zu einer Aktion geben können.
 \end{description}
 
-\section{Bekannte Probleme}
+\section{Bestehende Herausforderungen}
 % Erstmal ein paar Beispiele
 \subsection{Ungenauigkeit des Tracking}
 
