@@ -39,10 +39,26 @@ func main() {
 	pflag.Int("work.endHour", -1, "Hour of the day the tracker should become inactive. In 24-Hour format. Set this or start value to -1 to disable.")
 	pflag.Bool("work.onWeekend", false, "Whether the tracker should be active on weekends")
 
+	pflag.String("mail.username", "", "Username used for connecting to the SMTP server for email notifications. Leave empty for no authorization.")
+	pflag.String("mail.password", "", "Password used for connecting to the SMTP server for email notifications.")
+	pflag.String("mail.host", "", "SMTP Host used for sending notification emails")
+	pflag.Int("mail.port", 25, "Port used for SMTP Host. Defaults to 25")
+	pflag.String("mail.sender", "", "Email address to send email from. Leave empty to use 'mail.username'.")
+	pflag.StringSlice("mail.recipients", []string{}, "List of email addresses to recevive email notifications")
+
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
 
-	err := gorm.InitDatabaseConnection()
+	err := viper.ReadInConfig()
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			log.WithError(err).Fatal("Failed to read config file")
+		}
+	}
+
+	err = gorm.InitDatabaseConnection()
 	if err != nil {
 		log.Fatal("Abort: Failed to initialize database")
 	}
