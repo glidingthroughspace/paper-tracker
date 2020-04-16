@@ -6,6 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite" // Needed for gorm
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 // ErrGormNotInitialized is returned if a repository is initialized before the database connection
@@ -18,7 +19,8 @@ var (
 )
 
 // InitDatabaseConnection initializes the gorm connection
-func InitDatabaseConnection(name string) error {
+func InitDatabaseConnection() error {
+	name := viper.GetString("db.name")
 	db, err := gorm.Open("sqlite3", name)
 	if err != nil {
 		log.WithFields(log.Fields{"db_name": name, "err": err}).Error("Could not open datbase")

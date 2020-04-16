@@ -10,6 +10,7 @@ import (
 
 	"github.com/onsi/ginkgo"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 var learningManager *LearningManager
@@ -20,15 +21,15 @@ type LearningManager struct {
 	learnSleepSec int
 }
 
-func CreateLearningManager(scanResultRep repositories.ScanResultRepository, learnCount, learnSleepSec int) *LearningManager {
+func CreateLearningManager(scanResultRep repositories.ScanResultRepository) *LearningManager {
 	if learningManager != nil {
 		return learningManager
 	}
 
 	learningManager = &LearningManager{
 		scanResultRep: scanResultRep,
-		learnCount:    learnCount,
-		learnSleepSec: learnSleepSec,
+		learnCount:    viper.GetInt("cmd.learn.count"),
+		learnSleepSec: viper.GetInt("cmd.learn.sleep"),
 	}
 
 	return learningManager

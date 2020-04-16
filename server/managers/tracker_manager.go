@@ -6,11 +6,13 @@ import (
 	"paper-tracker/models"
 	"paper-tracker/models/communication"
 	"paper-tracker/repositories"
+	"paper-tracker/utils"
 	"sync"
 	"time"
 
 	"github.com/jinzhu/now"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 var trackerManager *TrackerManager
@@ -35,35 +37,27 @@ type TrackerManager struct {
 	workStartHour         int
 	workEndHour           int
 	workOnWeekend         bool
+	lowBatteryThreshold   int
 	done                  chan struct{}
 }
 
-func CreateTrackerManager(
-	trackerRep repositories.TrackerRepository,
-	idleSleepSec,
-	trackingSleepSec,
-	learningSleepSec,
-	sendInfoSleepSec,
-	sendInfoIntervalSec,
-	maxSleepSec,
-	workStartHour,
-	workEndHour int,
-	workOnWeekend bool) *TrackerManager {
+func CreateTrackerManager(trackerRep repositories.TrackerRepository) *TrackerManager {
 	if trackerManager != nil {
 		return trackerManager
 	}
 
 	trackerManager = &TrackerManager{
 		trackerRep:          trackerRep,
-		idleSleepSec:        idleSleepSec,
-		trackingSleepSec:    trackingSleepSec,
-		learningSleepSec:    learningSleepSec,
-		sendInfoSleepSec:    sendInfoSleepSec,
-		sendInfoIntervalSec: sendInfoIntervalSec,
-		maxSleepSec:         maxSleepSec,
-		workStartHour:       workStartHour,
-		workEndHour:         workEndHour,
-		workOnWeekend:       workOnWeekend,
+		idleSleepSec:        viper.GetInt("cmd.idle.sleep"),
+		trackingSleepSec:    viper.GetInt("cmd.track.sleep"),
+		learningSleepSec:    viper.GetInt("cmd.learn.sleep"),
+		sendInfoSleepSec:    viper.GetInt("cmd.info.sleep"),
+		sendInfoIntervalSec: viper.GetInt("cmd.info.interval"),
+		maxSleepSec:         viper.GetInt("cmd.maxSleep"),
+		workStartHour:       viper.GetInt("work.startHour"),
+		workEndHour:         viper.GetInt("work.endHour"),
+		workOnWeekend:       viper.GetBool("work.onWeekend"),
+		lowBatteryThreshold: viper.GetInt("lowBatteryThreshold"),
 		done:                make(chan struct{}),
 		scanResultsCache:    make(map[models.TrackerID]CachedScanResults),
 	}
@@ -251,12 +245,27 @@ func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp c
 	tracker.IsCharging = resp.IsCharging
 	tracker.LastBatteryUpdate = time.Now()
 
+	if tracker.BatteryPercentage < mgr.lowBatteryThreshold && !tracker.IsCharging && !tracker.LowBatteryNotified {
+		err = utils.SendMail(
+			fmt.Sprintf("Paper-Tracker: '%s' has a low battery", tracker.Label),
+			fmt.Sprintf("The battery of the tracker '%s' only has %d%% left! Please charge the tracker as soon as possible.", tracker.Label, tracker.BatteryPercentage))
+		if err != nil {
+			updateLog.WithError(err).Warn("Failed to send low battery notification - ignore for now")
+			err = nil
+		} else {
+			tracker.LowBatteryNotified = true
+		}
+	} else if tracker.IsCharging {
+		tracker.LowBatteryNotified = false
+	}
+
 	updateLog.Debugf("Tracker %ds battery is at %d%% capacity", tracker.ID, resp.BatteryPercentage)
 	err = mgr.trackerRep.Update(tracker)
 	if err != nil {
 		updateLog.WithError(err).Error("Failed to update tracker")
 		return
 	}
+
 	return
 }
 
