@@ -34,6 +34,7 @@ func main() {
 	pflag.Int("cmd.learn.sleep", 5, "Sleep duration for the tracker before polling for new command in learning")
 	pflag.Int("cmd.learn.count", 5, "Total times the WiFi is scanned when learning a room")
 	pflag.Int("cmd.maxSleep", 1800, "Maximum possible sleep time")
+	pflag.Int("lowBatteryThreshold", 10, "Threshold that specifies under which threshold a low battery notification will be sent")
 
 	pflag.Int("work.startHour", -1, "Hour of the day the tracker should become active. In 24-Hour format. Set this or end value to -1 to disable.")
 	pflag.Int("work.endHour", -1, "Hour of the day the tracker should become inactive. In 24-Hour format. Set this or start value to -1 to disable.")

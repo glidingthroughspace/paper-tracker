@@ -37,6 +37,7 @@ type TrackerManager struct {
 	workStartHour         int
 	workEndHour           int
 	workOnWeekend         bool
+	lowBatteryThreshold   int
 	done                  chan struct{}
 }
 
@@ -56,6 +57,7 @@ func CreateTrackerManager(trackerRep repositories.TrackerRepository) *TrackerMan
 		workStartHour:       viper.GetInt("work.startHour"),
 		workEndHour:         viper.GetInt("work.endHour"),
 		workOnWeekend:       viper.GetBool("work.onWeekend"),
+		lowBatteryThreshold: viper.GetInt("lowBatteryThreshold"),
 		done:                make(chan struct{}),
 		scanResultsCache:    make(map[models.TrackerID]CachedScanResults),
 	}
@@ -243,7 +245,7 @@ func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp c
 	tracker.IsCharging = resp.IsCharging
 	tracker.LastBatteryUpdate = time.Now()
 
-	if tracker.BatteryPercentage < 10 && !tracker.IsCharging && !tracker.LowBatteryNotified {
+	if tracker.BatteryPercentage < mgr.lowBatteryThreshold && !tracker.IsCharging && !tracker.LowBatteryNotified {
 		err = utils.SendMail(
 			fmt.Sprintf("Paper-Tracker: '%s' has a low battery", tracker.Label),
 			fmt.Sprintf("The battery of the tracker '%s' only has %d%% left! Please charge the tracker as soon as possible.", tracker.Label, tracker.BatteryPercentage))
