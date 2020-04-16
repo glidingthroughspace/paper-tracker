@@ -6,6 +6,7 @@ import (
 	"paper-tracker/models"
 	"paper-tracker/models/communication"
 	"paper-tracker/repositories"
+	"paper-tracker/utils"
 	"sync"
 	"time"
 
@@ -242,12 +243,27 @@ func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp c
 	tracker.IsCharging = resp.IsCharging
 	tracker.LastBatteryUpdate = time.Now()
 
+	if tracker.BatteryPercentage < 10 && !tracker.IsCharging && !tracker.LowBatteryNotified {
+		err = utils.SendMail(
+			fmt.Sprintf("Paper-Tracker: '%s' has a low battery", tracker.Label),
+			fmt.Sprintf("The battery of the tracker '%s' only has %d%% left! Please charge the tracker as soon as possible.", tracker.Label, tracker.BatteryPercentage))
+		if err != nil {
+			updateLog.WithError(err).Warn("Failed to send low battery notification - ignore for now")
+			err = nil
+		} else {
+			tracker.LowBatteryNotified = true
+		}
+	} else if tracker.IsCharging {
+		tracker.LowBatteryNotified = false
+	}
+
 	updateLog.Debugf("Tracker %ds battery is at %d%% capacity", tracker.ID, resp.BatteryPercentage)
 	err = mgr.trackerRep.Update(tracker)
 	if err != nil {
 		updateLog.WithError(err).Error("Failed to update tracker")
 		return
 	}
+
 	return
 }
 

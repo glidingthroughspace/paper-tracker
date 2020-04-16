@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"paper-tracker/managers"
 	"paper-tracker/models/communication"
-	"paper-tracker/utils"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -12,15 +11,6 @@ import (
 
 func (r *HttpRouter) buildAppExportAPIRoutes() {
 	r.engine.GET("/export.xlsx", r.exportHandler())
-
-	// TODO: Remove
-	r.engine.POST("/email", r.emailHandler())
-}
-
-func (r *HttpRouter) emailHandler() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		utils.SendMail("Title", "Hello Test")
-	}
 }
 
 func (r *HttpRouter) exportHandler() gin.HandlerFunc {
