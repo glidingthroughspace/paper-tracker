@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"os"
 	"paper-tracker/managers"
 	"paper-tracker/repositories/gorm"
@@ -10,6 +9,8 @@ import (
 	"sync"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 func init() {
@@ -21,24 +22,27 @@ func init() {
 }
 
 func main() {
-	dbNamePtr := flag.String("db-name", "paper-tracker.db", "Path of the database file")
-	coapNetworkPtr := flag.String("coap-network", "udp", "Network which should be used for coap requests; 'udp' or 'tcp'")
-	coapPortPtr := flag.Int("coap-port", 5688, "Port on which the application will listen for coap requests")
-	httpPortPtr := flag.Int("http-port", 8080, "Port on which the application will listen for http requests")
+	pflag.String("db.name", "paper-tracker.db", "Path of the database file")
+	pflag.String("coap.network", "udp", "Network which should be used for coap requests; 'udp' or 'tcp'")
+	pflag.Int("coap.port", 5688, "Port on which the application will listen for coap requests")
+	pflag.Int("http.port", 8080, "Port on which the application will listen for http requests")
 
-	idleSleepSecPtr := flag.Int("idle-sleep", 5, "Sleep duration for the tracker before polling for new command in idle")
-	sendInfoSleepSecPtr := flag.Int("info-sleep", 5, "Sleep duration for the tracker before sending battery stats when idling")
-	sendInfoIntervalSecPtr := flag.Int("info-interval", 60, "Interval for the tracker to send battery stats when idling")
-	trackingSleepSecPtr := flag.Int("tracking-sleep", 5, "Sleep duration for the tracker before polling for new command in tracking")
-	learnSleepSecPtr := flag.Int("learn-sleep", 5, "Sleep duration for the tracker before polling for new command in learning")
-	learnCountPtr := flag.Int("learn-count", 5, "Total times the WiFi is scanned when learning a room")
-	maxSleepSecPtr := flag.Int("max-sleep", 1800, "Maximum possible sleep time")
+	pflag.Int("cmd.idle.sleep", 5, "Sleep duration for the tracker before polling for new command in idle")
+	pflag.Int("cmd.info.sleep", 5, "Sleep duration for the tracker before sending battery stats when idling")
+	pflag.Int("cmd.info.interval", 60, "Interval for the tracker to send battery stats when idling")
+	pflag.Int("cmd.track.sleep", 5, "Sleep duration for the tracker before polling for new command in tracking")
+	pflag.Int("cmd.learn.sleep", 5, "Sleep duration for the tracker before polling for new command in learning")
+	pflag.Int("cmd.learn.count", 5, "Total times the WiFi is scanned when learning a room")
+	pflag.Int("cmd.maxSleep", 1800, "Maximum possible sleep time")
 
-	workStartHourPtr := flag.Int("work-start-hour", -1, "Hour of the day the tracker should become active. In 24-Hour format. Set this or end value to -1 to disable.")
-	workEndHourPtr := flag.Int("work-end-hour", -1, "Hour of the day the tracker should become inactive. In 24-Hour format. Set this or start value to -1 to disable.")
-	workOnWeekend := flag.Bool("work-on-weekend", false, "Whether the tracker should be active on weekends")
+	pflag.Int("work.startHour", -1, "Hour of the day the tracker should become active. In 24-Hour format. Set this or end value to -1 to disable.")
+	pflag.Int("work.endHour", -1, "Hour of the day the tracker should become inactive. In 24-Hour format. Set this or start value to -1 to disable.")
+	pflag.Bool("work.onWeekend", false, "Whether the tracker should be active on weekends")
 
-	err := gorm.InitDatabaseConnection(*dbNamePtr)
+	pflag.Parse()
+	viper.BindPFlags(pflag.CommandLine)
+
+	err := gorm.InitDatabaseConnection()
 	if err != nil {
 		log.Fatal("Abort: Failed to initialize database")
 	}
@@ -64,10 +68,9 @@ func main() {
 		log.Fatal("Abort: Failed to create workflow repository")
 	}
 
-	managers.CreateTrackerManager(trackerRep, *idleSleepSecPtr, *trackingSleepSecPtr, *learnSleepSecPtr,
-		*sendInfoSleepSecPtr, *sendInfoIntervalSecPtr, *maxSleepSecPtr, *workStartHourPtr, *workEndHourPtr, *workOnWeekend)
+	managers.CreateTrackerManager(trackerRep)
 	managers.CreateRoomManager(roomRep)
-	managers.CreateLearningManager(scanResultRep, *learnCountPtr, *learnSleepSecPtr)
+	managers.CreateLearningManager(scanResultRep)
 	managers.CreateWorkflowTemplateManager(workflowTemplateRep)
 	managers.CreateWorkflowExecManager(workflowExecRep)
 	managers.CreateExportManager()
@@ -78,13 +81,16 @@ func main() {
 	// Start
 	var wg sync.WaitGroup
 
-	log.WithField("port", *coapPortPtr).Info("Listening for coap on specified port")
+	coapPort := viper.GetInt("coap.port")
+	coapNetwork := viper.GetString("coap.network")
+	log.WithField("port", coapPort).Info("Listening for coap on specified port")
 	wg.Add(1)
-	go coapRouter.Serve(*coapNetworkPtr, ":"+strconv.Itoa(*coapPortPtr), &wg)
+	go coapRouter.Serve(coapNetwork, ":"+strconv.Itoa(coapPort), &wg)
 
-	log.WithField("port", *httpPortPtr).Info("Listening for http on specified port")
+	httpPort := viper.GetInt("http.port")
+	log.WithField("port", httpPort).Info("Listening for http on specified port")
 	wg.Add(1)
-	go httpRouter.Serve(":"+strconv.Itoa(*httpPortPtr), &wg)
+	go httpRouter.Serve(":"+strconv.Itoa(httpPort), &wg)
 
 	wg.Wait()
 }

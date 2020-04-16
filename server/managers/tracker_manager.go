@@ -11,6 +11,7 @@ import (
 
 	"github.com/jinzhu/now"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 var trackerManager *TrackerManager
@@ -38,32 +39,22 @@ type TrackerManager struct {
 	done                  chan struct{}
 }
 
-func CreateTrackerManager(
-	trackerRep repositories.TrackerRepository,
-	idleSleepSec,
-	trackingSleepSec,
-	learningSleepSec,
-	sendInfoSleepSec,
-	sendInfoIntervalSec,
-	maxSleepSec,
-	workStartHour,
-	workEndHour int,
-	workOnWeekend bool) *TrackerManager {
+func CreateTrackerManager(trackerRep repositories.TrackerRepository) *TrackerManager {
 	if trackerManager != nil {
 		return trackerManager
 	}
 
 	trackerManager = &TrackerManager{
 		trackerRep:          trackerRep,
-		idleSleepSec:        idleSleepSec,
-		trackingSleepSec:    trackingSleepSec,
-		learningSleepSec:    learningSleepSec,
-		sendInfoSleepSec:    sendInfoSleepSec,
-		sendInfoIntervalSec: sendInfoIntervalSec,
-		maxSleepSec:         maxSleepSec,
-		workStartHour:       workStartHour,
-		workEndHour:         workEndHour,
-		workOnWeekend:       workOnWeekend,
+		idleSleepSec:        viper.GetInt("cmd.idle.sleep"),
+		trackingSleepSec:    viper.GetInt("cmd.track.sleep"),
+		learningSleepSec:    viper.GetInt("cmd.learn.sleep"),
+		sendInfoSleepSec:    viper.GetInt("cmd.info.sleep"),
+		sendInfoIntervalSec: viper.GetInt("cmd.info.interval"),
+		maxSleepSec:         viper.GetInt("cmd.maxSleep"),
+		workStartHour:       viper.GetInt("work.startHour"),
+		workEndHour:         viper.GetInt("work.endHour"),
+		workOnWeekend:       viper.GetBool("work.onWeekend"),
 		done:                make(chan struct{}),
 		scanResultsCache:    make(map[models.TrackerID]CachedScanResults),
 	}
