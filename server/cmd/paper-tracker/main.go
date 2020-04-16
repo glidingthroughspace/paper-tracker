@@ -51,14 +51,13 @@ func main() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 
-	err := viper.ReadInConfig()
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 			log.WithError(err).Fatal("Failed to read config file")
 		}
 	}
 
-	err = gorm.InitDatabaseConnection()
+	err := gorm.InitDatabaseConnection()
 	if err != nil {
 		log.Fatal("Abort: Failed to initialize database")
 	}

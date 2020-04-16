@@ -19,7 +19,7 @@ func (r *HttpRouter) buildAppExportAPIRoutes() {
 
 func (r *HttpRouter) emailHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		utils.SendMail("Hello Test")
+		utils.SendMail("Title", "Hello Test")
 	}
 }
 

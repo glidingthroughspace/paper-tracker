@@ -53,8 +53,8 @@ var _ = Describe("LearningManager", func() {
 		mockTrackerRep = mock.NewMockTrackerRepository(mockCtrl)
 		mockRoomRep = mock.NewMockRoomRepository(mockCtrl)
 		mockTemplateRep = mock.NewMockWorkflowTemplateRepository(mockCtrl)
-		manager = CreateLearningManager(mockScanResultRep, learnCount, sleepBetweenLearnSec)
-		CreateTrackerManager(mockTrackerRep, 5, 5, 5, 5, 5, 5, 5, 5, true)
+		manager = CreateLearningManager(mockScanResultRep)
+		CreateTrackerManager(mockTrackerRep)
 		CreateRoomManager(mockRoomRep)
 		CreateWorkflowTemplateManager(mockTemplateRep)
 
