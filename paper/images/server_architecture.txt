@@ -1,5 +1,4 @@
 @startuml
-skinparam linetype polyline
 
 package cmd {
   class Main {
@@ -18,12 +17,20 @@ package router {
   }
 }
 
+class Utils {
+  SendMail(String title, String content)
+}
+
+class Config {
+  GetConfigValue(String id) : any
+}
+
 package managers {
   class LearningManager {
     int learnCount
     int learnSleepSec
     
-    CreateLearningManager(ScanResultRepository scanResRepo, int learnCount, int learnSleepSec) : LearningManager
+    CreateLearningManager(ScanResultRepository scanResRepo) : LearningManager
     GetLearningManager() : LearningManager
     StartLearning(int trackerID)
     FinishLearning(int trackerID, int roomID)
@@ -53,7 +60,7 @@ package managers {
     int workEndHour
     bool workOnWeekend
   
-    CreateTrackerManager(TrackerRepository trackerRep, int idleSleepSec, int learningSleepSec, int trackingSleepSec) : TrackerManager
+    CreateTrackerManager(TrackerRepository trackerRep) : TrackerManager
     GetTrackerManager() : TrackerManager
     NotifyNewTracker() : Tracker
     GetTrackerByID(int trackerID) : Tracker
@@ -193,6 +200,8 @@ WorkflowTemplateManager --> WorkflowTemplateRepository
 Main ..> managers : <creates>
 Main .> HttpRouter : <starts>
 Main .> CoapRouter : <starts>
+
+Main -[hidden]- ExportManager
 
 WorkflowTemplateManager -[hidden]- RoomManager
 TrackingManager -[hidden]- LearningManager
