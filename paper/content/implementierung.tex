@@ -15,6 +15,10 @@ Auch werden Bibliotheken für ein einfacheres Testing verwendet.
 
 Im Folgenden sind die verwendeten Bibliotheken aufgelistet:
 \begin{description}
+	\item[pflag (https://github.com/spf13/pflag)] \hfill \\
+		\enquote{pflag} wird zum Angeben und Parsen von Kommandozeilenargumenten verwendet. Es ist kompatibel mit \enquote{viper}.
+	\item[viper (https://github.com/spf13/viper)] \hfill \\
+		Für die Konfiguration des Servers wird \enquote{viper} verwendet. Es kann Konfigurationen aus \enquote{pflag}, Dateien und mehr einlesen.
 	\item[logrus (https://github.com/sirupsen/logrus)] \hfill \\
 		\enquote{logrus} ist strukturiertes Logging-Tool, dass für jegliche Logs innerhalb des Servers verwendet wird.
 	\item[gorm (https://github.com/jinzhu/gorm)] \hfill \\
@@ -27,8 +31,12 @@ Im Folgenden sind die verwendeten Bibliotheken aufgelistet:
 		\enquote{go-codec} stellt die Codierung für \gls{CBOR} zur Verfügung.
 	\item[now (https://github.com/jinzhu/now)] \hfill \\
 		\enquote{now} stellt Hilfsfunktionen zur Verfügung für Zeitberechnungen.
+	\item[stats (https://github.com/montanaflynn/stats)] \hfill \\
+		\enquote{stats} stellt einige mathematische Funktionalitäten für statistische Berechnungen zur Verfügung.
 	\item[xlsx (https://github.com/tealeg/xlsx)] \hfill \\
 		Mit \enquote{xlsx} können Dateien im \gls{XLSX} Dateiformat erstellt, bearbeitet und gelesen werden. Im Server wird sie für das Erstellen des Excel-Export genutzt.
+	\item[gomail (https://github.com/go-gomail/gomail)] \hfill \\
+		\enquote{gomail} wird verwendet, um E-Mails verschicken zu können.
 	\item[ginkgo (https://github.com/onsi/ginkgo)] \hfill \\
 		Mit \enquote{ginkgo} können Tests in \gls{BDD} Technik geschrieben werden.
 	\item[gomega (https://github.com/onsi/gomega)] \hfill \\
@@ -212,6 +220,116 @@ Die verwendeten Bibliotheken sind im Folgenden aufgelistet:
 	\item[fluttertoast (https://pub.dev/packages/fluttertoast)] \hfill \\
 		Mit \enquote{fluttertoast} können kleine Pop-ups dargestellt werden, die dem Nutzer der App einfach und schnell Feedback zu einer Aktion geben können.
 \end{description}
+
+\section{Hardware-Gehäuse}
+
+Neben der Hardware des spezifischen Trackers und der Software wurde auch ein Hardware-Gehäuse entwickelt.
+Dieses Gehäuse soll den Tracker mit der Batterie beinhalten und eine Möglichkeit bieten, dieses an einem Stapel Papier zu befestigen.
+Die Herstellung des Gehäuses soll in einem 3D-Drucker erfolgen.
+Dazu muss das Gehäuse digital modelliert werden.
+
+Bevor die Modelle selbst erstellt werden können, muss ein grobes Layout vorliegen.
+Für den Paper-Tracker wurden zwei verschiedene Layouts in Betracht gezogen.
+Diese werden in den folgenden Sektionen genauer erläutert und die aus den Layouts entstandenen Modelle gezeigt.
+
+\subsection{Layout Controller auf der Batterie}
+Das erste Layout ist in \autoref{fig:case-lay-on} abgebildet.
+Bei diesem Layout befindet sich der Mikrocontroller auf der Batterie.
+
+\begin{figure}
+	\includegraphics[width=300px]{images/case/pico_on_battery.jpg}
+	\centering
+	\caption{Gehäuse-Layout mit Mikrocontroller auf der Batterie}
+	\label{fig:case-lay-on}
+\end{figure}
+
+Dies ergibt den Vorteil, dass die Grundfläche des Trackers mit ca. 45x35mm sehr gering gehalten wird.
+Daraus ergibt sich dementsprechend der Nachteil, dass mit ca. 15mm die Konstruktion relativ hoch wird.
+
+Das aus dem Layout enstandene Modell besteht aus zwei verschiedenen Teilen: Dem Körper des Gehäuse und dem Deckel.
+
+Der Körper ist in \autoref{fig:case-high-body} dargestellt.
+Er biete eine Art Schublade, in welche die Batterie hineinpasst.
+Oberhalb der Schublade wird der Mikrocontroller durch Wände im Platz gehalten.
+An der Seite gibt es eine Aussparung, um den USB-Port zum Laden benutzen zu können.
+
+Geschlossen wird der Körper mit dem Deckel.
+Dies ist in \autoref{fig:case-high} dargestellt.
+Die beiden Teile sollen nur über das zusammenstecken halten.
+Am Deckel ist auch der Mechanismus zum Anklemmen des Gehäuses an Papier angebracht.
+Er besteht aus einem Steg, der schräg zum Gehäusekörper zeigt.
+Zudem sind Noppen angebracht, die die Festigkeit erhöhen sollen.
+
+\begin{figure}
+	\includegraphics[width=300px]{images/case/high_body.png}
+	\centering
+	\caption{Körper des Gehäuse-Modell mit Controller auf der Batterie}
+	\label{fig:case-high-body}
+\end{figure}
+
+\begin{figure}
+	\includegraphics[width=300px]{images/case/high_complete.png}
+	\centering
+	\caption{Gehäuse-Modell mit Controller auf der Batterie}
+	\label{fig:case-high}
+\end{figure}
+
+\subsection{Layout Controller neben der Batterie}
+Das zweite Layout ist in \autoref{fig:case-lay-beside} abgebildet.
+Der Unterschied zum ersten Layout ist, dass der Mikrocontroller neben der Batterie platziert wird.
+
+\begin{figure}
+	\includegraphics[width=300px]{images/case/pico_beside_battery.jpg}
+	\centering
+	\caption{Gehäuse-Layout mit Mikrocontroller neben der Batterie}
+	\label{fig:case-lay-beside}
+\end{figure}
+
+Dies resultiert in einer erhöhten Grundfläche zum ersten Layout von 70x35mm aber in einer Reduktion der Höhe auf nur 12mm.
+
+Das Modell nach diesem Layout ist in drei verschiedene Teile aufgeteilt.
+Es gibt, wie zum ersten Layout, auch einen Körper und einen Deckel.
+Zusätzlich gibt es jedoch noch den Clip zum Befestigen an Papier.
+Dieser ist demnach nicht mehr im Deckel mit enthalten.
+
+Der Körper ist in \autoref{fig:case-low-body} dargestellt.
+Er bietet einen Platz für die Batterie und den Mikrocontroller nebeneinander.
+Für den USB-Port ist ebenfalls in der Außenwand eine Ausparung vorhanden.
+Kleine Erhebungen halten die Teile am Platz und verhindern ein umherschieben.
+In diesen Erhebungen sind auch Löcher für Schrauben inkludiert und auf der Unterseite Platz für eine Mutter.
+Der größere Einschnitt in der Unterseite ist für den Clip bestimmt. 
+
+\begin{figure}
+	\includegraphics[width=300px]{images/case/low_body.jpg}
+	\centering
+	\caption{Körper des Gehäuse-Modell mit Controller neben der Batterie}
+	\label{fig:case-low-body}
+\end{figure}
+
+Der Deckel des Modells ist ähnlich dem Körper, besizt aber keine Ausßenwände.
+Er ist in \autoref{fig:case-low-lid} abgebildet.
+Die kleinen Erhebungen des Deckels fixieren die Teile innerhalb des Gehäuses auf der vertikalen Achse.
+Statt Platz für eine Mutter auf der Aussenseite der Erhebungen mit Schraubenlöchern, ist eine Einsenkung für den Schraubkopf vorgesehen.
+
+\begin{figure}
+	\includegraphics[width=300px]{images/case/low_lid.png}
+	\centering
+	\caption{Deckel des Gehäuse-Modell mit Controller neben der Batterie}
+	\label{fig:case-low-lid}
+\end{figure}
+
+Angebracht ist der Clip an dem Einschnitt im Körper und fixiert durch die zwei danebenliegenden Schraubenlöchern.
+Die Schraube geht zwischen den Erhebungen des Körpers und des Deckels durch die in \autoref{fig:case-low-clip} dargestellten Flügel des Clips. 
+Für die Fixierung an einem Papierstapel wurde die gleiche Technik, wie für das erste Layout verwendet.
+Der einzige Unterschied sind die fehlenden Noppen.
+Diese sind geplant im Nachhinein aufzukleben.
+
+\begin{figure}
+	\includegraphics[width=300px]{images/case/low_clip.png}
+	\centering
+	\caption{Clip des Gehäuse-Modell mit Controller neben der Batterie}
+	\label{fig:case-low-clip}
+\end{figure}
 
 \section{Bestehende Herausforderungen}
 % Erstmal ein paar Beispiele

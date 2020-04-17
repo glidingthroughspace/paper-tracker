@@ -102,7 +102,12 @@ Das resultierende UML-Diagramm ist in Abbildung \ref{fig:uml} abgebildet.
 
 Die zentrale Klasse des Diagramms bildet die \enquote{Tracker}-Klasse.
 Sie modelliert einen Hardware-Tracker.
-Neben einigen Attributen, wie dem Label, der Batteriestatus und einigen gespeicherten Zeitstempeln, besitzt sie eine Referenz auf einen Status.
+Einige Attribute des Trackers sind eine ID, das Label, der Batteriestatus, eine Flag, ob ein niedriger Batteriestatus notifiziert wurde
+und einige Zeitstempel.
+Die Zeitstempel geben zum Beispiel an, wann zuletzt ein Kommando abgeholt wurde oder wann zuletzt der Batteriestatus aktualisiert wurde.
+Mit Hilfe der letzten dem Tracker gesendeten Zeit zum Schlafen kann mit der Funktion \enquote{GetSecondsToNextPoll()} abgefragt werden,
+wann sich der Tracker vorraussichtlich das nächste Kommando abholt.
+Neben den Attributen besitzt sie eine Referenz auf einen Status.
 Dieser Status gibt an, zu was der Tracker zur Zeit verwendet wird und in welchen anderen Zustand gewechselt werden kann.
 
 Es gibt vier verschiedene Zustände, die in Integern kodiert sind:
@@ -257,7 +262,7 @@ POST          & /workflow/template/revision     & Template Revision erstellen   
 GET           & /workflow/exec                  & Auflistung der Ausführungen         & -                                                           & Execution                                                               \\ \hline
 POST          & /workflow/exec                  & Ausführung erstellen                & Execution                                                   & Erstelle Execution                                                      \\ \hline
 POST          & /workflow/exec/:id/progress/:id & Ausführung zu Schritt progressieren & -                                                           & -                                                                       \\ \hline
-POST          & /workflow/exec/:id/cancel       & Ausführung abbrechen                & -                                                           & -
+POST          & /workflow/exec/:id/cancel       & Ausführung abbrechen                & -                                                           & - \\ \hline
 GET           & /export.xlsx                    & Datenexport für Analyse             & -                                                           & Excel-Datei
 \end{longtable}
 \end{landscape}
@@ -281,6 +286,8 @@ Das \enquote{managers} Paket beinhaltet sechs verschiedene Manager, die die Busi
 Ein Beispiel ist der \enquote{TrackerManager}, über den Tracker angelegt, abgefragt, verändert und auch gelöscht werden können.
 Weitere Methoden für z.B. das Abfragen eines Kommandos für einen Tracker sind auch beinhaltet.
 Alle Manager sind als Singleton implementiert so, dass sie sich auch untereinander problemlos aufrufen können.
+Konfiguriert werden die Manager über die global verfügbare \enquote{Config} Klasse.
+Über diese Klasse können verschiedene Einstellungen über einzigartige Identifizierer abgefragt werden.
 
 Die unterste Schicht bildet das \enquote{repositories} Paket.
 Dieses enthält verschiedene Datenbank-Repositories, die die Datenbank und damit die Datenpersistenz des Servers abbilden.
@@ -288,15 +295,19 @@ Alle Methoden eines Repository bilden direkte Anfragen an die Datenbank.
 Dabei ist ein Repository meist für eine Modellklasse verantwortlich.
 
 Die main-Klasse ist für das Starten des Servers und das Erstellen der einzelnen Komponenten verantwortlich.
+In dieser wird zum Beispiel auch die Konfiguration eingelesen und initialisiert.
+In der Utils-Klasse sind einige verschiedene Hilfsmittel untergebracht.
+Dies sind zum einen das Versenden von E-Mails und zum anderen einige mathematische Hilfsfunktionen.
 
-\begin{landscape}
-\begin{figure}[h!p]
-	\includegraphics[width=\textheight]{images/server_architecture.png}
-	\centering
-	\caption{Software-Architektur für die Backend-Anwendung}
-	\label{fig:software-architecture}
-\end{figure}
-\end{landscape}
+\TODO{Fix image}
+%\begin{landscape}
+%\begin{figure}[h!p]
+%	\includegraphics[width=\textheight]{images/server_architecture.png}
+%	\centering
+%	\caption{Software-Architektur für die Backend-Anwendung}
+%	\label{fig:software-architecture}
+%\end{figure}
+%\end{landscape}
 
 \FloatBarrier
 \subsection{App für Mobilgeräte} \label{sec:app}

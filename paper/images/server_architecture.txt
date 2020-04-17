@@ -1,5 +1,4 @@
 @startuml
-
 package cmd {
   class Main {
   }
@@ -19,6 +18,13 @@ package router {
 
 class Utils {
   SendMail(String title, String content)
+  MeanOf(int values...) : float
+  IsOddAmountOfValues(int values...) : bool
+  MedianOf(int values...) : float
+  FirstQuartileOf(int values...) : float
+  ThirdQuartileOf(int values...) : float
+  MinOf(int values...) : int
+  MaxOf(int values...) : int
 }
 
 class Config {
