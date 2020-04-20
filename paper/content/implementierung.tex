@@ -79,7 +79,7 @@ vorherigen Paket empfangenen Scanergebnisse verworfen und die neuen Pakete gespe
 Sobald ein vollständiger Ergebnissatz empfangen wurde, wir aus diesem ein Score für jeden Raum
 ermittelt. Dieser Score ist eine positive Ganzzahl
 
-\subsection{Excel-Export}
+\subsection{Daten-Export}
 
 In diesem Kapitel wird die Implementierung des Datenexports in eine Excel-Datei näher erläutert.
 Dies besteht aus größtenteils zwei Unterpunkten: Dem Sammeln und Aufbereiten der Daten für den Export und das
@@ -136,6 +136,12 @@ Dies resultiert in dem in \autoref{fig:export-orig-revisions} dargestellten Shee
 	\caption{Ursprüngliche Revisionen-Sheet eines Excel-Exports}
 	\label{fig:export-orig-revisions}
 \end{figure}
+
+Die daraus enstandene Excel-Datei ist immernoch nur im Hauptspeicher vorhanden
+und muss auch nicht auf die Festplatte geschrieben werden.
+Das Objekt der Datei kann auf ein \enquote{io.Writer}-Interface,
+dass in der Standardbibliothek von Go enthalten ist, schreiben.
+Dadurch kann das Objekt direkt in die Antwort der \gls{REST}-Schnittstelle die Datei schreiben.
 
 \section{Hardware und Firmware}
 

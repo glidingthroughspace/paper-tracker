@@ -309,6 +309,44 @@ Dies sind zum einen das Versenden von E-Mails und zum anderen einige mathematisc
 %\end{figure}
 %\end{landscape}
 
+\subsubsection{Daten-Export}
+
+Für einen Daten-Export muss zuerst ausgewählt werden, welche Daten exportiert werden sollen.
+Da der Export des Paper-Trackers bei einer Optimierung der Workflows helfen soll, müssen hauptsächlich Daten der
+Klassen \enquote{WorkflowTemplate}/\enquote{WorkflowExecution} und derem Umfeld exportiert werden.
+Konkret wären dies die Templates, deren Ausführungen inklsuive detailierter Infos der Schritte (\enquote{ExecStepInfo}).
+Diese Informationen können helfen, langsame oder nicht benötigte Schritte eines Workflows zu identifizieren.
+
+Weiter sollen auch Informationen zu den Revisionen eines Templates exportiert werden.
+Anhand dieser Informationen kann verfolgt werden, ob Anpassungen eines Workflows einen Erfolg gebracht haben.
+Dazu müssen zu den Revisionen einige Metriken erfasst werden.
+Die zu erfassenden Metriken sind:
+\begin{itemize}
+	\item Anzahl der Ausführungen
+	\item Prozentzahl der erfolgreich abgeschlossenen Ausführungen
+	\item Durchschnittliche Dauer einer Ausführung
+\end{itemize}
+
+Mit der Auswahl der Daten kann auch das Format des Exports ausgewählt werden.
+Alle zu exportierenden Daten können sehr gut in Tabellen exportiert werden.
+Dies führt zu hauptsächlich zwei Exportformate: \gls{CSV} und Excel.
+
+\gls{CSV} ist ein weit verbreitetes und simples Format, da es hauptsächlich mit Kommas (',') und Zeilenumbrüchen arbeitet.
+Dadurch ist es sehr einfach zu erstellen und einzulesen.
+Die meisten Tools, die mit solchen Daten arbeiten, haben die Möglichkeit \gls{CSV}-Dateien einzulesen.
+Ein großer Nachteil von \gls{CSV} ist jedoch, dass es nicht standardisiert ist und mehrere Arten
+mit kleinen Unterschieden existieren \cite{rfc4180}.
+Im RFC-4180 werden lediglich scheinbar übereinstimmende Teile der verschiedenen Implementierungen dargestellt.
+Nach diesen gibt es einen weiteren Nachteil: Pro \gls{CSV}-Datei kann nur eine Tabelle gespeichert werden.
+Dies würde für den Export des Paper-Trackers bedeuten, dass entweder mehrere Dateien oder eine gebündelte Datei angeboten werden muss.
+
+Excel oder genauer das von Excel verwendete \enquote{xlsx}-Format ist ein offenes und standardisiertes Format
+für Kalkulationstabellen \cite{iso29500}.
+Da es ein offenes Format ist, kann es auch von anderen Programmen, wie Libre Office, geöffnet und bearbeitet werden.
+Es muss nicht, wie bei \gls{CSV} erst importiert werden.
+Auch unterstützt es mehrere Tabellen in einer Datei, welches den Download des Exports vereinfacht.
+Aus diesen Gründen wird Excel als Exportformat für den Paper-Tracker verwendet.
+
 \FloatBarrier
 \subsection{App für Mobilgeräte} \label{sec:app}
 
@@ -409,20 +447,20 @@ In folgender \autoref{tab:detail-attributes} ist gelistet, für welche Klassen w
 \begin{tabular}{l|l|r}
 \textbf{Klasse}  & \textbf{Attribut} & \multicolumn{1}{l}{\textbf{Editierbar}} \\ \hline
 Tracker          &                   &                                         \\
-                 & Label             & Ja                                      \\
-                 & Raum              & Nein                                    \\
-                 & Batterie          & Nein                                    \\
-                 & Status            & Nein                                    \\ \hline
+								 & Label             & Ja                                      \\
+								 & Raum              & Nein                                    \\
+								 & Batterie          & Nein                                    \\
+								 & Status            & Nein                                    \\ \hline
 Raum             &                   & \multicolumn{1}{l}{}                    \\
-                 & Label             & Ja                                      \\
-                 & Eingelernt        & Über Button                             \\ \hline
+								 & Label             & Ja                                      \\
+								 & Eingelernt        & Über Button                             \\ \hline
 WorkflowTemplate &                   & \multicolumn{1}{l}{}                    \\
-                 & Label             & Ja                                      \\
-                 & Initiale Revision & Nein                                    \\
-                 & Schritte          & siehe Workflow-Darstellung              \\ \hline
+								 & Label             & Ja                                      \\
+								 & Initiale Revision & Nein                                    \\
+								 & Schritte          & siehe Workflow-Darstellung              \\ \hline
 WorkflowExec     &                   & \multicolumn{1}{l}{}                    \\
-                 & Status            & Nein                                    \\
-                 & Schritte          & Nein
+								 & Status            & Nein                                    \\
+								 & Schritte          & Nein
 \end{tabular}
 \caption{Dargestellte Attribute der Klassen}
 \label{tab:detail-attributes}
