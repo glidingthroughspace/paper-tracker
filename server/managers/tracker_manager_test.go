@@ -14,7 +14,7 @@ var _ = Describe("TrackerManager", func() {
 	var (
 		mockTrackerRep *mock.MockTrackerRepository
 		mockCtrl       *gomock.Controller
-		manager        *TrackerManager
+		manager        *TrackerManagerImpl
 
 		//trackerIdle             *models.Tracker
 		trackerLearningFinished *models.Tracker
@@ -33,7 +33,7 @@ var _ = Describe("TrackerManager", func() {
 
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockTrackerRep = mock.NewMockTrackerRepository(mockCtrl)
-		manager = CreateTrackerManager(mockTrackerRep)
+		manager = CreateTrackerManager(mockTrackerRep).(*TrackerManagerImpl)
 
 		//trackerIdle = &models.Tracker{ID: id, Label: "New Tracker", Status: models.TrackerStatusIdle}
 		trackerLearningFinished = &models.Tracker{ID: id, Label: "New Tracker", Status: models.TrackerStatusLearningFinished}

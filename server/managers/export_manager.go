@@ -9,26 +9,30 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-var exportManager *ExportManager
+var exportManager ExportManager
 
-type ExportManager struct {
+type ExportManager interface {
+	GenerateExport(writer io.Writer) error
 }
 
-func CreateExportManager() *ExportManager {
+type ExportManagerImpl struct {
+}
+
+func CreateExportManager() ExportManager {
 	if trackingManager != nil {
 		return exportManager
 	}
 
-	exportManager = &ExportManager{}
+	exportManager = &ExportManagerImpl{}
 
 	return exportManager
 }
 
-func GetExportManager() *ExportManager {
+func GetExportManager() ExportManager {
 	return exportManager
 }
 
-func (mgr *ExportManager) GenerateExport(writer io.Writer) (err error) {
+func (mgr *ExportManagerImpl) GenerateExport(writer io.Writer) (err error) {
 	file := xlsx.NewFile()
 
 	err = mgr.fillExportFile(file)
@@ -48,7 +52,7 @@ type templateExport struct {
 	meanCompletedExecTimeHrs float64
 }
 
-func (mgr *ExportManager) fillExportFile(file *xlsx.File) (err error) {
+func (mgr *ExportManagerImpl) fillExportFile(file *xlsx.File) (err error) {
 	templates, err := GetWorkflowTemplateManager().GetAllTemplates()
 	if err != nil {
 		log.WithError(err).Error("Failed to get templates to export")
@@ -90,7 +94,7 @@ func (mgr *ExportManager) fillExportFile(file *xlsx.File) (err error) {
 	return
 }
 
-func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, sheet *xlsx.Sheet) (export *templateExport, err error) {
+func (mgr *ExportManagerImpl) fillExportSheet(template *models.WorkflowTemplate, sheet *xlsx.Sheet) (export *templateExport, err error) {
 	// Set Header
 	sheet.Cell(0, 0).SetString("Label of execution")
 	sheet.Cell(0, 1).SetString("Status")
@@ -152,17 +156,19 @@ func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, she
 
 	// Assemble export info for this template
 	export = &templateExport{
-		numExecutions:            len(execs),
-		percentageCompleted:      (float64(numCompleted) / float64(len(execs))) * 100.0,
-		meanCompletedExecTimeHrs: sumCompletionTime.Hours() / float64(len(execs)),
-		template:                 template,
+		numExecutions: len(execs),
+		template:      template,
+	}
+	if len(execs) > 0 {
+		export.percentageCompleted = (float64(numCompleted) / float64(len(execs))) * 100.0
+		export.meanCompletedExecTimeHrs = sumCompletionTime.Hours() / float64(len(execs))
 	}
 
 	return
 }
 
 // Create header for step info
-func (mgr *ExportManager) fillStepInfoHeader(sheet *xlsx.Sheet, col int, templateID models.WorkflowTemplateID, stepID models.StepID) {
+func (mgr *ExportManagerImpl) fillStepInfoHeader(sheet *xlsx.Sheet, col int, templateID models.WorkflowTemplateID, stepID models.StepID) {
 	step, err := GetWorkflowTemplateManager().GetStepByID(templateID, stepID)
 	if err != nil {
 		log.WithError(err).WithField("stepID", stepID).Error("Failed to get step to fill stepInfoHeader for export")
@@ -182,7 +188,7 @@ func (mgr *ExportManager) fillStepInfoHeader(sheet *xlsx.Sheet, col int, templat
 	sheet.Cell(0, col+4).SetString(step.Label + " Skipped")
 }
 
-func (mgr *ExportManager) fillRevisionSheet(tmplExports map[models.WorkflowTemplateID]*templateExport, sheet *xlsx.Sheet) (err error) {
+func (mgr *ExportManagerImpl) fillRevisionSheet(tmplExports map[models.WorkflowTemplateID]*templateExport, sheet *xlsx.Sheet) (err error) {
 	// Set Header
 	sheet.Cell(0, 0).SetString("Original Revision Label")
 	sheet.Cell(0, 1).SetString("Template Label")
@@ -194,18 +200,18 @@ func (mgr *ExportManager) fillRevisionSheet(tmplExports map[models.WorkflowTempl
 	origMap := make(map[models.WorkflowTemplateID][]*templateExport)
 
 	for _, templExport := range tmplExports {
+		// If this is the orig (firstID == 0) insert for it, if not for the original revision
+		insertID := templExport.template.ID
 		if templExport.template.FirstRevisionID != 0 {
-			// This template has a previous revision
-			if revisions, ok := origMap[templExport.template.FirstRevisionID]; ok {
-				// If there is already a list saved for this orig revision, add to it
-				origMap[templExport.template.FirstRevisionID] = append(revisions, templExport)
-			} else {
-				// There is no list yet, add this revision and also the orig
-				origMap[templExport.template.FirstRevisionID] = []*templateExport{
-					tmplExports[templExport.template.FirstRevisionID],
-					templExport,
-				}
-			}
+			insertID = templExport.template.FirstRevisionID
+		}
+
+		if revisions, ok := origMap[insertID]; ok {
+			// If there is already a list saved for this orig revision, add to it
+			origMap[insertID] = append(revisions, templExport)
+		} else {
+			// There is no list yet, add a list for this revision
+			origMap[insertID] = []*templateExport{templExport}
 		}
 	}
 
