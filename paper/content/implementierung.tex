@@ -77,7 +77,53 @@ vorherigen Paket empfangenen Scanergebnisse verworfen und die neuen Pakete gespe
 \TODO{Das hier kann vielleicht zu CoAP-Schnittstelle verschoben werden}
 
 Sobald ein vollständiger Ergebnissatz empfangen wurde, wir aus diesem ein Score für jeden Raum
-ermittelt. Dieser Score ist eine positive Ganzzahl
+ermittelt. Dieser Score ist eine positive Zahl, deren Wert größer wird, je besser die gemessene
+\gls{WLAN}-Umgebung mit der gelernten übereinstimmt. Hat der Score den Wert $0$ kann davon
+ausgegangen werden, dass jeweilige Raum nicht in der Nähe befindlich ist, da die
+\gls{WLAN}-Umgebungen zu unterschiedlich sind. Der Score berechnet sich wie folgt:
+
+\begin{lstlisting}[caption={Pseudocode-Beschreibung der Scoring-Funktion},label={lst:scoring},tabsize=2]
+# Berechnet den Score für einen bestimmten Raum.
+#
+# rssi ist das aktuelle Scanergebnis des Trackers
+# room enthält die zuvor gelernten Scandaten
+function getScoreForRoom(rssi, room) {
+	score := 0.0
+
+	if rssi <= room.Maximum && rssi >= room.Minimum {
+		score += 1
+	}
+	if rssi < room.ThirdQuartile && rssi > room.FirstQuartile {
+		score += 5
+	}
+	if rssi > room.Mean - 10 && rssi < room.Mean + 10 {
+		dist := math.Abs(room.Mean - rssi) + 0.1
+		score += (1 / dist) * 5
+	}
+	if rssi > room.Median - 10 && rssi < room.Median + 10 {
+		dist := math.Abs(room.Median - rssi) + 0.1
+		score += (1 / dist) * 5
+	}
+
+	return score
+}
+\end{lstlisting}
+
+Wie in \autoref{lst:scoring} in den Zeilen 9 und 12 zu sehen ist, wird der Score nur wenig erhöht,
+wenn der aktuelle Messwert im Bereich zwischen Minimum und Maximum der gelernten Daten, sowie dem
+ersten und dritten Quartil liegt. Einige Tests haben gezeigt, dass ein Raum in der Nähe liegt,
+sobald diese Größen erreicht wurden und somit in das Scoring mit aufgenommen werden sollte.
+Der Hauptteil des Scores berechnet sich allerdings mithilfe von Distanzen, wie in den Zeilen 14 bis
+21 zu sehen ist. Fällt die gemessene \gls{RSSI} in einen definierten Bereich um das arithmetische
+Mittel oder den Median der gelernten Messwerte, wird das Reziproke der Distanz zu diesen zum Score
+addiert. Somit wächst der Score exponentiell, je näher der Tracker sich zur gelernten
+\gls{WLAN}-Umgebung befindet.
+Mit der Addition von $0.1$ zur Distanz in den Zeilen 16 und 20 wird eine Division durch $0$
+ausgeschlossen.
+
+Nachdem für jeden Raum der Score mit der beschriebenen Funktion berechnet wurde, wird der Raum mit
+dem höchsten Score -- vorrausgesetzt es gibt einen Raum mit einem Score größer $0$ -- als der Raum
+angesehen, in welchem sich der Tracker aktuell befindet.
 
 \subsection{Daten-Export}
 
