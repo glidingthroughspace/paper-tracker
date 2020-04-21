@@ -143,6 +143,32 @@ Das Objekt der Datei kann auf ein \enquote{io.Writer}-Interface,
 dass in der Standardbibliothek von Go enthalten ist, schreiben.
 Dadurch kann das Objekt direkt in die Antwort der \gls{REST}-Schnittstelle die Datei schreiben.
 
+\subsection{Tests}
+
+Wie in allen Software-Projekten ist es wichtig, den Paper-Tracker zu testen.
+Dabei spielt vor allem der Backend-Server ein große Rolle, da dieser die meiste Geschäftslogik implementiert.
+
+Alle für den Server existierenden Tests sind automatisierte Tests, die einzelne Einheiten des Codes testen.
+Vor allem werden die Manager getestet, da diese letzendlich die Geschäftslogik beinhalten.
+Dafür werden verschiedene Bibliotheken verwendet.
+Die \enquote{ginkgo}-Bibliothek stellt Funktionen zur Verfügung, um die Tests zu definieren
+und Code vor/nach den Tests auszuführen.
+Mit Hilfe von \enquote{gomega} können Ergebnisse der Tests mit zu erwartenden Ergebnissen verglichen werden.
+Sie stellt neben den einfachen Vergleichen auch Vergleiche für Fehlertypen, komplexe verschachtelte Datenstrukturen,
+Listen und mehr.
+
+Damit die einzelnen Einheiten des Servers getrennt voneinander getestet werden können, wird zusätzlich die
+\enquote{gomock} Bibliothek verwendet.
+Diese ermöglicht es, Stellvertreterobjekte für in diesem Fall Manager und Repositories zu erstellen.
+Die Stellvertreterobjekte können dann für jeden einzelnen Testfall mit zu erwarteten Parametern und einem Rückgabewert
+konfiguriert werden.
+Da \enquote{gomock} nur von Interfaces erstellen kann, müssen für alle Manager und Repositories eigene Interfaces erstellt werden.
+Deshalb gibt es, im Gegensatz zum Entwurf, für jeden Manager ein Interface und eine Implementierungsklasse.
+Für die Tests wird dann die Instanz des Singletons auf ein Stellvertreterobjekt gesetzt.
+
+Mit diesen Techniken wurden einige Tests für die Manager-, Modell- und Utility-Klassen geschrieben.
+Es sind somit ca. 20\% der Manager, ca. 27\% der Modelle und ca. 68\% der Utility getestet. \TODO{MEHR!}
+
 \section{Hardware und Firmware}
 
 Im Folgenden wird erläutert, wie der Tracker hinsichtlich der verwendeten Hardware und der

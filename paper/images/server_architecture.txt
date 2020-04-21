@@ -1,4 +1,6 @@
 @startuml
+skinparam linetype polyline
+
 package cmd {
   class Main {
   }
@@ -16,32 +18,18 @@ package router {
   }
 }
 
-class Utils {
-  SendMail(String title, String content)
-  MeanOf(int values...) : float
-  IsOddAmountOfValues(int values...) : bool
-  MedianOf(int values...) : float
-  FirstQuartileOf(int values...) : float
-  ThirdQuartileOf(int values...) : float
-  MinOf(int values...) : int
-  MaxOf(int values...) : int
-}
-
-class Config {
-  GetConfigValue(String id) : any
-}
-
 package managers {
   class LearningManager {
     int learnCount
     int learnSleepSec
     
-    CreateLearningManager(ScanResultRepository scanResRepo) : LearningManager
+    CreateLearningManager(ScanResultRepository scanResRepo, int learnCount, int learnSleepSec) : LearningManager
     GetLearningManager() : LearningManager
     StartLearning(int trackerID)
     FinishLearning(int trackerID, int roomID)
     CancelLearning(int trackerID)
     GetLearningStatus(int trackerID)
+    NewLearningTrackingData(int trackerID, ScanRes[] scanResults)
   }
   
   class RoomManager {
@@ -66,7 +54,7 @@ package managers {
     int workEndHour
     bool workOnWeekend
   
-    CreateTrackerManager(TrackerRepository trackerRep) : TrackerManager
+    CreateTrackerManager(TrackerRepository trackerRep, int idleSleepSec, int learningSleepSec, int trackingSleepSec) : TrackerManager
     GetTrackerManager() : TrackerManager
     NotifyNewTracker() : Tracker
     GetTrackerByID(int trackerID) : Tracker
@@ -207,7 +195,7 @@ Main ..> managers : <creates>
 Main .> HttpRouter : <starts>
 Main .> CoapRouter : <starts>
 
-Main -[hidden]- ExportManager
+HttpRouter -[hidden]- ExportManager
 
 WorkflowTemplateManager -[hidden]- RoomManager
 TrackingManager -[hidden]- LearningManager
