@@ -22,6 +22,7 @@ mock:
 	mockgen -source=managers/tracker_manager.go -package=mock -destination=mock/tracker_manager.go
 	mockgen -source=managers/tracking_manager.go -package=mock -destination=mock/tracking_manager.go
 	mockgen -source=managers/workflow_exec_manager.go -package=mock -destination=mock/workflow_exec_manager.go
+	mockgen -source=managers/workflow_template_manager.go -package=mock -destination=mock/workflow_template_manager.go
 	mockgen -source=repositories/tracker_repository.go -package=mock -destination=mock/tracker_repository_mock.go
 	mockgen -source=repositories/scan_result_repository.go -package=mock -destination=mock/scan_result_repository_mock.go
 	mockgen -source=repositories/room_repository.go -package=mock -destination=mock/room_repository_mock.go

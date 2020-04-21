@@ -14,7 +14,7 @@ import (
 var _ = Describe("RoomManager", func() {
 	var (
 		mockRoomRep     *mock.MockRoomRepository
-		mockTemplateRep *mock.MockWorkflowTemplateRepository
+		mockTemplateMgr *mock.MockWorkflowTemplateManager
 		mockCtrl        *gomock.Controller
 		manager         *RoomManagerImpl
 
@@ -26,13 +26,13 @@ var _ = Describe("RoomManager", func() {
 
 	BeforeEach(func() {
 		roomManager = nil
-		workflowTemplateManager = nil
 
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockRoomRep = mock.NewMockRoomRepository(mockCtrl)
-		mockTemplateRep = mock.NewMockWorkflowTemplateRepository(mockCtrl)
 		manager = CreateRoomManager(mockRoomRep).(*RoomManagerImpl)
-		CreateWorkflowTemplateManager(mockTemplateRep)
+
+		mockTemplateMgr = mock.NewMockWorkflowTemplateManager(mockCtrl)
+		workflowTemplateManager = mockTemplateMgr
 
 		gormNotFound := func(err error) bool {
 			return gorm.IsRecordNotFoundError(err)
@@ -68,7 +68,7 @@ var _ = Describe("RoomManager", func() {
 
 		It("GetAllRooms should call get all in rep exactly once", func() {
 			mockRoomRep.EXPECT().GetAll().Return(outRooms, nil).Times(1)
-			mockTemplateRep.EXPECT().GetStepsByRoomID(id).Return([]*models.Step{&models.Step{}}, nil).Times(1)
+			mockTemplateMgr.EXPECT().NumberOfStepsReferringToRoom(id).Return(1, nil).Times(1)
 			Expect(manager.GetAllRooms()).To(Equal(outRooms))
 		})
 
@@ -84,7 +84,7 @@ var _ = Describe("RoomManager", func() {
 
 		It("GetRoomByID calls getByID in rep exactly once", func() {
 			mockRoomRep.EXPECT().GetByID(id).Return(outRoom, nil).Times(1)
-			mockTemplateRep.EXPECT().GetStepsByRoomID(id).Return([]*models.Step{&models.Step{}}, nil).Times(1)
+			mockTemplateMgr.EXPECT().NumberOfStepsReferringToRoom(id).Return(1, nil).Times(1)
 			Expect(manager.GetRoomByID(id)).To(Equal(outRoom))
 		})
 
