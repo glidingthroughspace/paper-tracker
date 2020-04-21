@@ -156,10 +156,12 @@ func (mgr *ExportManagerImpl) fillExportSheet(template *models.WorkflowTemplate,
 
 	// Assemble export info for this template
 	export = &templateExport{
-		numExecutions:            len(execs),
-		percentageCompleted:      (float64(numCompleted) / float64(len(execs))) * 100.0,
-		meanCompletedExecTimeHrs: sumCompletionTime.Hours() / float64(len(execs)),
-		template:                 template,
+		numExecutions: len(execs),
+		template:      template,
+	}
+	if len(execs) > 0 {
+		export.percentageCompleted = (float64(numCompleted) / float64(len(execs))) * 100.0
+		export.meanCompletedExecTimeHrs = sumCompletionTime.Hours() / float64(len(execs))
 	}
 
 	return
@@ -198,18 +200,18 @@ func (mgr *ExportManagerImpl) fillRevisionSheet(tmplExports map[models.WorkflowT
 	origMap := make(map[models.WorkflowTemplateID][]*templateExport)
 
 	for _, templExport := range tmplExports {
+		// If this is the orig (firstID == 0) insert for it, if not for the original revision
+		insertID := templExport.template.ID
 		if templExport.template.FirstRevisionID != 0 {
-			// This template has a previous revision
-			if revisions, ok := origMap[templExport.template.FirstRevisionID]; ok {
-				// If there is already a list saved for this orig revision, add to it
-				origMap[templExport.template.FirstRevisionID] = append(revisions, templExport)
-			} else {
-				// There is no list yet, add this revision and also the orig
-				origMap[templExport.template.FirstRevisionID] = []*templateExport{
-					tmplExports[templExport.template.FirstRevisionID],
-					templExport,
-				}
-			}
+			insertID = templExport.template.FirstRevisionID
+		}
+
+		if revisions, ok := origMap[insertID]; ok {
+			// If there is already a list saved for this orig revision, add to it
+			origMap[insertID] = append(revisions, templExport)
+		} else {
+			// There is no list yet, add a list for this revision
+			origMap[insertID] = []*templateExport{templExport}
 		}
 	}
 
