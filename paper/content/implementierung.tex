@@ -92,8 +92,8 @@ Um die Daten für den Export zu sammeln, nutzt der \enquote{ExportManager} einig
 Zuerst werden alle Templates abgefragt.
 Für jedes Template werden alle verfügbaren Ausführungen des Templates angefordert.
 Weiter wird für jeden Schritt in einem Template/einer Ausführung Informationen über die Schritte und die den Schritten
-zugewiesenen Räumen abgefragt. 
-Während die Daten gesammelt werden, werden auch einige Metriken erfasst: Die Anzahl Ausführungen pro Template, 
+zugewiesenen Räumen abgefragt.
+Während die Daten gesammelt werden, werden auch einige Metriken erfasst: Die Anzahl Ausführungen pro Template,
 wie viele Ausführungen beendet wurden und wie lange eine durchschnittliche Ausfürung gebraucht hat.
 
 Nachdem alle grundlegenden Daten gesammelt wurden, wird nochmals durch alle Templates iteriert und diese nach Revisionen sortiert.
@@ -117,7 +117,7 @@ In dieses Sheet werden als Tabelle alle Ausführungen dieses Templates mit Infor
 Dies geschieht schon während des Sammeln der Daten.
 Ein Beispiel für ein solches Sheet ist in \autoref{fig:export-template} zu sehen.
 
-\begin{figure}
+\begin{figure}[htbp]
 	\includegraphics[width=\textwidth]{images/export_template.png}
 	\centering
 	\caption{Template-Sheet eines Excel-Exports}
@@ -130,7 +130,7 @@ mit ihren folgenden Revisionen gelistet.
 Hier werden auch die erfassten Metriken dargestellt.
 Dies resultiert in dem in \autoref{fig:export-orig-revisions} dargestellten Sheet.
 
-\begin{figure}
+\begin{figure}[htbp]
 	\includegraphics[width=\textwidth]{images/export_orig_revisions.png}
 	\centering
 	\caption{Ursprüngliche Revisionen-Sheet eines Excel-Exports}
@@ -225,7 +225,7 @@ Es ist eine Tabelle aus Eingabe-Feldern mit Erklärungen, in denen alle benötig
 Die Eingabe-Felder selbst sind mit den Keys verknüpft.
 Am unteren Teil des Layouts befindet sich ein Button, der das Programmieren startet.
 
-\begin{figure}
+\begin{figure}[htbp]
 	\includegraphics[width=\textwidth]{images/flasher/input.png}
 	\centering
 	\caption{Layout des Eingabe-Fenster}
@@ -237,7 +237,7 @@ Es ist in \autoref{fig:flasher-flash} dargestellt.
 Im Textfeld soll der aktuelle Status angezeigt werden.
 Der Button ist zum Schließen des Programms, sobald der Vorgang abgeschlossen ist.
 
-\begin{figure}
+\begin{figure}[htbp]
 	\includegraphics[width=\textwidth]{images/flasher/flash.png}
 	\centering
 	\caption{Layout des Programmier-Fenster}
@@ -301,7 +301,7 @@ Diese werden in den folgenden Sektionen genauer erläutert und die aus den Layou
 Das erste Layout ist in \autoref{fig:case-lay-on} abgebildet.
 Bei diesem Layout befindet sich der Mikrocontroller auf der Batterie.
 
-\begin{figure}
+\begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/pico_on_battery.jpg}
 	\centering
 	\caption{Gehäuse-Layout mit Mikrocontroller auf der Batterie}
@@ -316,34 +316,36 @@ Das aus dem Layout enstandene Modell besteht aus zwei verschiedenen Teilen: Dem 
 Der Körper ist in \autoref{fig:case-high-body} dargestellt.
 Er biete eine Art Schublade, in welche die Batterie hineinpasst.
 Oberhalb der Schublade wird der Mikrocontroller durch Wände im Platz gehalten.
-An der Seite gibt es eine Aussparung, um den USB-Port zum Laden benutzen zu können.
+An der Seite gibt es eine Aussparung, um den \gls{USB}-Port zum Laden benutzen zu können.
 
 Geschlossen wird der Körper mit dem Deckel.
 Dies ist in \autoref{fig:case-high} dargestellt.
-Die beiden Teile sollen nur über das zusammenstecken halten.
+Die beiden Teile sollen nur über das Zusammenstecken miteinander verbunden werden.
 Am Deckel ist auch der Mechanismus zum Anklemmen des Gehäuses an Papier angebracht.
 Er besteht aus einem Steg, der schräg zum Gehäusekörper zeigt.
-Zudem sind Noppen angebracht, die die Festigkeit erhöhen sollen.
+Zudem sind Noppen angebracht, die die Grifffestigkeit erhöhen sollen.
 
-\begin{figure}
+\begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/high_body.png}
 	\centering
 	\caption{Körper des Gehäuse-Modell mit Controller auf der Batterie}
 	\label{fig:case-high-body}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/high_complete.png}
 	\centering
 	\caption{Gehäuse-Modell mit Controller auf der Batterie}
 	\label{fig:case-high}
 \end{figure}
 
+\FloatBarrier
+
 \subsection{Layout Controller neben der Batterie}
 Das zweite Layout ist in \autoref{fig:case-lay-beside} abgebildet.
 Der Unterschied zum ersten Layout ist, dass der Mikrocontroller neben der Batterie platziert wird.
 
-\begin{figure}
+\begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/pico_beside_battery.jpg}
 	\centering
 	\caption{Gehäuse-Layout mit Mikrocontroller neben der Batterie}
@@ -359,37 +361,38 @@ Dieser ist demnach nicht mehr im Deckel mit enthalten.
 
 Der Körper ist in \autoref{fig:case-low-body} dargestellt.
 Er bietet einen Platz für die Batterie und den Mikrocontroller nebeneinander.
-Für den USB-Port ist ebenfalls in der Außenwand eine Ausparung vorhanden.
+Für den \gls{USB}-Port ist ebenfalls in der Außenwand eine Ausparung vorhanden.
 Kleine Erhebungen halten die Teile am Platz und verhindern ein umherschieben.
 In diesen Erhebungen sind auch Löcher für Schrauben inkludiert und auf der Unterseite Platz für eine Mutter.
-Der größere Einschnitt in der Unterseite ist für den Clip bestimmt. 
+Der größere Einschnitt in der Unterseite ist für den Clip bestimmt.
 
-\begin{figure}
+\begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/low_body.jpg}
 	\centering
 	\caption{Körper des Gehäuse-Modell mit Controller neben der Batterie}
 	\label{fig:case-low-body}
 \end{figure}
 
-Der Deckel des Modells ist ähnlich dem Körper, besizt aber keine Ausßenwände.
+Der Deckel des Modells ist ähnlich dem Körper, besizt aber keine Außenwände.
 Er ist in \autoref{fig:case-low-lid} abgebildet.
 Die kleinen Erhebungen des Deckels fixieren die Teile innerhalb des Gehäuses auf der vertikalen Achse.
 Statt Platz für eine Mutter auf der Aussenseite der Erhebungen mit Schraubenlöchern, ist eine Einsenkung für den Schraubkopf vorgesehen.
 
-\begin{figure}
+\begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/low_lid.png}
 	\centering
 	\caption{Deckel des Gehäuse-Modell mit Controller neben der Batterie}
 	\label{fig:case-low-lid}
 \end{figure}
 
-Angebracht ist der Clip an dem Einschnitt im Körper und fixiert durch die zwei danebenliegenden Schraubenlöchern.
-Die Schraube geht zwischen den Erhebungen des Körpers und des Deckels durch die in \autoref{fig:case-low-clip} dargestellten Flügel des Clips. 
+Angebracht ist der Clip an dem Einschnitt im Körper und fixiert durch die zwei danebenliegenden Schraubenlöcher.
+Die Schraube wird dabei zwischen den Erhebungen des Körpers und des Deckels, sowie durch die in
+\autoref{fig:case-low-clip} dargestellten Flügel des Clips geführt.
 Für die Fixierung an einem Papierstapel wurde die gleiche Technik, wie für das erste Layout verwendet.
-Der einzige Unterschied sind die fehlenden Noppen.
-Diese sind geplant im Nachhinein aufzukleben.
+Um den 3D-Druck zu simplifizieren wurden bei diesem Entwurf jedoch keine Noppen an den Clip und an
+den Körper des Gehäuses angebracht. Diese werden nach dem Druck aufgeklebt.
 
-\begin{figure}
+\begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/low_clip.png}
 	\centering
 	\caption{Clip des Gehäuse-Modell mit Controller neben der Batterie}
