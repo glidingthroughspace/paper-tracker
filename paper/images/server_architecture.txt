@@ -4,18 +4,6 @@ package cmd {
   }
 }
 
-package router {
-  class HttpRouter {
-    NewHttpRouter()
-    Serve(String addr)
-  }
-  
-  class CoapRouter {
-    NewCoapRouter()
-    Serve(String network, String addr)
-  }
-}
-
 class Utils {
   SendMail(String title, String content)
   MeanOf(int values...) : float
@@ -31,6 +19,18 @@ class Config {
   GetConfigValue(String id) : any
 }
 
+package router {
+  class HttpRouter {
+    NewHttpRouter()
+    Serve(String addr)
+  }
+  
+  class CoapRouter {
+    NewCoapRouter()
+    Serve(String network, String addr)
+  }
+}
+
 package managers {
   class LearningManager {
     int learnCount
@@ -42,6 +42,7 @@ package managers {
     FinishLearning(int trackerID, int roomID)
     CancelLearning(int trackerID)
     GetLearningStatus(int trackerID)
+    NewLearningTrackingData(int trackerID, ScanRes[] scanResults)
   }
   
   class RoomManager {
