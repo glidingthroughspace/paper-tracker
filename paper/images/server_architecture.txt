@@ -16,12 +16,27 @@ package router {
   }
 }
 
+class Utils {
+  SendMail(String title, String content)
+  MeanOf(int values...) : float
+  IsOddAmountOfValues(int values...) : bool
+  MedianOf(int values...) : float
+  FirstQuartileOf(int values...) : float
+  ThirdQuartileOf(int values...) : float
+  MinOf(int values...) : int
+  MaxOf(int values...) : int
+}
+
+class Config {
+  GetConfigValue(String id) : any
+}
+
 package managers {
   class LearningManager {
     int learnCount
     int learnSleepSec
     
-    CreateLearningManager(ScanResultRepository scanResRepo, int learnCount, int learnSleepSec) : LearningManager
+    CreateLearningManager(ScanResultRepository scanResRepo) : LearningManager
     GetLearningManager() : LearningManager
     StartLearning(int trackerID)
     FinishLearning(int trackerID, int roomID)
@@ -44,8 +59,14 @@ package managers {
   	int idleSleepSec
     int learningSleepSec
     int trackingSleepSec
+    int sendInfoSleepSec
+    int sendInfoIntervalSec
+    int maxSleepSec
+    int workStartHour
+    int workEndHour
+    bool workOnWeekend
   
-    CreateTrackerManager(TrackerRepository trackerRep, int idleSleepSec, int learningSleepSec, int trackingSleepSec) : TrackerManager
+    CreateTrackerManager(TrackerRepository trackerRep) : TrackerManager
     GetTrackerManager() : TrackerManager
     NotifyNewTracker() : Tracker
     GetTrackerByID(int trackerID) : Tracker
@@ -57,6 +78,7 @@ package managers {
     UpdateFromResponse(int trackerID, TrackerCmdResponse resp)
     UpdateRoom(int trackerID, int roomID)
     NewTrackingData(int trackerID, scanRes ScanResult[])
+    InWorkingHours() : bool
   }
   
   class TrackingManager {
@@ -71,6 +93,7 @@ package managers {
     GetWorkflowExecManager() : WorkflowExecManager
     GetExecCountByTemplate(int templateID) : int
     GetAllExec() : WorkflowExec[]
+    GetExecsByTemplate() : WorkflowExec[]
     GetExec(int execID) : WorkflowExec
     GetExecByTrackerID(int trackerID) : WorkflowExec
     StartExecution(WorkflowExec exec)
@@ -96,6 +119,12 @@ package managers {
     NumberOfStepsRefferingToRoom(int roomID)
     CreateNewRevision(int templateID, String revisionLabel)
     DeleteTemplate(int templateID)
+  }
+  
+  class ExportManager {
+    CreateExportManager() : ExportManager
+    GetExportManager() : ExportManager
+    GenerateExport(writer Writer)
   }
 }
 
@@ -174,12 +203,16 @@ TrackerManager --> TrackerRepository
 WorkflowExecManager --> WorkflowExecRepository
 WorkflowTemplateManager --> WorkflowTemplateRepository
 
-Main ..> LearningManager : <creates>
-Main ..> RoomManager : <creates>
-Main ..> TrackerManager : <creates>
-Main ..> TrackingManager : <creates>
-Main ..> WorkflowExecManager : <creates>
-Main ..> WorkflowTemplateManager : <creates>
+Main ..> managers : <creates>
 Main .> HttpRouter : <starts>
 Main .> CoapRouter : <starts>
+
+Main -[hidden]- ExportManager
+
+WorkflowTemplateManager -[hidden]- RoomManager
+TrackingManager -[hidden]- LearningManager
+TrackerManager -[hidden]- WorkflowExecManager
+
+WorkflowExecRepository -[hidden]- ScanResultRepository
+RoomRepository -[hidden]- TrackerRepository
 @enduml

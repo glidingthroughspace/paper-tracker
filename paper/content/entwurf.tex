@@ -22,7 +22,10 @@ Sie kommuniziert ebenfalls mit der Backend-Anwendung und fragt von dieser Inform
 
 Die Entwürfe der drei Komponenten werden in den nachfolgenden Abschnitten im Detail erläutert.
 
-\begin{figure}
+Zusätzlich zu den drei Hauptkomponenten soll es eine Tool geben, dass das Setup eines Hardware-Trackers erleichtert.
+Dieses Tool, genannt \enquote{Flasher}, dient zur Konfiguration der Firmware und dem Programmieren der Firmware auf die Hardware.
+
+\begin{figure}[h!tbp]
 	\includegraphics[width=\textwidth]{images/architecture_de.png}
 	\centering
 	\caption{Architektur des Paper-Tracker}
@@ -65,6 +68,29 @@ Empfang zum jeweiligen \gls{AP} ist.
 Da die Positionsdaten ohnehin zur Auswertung an das Backend übertragen werden müssen, wofür eine
 \gls{WLAN}-Verbindung notwendig ist, wird diese Methode eingesetzt.
 Die gesammelten Daten werden dann im Anschluss an das Backend übermittelt.
+\TODO{Papers zu RSSI-Basiertem Tracking einfügen (Microsoft)}
+
+Als Metrik für das Tracking über \gls{WLAN} können die in \autoref{sec:grundlagen-wlan} erläuterten
+\gls{RSSI} oder \gls{RCPI} verwendet werden. Da diese Werte jedoch nicht unbedingt proportional zum
+Abstand zum \gls{AP} wachsen oder fallen, da Funksignale durch unterschiedliche Materialien
+unterscheidlich gedämpft werden, können sie nicht als absolut angesehen und verwendet werden.
+
+Aus diesem Grund muss für jeden Raum die vorherrschende \gls{WLAN}-Umgebung in das System
+\enquote{eingelernt} werden. Zu diesem Zweck gibt es einen eigenen Modus in der Anwendung, in
+welchem ein ausgewählter Tracker ständig die verfügbaren \glspl{AP} und die zu diesen ermittelte
+Signalstärke an den Server sendet. Dieser sammelt die Messwerte und aggregierte sie nach Abschluss
+der Messung, also nach einem definierten Zeitintervall. Aggregriert werden die Metriken so, dass aus
+den \gls{RSSI}-Werten für jeden \gls{AP} das Minimum und Maximum, sowie das erste und dritte Quartil
+und Median und arithmetisches Mittel berechnet werden.
+
+Soll nun ein Tracker lokalisiert werden, scannt dieser die aktuelle \gls{WLAN}-Umgebung und sendet
+die Scanergebnisse an den Server. Dieser berechnet nun für jeden bereits eingelernten Raum einen
+\textit{Score}. Der Score berechnet sich aus der Übereinstimmung der nun gemessenen \glspl{RSSI} mit
+den vorher eingelernten. Hierfür wird über jeden für den Raum ermittelten \gls{AP} iteriert und
+abhängig davon, in welches statistische Maß der neue Messwert fällt, Punkte vergeben. Die konkrete
+Punkteverteilung ist hierbei noch nicht spezifiziert, es handelt sich um Parameter, welche genutzt
+werden können, um die Genauigkeit des Trackings zu optimieren. Daher werden diese in
+\autoref{chap:implementierung} beschrieben.
 
 \TODO{Lifecycle des Paper-Trackers erläutern}
 
@@ -76,7 +102,12 @@ Das resultierende UML-Diagramm ist in Abbildung \ref{fig:uml} abgebildet.
 
 Die zentrale Klasse des Diagramms bildet die \enquote{Tracker}-Klasse.
 Sie modelliert einen Hardware-Tracker.
-Neben einigen Attributen, wie dem Label, der Batteriestatus und einigen gespeicherten Zeitstempeln, besitzt sie eine Referenz auf einen Status.
+Einige Attribute des Trackers sind eine ID, das Label, der Batteriestatus, eine Flag, ob ein niedriger Batteriestatus notifiziert wurde
+und einige Zeitstempel.
+Die Zeitstempel geben zum Beispiel an, wann zuletzt ein Kommando abgeholt wurde oder wann zuletzt der Batteriestatus aktualisiert wurde.
+Mit Hilfe der letzten dem Tracker gesendeten Zeit zum Schlafen kann mit der Funktion \enquote{GetSecondsToNextPoll()} abgefragt werden,
+wann sich der Tracker vorraussichtlich das nächste Kommando abholt.
+Neben den Attributen besitzt sie eine Referenz auf einen Status.
 Dieser Status gibt an, zu was der Tracker zur Zeit verwendet wird und in welchen anderen Zustand gewechselt werden kann.
 
 Es gibt vier verschiedene Zustände, die in Integern kodiert sind:
@@ -127,7 +158,7 @@ Die Klasse \enquote{ExecStepInfo} besitzt Informationen über einzelne Schritte 
 Dies sind zum einen die Start-/Endzeit des Schrittes sowie, ob der Schritt übersprungen wurde, und zum anderen die \enquote{Decision}-Information.
 Der \enquote{Decision} String wird im Falle von mehreren Auswahlmöglichkeiten in einem Workflow dazu genutzt, in der Ausführung den richtigen Weg zu wählen.
 
-\begin{figure}
+\begin{figure}[h!tbp]
 	\includegraphics[width=\textwidth]{images/uml.png}
 	\centering
 	\caption{UML-Diagramm für die Backend-Anwendung}
@@ -212,6 +243,7 @@ DELETE        & /room/:id                       & Raum löschen                 
 GET           & /tracker                        & Auflistung der Tracker              & -                                                           & List aller Tracker                                                      \\ \hline
 PUT           & /tracker/:id                    & Tracker aktualisieren               & Tracker                                                     & Aktualisierter Tracker                                                  \\ \hline
 DELETE        & /tracker/:id                    & Tracker löschen                     & -                                                           & -                                                                       \\ \hline
+GET           & /tracker/:id/next\_poll          & Zeit bis nächste Kommando Abholung & -                                                & Sekunden                                                                \\ \hline
 POST          & /tracker/:id/learn              & Lernen mit Tracker starten          & -                                                           & Lernzeit                                                                \\ \hline
 GET           & /tracker/:id/learn              & Lern Status abfragen                & -                                                           & \begin{tabular}[c]{@{}l@{}}Abgeschlossen\\ Gefundene SSIDs\end{tabular} \\ \hline
 DELETE        & /tracker/:id/learn              & Lernen abbrechen                    & -                                                           & -                                                                       \\ \hline
@@ -230,7 +262,7 @@ POST          & /workflow/template/revision     & Template Revision erstellen   
 GET           & /workflow/exec                  & Auflistung der Ausführungen         & -                                                           & Execution                                                               \\ \hline
 POST          & /workflow/exec                  & Ausführung erstellen                & Execution                                                   & Erstelle Execution                                                      \\ \hline
 POST          & /workflow/exec/:id/progress/:id & Ausführung zu Schritt progressieren & -                                                           & -                                                                       \\ \hline
-POST          & /workflow/exec/:id/cancel       & Ausführung abbrechen                & -                                                           & -
+POST          & /workflow/exec/:id/cancel       & Ausführung abbrechen                & -                                                           & - \\ \hline
 GET           & /export.xlsx                    & Datenexport für Analyse             & -                                                           & Excel-Datei
 \end{longtable}
 \end{landscape}
@@ -239,14 +271,7 @@ GET           & /export.xlsx                    & Datenexport für Analyse      
 \subsubsection{Software-Architektur}
 \FloatBarrier
 Die Architektur des Backend-Servers ist in folgendem Klassendiagramm \ref{fig:software-architecture} dargestellt.
-
-\begin{figure}
-	\includegraphics[width=\textwidth]{images/server_architecture.png}
-	\centering
-	\caption{Software-Architektur für die Backend-Anwendung}
-	\label{fig:software-architecture}
-\end{figure}
-\TODO{Layout verbessern, Erstellung der DB Verbindung reinpacken}
+\TODO{Erstellung der DB Verbindung reinpacken}
 
 Generell kann die Architektur in drei verschiedene Schichten aufgeteilt werden.
 Die erste Schicht bildet das Paket \enquote{router}, die zweite Schicht das Paket \enquote{managers} und die dritte Schicht das Paket \enquote{repositories}.
@@ -261,6 +286,8 @@ Das \enquote{managers} Paket beinhaltet sechs verschiedene Manager, die die Busi
 Ein Beispiel ist der \enquote{TrackerManager}, über den Tracker angelegt, abgefragt, verändert und auch gelöscht werden können.
 Weitere Methoden für z.B. das Abfragen eines Kommandos für einen Tracker sind auch beinhaltet.
 Alle Manager sind als Singleton implementiert so, dass sie sich auch untereinander problemlos aufrufen können.
+Konfiguriert werden die Manager über die global verfügbare \enquote{Config} Klasse.
+Über diese Klasse können verschiedene Einstellungen über einzigartige Identifizierer abgefragt werden.
 
 Die unterste Schicht bildet das \enquote{repositories} Paket.
 Dieses enthält verschiedene Datenbank-Repositories, die die Datenbank und damit die Datenpersistenz des Servers abbilden.
@@ -268,6 +295,54 @@ Alle Methoden eines Repository bilden direkte Anfragen an die Datenbank.
 Dabei ist ein Repository meist für eine Modellklasse verantwortlich.
 
 Die main-Klasse ist für das Starten des Servers und das Erstellen der einzelnen Komponenten verantwortlich.
+In dieser wird zum Beispiel auch die Konfiguration eingelesen und initialisiert.
+In der Utils-Klasse sind einige verschiedene Hilfsmittel untergebracht.
+Dies sind zum einen das Versenden von E-Mails und zum anderen einige mathematische Hilfsfunktionen.
+
+\begin{sidewaysfigure}
+	% Ist nur .9\textheight breit, damit der Titel noch auf die seite passt
+	\includegraphics[width=.9\textheight]{images/server_architecture.png}
+	\caption{Software-Architektur für die Backend-Anwendung}
+	\label{fig:software-architecture}
+\end{sidewaysfigure}
+
+\subsubsection{Daten-Export}
+
+Für einen Daten-Export muss zuerst ausgewählt werden, welche Daten exportiert werden sollen.
+Da der Export des Paper-Trackers bei einer Optimierung der Workflows helfen soll, müssen hauptsächlich Daten der
+Klassen \enquote{WorkflowTemplate}/\enquote{WorkflowExecution} und derem Umfeld exportiert werden.
+Konkret wären dies die Templates, deren Ausführungen inklsuive detailierter Infos der Schritte (\enquote{ExecStepInfo}).
+Diese Informationen können helfen, langsame oder nicht benötigte Schritte eines Workflows zu identifizieren.
+
+Weiter sollen auch Informationen zu den Revisionen eines Templates exportiert werden.
+Anhand dieser Informationen kann verfolgt werden, ob Anpassungen eines Workflows einen Erfolg gebracht haben.
+Dazu müssen zu den Revisionen einige Metriken erfasst werden.
+Die zu erfassenden Metriken sind:
+\begin{itemize}
+	\item Anzahl der Ausführungen
+	\item Prozentzahl der erfolgreich abgeschlossenen Ausführungen
+	\item Durchschnittliche Dauer einer Ausführung
+\end{itemize}
+
+Mit der Auswahl der Daten kann auch das Format des Exports ausgewählt werden.
+Alle zu exportierenden Daten können sehr gut in Tabellen exportiert werden.
+Dies führt zu hauptsächlich zwei Exportformate: \gls{CSV} und Excel.
+
+\gls{CSV} ist ein weit verbreitetes und simples Format, da es hauptsächlich mit Kommas (',') und Zeilenumbrüchen arbeitet.
+Dadurch ist es sehr einfach zu erstellen und einzulesen.
+Die meisten Tools, die mit solchen Daten arbeiten, haben die Möglichkeit \gls{CSV}-Dateien einzulesen.
+Ein großer Nachteil von \gls{CSV} ist jedoch, dass es nicht standardisiert ist und mehrere Arten
+mit kleinen Unterschieden existieren \cite{rfc4180}.
+Im RFC-4180 werden lediglich scheinbar übereinstimmende Teile der verschiedenen Implementierungen dargestellt.
+Nach diesen gibt es einen weiteren Nachteil: Pro \gls{CSV}-Datei kann nur eine Tabelle gespeichert werden.
+Dies würde für den Export des Paper-Trackers bedeuten, dass entweder mehrere Dateien oder eine gebündelte Datei angeboten werden muss.
+
+Excel oder genauer das von Excel verwendete \enquote{xlsx}-Format ist ein offenes und standardisiertes Format
+für Kalkulationstabellen \cite{iso29500}.
+Da es ein offenes Format ist, kann es auch von anderen Programmen, wie Libre Office, geöffnet und bearbeitet werden.
+Es muss nicht, wie bei \gls{CSV} erst importiert werden.
+Auch unterstützt es mehrere Tabellen in einer Datei, welches den Download des Exports vereinfacht.
+Aus diesen Gründen wird Excel als Exportformat für den Paper-Tracker verwendet.
 
 \FloatBarrier
 \subsection{App für Mobilgeräte} \label{sec:app}
@@ -369,20 +444,20 @@ In folgender \autoref{tab:detail-attributes} ist gelistet, für welche Klassen w
 \begin{tabular}{l|l|r}
 \textbf{Klasse}  & \textbf{Attribut} & \multicolumn{1}{l}{\textbf{Editierbar}} \\ \hline
 Tracker          &                   &                                         \\
-                 & Label             & Ja                                      \\
-                 & Raum              & Nein                                    \\
-                 & Batterie          & Nein                                    \\
-                 & Status            & Nein                                    \\ \hline
+								 & Label             & Ja                                      \\
+								 & Raum              & Nein                                    \\
+								 & Batterie          & Nein                                    \\
+								 & Status            & Nein                                    \\ \hline
 Raum             &                   & \multicolumn{1}{l}{}                    \\
-                 & Label             & Ja                                      \\
-                 & Eingelernt        & Über Button                             \\ \hline
+								 & Label             & Ja                                      \\
+								 & Eingelernt        & Über Button                             \\ \hline
 WorkflowTemplate &                   & \multicolumn{1}{l}{}                    \\
-                 & Label             & Ja                                      \\
-                 & Initiale Revision & Nein                                    \\
-                 & Schritte          & siehe Workflow-Darstellung              \\ \hline
+								 & Label             & Ja                                      \\
+								 & Initiale Revision & Nein                                    \\
+								 & Schritte          & siehe Workflow-Darstellung              \\ \hline
 WorkflowExec     &                   & \multicolumn{1}{l}{}                    \\
-                 & Status            & Nein                                    \\
-                 & Schritte          & Nein
+								 & Status            & Nein                                    \\
+								 & Schritte          & Nein
 \end{tabular}
 \caption{Dargestellte Attribute der Klassen}
 \label{tab:detail-attributes}
@@ -470,6 +545,7 @@ Dafür sind die folgenden Inhalte angedacht:
 	\item Funktionsweise des Einlernen eines Raumes
 	\item Template-Liste und das Erstellen eines Templates
 	\item Editieren eines Templates in der Detailseite des Templates
+	\item Erstellen einer neuen Revision eines Workflow Templates
 	\item Workflow-Ausführungs-Liste und das Starten einer neuen Ausführung
 	\item Menü mit Aktionen zu einem Schritt in einer Workflow-Ausführung
 \end{enumerate}
@@ -492,5 +568,27 @@ Eine Übersicht der zu verwendenden Icons ist in \autoref{fig:ui-icons} gegeben.
 	\caption{Icons für Klassen}
 	\label{fig:ui-icons}
 \end{figure}
-\TODO{Schriftgröße einheitlich}
-\TODO{WorkflowExec -> unklar für Leser}
+
+\subsection{Flasher-Tool}
+Da das Flasher-Tool nicht zu den Hauptkomponenten des Paper-Trackers zählt, gibt es keinen konkreten Entwurf zum \gls{UI}-Design.
+Trotzdem muss konkret definiert werden, welche Funktionalitäten das Tool beinhaltet.
+
+Das Tool muss plattformübergreifen mit möglichst wenigen externen Abhängigkeiten gestartet werden können.
+Mit dem Start der Anwendung soll der Nutzer in einem \gls{GUI} die Konfigurationsdaten für die Firmware eingeben können.
+Die benötigten Konfigurationswerte sind in der folgenden Liste dargestellt:
+
+\begin{description}
+	\item[\gls{WLAN} \gls{SSID}] \hfill \\
+		Name des \gls{WLAN} Netzwerkes, mit dem sich der Tracker verbinden soll
+	\item[\gls{WLAN} Nutzername] \hfill \\
+		Nutzername, mit dem sich der Tracker am \gls{WLAN} anmelden soll. Diese Konfiguration kann freigelassen werden, falls nur ein Passwort für die Anmeldung ausreicht.
+	\item[\gls{WLAN} Passwort] \hfill \\
+		Passwort, mit dem sich der Tracker am \gls{WLAN} anmelden soll.
+	\item[Backend-Server \gls{IP}] \hfill \\
+		Die IP-Adresse, unter welcher der Backend-Server aus dem angegebenen \gls{WLAN}-Netz erreichbar ist.
+\end{description}
+
+Neben den Konfigurationsdaten müssen noch der Ort der Firmware auf dem ausführenden Computer und der Port, an welchem die Hardware verbunden ist, angegeben werden.
+
+Nachdem alle Konfigurationsdaten angegeben sind, soll das Tool die Hardware mit den Werten programmieren.
+Dabei soll dem Nutzer der aktuelle Prozess in Form eines Fortschrittsbalken oder durch Anzeige von Protokollen visualisiert werden.

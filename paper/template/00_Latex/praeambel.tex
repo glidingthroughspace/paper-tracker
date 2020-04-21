@@ -12,6 +12,7 @@
 \contentsmargin{0.725cm}         % Abstand im Inhaltsverzeichnis zw. Punkt und Seitenzahl
 \usepackage[hidelinks, breaklinks=true]{hyperref}
 \urlstyle{same}                  % Aktuelle Schrift auch für URLs
+\usepackage{rotating} % Um figuren mit sidewaysfigure zu rotieren
 
 % ---- Abstand verkleinern von der Überschrift
 \renewcommand*{\chapterheadstartvskip}{\vspace*{.5\baselineskip}}
@@ -36,7 +37,7 @@
 \setcounter{biburlnumpenalty}{3000}     % Umbruchgrenze für Zahlen
 \setcounter{biburlucpenalty}{6000}      % Umbruchgrenze für Großbuchstaben
 \setcounter{biburllcpenalty}{9000}      % Umbruchgrenze für Kleinbuchstaben
-\DeclareNameAlias{default}{last-first}  % Nachname vor dem Vornamen
+\DeclareNameAlias{default}{family-given}  % Nachname vor dem Vornamen
 \AtBeginBibliography{\renewcommand{\multinamedelim}{\addslash\space
 }\renewcommand{\finalnamedelim}{\multinamedelim}}  % Semikolon zwischen den Autorennamen
 
