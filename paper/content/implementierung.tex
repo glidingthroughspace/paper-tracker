@@ -162,12 +162,13 @@ Damit die einzelnen Einheiten des Servers getrennt voneinander getestet werden k
 Diese ermöglicht es, Stellvertreterobjekte für in diesem Fall Manager und Repositories zu erstellen.
 Die Stellvertreterobjekte können dann für jeden einzelnen Testfall mit zu erwarteten Parametern und einem Rückgabewert
 konfiguriert werden.
-Da \enquote{gomock} nur von Interfaces erstellen kann, müssen für alle Manager und Repositories eigene Interfaces erstellt werden.
+Da \enquote{gomock} nur aus Interfaces Stellvertreterobjekte erstellen kann, müssen für alle Manager
+und Repositories eigene Interfaces erstellt werden.
 Deshalb gibt es, im Gegensatz zum Entwurf, für jeden Manager ein Interface und eine Implementierungsklasse.
 Für die Tests wird dann die Instanz des Singletons auf ein Stellvertreterobjekt gesetzt.
 
-Mit diesen Techniken wurden einige Tests für die Manager-, Modell- und Utility-Klassen geschrieben.
-Es sind somit ca. 20\% der Manager, ca. 27\% der Modelle und ca. 68\% der Utility getestet. \TODO{MEHR!}
+Mit diesen Techniken wurden einige Tests für die Manager-, Modell- und Utilities-Klassen geschrieben.
+Es sind somit ca. 20\% der Manager, ca. 27\% der Modelle und ca. 68\% der Utilities getestet. \TODO{MEHR!}
 
 \section{Hardware und Firmware}
 
