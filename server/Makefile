@@ -16,6 +16,12 @@ clean:
 	- rm paper-tracker.db
 
 mock:
+	mockgen -source=managers/export_manager.go -package=mock -destination=mock/export_manager.go
+	mockgen -source=managers/learning_manager.go -package=mock -destination=mock/learning_manager.go
+	mockgen -source=managers/room_manager.go -package=mock -destination=mock/room_manager.go
+	mockgen -source=managers/tracker_manager.go -package=mock -destination=mock/tracker_manager.go
+	mockgen -source=managers/tracking_manager.go -package=mock -destination=mock/tracking_manager.go
+	mockgen -source=managers/workflow_exec_manager.go -package=mock -destination=mock/workflow_exec_manager.go
 	mockgen -source=repositories/tracker_repository.go -package=mock -destination=mock/tracker_repository_mock.go
 	mockgen -source=repositories/scan_result_repository.go -package=mock -destination=mock/scan_result_repository_mock.go
 	mockgen -source=repositories/room_repository.go -package=mock -destination=mock/room_repository_mock.go

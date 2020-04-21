@@ -8,26 +8,32 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var trackingManager *TrackingManager
+var trackingManager TrackingManager
 
-type TrackingManager struct {
+type TrackingManager interface {
+	GetRoomMatchingBest(rooms []*models.Room, scanResults []*models.ScanResult) *models.Room
+	ConsolidateScanResults(scanResults []*models.ScanResult) []models.BSSIDTrackingData
+	ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[*models.Room]float64
 }
 
-func CreateTrackingManager() *TrackingManager {
+type TrackingManagerImpl struct {
+}
+
+func CreateTrackingManager() TrackingManager {
 	if trackingManager != nil {
 		return trackingManager
 	}
 
-	trackingManager = &TrackingManager{}
+	trackingManager = &TrackingManagerImpl{}
 
 	return trackingManager
 }
 
-func GetTrackingManager() *TrackingManager {
+func GetTrackingManager() TrackingManager {
 	return trackingManager
 }
 
-func (*TrackingManager) ConsolidateScanResults(scanResults []*models.ScanResult) []models.BSSIDTrackingData {
+func (*TrackingManagerImpl) ConsolidateScanResults(scanResults []*models.ScanResult) []models.BSSIDTrackingData {
 	scanResultsPerBSSID := make(map[string][]*models.ScanResult)
 	for _, v := range scanResults {
 		scanResultsPerBSSID[v.BSSID] = append(scanResultsPerBSSID[v.BSSID], v)
@@ -50,7 +56,7 @@ func (*TrackingManager) ConsolidateScanResults(scanResults []*models.ScanResult)
 	return trackingData
 }
 
-func (tm *TrackingManager) GetRoomMatchingBest(rooms []*models.Room, scanResults []*models.ScanResult) *models.Room {
+func (tm *TrackingManagerImpl) GetRoomMatchingBest(rooms []*models.Room, scanResults []*models.ScanResult) *models.Room {
 	var bestMatch *models.Room = nil
 	var bestScore float64 = -1.0
 	scoredRooms := tm.ScoreRoomsForScanResults(rooms, scanResults)
@@ -69,7 +75,7 @@ func (tm *TrackingManager) GetRoomMatchingBest(rooms []*models.Room, scanResults
 	return bestMatch
 }
 
-func (tm *TrackingManager) ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[*models.Room]float64 {
+func (tm *TrackingManagerImpl) ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[*models.Room]float64 {
 	scoredRooms := make(map[*models.Room]float64)
 	for _, room := range rooms {
 		scoredRooms[room] = tm.ScoreRoomForScanResults(room, scanResults)
@@ -79,7 +85,7 @@ func (tm *TrackingManager) ScoreRoomsForScanResults(rooms []*models.Room, scanRe
 
 // ScoreRoomForScanResults calculates a score of how likely the scan results are from the given
 // room. The larger the returned score, the greater the likelyness of match.
-func (*TrackingManager) ScoreRoomForScanResults(room *models.Room, scanResults []*models.ScanResult) float64 {
+func (*TrackingManagerImpl) ScoreRoomForScanResults(room *models.Room, scanResults []*models.ScanResult) float64 {
 	score := 0.0
 	for _, trackingData := range room.TrackingData {
 		srs := getScanResultsForBSSID(trackingData.BSSID, scanResults)

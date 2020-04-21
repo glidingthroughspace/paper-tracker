@@ -15,7 +15,7 @@ var _ = Describe("WorkflowTemplateManager", func() {
 		mockWorkflowTemplateRep *mock.MockWorkflowTemplateRepository
 		mockWorkflowExecRep     *mock.MockWorkflowExecRepository
 		mockCtrl                *gomock.Controller
-		manager                 *WorkflowTemplateManager
+		manager                 *WorkflowTemplateManagerImpl
 
 		recordNotFoundErr = errors.New("record not found")
 		testErr           = errors.New("error")
@@ -33,7 +33,7 @@ var _ = Describe("WorkflowTemplateManager", func() {
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockWorkflowTemplateRep = mock.NewMockWorkflowTemplateRepository(mockCtrl)
 		mockWorkflowExecRep = mock.NewMockWorkflowExecRepository(mockCtrl)
-		manager = CreateWorkflowTemplateManager(mockWorkflowTemplateRep)
+		manager = CreateWorkflowTemplateManager(mockWorkflowTemplateRep).(*WorkflowTemplateManagerImpl)
 		CreateWorkflowExecManager(mockWorkflowExecRep)
 
 		gormNotFound := func(err error) bool {

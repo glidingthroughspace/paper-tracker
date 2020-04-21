@@ -9,26 +9,30 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-var exportManager *ExportManager
+var exportManager ExportManager
 
-type ExportManager struct {
+type ExportManager interface {
+	GenerateExport(writer io.Writer) error
 }
 
-func CreateExportManager() *ExportManager {
+type ExportManagerImpl struct {
+}
+
+func CreateExportManager() ExportManager {
 	if trackingManager != nil {
 		return exportManager
 	}
 
-	exportManager = &ExportManager{}
+	exportManager = &ExportManagerImpl{}
 
 	return exportManager
 }
 
-func GetExportManager() *ExportManager {
+func GetExportManager() ExportManager {
 	return exportManager
 }
 
-func (mgr *ExportManager) GenerateExport(writer io.Writer) (err error) {
+func (mgr *ExportManagerImpl) GenerateExport(writer io.Writer) (err error) {
 	file := xlsx.NewFile()
 
 	err = mgr.fillExportFile(file)
@@ -48,7 +52,7 @@ type templateExport struct {
 	meanCompletedExecTimeHrs float64
 }
 
-func (mgr *ExportManager) fillExportFile(file *xlsx.File) (err error) {
+func (mgr *ExportManagerImpl) fillExportFile(file *xlsx.File) (err error) {
 	templates, err := GetWorkflowTemplateManager().GetAllTemplates()
 	if err != nil {
 		log.WithError(err).Error("Failed to get templates to export")
@@ -90,7 +94,7 @@ func (mgr *ExportManager) fillExportFile(file *xlsx.File) (err error) {
 	return
 }
 
-func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, sheet *xlsx.Sheet) (export *templateExport, err error) {
+func (mgr *ExportManagerImpl) fillExportSheet(template *models.WorkflowTemplate, sheet *xlsx.Sheet) (export *templateExport, err error) {
 	// Set Header
 	sheet.Cell(0, 0).SetString("Label of execution")
 	sheet.Cell(0, 1).SetString("Status")
@@ -162,7 +166,7 @@ func (mgr *ExportManager) fillExportSheet(template *models.WorkflowTemplate, she
 }
 
 // Create header for step info
-func (mgr *ExportManager) fillStepInfoHeader(sheet *xlsx.Sheet, col int, templateID models.WorkflowTemplateID, stepID models.StepID) {
+func (mgr *ExportManagerImpl) fillStepInfoHeader(sheet *xlsx.Sheet, col int, templateID models.WorkflowTemplateID, stepID models.StepID) {
 	step, err := GetWorkflowTemplateManager().GetStepByID(templateID, stepID)
 	if err != nil {
 		log.WithError(err).WithField("stepID", stepID).Error("Failed to get step to fill stepInfoHeader for export")
@@ -182,7 +186,7 @@ func (mgr *ExportManager) fillStepInfoHeader(sheet *xlsx.Sheet, col int, templat
 	sheet.Cell(0, col+4).SetString(step.Label + " Skipped")
 }
 
-func (mgr *ExportManager) fillRevisionSheet(tmplExports map[models.WorkflowTemplateID]*templateExport, sheet *xlsx.Sheet) (err error) {
+func (mgr *ExportManagerImpl) fillRevisionSheet(tmplExports map[models.WorkflowTemplateID]*templateExport, sheet *xlsx.Sheet) (err error) {
 	// Set Header
 	sheet.Cell(0, 0).SetString("Original Revision Label")
 	sheet.Cell(0, 1).SetString("Template Label")

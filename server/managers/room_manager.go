@@ -7,29 +7,38 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var roomManager *RoomManager
+var roomManager RoomManager
 
-type RoomManager struct {
+type RoomManager interface {
+	CreateRoom(room *models.Room) error
+	GetRoomByID(roomID models.RoomID) (*models.Room, error)
+	GetAllRooms() ([]*models.Room, error)
+	SetRoomLearned(roomID models.RoomID, learned bool) error
+	UpdateRoom(room *models.Room) error
+	DeleteRoom(roomID models.RoomID) error
+}
+
+type RoomManagerImpl struct {
 	roomRep repositories.RoomRepository
 }
 
-func CreateRoomManager(roomRep repositories.RoomRepository) *RoomManager {
+func CreateRoomManager(roomRep repositories.RoomRepository) RoomManager {
 	if roomManager != nil {
 		return roomManager
 	}
 
-	roomManager = &RoomManager{
+	roomManager = &RoomManagerImpl{
 		roomRep: roomRep,
 	}
 
 	return roomManager
 }
 
-func GetRoomManager() *RoomManager {
+func GetRoomManager() RoomManager {
 	return roomManager
 }
 
-func (mgr *RoomManager) CreateRoom(room *models.Room) (err error) {
+func (mgr *RoomManagerImpl) CreateRoom(room *models.Room) (err error) {
 	room.ID = 0
 	err = mgr.roomRep.Create(room)
 	if err != nil {
@@ -39,7 +48,7 @@ func (mgr *RoomManager) CreateRoom(room *models.Room) (err error) {
 	return
 }
 
-func (mgr *RoomManager) GetRoomByID(roomID models.RoomID) (room *models.Room, err error) {
+func (mgr *RoomManagerImpl) GetRoomByID(roomID models.RoomID) (room *models.Room, err error) {
 	room, err = mgr.roomRep.GetByID(roomID)
 	if err != nil {
 		log.WithFields(log.Fields{"roomID": roomID, "err": err}).Error("Failed to get room")
@@ -50,7 +59,7 @@ func (mgr *RoomManager) GetRoomByID(roomID models.RoomID) (room *models.Room, er
 	return
 }
 
-func (mgr *RoomManager) GetAllRooms() (rooms []*models.Room, err error) {
+func (mgr *RoomManagerImpl) GetAllRooms() (rooms []*models.Room, err error) {
 	rooms, err = mgr.roomRep.GetAll()
 	if err != nil {
 		log.WithError(err).Error("Failed to get all rooms")
@@ -68,7 +77,7 @@ func (mgr *RoomManager) GetAllRooms() (rooms []*models.Room, err error) {
 	return
 }
 
-func (mgr *RoomManager) fillRoomInfo(room *models.Room) (err error) {
+func (mgr *RoomManagerImpl) fillRoomInfo(room *models.Room) (err error) {
 	fillInfoLog := log.WithField("roomID", room.ID)
 
 	stepCount, err := GetWorkflowTemplateManager().NumberOfStepsReferringToRoom(room.ID)
@@ -85,7 +94,7 @@ func (mgr *RoomManager) fillRoomInfo(room *models.Room) (err error) {
 	return
 }
 
-func (mgr *RoomManager) SetRoomLearned(roomID models.RoomID, learned bool) (err error) {
+func (mgr *RoomManagerImpl) SetRoomLearned(roomID models.RoomID, learned bool) (err error) {
 	err = mgr.roomRep.SetLearnedByID(roomID, learned)
 	if err != nil {
 		log.WithFields(log.Fields{"roomID": roomID, "learned": learned, "err": err}).Error("Failed to set room learned")
@@ -94,7 +103,7 @@ func (mgr *RoomManager) SetRoomLearned(roomID models.RoomID, learned bool) (err 
 	return
 }
 
-func (mgr *RoomManager) UpdateRoom(room *models.Room) (err error) {
+func (mgr *RoomManagerImpl) UpdateRoom(room *models.Room) (err error) {
 	err = mgr.roomRep.Update(room)
 	if err != nil {
 		log.WithFields(log.Fields{"roomID": room.ID, "err": err}).Error("Failed to update room")
@@ -103,7 +112,7 @@ func (mgr *RoomManager) UpdateRoom(room *models.Room) (err error) {
 	return
 }
 
-func (mgr *RoomManager) DeleteRoom(roomID models.RoomID) (err error) {
+func (mgr *RoomManagerImpl) DeleteRoom(roomID models.RoomID) (err error) {
 	deleteLog := log.WithField("roomID", roomID)
 
 	err = mgr.roomRep.Delete(roomID)

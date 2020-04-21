@@ -9,29 +9,45 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var workflowTemplateManager *WorkflowTemplateManager
+var workflowTemplateManager WorkflowTemplateManager
 
-type WorkflowTemplateManager struct {
+type WorkflowTemplateManager interface {
+	CreateTemplate(template *models.WorkflowTemplate) error
+	CreateTemplateStart(templateID models.WorkflowTemplateID, step *models.Step) error
+	AddTemplateStep(templateID models.WorkflowTemplateID, prevStepID models.StepID, decisionLabel string, step *models.Step) error
+	GetAllTemplates() ([]*models.WorkflowTemplate, error)
+	GetTemplate(templateID models.WorkflowTemplateID) (*models.WorkflowTemplate, error)
+	UpdateTemplateLabel(templateID models.WorkflowTemplateID, label string) (*models.WorkflowTemplate, error)
+	GetStepByID(templateID models.WorkflowTemplateID, stepID models.StepID) (*models.Step, error)
+	UpdateStep(templateID models.WorkflowTemplateID, step *models.Step) error
+	DeleteStep(templateID models.WorkflowTemplateID, stepID models.StepID) error
+	CreateNewRevision(oldID models.WorkflowTemplateID, revisionLabel string) (*models.WorkflowTemplate, error)
+	NumberOfStepsReferringToRoom(roomID models.RoomID) (int, error)
+	DeleteTemplate(templateID models.WorkflowTemplateID) error
+	MoveStep(templateID models.WorkflowTemplateID, stepID models.StepID, direction communication.StepMoveDirection) error
+}
+
+type WorkflowTemplateManagerImpl struct {
 	workflowRep repositories.WorkflowTemplateRepository
 }
 
-func CreateWorkflowTemplateManager(workflowRep repositories.WorkflowTemplateRepository) *WorkflowTemplateManager {
+func CreateWorkflowTemplateManager(workflowRep repositories.WorkflowTemplateRepository) WorkflowTemplateManager {
 	if workflowTemplateManager != nil {
 		return workflowTemplateManager
 	}
 
-	workflowTemplateManager = &WorkflowTemplateManager{
+	workflowTemplateManager = &WorkflowTemplateManagerImpl{
 		workflowRep: workflowRep,
 	}
 
 	return workflowTemplateManager
 }
 
-func GetWorkflowTemplateManager() *WorkflowTemplateManager {
+func GetWorkflowTemplateManager() WorkflowTemplateManager {
 	return workflowTemplateManager
 }
 
-func (mgr *WorkflowTemplateManager) CreateTemplate(template *models.WorkflowTemplate) (err error) {
+func (mgr *WorkflowTemplateManagerImpl) CreateTemplate(template *models.WorkflowTemplate) (err error) {
 	template.ID = 0
 	err = mgr.workflowRep.CreateTemplate(template)
 	if err != nil {
@@ -41,7 +57,7 @@ func (mgr *WorkflowTemplateManager) CreateTemplate(template *models.WorkflowTemp
 	return
 }
 
-func (mgr *WorkflowTemplateManager) CreateTemplateStart(templateID models.WorkflowTemplateID, step *models.Step) (err error) {
+func (mgr *WorkflowTemplateManagerImpl) CreateTemplateStart(templateID models.WorkflowTemplateID, step *models.Step) (err error) {
 	workflowStartLog := log.WithFields(log.Fields{"templateID": templateID, "step": step})
 
 	template, err := mgr.GetTemplate(templateID)
@@ -67,7 +83,7 @@ func (mgr *WorkflowTemplateManager) CreateTemplateStart(templateID models.Workfl
 	return
 }
 
-func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTemplateID, prevStepID models.StepID, decisionLabel string, step *models.Step) (err error) {
+func (mgr *WorkflowTemplateManagerImpl) AddTemplateStep(templateID models.WorkflowTemplateID, prevStepID models.StepID, decisionLabel string, step *models.Step) (err error) {
 	addStepLog := log.WithFields(log.Fields{"prevStepID": prevStepID, "step": step})
 
 	template, err := mgr.GetTemplate(templateID)
@@ -119,7 +135,7 @@ func (mgr *WorkflowTemplateManager) AddTemplateStep(templateID models.WorkflowTe
 }
 
 // Returns 1: found step; 2: Is step first step of this or nested steps; 3: Is step last step of this or nested steps
-func (mgr *WorkflowTemplateManager) findStepInSteps(steps []*models.Step, stepID models.StepID) (foundStep *models.Step, isFirstStep bool, isLastStep bool) {
+func (mgr *WorkflowTemplateManagerImpl) findStepInSteps(steps []*models.Step, stepID models.StepID) (foundStep *models.Step, isFirstStep bool, isLastStep bool) {
 	for it, step := range steps {
 		if step.ID == stepID {
 			isFirstStep = it == 0
@@ -138,7 +154,7 @@ func (mgr *WorkflowTemplateManager) findStepInSteps(steps []*models.Step, stepID
 	return
 }
 
-func (mgr *WorkflowTemplateManager) GetAllTemplates() (templates []*models.WorkflowTemplate, err error) {
+func (mgr *WorkflowTemplateManagerImpl) GetAllTemplates() (templates []*models.WorkflowTemplate, err error) {
 	templates, err = mgr.workflowRep.GetAllTemplates()
 	if err != nil {
 		log.WithError(err).Error("Failed to get all raw workflows")
@@ -155,7 +171,7 @@ func (mgr *WorkflowTemplateManager) GetAllTemplates() (templates []*models.Workf
 	return
 }
 
-func (mgr *WorkflowTemplateManager) GetTemplate(templateID models.WorkflowTemplateID) (template *models.WorkflowTemplate, err error) {
+func (mgr *WorkflowTemplateManagerImpl) GetTemplate(templateID models.WorkflowTemplateID) (template *models.WorkflowTemplate, err error) {
 	getWorkflowLog := log.WithField("templateID", templateID)
 
 	template, err = mgr.workflowRep.GetTemplateByID(templateID)
@@ -171,7 +187,7 @@ func (mgr *WorkflowTemplateManager) GetTemplate(templateID models.WorkflowTempla
 	return
 }
 
-func (mgr *WorkflowTemplateManager) fillTemplateInfo(template *models.WorkflowTemplate) (err error) {
+func (mgr *WorkflowTemplateManagerImpl) fillTemplateInfo(template *models.WorkflowTemplate) (err error) {
 	infoLog := log.WithField("templateID", template.ID)
 
 	execCount, err := GetWorkflowExecManager().GetExecCountByTemplate(template.ID)
@@ -193,7 +209,7 @@ func (mgr *WorkflowTemplateManager) fillTemplateInfo(template *models.WorkflowTe
 	return
 }
 
-func (mgr *WorkflowTemplateManager) getStepsFromStart(templateID models.WorkflowTemplateID, startStepID models.StepID, getLog *log.Entry) (steps []*models.Step, err error) {
+func (mgr *WorkflowTemplateManagerImpl) getStepsFromStart(templateID models.WorkflowTemplateID, startStepID models.StepID, getLog *log.Entry) (steps []*models.Step, err error) {
 	getStepsFromStartLog := getLog.WithField("startStepID", startStepID)
 	steps = make([]*models.Step, 0)
 	currentStepID := startStepID
@@ -241,7 +257,7 @@ func (mgr *WorkflowTemplateManager) getStepsFromStart(templateID models.Workflow
 	return
 }
 
-func (mgr *WorkflowTemplateManager) UpdateTemplateLabel(templateID models.WorkflowTemplateID, label string) (template *models.WorkflowTemplate, err error) {
+func (mgr *WorkflowTemplateManagerImpl) UpdateTemplateLabel(templateID models.WorkflowTemplateID, label string) (template *models.WorkflowTemplate, err error) {
 	updateLog := log.WithFields(log.Fields{"templateID": templateID, "newLabel": label})
 
 	template, err = mgr.GetTemplate(templateID)
@@ -259,7 +275,7 @@ func (mgr *WorkflowTemplateManager) UpdateTemplateLabel(templateID models.Workfl
 	return
 }
 
-func (mgr *WorkflowTemplateManager) GetStepByID(templateID models.WorkflowTemplateID, stepID models.StepID) (step *models.Step, err error) {
+func (mgr *WorkflowTemplateManagerImpl) GetStepByID(templateID models.WorkflowTemplateID, stepID models.StepID) (step *models.Step, err error) {
 	getStepLog := log.WithField("stepID", stepID)
 
 	template, err := mgr.GetTemplate(templateID)
@@ -277,7 +293,7 @@ func (mgr *WorkflowTemplateManager) GetStepByID(templateID models.WorkflowTempla
 	return
 }
 
-func (mgr *WorkflowTemplateManager) UpdateStep(templateID models.WorkflowTemplateID, step *models.Step) (err error) {
+func (mgr *WorkflowTemplateManagerImpl) UpdateStep(templateID models.WorkflowTemplateID, step *models.Step) (err error) {
 	updateLog := log.WithFields(log.Fields{"templateID": templateID, "step": step})
 
 	template, err := mgr.GetTemplate(templateID)
@@ -313,7 +329,7 @@ func (mgr *WorkflowTemplateManager) UpdateStep(templateID models.WorkflowTemplat
 	return
 }
 
-func (mgr *WorkflowTemplateManager) DeleteStep(templateID models.WorkflowTemplateID, stepID models.StepID) (err error) {
+func (mgr *WorkflowTemplateManagerImpl) DeleteStep(templateID models.WorkflowTemplateID, stepID models.StepID) (err error) {
 	deleteLog := log.WithFields(log.Fields{"templateID": templateID, "stepID": stepID})
 
 	template, err := mgr.GetTemplate(templateID)
@@ -406,7 +422,7 @@ func (mgr *WorkflowTemplateManager) DeleteStep(templateID models.WorkflowTemplat
 	return
 }
 
-func (mgr *WorkflowTemplateManager) CreateNewRevision(oldID models.WorkflowTemplateID, revisionLabel string) (template *models.WorkflowTemplate, err error) {
+func (mgr *WorkflowTemplateManagerImpl) CreateNewRevision(oldID models.WorkflowTemplateID, revisionLabel string) (template *models.WorkflowTemplate, err error) {
 	revisionLog := log.WithField("oldID", oldID)
 
 	oldTemplate, err := mgr.GetTemplate(oldID)
@@ -440,7 +456,7 @@ func (mgr *WorkflowTemplateManager) CreateNewRevision(oldID models.WorkflowTempl
 	return mgr.GetTemplate(newTemplate.ID)
 }
 
-func (mgr *WorkflowTemplateManager) copySteps(templateID models.WorkflowTemplateID, oldSteps []*models.Step, newStartID models.StepID, firstIsStartStep bool, decision string) (err error) {
+func (mgr *WorkflowTemplateManagerImpl) copySteps(templateID models.WorkflowTemplateID, oldSteps []*models.Step, newStartID models.StepID, firstIsStartStep bool, decision string) (err error) {
 	copyStepsLog := log.WithFields(log.Fields{"templateID": templateID, "oldSteps": oldSteps, "newStartID": newStartID, "firstIsStartStep": firstIsStartStep})
 
 	currentPrevStep := newStartID
@@ -476,7 +492,7 @@ func (mgr *WorkflowTemplateManager) copySteps(templateID models.WorkflowTemplate
 	return
 }
 
-func (mgr *WorkflowTemplateManager) NumberOfStepsReferringToRoom(roomID models.RoomID) (int, error) {
+func (mgr *WorkflowTemplateManagerImpl) NumberOfStepsReferringToRoom(roomID models.RoomID) (int, error) {
 	steps, err := mgr.workflowRep.GetStepsByRoomID(roomID)
 	if err != nil {
 		log.WithFields(log.Fields{"roomID": roomID, "err": err}).Error("Failed to get all steps by room id")
@@ -485,7 +501,7 @@ func (mgr *WorkflowTemplateManager) NumberOfStepsReferringToRoom(roomID models.R
 	return len(steps), nil
 }
 
-func (mgr *WorkflowTemplateManager) DeleteTemplate(templateID models.WorkflowTemplateID) (err error) {
+func (mgr *WorkflowTemplateManagerImpl) DeleteTemplate(templateID models.WorkflowTemplateID) (err error) {
 	deleteLog := log.WithField("templateID", templateID)
 
 	template, err := mgr.GetTemplate(templateID)
@@ -515,7 +531,7 @@ func (mgr *WorkflowTemplateManager) DeleteTemplate(templateID models.WorkflowTem
 	return
 }
 
-func (mgr *WorkflowTemplateManager) deleteSteps(steps []*models.Step, deleteLog *log.Entry) (err error) {
+func (mgr *WorkflowTemplateManagerImpl) deleteSteps(steps []*models.Step, deleteLog *log.Entry) (err error) {
 	for it := len(steps) - 1; it >= 0; it-- {
 		step := steps[it]
 		stepLog := deleteLog.WithField("stepID", step.ID)
@@ -550,7 +566,7 @@ func (mgr *WorkflowTemplateManager) deleteSteps(steps []*models.Step, deleteLog 
 	return
 }
 
-func (mgr *WorkflowTemplateManager) MoveStep(templateID models.WorkflowTemplateID, stepID models.StepID, direction communication.StepMoveDirection) (err error) {
+func (mgr *WorkflowTemplateManagerImpl) MoveStep(templateID models.WorkflowTemplateID, stepID models.StepID, direction communication.StepMoveDirection) (err error) {
 	moveLog := log.WithFields(log.Fields{"templateID": templateID, "stepID": stepID, "direction": direction})
 
 	template, err := mgr.GetTemplate(templateID)
@@ -594,7 +610,7 @@ func (mgr *WorkflowTemplateManager) MoveStep(templateID models.WorkflowTemplateI
 }
 
 // Only linear steps are allowed to be swapped; firstStep has to be before secondStep
-func (mgr *WorkflowTemplateManager) swapSteps(template *models.WorkflowTemplate, firstStepID, secondStepID models.StepID) (err error) {
+func (mgr *WorkflowTemplateManagerImpl) swapSteps(template *models.WorkflowTemplate, firstStepID, secondStepID models.StepID) (err error) {
 	swapLog := log.WithFields(log.Fields{"templateID": template.ID, "firstStepID": firstStepID, "secondStepID": secondStepID})
 
 	var toFirst *models.NextStep

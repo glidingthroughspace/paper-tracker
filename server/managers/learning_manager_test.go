@@ -19,7 +19,7 @@ var _ = Describe("LearningManager", func() {
 		mockRoomRep       *mock.MockRoomRepository
 		mockTemplateRep   *mock.MockWorkflowTemplateRepository
 		mockCtrl          *gomock.Controller
-		manager           *LearningManager
+		manager           *LearningManagerImpl
 
 		trackerIdle             *models.Tracker
 		trackerLearning         *models.Tracker
@@ -53,7 +53,7 @@ var _ = Describe("LearningManager", func() {
 		mockTrackerRep = mock.NewMockTrackerRepository(mockCtrl)
 		mockRoomRep = mock.NewMockRoomRepository(mockCtrl)
 		mockTemplateRep = mock.NewMockWorkflowTemplateRepository(mockCtrl)
-		manager = CreateLearningManager(mockScanResultRep)
+		manager = CreateLearningManager(mockScanResultRep).(*LearningManagerImpl)
 		CreateTrackerManager(mockTrackerRep)
 		CreateRoomManager(mockRoomRep)
 		CreateWorkflowTemplateManager(mockTemplateRep)
@@ -119,20 +119,20 @@ var _ = Describe("LearningManager", func() {
 		})
 	})
 
-	Context("Test newLearningTrackingData", func() {
-		It("newLearningTrackingData creates all scan results in db", func() {
+	Context("Test NewLearningTrackingData", func() {
+		It("NewLearningTrackingData creates all scan results in db", func() {
 			mockScanResultRep.EXPECT().CreateAll(gomock.Any()).Return(nil).Times(1)
-			Expect(manager.newLearningTrackingData(id, scanRes)).To(Succeed())
+			Expect(manager.NewLearningTrackingData(id, scanRes)).To(Succeed())
 		})
 
-		It("newLearningTrackingData add proper trackerID to scan results", func() {
+		It("NewLearningTrackingData add proper trackerID to scan results", func() {
 			mockScanResultRep.EXPECT().CreateAll(scanResWithID).Return(nil).Times(1)
-			Expect(manager.newLearningTrackingData(id, scanRes)).To(Succeed())
+			Expect(manager.NewLearningTrackingData(id, scanRes)).To(Succeed())
 		})
 
-		It("newLearningTrackingData returns error of creating scan results", func() {
+		It("NewLearningTrackingData returns error of creating scan results", func() {
 			mockScanResultRep.EXPECT().CreateAll(gomock.Any()).Return(testErr).Times(1)
-			Expect(manager.newLearningTrackingData(id, scanRes)).To(MatchError(testErr))
+			Expect(manager.NewLearningTrackingData(id, scanRes)).To(MatchError(testErr))
 		})
 	})
 

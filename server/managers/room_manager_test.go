@@ -16,7 +16,7 @@ var _ = Describe("RoomManager", func() {
 		mockRoomRep     *mock.MockRoomRepository
 		mockTemplateRep *mock.MockWorkflowTemplateRepository
 		mockCtrl        *gomock.Controller
-		manager         *RoomManager
+		manager         *RoomManagerImpl
 
 		testErr = errors.New("error")
 	)
@@ -31,7 +31,7 @@ var _ = Describe("RoomManager", func() {
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockRoomRep = mock.NewMockRoomRepository(mockCtrl)
 		mockTemplateRep = mock.NewMockWorkflowTemplateRepository(mockCtrl)
-		manager = CreateRoomManager(mockRoomRep)
+		manager = CreateRoomManager(mockRoomRep).(*RoomManagerImpl)
 		CreateWorkflowTemplateManager(mockTemplateRep)
 
 		gormNotFound := func(err error) bool {
