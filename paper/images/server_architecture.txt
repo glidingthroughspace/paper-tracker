@@ -1,9 +1,22 @@
 @startuml
-skinparam linetype polyline
-
 package cmd {
   class Main {
   }
+}
+
+class Utils {
+  SendMail(String title, String content)
+  MeanOf(int values...) : float
+  IsOddAmountOfValues(int values...) : bool
+  MedianOf(int values...) : float
+  FirstQuartileOf(int values...) : float
+  ThirdQuartileOf(int values...) : float
+  MinOf(int values...) : int
+  MaxOf(int values...) : int
+}
+
+class Config {
+  GetConfigValue(String id) : any
 }
 
 package router {
@@ -23,7 +36,7 @@ package managers {
     int learnCount
     int learnSleepSec
     
-    CreateLearningManager(ScanResultRepository scanResRepo, int learnCount, int learnSleepSec) : LearningManager
+    CreateLearningManager(ScanResultRepository scanResRepo) : LearningManager
     GetLearningManager() : LearningManager
     StartLearning(int trackerID)
     FinishLearning(int trackerID, int roomID)
@@ -54,7 +67,7 @@ package managers {
     int workEndHour
     bool workOnWeekend
   
-    CreateTrackerManager(TrackerRepository trackerRep, int idleSleepSec, int learningSleepSec, int trackingSleepSec) : TrackerManager
+    CreateTrackerManager(TrackerRepository trackerRep) : TrackerManager
     GetTrackerManager() : TrackerManager
     NotifyNewTracker() : Tracker
     GetTrackerByID(int trackerID) : Tracker
@@ -195,7 +208,7 @@ Main ..> managers : <creates>
 Main .> HttpRouter : <starts>
 Main .> CoapRouter : <starts>
 
-HttpRouter -[hidden]- ExportManager
+Main -[hidden]- ExportManager
 
 WorkflowTemplateManager -[hidden]- RoomManager
 TrackingManager -[hidden]- LearningManager
