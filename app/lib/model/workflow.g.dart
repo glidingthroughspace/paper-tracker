@@ -32,7 +32,7 @@ WFStep _$WFStepFromJson(Map<String, dynamic> json) {
   return WFStep(
     id: json['id'] as int,
     label: json['label'] as String,
-    roomID: json['room_id'] as int,
+    roomIDs: (json['room_ids'] as List)?.map((e) => e as int)?.toList(),
     options: (json['options'] as Map<String, dynamic>)?.map(
       (k, e) => MapEntry(
           k,
@@ -48,7 +48,7 @@ Map<String, dynamic> _$WFStepToJson(WFStep instance) {
   final val = <String, dynamic>{
     'id': instance.id,
     'label': instance.label,
-    'room_id': instance.roomID,
+    'room_ids': instance.roomIDs,
   };
 
   void writeNotNull(String key, dynamic value) {
