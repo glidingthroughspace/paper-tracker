@@ -58,6 +58,15 @@ Im Code des Servers muss hierfür lediglich eine erweiterte Konfiguration ermög
 
 \subsection{CoAP-Schnittstelle}
 
+Die \gls{CoAP}-Schnittstelle für die Tracker wurde grundsätzlich wie in
+\autoref{par:tracker-schnittstelle} beschrieben implementiert. Allerdings wurde ein weiterer
+Endpunkt hinzugefügt: Über den Pfad \texttt{/tracker/status}, welcher mit dem Verb \texttt{POST}
+angesprochen wird, kann der Tracker aktuelle Statuswerte, wie beispielsweise die aktuelle
+Akkuladung, an den Server übermitteln. Diese Statuswerte werden bei aktivem Tracking in den
+Scanergebnis-Paketen übermittelt. Wenn der Tracker sich jedoch im Leerlauf befindet, sendet der
+Server periodisch Status-Kommandos an den Tracker, sodass auch hier der Ladezustand des \gls{Akku}, sowie
+die verbleibende Restladung aktualisiert werden können.
+
 \subsection{Tracker-Lokalisierung}
 
 Wie in \autoref{sec:tracking-hardware} beschrieben wird die Lokalisierung der Tracker mit einem
