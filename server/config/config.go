@@ -6,32 +6,59 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	KeyDBName      = "db.name"
+	KeyCoapNetwork = "coap.network"
+	KeyCoapPort    = "coap.port"
+	KeyHttpPort    = "http.port"
+
+	KeyCmdIdleSleep        = "cmd.idle.sleep"
+	KeyCmdInfoSleep        = "cmd.info.sleep"
+	KeyCmdInfoInterval     = "cmd.info.interval"
+	KeyCmdTrackSleep       = "cmd.track.sleep"
+	KeyCmdLearnSleep       = "cmd.learn.sleep"
+	KeyCmdLearnCount       = "cmd.learn.count"
+	KeyCmdMaxSleep         = "cmd.maxSleep"
+	KeyLowBatteryThreshold = "lowBatteryThreshold"
+
+	KeyWorkStartHour = "work.startHour"
+	KeyWorkEndHour   = "work.endHour"
+	KeyWorkOnWeekend = "work.onWeekend"
+
+	KeyMailUsername   = "mail.username"
+	KeyMailPassword   = "mail.password"
+	KeyMailHost       = "mail.host"
+	KeyMailPort       = "mail.port"
+	KeyMailSender     = "mail.sender"
+	KeyMailRecipients = "mail.recipients"
+)
+
 // Initialize sets up the cmd line args and parses them with the config file
 func Initialize() {
-	pflag.String("db.name", "paper-tracker.db", "Path of the database file")
-	pflag.String("coap.network", "udp", "Network which should be used for coap requests; 'udp' or 'tcp'")
-	pflag.Int("coap.port", 5688, "Port on which the application will listen for coap requests")
-	pflag.Int("http.port", 8080, "Port on which the application will listen for http requests")
+	pflag.String(KeyDBName, "paper-tracker.db", "Path of the database file")
+	pflag.String(KeyCoapNetwork, "udp", "Network which should be used for coap requests; 'udp' or 'tcp'")
+	pflag.Int(KeyCoapPort, 5688, "Port on which the application will listen for coap requests")
+	pflag.Int(KeyHttpPort, 8080, "Port on which the application will listen for http requests")
 
-	pflag.Int("cmd.idle.sleep", 5, "Sleep duration for the tracker before polling for new command in idle")
-	pflag.Int("cmd.info.sleep", 5, "Sleep duration for the tracker before sending battery stats when idling")
-	pflag.Int("cmd.info.interval", 60, "Interval for the tracker to send battery stats when idling")
-	pflag.Int("cmd.track.sleep", 5, "Sleep duration for the tracker before polling for new command in tracking")
-	pflag.Int("cmd.learn.sleep", 5, "Sleep duration for the tracker before polling for new command in learning")
-	pflag.Int("cmd.learn.count", 5, "Total times the WiFi is scanned when learning a room")
-	pflag.Int("cmd.maxSleep", 1800, "Maximum possible sleep time")
-	pflag.Int("lowBatteryThreshold", 10, "Threshold that specifies under which threshold a low battery notification will be sent")
+	pflag.Int(KeyCmdIdleSleep, 5, "Sleep duration for the tracker before polling for new command in idle")
+	pflag.Int(KeyCmdInfoSleep, 5, "Sleep duration for the tracker before sending battery stats when idling")
+	pflag.Int(KeyCmdInfoInterval, 60, "Interval for the tracker to send battery stats when idling")
+	pflag.Int(KeyCmdTrackSleep, 5, "Sleep duration for the tracker before polling for new command in tracking")
+	pflag.Int(KeyCmdLearnSleep, 5, "Sleep duration for the tracker before polling for new command in learning")
+	pflag.Int(KeyCmdLearnCount, 5, "Total times the WiFi is scanned when learning a room")
+	pflag.Int(KeyCmdMaxSleep, 1800, "Maximum possible sleep time")
+	pflag.Int(KeyLowBatteryThreshold, 10, "Threshold that specifies under which threshold a low battery notification will be sent")
 
-	pflag.Int("work.startHour", -1, "Hour of the day the tracker should become active. In 24-Hour format. Set this or end value to -1 to disable.")
-	pflag.Int("work.endHour", -1, "Hour of the day the tracker should become inactive. In 24-Hour format. Set this or start value to -1 to disable.")
-	pflag.Bool("work.onWeekend", false, "Whether the tracker should be active on weekends")
+	pflag.Int(KeyWorkStartHour, -1, "Hour of the day the tracker should become active. In 24-Hour format. Set this or end value to -1 to disable.")
+	pflag.Int(KeyWorkEndHour, -1, "Hour of the day the tracker should become inactive. In 24-Hour format. Set this or start value to -1 to disable.")
+	pflag.Bool(KeyWorkOnWeekend, false, "Whether the tracker should be active on weekends")
 
-	pflag.String("mail.username", "", "Username used for connecting to the SMTP server for email notifications. Leave empty for no authorization.")
-	pflag.String("mail.password", "", "Password used for connecting to the SMTP server for email notifications.")
-	pflag.String("mail.host", "", "SMTP Host used for sending notification emails")
-	pflag.Int("mail.port", 25, "Port used for SMTP Host. Defaults to 25")
-	pflag.String("mail.sender", "", "Email address to send email from. Leave empty to use 'mail.username'.")
-	pflag.StringSlice("mail.recipients", []string{}, "List of email addresses to recevive email notifications")
+	pflag.String(KeyMailUsername, "", "Username used for connecting to the SMTP server for email notifications. Leave empty for no authorization.")
+	pflag.String(KeyMailPassword, "", "Password used for connecting to the SMTP server for email notifications.")
+	pflag.String(KeyMailHost, "", "SMTP Host used for sending notification emails")
+	pflag.Int(KeyMailPort, 25, "Port used for SMTP Host. Defaults to 25")
+	pflag.String(KeyMailSender, "", "Email address to send email from. Leave empty to use 'mail.username'.")
+	pflag.StringSlice(KeyMailRecipients, []string{}, "List of email addresses to recevive email notifications")
 
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)

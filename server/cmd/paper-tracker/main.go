@@ -63,13 +63,13 @@ func main() {
 	// Start
 	var wg sync.WaitGroup
 
-	coapPort := config.GetInt("coap.port")
-	coapNetwork := config.GetString("coap.network")
+	coapPort := config.GetInt(config.KeyCoapPort)
+	coapNetwork := config.GetString(config.KeyCoapNetwork)
 	log.WithField("port", coapPort).Info("Listening for coap on specified port")
 	wg.Add(1)
 	go coapRouter.Serve(coapNetwork, ":"+strconv.Itoa(coapPort), &wg)
 
-	httpPort := config.GetInt("http.port")
+	httpPort := config.GetInt(config.KeyHttpPort)
 	log.WithField("port", httpPort).Info("Listening for http on specified port")
 	wg.Add(1)
 	go httpRouter.Serve(":"+strconv.Itoa(httpPort), &wg)

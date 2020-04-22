@@ -20,7 +20,7 @@ var (
 
 // InitDatabaseConnection initializes the gorm connection
 func InitDatabaseConnection() error {
-	name := config.GetString("db.name")
+	name := config.GetString(config.KeyDBName)
 	db, err := gorm.Open("sqlite3", name)
 	if err != nil {
 		log.WithFields(log.Fields{"db_name": name, "err": err}).Error("Could not open datbase")

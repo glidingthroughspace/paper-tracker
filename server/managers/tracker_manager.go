@@ -42,16 +42,6 @@ type TrackerManagerImpl struct {
 	trackerRep            repositories.TrackerRepository
 	scanResultsCacheMutex sync.Mutex
 	scanResultsCache      map[models.TrackerID]CachedScanResults
-	idleSleepSec          int
-	trackingSleepSec      int
-	learningSleepSec      int
-	sendInfoSleepSec      int
-	sendInfoIntervalSec   int
-	maxSleepSec           int
-	workStartHour         int
-	workEndHour           int
-	workOnWeekend         bool
-	lowBatteryThreshold   int
 	done                  chan struct{}
 }
 
@@ -61,19 +51,9 @@ func CreateTrackerManager(trackerRep repositories.TrackerRepository) TrackerMana
 	}
 
 	trackerManager = &TrackerManagerImpl{
-		trackerRep:          trackerRep,
-		idleSleepSec:        config.GetInt("cmd.idle.sleep"),
-		trackingSleepSec:    config.GetInt("cmd.track.sleep"),
-		learningSleepSec:    config.GetInt("cmd.learn.sleep"),
-		sendInfoSleepSec:    config.GetInt("cmd.info.sleep"),
-		sendInfoIntervalSec: config.GetInt("cmd.info.interval"),
-		maxSleepSec:         config.GetInt("cmd.maxSleep"),
-		workStartHour:       config.GetInt("work.startHour"),
-		workEndHour:         config.GetInt("work.endHour"),
-		workOnWeekend:       config.GetBool("work.onWeekend"),
-		lowBatteryThreshold: config.GetInt("lowBatteryThreshold"),
-		done:                make(chan struct{}),
-		scanResultsCache:    make(map[models.TrackerID]CachedScanResults),
+		trackerRep:       trackerRep,
+		done:             make(chan struct{}),
+		scanResultsCache: make(map[models.TrackerID]CachedScanResults),
 	}
 
 	return trackerManager
@@ -172,33 +152,34 @@ func (mgr *TrackerManagerImpl) PollCommand(trackerID models.TrackerID) (cmd *mod
 	switch tracker.Status {
 	case models.TrackerStatusIdle, models.TrackerStatusLearningFinished:
 		// If the tracker is idling, we want to periodically check for battery stats.
-		if int(time.Since(tracker.LastBatteryUpdate).Seconds()) > mgr.sendInfoIntervalSec {
+		if int(time.Since(tracker.LastBatteryUpdate).Seconds()) > config.GetInt(config.KeyCmdInfoInterval) {
 			cmd = &models.Command{
 				Type:         models.CmdSendInformation,
-				SleepTimeSec: mgr.sendInfoSleepSec,
+				SleepTimeSec: config.GetInt(config.KeyCmdInfoSleep),
 			}
 		} else {
 			cmd = &models.Command{
 				Type:         models.CmdSleep,
-				SleepTimeSec: mgr.idleSleepSec,
+				SleepTimeSec: config.GetInt(config.KeyCmdIdleSleep),
 			}
 		}
 	case models.TrackerStatusTracking:
 		cmd = &models.Command{
 			Type:         models.CmdSendTrackingInformation,
-			SleepTimeSec: mgr.trackingSleepSec,
+			SleepTimeSec: config.GetInt(config.KeyCmdTrackSleep),
 		}
 	case models.TrackerStatusLearning:
 		cmd = &models.Command{
 			Type:         models.CmdSendTrackingInformation,
-			SleepTimeSec: mgr.learningSleepSec,
+			SleepTimeSec: config.GetInt(config.KeyCmdLearnSleep),
 		}
 	}
 
 	if inWorkHours, toWorkHours := mgr.InWorkingHours(); !inWorkHours {
+		maxSleepSec := config.GetInt(config.KeyCmdMaxSleep)
 		toWorkHoursSec := int(toWorkHours.Seconds())
-		if toWorkHoursSec > mgr.maxSleepSec {
-			cmd.SleepTimeSec = mgr.maxSleepSec
+		if toWorkHoursSec > maxSleepSec {
+			cmd.SleepTimeSec = maxSleepSec
 		} else {
 			cmd.SleepTimeSec = toWorkHoursSec
 		}
@@ -218,24 +199,28 @@ func (mgr *TrackerManagerImpl) PollCommand(trackerID models.TrackerID) (cmd *mod
 //TODO: Write test and somehow mock time.Now() for that
 // InWorkingHours returns whether we are currently in working hours and if not, how long it will be until working hour
 func (mgr *TrackerManagerImpl) InWorkingHours() (inHours bool, toStart time.Duration) {
-	if mgr.workStartHour < 0 || mgr.workEndHour < 0 {
+	workStartHour := config.GetInt(config.KeyWorkStartHour)
+	workEndHour := config.GetInt(config.KeyWorkEndHour)
+	workOnWeekend := config.GetBool(config.KeyWorkOnWeekend)
+
+	if workStartHour < 0 || workEndHour < 0 {
 		return true, time.Duration(0)
 	}
 
-	toStartDuration := time.Duration(mgr.workStartHour) * time.Hour // Time from midnight to work start
+	toStartDuration := time.Duration(workStartHour) * time.Hour // Time from midnight to work start
 	timeDay := time.Hour * 24
 
 	currentTime := time.Now().Local()
 	var startTime time.Time
-	if day := currentTime.Weekday(); !mgr.workOnWeekend && (day == time.Saturday || day == time.Sunday) {
+	if day := currentTime.Weekday(); !workOnWeekend && (day == time.Saturday || day == time.Sunday) {
 		// If we don't work on the weekend, check if we have Saturday/Sunday
 		// startTime of next working day is the Monday of next week at the proper hour
 		startTime = now.With(currentTime.Add(timeDay * 3)).Monday().Add(toStartDuration)
-	} else if currentTime.Hour() < mgr.workStartHour {
+	} else if currentTime.Hour() < workStartHour {
 		// If we have a workday but are BEFORE the working hours
 		// startTime is today at the proper hour
 		startTime = now.With(currentTime.Add(timeDay)).BeginningOfDay().Add(toStartDuration)
-	} else if currentTime.Hour() > mgr.workEndHour {
+	} else if currentTime.Hour() > workEndHour {
 		// If we have a workday but are AFTER the working hours
 		// startTime is the next day at the proper hour (ignore transition to the weekend for now)
 		startTime = now.With(currentTime).BeginningOfDay().Add(toStartDuration)
@@ -259,7 +244,8 @@ func (mgr *TrackerManagerImpl) UpdateFromResponse(trackerID models.TrackerID, re
 	tracker.IsCharging = resp.IsCharging
 	tracker.LastBatteryUpdate = time.Now()
 
-	if tracker.BatteryPercentage < mgr.lowBatteryThreshold && !tracker.IsCharging && !tracker.LowBatteryNotified {
+	lowBatteryThreshold := config.GetInt(config.KeyLowBatteryThreshold)
+	if tracker.BatteryPercentage < lowBatteryThreshold && !tracker.IsCharging && !tracker.LowBatteryNotified {
 		err = utils.SendMail(
 			fmt.Sprintf("Paper-Tracker: '%s' has a low battery", tracker.Label),
 			fmt.Sprintf("The battery of the tracker '%s' only has %d%% left! Please charge the tracker as soon as possible.", tracker.Label, tracker.BatteryPercentage))
