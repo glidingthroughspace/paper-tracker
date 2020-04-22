@@ -61,7 +61,7 @@ Unter diesen Umständen konnten beide Tests erfolgreich abgeschlossen werden.
 Dies bestätigt zumindest teilweise die Anforderung für eine raumgenaue Ortung.
 Für eine komplette Bestätigung der Erfüllung, müssten alle Versuche durchgeführt werden.
 
-\section{Simples Setup und Nutung des Gesamtsystems}
+\section{Einfaches Setup und Nutzung des Gesamtsystems}
 \subsection{Beschreibung}
 In dieser Validierung des Projektes soll bewertet werden, wie einfach ein potentieller Nutzer/Betreiber
 des Paper-Trackers ein neues System aufsetzen und verwenden kann.
@@ -71,7 +71,7 @@ Im Nachhinein wird den Testpersonen einige Fragen zum Prozess gestellt und sie k
 
 \subsection{Durchführung}
 Im Folgenden wird beschrieben, wie der Testverlauf für eine Testperson aussieht.
-Auch werden die zu erwartenden Schritte, die die Testperson aufführen soll, mit angegeben.
+Auch werden die zu erwartenden Schritte, die die Testperson ausführen soll, angegeben.
 Die Testpersonen sollten möglichst mit Informatik versiert sein und zuvor schon einmal einen Server mit einer
 Applikation in Betrieb genommen haben.
 Als Plattform für die App soll, wenn möglich, Android verwendet werden, da dafür bereits fertige Installationsdateien
@@ -80,12 +80,12 @@ Für Apple-Geräte ist dies leider nicht möglich.
 
 Zum Start des Tests bekommt die Testperson einige Informationen, was der Paper-Tracker ist, wofür er bestimmt ist
 und die Aufgabe, das System in Betrieb zu nehmen. 
-Weiter bekommt er als Ressource, wie oben beschrieben, das GitHub-Repository des Paper-Trackers.
+Weiter bekommt sie als Ressource, wie oben beschrieben, das GitHub-Repository des Paper-Trackers.
 Dieses bietet im Detail die folgenden Komponenten:
 \begin{itemize}
 	\item Source-Code zu der Firmware, dem Flasher, der App und dem Server
 	\item Implizit im Server-Code die App und den ausführbaren Flasher
-	\item Ein Dockerfile für den Server
+	\item Ein \enquote{Dockerfile} für den Server
 	\item Eine \enquote{README}-Datei mit Informationen zum Setup des Servers
 	\item Dieses Paper mit weiterführenden Informationen zum kompletten Projekt
 \end{itemize}
@@ -98,11 +98,11 @@ Mit Hilfe dieser Komponenten werden folgende Schritte von der Testperson erwarte
 		\item Anpassen der Konfigurationsdatei mit geeigneten Werten
 		\item Erstellen des Docker-Images und Start von diesem auf einem Server \hfill \\
 			\hspace*{20mm} oder \hfill \\
-			Kopieren des Server-Code auf einen Server, Kompilation des Codes und Starten des Servers
+			Lokal den Code kompilieren, kopieren der ausführbaren Datei auf den Server, Starten der Datei
 	\end{enumerate}
 	\item Aufrufen der Download Seite des Servers
 	\item Download der Android App und Installation
-	\item Durcharbeiten des Tutorials innerhalb der App inklusive dem Flashen eines Trackers
+	\item Durcharbeiten des Tutorials innerhalb der App inklusive des Flashen eines Trackers
 \end{enumerate}
 
 \subsection{Ergebnisse}
