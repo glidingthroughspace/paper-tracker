@@ -4,13 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"paper-tracker/config"
 	"paper-tracker/models"
 	"paper-tracker/repositories"
 	"time"
 
 	"github.com/onsi/ginkgo"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 var learningManager LearningManager
@@ -36,8 +36,8 @@ func CreateLearningManager(scanResultRep repositories.ScanResultRepository) Lear
 
 	learningManager = &LearningManagerImpl{
 		scanResultRep: scanResultRep,
-		learnCount:    viper.GetInt("cmd.learn.count"),
-		learnSleepSec: viper.GetInt("cmd.learn.sleep"),
+		learnCount:    config.GetInt("cmd.learn.count"),
+		learnSleepSec: config.GetInt("cmd.learn.sleep"),
 	}
 
 	return learningManager

@@ -3,28 +3,28 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"paper-tracker/config"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"gopkg.in/gomail.v2"
 )
 
 // SendMail sends out an email to the configured email recipients
 func SendMail(notificationTitle, notificationText string) (err error) {
-	smtpHost := viper.GetString("mail.host")
+	smtpHost := config.GetString("mail.host")
 	if smtpHost == "" {
 		log.Error("SMTP Host not configured")
 		return errors.New("SMTP Host not configured")
 	}
 
-	smtpPort := viper.GetInt("mail.port")
-	smtpUsername := viper.GetString("mail.username")
-	smtpPassword := viper.GetString("mail.password")
-	smtpSender := viper.GetString("mail.sender")
+	smtpPort := config.GetInt("mail.port")
+	smtpUsername := config.GetString("mail.username")
+	smtpPassword := config.GetString("mail.password")
+	smtpSender := config.GetString("mail.sender")
 	if smtpSender == "" {
 		smtpSender = smtpUsername
 	}
-	smtpRecipients := viper.GetStringSlice("mail.recipients")
+	smtpRecipients := config.GetStringSlice("mail.recipients")
 
 	msg := fmt.Sprintf("<h1>Paper-Tracker Notification</h1><p>%s</p>", notificationText)
 

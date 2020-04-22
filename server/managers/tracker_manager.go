@@ -3,6 +3,7 @@ package managers
 import (
 	"errors"
 	"fmt"
+	"paper-tracker/config"
 	"paper-tracker/models"
 	"paper-tracker/models/communication"
 	"paper-tracker/repositories"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/jinzhu/now"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 var trackerManager TrackerManager
@@ -62,16 +62,16 @@ func CreateTrackerManager(trackerRep repositories.TrackerRepository) TrackerMana
 
 	trackerManager = &TrackerManagerImpl{
 		trackerRep:          trackerRep,
-		idleSleepSec:        viper.GetInt("cmd.idle.sleep"),
-		trackingSleepSec:    viper.GetInt("cmd.track.sleep"),
-		learningSleepSec:    viper.GetInt("cmd.learn.sleep"),
-		sendInfoSleepSec:    viper.GetInt("cmd.info.sleep"),
-		sendInfoIntervalSec: viper.GetInt("cmd.info.interval"),
-		maxSleepSec:         viper.GetInt("cmd.maxSleep"),
-		workStartHour:       viper.GetInt("work.startHour"),
-		workEndHour:         viper.GetInt("work.endHour"),
-		workOnWeekend:       viper.GetBool("work.onWeekend"),
-		lowBatteryThreshold: viper.GetInt("lowBatteryThreshold"),
+		idleSleepSec:        config.GetInt("cmd.idle.sleep"),
+		trackingSleepSec:    config.GetInt("cmd.track.sleep"),
+		learningSleepSec:    config.GetInt("cmd.learn.sleep"),
+		sendInfoSleepSec:    config.GetInt("cmd.info.sleep"),
+		sendInfoIntervalSec: config.GetInt("cmd.info.interval"),
+		maxSleepSec:         config.GetInt("cmd.maxSleep"),
+		workStartHour:       config.GetInt("work.startHour"),
+		workEndHour:         config.GetInt("work.endHour"),
+		workOnWeekend:       config.GetBool("work.onWeekend"),
+		lowBatteryThreshold: config.GetInt("lowBatteryThreshold"),
 		done:                make(chan struct{}),
 		scanResultsCache:    make(map[models.TrackerID]CachedScanResults),
 	}
