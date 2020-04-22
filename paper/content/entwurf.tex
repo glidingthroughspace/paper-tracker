@@ -173,7 +173,7 @@ Für die Backend-Anwendung sind zwei verschiedene Schnittstellen vorgesehen.
 Eine Schnittstelle ist für den Tracker und eine für die App vorgesehen.
 Die unterschiedlichen Schnittstellen sollen die aus der Analyse entwickelten Ansprüche entsprechend erfüllen.
 
-\paragraph{Tracker-Schnittstelle}
+\paragraph{Tracker-Schnittstelle} \label{par:tracker-schnittstelle}
 Für die Schnittstelle des Trackers bedeutet dies, dass sie möglichst simpel und effizient sein muss.
 Dies wird über ein entsprechendes Protokoll und einem Datenformat erreicht.
 Das verwendete Protokoll ist das \acrfull{CoAP} Protokoll und das Datenformat ist \acrfull{CBOR}.
@@ -204,12 +204,12 @@ in 83.3\% der Zeit schnellerer Zeit serialisiert hat.
 
 Die Tracker-Schnittstelle soll drei Endpunkte zur Verfügung stellen.
 Diese sind in \autoref{tab:coap-api} aufgelistet.
-Bis auf den Endpunkt zum erstellen eines neuen Trackers, erhalten alle Endpunkte als Parameter die Tracker ID des Trackers, der die Anfrage stellt.
-Der Endpunkt zum Speichern der Tracking Ergebnisse hat zudem als Parameter die Ergebnisste selbst.
+Bis auf den Endpunkt zum Erstellen eines neuen Trackers, erhalten alle Endpunkte als Parameter die Tracker ID des Trackers, der die Anfrage stellt.
+Der Endpunkt zum Speichern der Trackingergebnisse hat zudem als Parameter die Ergebnisse selbst.
 
 \begin{table}[]
-\begin{tabular}{l|l|l|l}
-\textbf{Verb} & \textbf{Pfad}     & \textbf{Aktion}                   & \textbf{Rückgabe-Wert}    \\ \hline
+\begin{tabular}{l l l l}
+\textbf{Verb} & \textbf{Pfad}     & \textbf{Aktion}                   & \textbf{Rückgabewert}    \\ \hline
 POST          & /tracker/new      & Neuen Tracker erstellen           & Tracker ID \\ \hline
 GET           & /tracker/poll     & Kommando für Tracker abfragen     & Tracker Kommando   \\ \hline
 POST          & /tracker/tracking & Ergebnisse des Tracking speichern & -
@@ -233,7 +233,7 @@ Alle verfügbaren Endpunkte der App-Schnittstelle sind in \autoref{tab:http-api}
 \begin{small}
 \begin{landscape}
 	\begin{longtable}{l|l|l|l|l} \label{tab:http-api}
-\textbf{Verb} & \textbf{Pfad}                   & \textbf{Aktion}                     & \textbf{Parameter}                                          & \textbf{Rückgabe-Wert}                                                  \\ \hline
+\textbf{Verb} & \textbf{Pfad}                   & \textbf{Aktion}                     & \textbf{Parameter}                                          & \textbf{Rückgabewert}                                                  \\ \hline
 \endhead
 %
 GET           & /room                           & Auflistung der Räume                & -                                                           & Liste aller Räume                                                       \\ \hline
