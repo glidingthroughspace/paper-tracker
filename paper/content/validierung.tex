@@ -1,16 +1,67 @@
 \chapter{Validierung}
-
+Mit Hilfe der Validierung soll festgestellt werden, ob die gestellten Anforderungen erzielt wurden.
+Besonders interessant sind im Falle des Paper-Trackers zum einen die Genauigkeit, mit der ein Tracker lokalisiert werden
+kann und zum anderen, wie gut das Gesamtsystem miteinander funktioniert und bedienbar ist.
+Auch das Setup eines neuen Paper-Tracker-Systems soll dabei mit berücksichtigt werden.
 
 \section{Genauigkeitsmessung des Tracking}
-
 \subsection{Beschreibung}
+Bei der Validierung der Genauigkeit des Trackings sollen in mehreren Versuchen ermittelt werden, wie genau die Position
+eines Tracker mit Hilfe der Technik des Paper-Trackers bestimmt werden kann.
+Das zu erreichende Ziel, um die gestellten Anforderungen zu erzielen, ist eine raumgenaue Ortung.
 
 \subsection{Durchführung}
+Um die Genauigkeit des Systems zu messen, wird eine Reihe an Versuchen durchgeführt, die alle einem gemeinsamen Muster folgen:
+\begin{enumerate}
+	\item Zurücksetzen des kompletten Systems
+	\item Hinzufügen des Trackers
+	\item Hinzufügen der in diesem Versuch verwendeten Räume
+	\item Einlernen der Räume in beliebiger Reihenfolge
+	\item Räume in gegebener Tracking Reihenfolge abgehen
+	\begin{enumerate}
+		\item Für einige Sekunden im Raum verbleiben
+		\item Im Abstand von einigen Sekunden an verschiedenen Stellen im Raum die Position des Trackers bestimmen
+	\end{enumerate}
+\end{enumerate}
+Ein Versuch gilt als erfolgreich, wenn alle Räume in gegebener Reihenfolge richtig erkannt werden bzw. auch in einem
+Negativ-Test nicht erkannt werden.
+
+Die auszuführenden Versuche sind sortiert von \enquote{einfachen} zu \enquote{schwierigen} Situationen.
+Als einfach zählt zum Beispiel ein Versuch mit nur einem Raum und zu schwierig, wenn als Raum nur ein
+Raumhälfte verwendet wird.
+Folgendes sind die auszuführenden Versuche:
+\begin{enumerate}
+	\item Ein Raum wird eingelernt und in diesem getrackt
+	\item Ein Raum wird eingelernt und in einem entfernten Raum getrackt
+	\item Ein Raum wird eingelernt und in einem angrenzenden Raum getrackt
+	\item Zwei entfernte Räume werden eingelernt und in selbiger Reihenfolge getrackt
+	\item Zwei angrenzende Räume werden eingelernt und in selbiger Reihenfolge getrackt
+	\item Ein Raum wird in zwei Raumhälften geteilt, welche als Räume getrackt werden und in selbiger Reihenfolge getrackt
+\end{enumerate}
+
+Zu den Ergebnissen der Versuche selbst muss auch das Umfeld der Versuche angegeben werden.
+Dies ist das Gebäude, in dem der Versuch stattgefunden hat, eine ungefähre Raumgröße, die Entfernung der Räume zueinander
+und die Struktur des für das Tracking verwendeten \gls{WLAN}-Netzes.
 
 \subsection{Ergebnisse}
+Aufgrund der aktuellen Coronavirus-Lage \cite{bw2020} \cite{dhbwka2020} während dem Bearbeitungszeitraum dieser Arbeit,
+ist es leider nicht möglich diese Validierung entsprechend durchzuführen.
+Grund dafür ist ein fehlendes passendes Gebäude mit Zimmern, die teilweise entfernt voneinander liegen, und einem gut
+genug ausgebauten \gls{WLAN} Netzwerk. 
 
+Trotzdem können eingeschränkt zu den ersten beiden Tests Aussagen gemacht werden, da diese vor der Coronavirus-Lage
+getestet wurden.
+Hierbei muss angemerkt werden, dass die oben beschrieben Versuchsabläufe nicht angewendet wurden sondern frei getestet wurde.
+Das Umfeld des Versuches war die \gls{DHBW} Karlsurhe.
+In dieser wurde zwei Vorlesungsräume in einem Gang verwendet.
+Die Entfernung zwischen den zwei Räumen, die an unterschiedlichen Seiten des Ganges abgehen, betrug ungefähr fünf Meter.
+Als \gls{WLAN}-Netz zum Tracken wurden alle verfügbaren Netze verwendet (\enquote{eduroam}, \enquote{DHBW-KA} und weitere kleinere Netze).
 
-\section{Nutzerumfrage zur UX der App}
+Unter diesen Umständen konnten beide Tests erfolgreich abgeschlossen werden.
+Dies bestätigt zumindest teilweise die Anforderung für eine raumgenaue Ortung.
+Für eine komplette Bestätigung der Erfüllung, müssten alle Versuche durchgeführt werden.
+
+\section{Nutzerumfrage zum Setup und zur Nutung des Gesamtsystems}
 
 \subsection{Beschreibung}
 
