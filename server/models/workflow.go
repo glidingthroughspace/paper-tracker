@@ -20,7 +20,7 @@ type WorkflowTemplate struct {
 type Step struct {
 	ID      StepID             `json:"id" gorm:"primary_key;auto_increment"`
 	Label   string             `json:"label"`
-	RoomIDs []RoomID           `json:"room_id" gorm:"-"`
+	RoomIDs []RoomID           `json:"room_ids" gorm:"-"`
 	Options map[string][]*Step `json:"options" gorm:"-"`
 }
 

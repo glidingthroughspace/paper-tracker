@@ -87,7 +87,7 @@ func (rep *GormWorkflowTemplateRepository) DeleteStep(stepID models.StepID) (err
 }
 
 func (rep *GormWorkflowTemplateRepository) ClearStepRooms(stepID models.StepID) (err error) {
-	err = databaseConnection.Delete(&models.StepRoom{StepID: stepID}).Error
+	err = databaseConnection.Where(&models.StepRoom{StepID: stepID}).Delete(&models.StepRoom{}).Error
 	return
 }
 
