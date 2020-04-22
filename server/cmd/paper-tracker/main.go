@@ -85,6 +85,7 @@ func main() {
 	}
 
 	managers.CreateTrackerManager(trackerRep)
+	managers.CreateTrackingManager()
 	managers.CreateRoomManager(roomRep)
 	managers.CreateLearningManager(scanResultRep)
 	managers.CreateWorkflowTemplateManager(workflowTemplateRep)

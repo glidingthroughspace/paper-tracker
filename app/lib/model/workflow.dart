@@ -42,12 +42,12 @@ class WFStep {
   int id;
   @JsonKey(name: "label")
   String label;
-  @JsonKey(name: "room_id")
-  int roomID;
+  @JsonKey(name: "room_ids")
+  List<int> roomIDs;
   @JsonKey(name: "options", includeIfNull: false, toJson: _optionsToJson)
   Map<String, List<WFStep>> options;
 
-  WFStep({this.id, this.label, this.roomID, this.options});
+  WFStep({this.id, this.label, this.roomIDs, this.options});
 
   factory WFStep.fromJson(Map<String, dynamic> json) => _$WFStepFromJson(json);
   Map<String, dynamic> toJSON() => _$WFStepToJson(this);

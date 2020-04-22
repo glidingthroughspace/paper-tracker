@@ -296,7 +296,7 @@ func (mgr *WorkflowExecManagerImpl) progressInSteps(exec *models.WorkflowExec, s
 		//Searching for step: Found the step we are searching for and it also is the current one => Progress to the one after
 		if stepID != nil && step.ID == *stepID && exec.CurrentStepID == *stepID {
 			*progressToNextStep = true
-		} else if roomID != nil && *currentPassed && step.RoomID == *roomID && !*progressToNextStep { //Serching for room: We are past the current step of the exec, found the step with the roomID we are searching for => Set this step as completed, progress to the one after
+		} else if roomID != nil && *currentPassed && mgr.findIDInRoomIDs(*roomID, step.RoomIDs) && !*progressToNextStep { //Serching for room: We are past the current step of the exec, found the step with the roomID we are searching for => Set this step as completed, progress to the one after
 			mgr.markStepAsCompleted(exec, step, currentStepInfo, timeNow, updatedStepInfo)
 			*progressToNextStep = true
 		} else if (stepID != nil && step.ID == *stepID) || *progressToNextStep { //Searching for step: Found step with stepID we are searching for or we should progress to the next step => Mark as started, set as current step of the exec
@@ -306,7 +306,7 @@ func (mgr *WorkflowExecManagerImpl) progressInSteps(exec *models.WorkflowExec, s
 		}
 
 		//If the current step of the exec has passed and in case we are searching for a room the step has not the room we are searching for => Mark this step as skipped
-		if *currentPassed && !(roomID != nil && step.RoomID == *roomID) {
+		if *currentPassed && !(roomID != nil && mgr.findIDInRoomIDs(*roomID, step.RoomIDs)) {
 			mgr.markStepAsSkipped(exec, step, timeNow, currentStepInfo, updatedStepInfo)
 		}
 
@@ -327,6 +327,15 @@ func (mgr *WorkflowExecManagerImpl) progressInSteps(exec *models.WorkflowExec, s
 	}
 
 	return false, nil
+}
+
+func (mgr *WorkflowExecManagerImpl) findIDInRoomIDs(searchID models.RoomID, roomIDs []models.RoomID) bool {
+	for _, currentID := range roomIDs {
+		if currentID == searchID {
+			return true
+		}
+	}
+	return false
 }
 
 func (mgr *WorkflowExecManagerImpl) markStepAsCompleted(exec *models.WorkflowExec, step *models.Step, currentStepInfo *models.ExecStepInfo, timeNow time.Time, updatedStepInfo *[]*models.ExecStepInfo) {

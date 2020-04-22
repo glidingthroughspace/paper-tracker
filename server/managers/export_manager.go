@@ -174,12 +174,18 @@ func (mgr *ExportManagerImpl) fillStepInfoHeader(sheet *xlsx.Sheet, col int, tem
 		log.WithError(err).WithField("stepID", stepID).Error("Failed to get step to fill stepInfoHeader for export")
 		return
 	}
-	roomLabel := ""
-	if room, err := GetRoomManager().GetRoomByID(step.RoomID); err == nil {
-		roomLabel = room.Label
-	} else {
-		log.WithError(err).WithField("roomID", stepID).Error("Failed to get room to fill stepInfoHeader for export - ignore for now")
+	roomLabel := "["
+	for it, roomID := range step.RoomIDs {
+		if room, err := GetRoomManager().GetRoomByID(roomID); err == nil {
+			roomLabel += room.Label
+			if it < len(step.RoomIDs)-1 {
+				roomLabel += ", "
+			}
+		} else {
+			log.WithError(err).WithField("roomID", stepID).Error("Failed to get room to fill stepInfoHeader for export - ignore for now")
+		}
 	}
+	roomLabel += "]"
 
 	sheet.Cell(0, col).SetString(step.Label + " (" + roomLabel + ") Part of Exec")
 	sheet.Cell(0, col+1).SetString(step.Label + "Start Time")
