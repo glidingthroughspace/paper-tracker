@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type WorkflowTemplateID int
 type StepID int
@@ -18,8 +20,13 @@ type WorkflowTemplate struct {
 type Step struct {
 	ID      StepID             `json:"id" gorm:"primary_key;auto_increment"`
 	Label   string             `json:"label"`
-	RoomID  RoomID             `json:"room_id"`
+	RoomIDs []RoomID           `json:"room_ids" gorm:"-"`
 	Options map[string][]*Step `json:"options" gorm:"-"`
+}
+
+type StepRoom struct {
+	StepID StepID `json:"step_id" gorm:"primary_key;auto_increment:false"`
+	RoomID RoomID `json:"room_id" gorm:"primary_key;auto_increment:false"`
 }
 
 type NextStep struct {

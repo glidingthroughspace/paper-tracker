@@ -67,7 +67,7 @@ class _DropdownState extends State<Dropdown> {
           onChanged: (value) {
             setState(() {
               widget.controller.selectedItem = value;
-              widget.onSelected(value);
+              if (widget.onSelected != null) widget.onSelected(value);
               if (widget.setState != null) widget.setState(() {});
             });
           },

@@ -72,6 +72,12 @@ func (mgr *WorkflowTemplateManagerImpl) CreateTemplateStart(templateID models.Wo
 		workflowStartLog.WithError(err).Error("Failed to create step")
 		return
 	}
+	err = mgr.createStepRooms(step)
+	if err != nil {
+		workflowStartLog.WithError(err).Error("Failed to create step rooms to add step")
+		mgr.workflowRep.DeleteStep(step.ID)
+		return
+	}
 
 	template.StartStep = step.ID
 	err = mgr.workflowRep.UpdateTemplate(template)
@@ -107,6 +113,12 @@ func (mgr *WorkflowTemplateManagerImpl) AddTemplateStep(templateID models.Workfl
 		addStepLog.WithError(err).Error("Failed to create step to add step")
 		return
 	}
+	err = mgr.createStepRooms(step)
+	if err != nil {
+		addStepLog.WithError(err).Error("Failed to create step rooms to add step")
+		mgr.workflowRep.DeleteStep(step.ID)
+		return
+	}
 
 	_, err = mgr.GetStepByID(templateID, prevStepID)
 	if mgr.workflowRep.IsRecordNotFoundError(err) {
@@ -131,6 +143,23 @@ func (mgr *WorkflowTemplateManagerImpl) AddTemplateStep(templateID models.Workfl
 		return
 	}
 
+	return
+}
+
+func (mgr *WorkflowTemplateManagerImpl) createStepRooms(step *models.Step) (err error) {
+	createStepRoomsLog := log.WithField("stepID", step.ID)
+
+	for _, roomID := range step.RoomIDs {
+		stepRoom := &models.StepRoom{
+			StepID: step.ID,
+			RoomID: roomID,
+		}
+		err = mgr.workflowRep.CreateStepRoom(stepRoom)
+		if err != nil {
+			createStepRoomsLog.WithError(err).WithField("roomID", roomID).Error("Failed to create step room - ignore for now")
+			err = nil
+		}
+	}
 	return
 }
 
@@ -224,7 +253,12 @@ func (mgr *WorkflowTemplateManagerImpl) getStepsFromStart(templateID models.Work
 			getStepsFromStartLog.Warn("Step not found")
 			break
 		} else if err != nil {
-			getStepsFromStartLog.WithError(err).Error("Failed to get startStep")
+			getStepsFromStartLog.WithError(err).Error("Failed to get step for template")
+			break
+		}
+		err = mgr.fillStepRooms(currentStep)
+		if err != nil {
+			getStepsFromStartLog.WithError(err).Error("Failed to get step room for template step")
 			break
 		}
 
@@ -254,6 +288,22 @@ func (mgr *WorkflowTemplateManagerImpl) getStepsFromStart(templateID models.Work
 		}
 	}
 
+	return
+}
+
+func (mgr *WorkflowTemplateManagerImpl) fillStepRooms(step *models.Step) (err error) {
+	fillStepRoomsLog := log.WithField("stepID", step.ID)
+
+	stepRooms, err := mgr.workflowRep.GetRoomsByStepID(step.ID)
+	if err != nil {
+		fillStepRoomsLog.WithError(err).Error("Failed to get rooms by step id")
+		return
+	}
+
+	step.RoomIDs = make([]models.RoomID, len(stepRooms))
+	for it, stepRoom := range stepRooms {
+		step.RoomIDs[it] = stepRoom.RoomID
+	}
 	return
 }
 
@@ -311,6 +361,17 @@ func (mgr *WorkflowTemplateManagerImpl) UpdateStep(templateID models.WorkflowTem
 	err = mgr.workflowRep.UpdateStep(step)
 	if err != nil {
 		updateLog.WithError(err).Error("Failed to update step")
+		return
+	}
+
+	err = mgr.workflowRep.ClearStepRooms(step.ID)
+	if err != nil {
+		updateLog.WithError(err).Error("Failed to clear step rooms for step update - ignore for now")
+		err = nil
+	}
+	err = mgr.createStepRooms(step)
+	if err != nil {
+		updateLog.WithError(err).Error("Failed to create step rooms")
 		return
 	}
 
@@ -392,6 +453,11 @@ func (mgr *WorkflowTemplateManagerImpl) DeleteStep(templateID models.WorkflowTem
 		deleteLog.WithError(err).Error("Failed to delete step")
 		return
 	}
+	err = mgr.workflowRep.ClearStepRooms(stepID)
+	if err != nil {
+		deleteLog.WithError(err).Error("Failed to delete step rooms - ignore for now")
+		err = nil
+	}
 
 	if fromStep != nil && toStepID > 0 {
 		newNextStep := &models.NextStep{
@@ -462,8 +528,8 @@ func (mgr *WorkflowTemplateManagerImpl) copySteps(templateID models.WorkflowTemp
 	currentPrevStep := newStartID
 	for it, oldStep := range oldSteps {
 		newStep := &models.Step{
-			Label:  oldStep.Label,
-			RoomID: oldStep.RoomID,
+			Label:   oldStep.Label,
+			RoomIDs: oldStep.RoomIDs,
 		}
 
 		if it == 0 && firstIsStartStep {
@@ -547,6 +613,11 @@ func (mgr *WorkflowTemplateManagerImpl) deleteSteps(steps []*models.Step, delete
 		if err != nil {
 			stepLog.WithError(err).Error("Failed to delete step")
 			return
+		}
+		err = mgr.workflowRep.ClearStepRooms(step.ID)
+		if err != nil {
+			stepLog.WithError(err).Error("Failed to clear step rooms - ignore for now")
+			err = nil
 		}
 
 		var nextStep *models.NextStep

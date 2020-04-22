@@ -173,7 +173,7 @@ Für die Backend-Anwendung sind zwei verschiedene Schnittstellen vorgesehen.
 Eine Schnittstelle ist für den Tracker und eine für die App vorgesehen.
 Die unterschiedlichen Schnittstellen sollen die aus der Analyse entwickelten Ansprüche entsprechend erfüllen.
 
-\paragraph{Tracker-Schnittstelle}
+\paragraph{Tracker-Schnittstelle} \label{par:tracker-schnittstelle}
 Für die Schnittstelle des Trackers bedeutet dies, dass sie möglichst simpel und effizient sein muss.
 Dies wird über ein entsprechendes Protokoll und einem Datenformat erreicht.
 Das verwendete Protokoll ist das \acrfull{CoAP} Protokoll und das Datenformat ist \acrfull{CBOR}.
@@ -204,12 +204,12 @@ in 83.3\% der Zeit schnellerer Zeit serialisiert hat.
 
 Die Tracker-Schnittstelle soll drei Endpunkte zur Verfügung stellen.
 Diese sind in \autoref{tab:coap-api} aufgelistet.
-Bis auf den Endpunkt zum erstellen eines neuen Trackers, erhalten alle Endpunkte als Parameter die Tracker ID des Trackers, der die Anfrage stellt.
-Der Endpunkt zum Speichern der Tracking Ergebnisse hat zudem als Parameter die Ergebnisste selbst.
+Bis auf den Endpunkt zum Erstellen eines neuen Trackers, erhalten alle Endpunkte als Parameter die Tracker ID des Trackers, der die Anfrage stellt.
+Der Endpunkt zum Speichern der Trackingergebnisse hat zudem als Parameter die Ergebnisse selbst.
 
 \begin{table}[]
-\begin{tabular}{l|l|l|l}
-\textbf{Verb} & \textbf{Pfad}     & \textbf{Aktion}                   & \textbf{Rückgabe-Wert}    \\ \hline
+\begin{tabular}{l l l l}
+\textbf{Verb} & \textbf{Pfad}     & \textbf{Aktion}                   & \textbf{Rückgabewert}    \\ \hline
 POST          & /tracker/new      & Neuen Tracker erstellen           & Tracker ID \\ \hline
 GET           & /tracker/poll     & Kommando für Tracker abfragen     & Tracker Kommando   \\ \hline
 POST          & /tracker/tracking & Ergebnisse des Tracking speichern & -
@@ -222,7 +222,7 @@ POST          & /tracker/tracking & Ergebnisse des Tracking speichern & -
 Die Schnittstelle für die App hat keine besonderen Anforderungen und kann daher frei gewählt werden.
 Aus diesem Grund werden Protokolle und Datenformate verwendet, die momentan dem aktuellen Stand der
 Technik entsprechen. \TODO{Quelle für aktuelle Protokolle}
-Dies ergibt sich der Vorteil, dass sie mit allen anderen gewählten Technologien sehr gut
+Daraus ergibt sich der Vorteil, dass sie mit allen anderen gewählten Technologien sehr gut
 kombinierbar sind und entsprechende Bibliotheken vorhanden sind.
 Das verwendete Protokoll ist das \gls{HTTP}-Protokoll und das Datenformat ist \gls{JSON}.
 Die Schnittstelle basiert auf dem \gls{REST} Paradigma (vgl. \cite{Fielding2000}). \TODO{Soll REST erläutert werden?}
@@ -232,41 +232,41 @@ Alle verfügbaren Endpunkte der App-Schnittstelle sind in \autoref{tab:http-api}
 \begin{landscape}
 	\begin{longtable}{l|l|l|l|l}
 		\caption{Liste aller Endpunkte der App-Schnittstelle \label{tab:http-api}} \\
-\textbf{Verb} & \textbf{Pfad}                        & \textbf{Aktion}                     & \textbf{Parameter}                                          & \textbf{Rückgabe-Wert}                                                   \hline \endfirsthead
-\textbf{Verb} & \textbf{Pfad}                        & \textbf{Aktion}                     & \textbf{Parameter}                                          & \textbf{Rückgabe-Wert}                                                   \hline \endhead
+\textbf{Verb} & \textbf{Pfad} & \textbf{Aktion} & \textbf{Parameter} & \textbf{Rückgabewert}                                                   \hline \endfirsthead
+\textbf{Verb} & \textbf{Pfad} & \textbf{Aktion} & \textbf{Parameter} & \textbf{Rückgabewert}                                                   \hline \endhead
 \multicolumn{5}{c}{\textit{Räume}} \\ \hline
-GET           & /room                                & Auflistung der Räume                & -                                                           & Liste aller Räume                                                       \\ \hline
-POST          & /room                                & Erstellen eines neuen Raums         & Raum                                                        & Erstellter Raum                                                         \\ \hline
-PUT           & /room/:id                            & Raum aktualisieren                  & Raum                                                        & Aktualisierter Raum                                                     \\ \hline
-DELETE        & /room/:id                            & Raum löschen                        & -                                                           & -                                                                       \\ \hline
+\texttt{GET}    & \texttt{/room}     & Auflistung der Räume        & -    & Liste aller Räume                                                       \\ \hline
+\texttt{POST}   & \texttt{/room}     & Erstellen eines neuen Raums & Raum & Erstellter Raum                                                         \\ \hline
+\texttt{PUT}    & \texttt{/room/:id} & Raum aktualisieren          & Raum & Aktualisierter Raum                                                     \\ \hline
+\texttt{DELETE} & \texttt{/room/:id} & Raum löschen                & -    & -                                                                       \\ \hline
 \multicolumn{5}{c}{\textit{Tracker}} \\ \hline
-GET           & /tracker                             & Auflistung der Tracker              & -                                                           & Liste aller Tracker                                                      \\ \hline
-PUT           & /tracker/:id                         & Tracker aktualisieren               & Tracker                                                     & Aktualisierter Tracker                                                  \\ \hline
-DELETE        & /tracker/:id                         & Tracker löschen                     & -                                                           & -                                                                       \\ \hline
-GET           & /tracker/:id/next\_poll              & Zeit bis nächste Kommando Abholung  & -                                                           & Sekunden                                                                \\ \hline
-POST          & /tracker/:id/learn                   & Lernen mit Tracker starten          & -                                                           & Lernzeit                                                                \\ \hline
-GET           & /tracker/:id/learn                   & Lernstatus abfragen                & -                                                           & \begin{tabular}[c]{@{}l@{}}Abgeschlossen\\ Gefundene SSIDs\end{tabular} \\ \hline
-DELETE        & /tracker/:id/learn                   & Lernen abbrechen                    & -                                                           & -                                                                       \\ \hline
-POST          & /tracker/:id/learn/finish            & Lernen abschließen                  & \begin{tabular}[c]{@{}l@{}}Raum ID\\ SSIDs\end{tabular}     &                                                                         \\ \hline
-GET           & /tracker                             & Auflistung der Tracker              & -                                                           & Liste aller Tracker                                                      \\ \hline
+\texttt{GET}    & \texttt{/tracker}                  & Auflistung der Tracker             & -                                                       & Liste aller Tracker                                                      \\ \hline
+\texttt{PUT}    & \texttt{/tracker/:id}              & Tracker aktualisieren              & Tracker                                                 & Aktualisierter Tracker                                                  \\ \hline
+\texttt{DELETE} & \texttt{/tracker/:id}              & Tracker löschen                    & -                                                       & -                                                                       \\ \hline
+\texttt{GET}    & \texttt{/tracker/:id/next\_poll}   & Zeit bis nächste Kommando Abholung & -                                                       & Sekunden                                                                \\ \hline
+\texttt{POST}   & \texttt{/tracker/:id/learn}        & Lernen mit Tracker starten         & -                                                       & Lernzeit                                                                \\ \hline
+\texttt{GET}    & \texttt{/tracker/:id/learn}        & Lernstatus abfragen                & -                                                       & \begin{tabular}[c]{@{}l@{}}Abgeschlossen\\ Gefundene SSIDs\end{tabular} \\ \hline
+\texttt{DELETE} & \texttt{/tracker/:id/learn}        & Lernen abbrechen                   & -                                                       & -                                                                       \\ \hline
+\texttt{POST}   & \texttt{/tracker/:id/learn/finish} & Lernen abschließen                 & \begin{tabular}[c]{@{}l@{}}Raum ID\\ SSIDs\end{tabular} & \\ \hline
+\texttt{GET}    & \texttt{/tracker}                  & Auflistung der Tracker             & -                                                       & Liste aller Tracker                                                      \\ \hline
 \multicolumn{5}{c}{\textit{Workflows}} \\ \hline
-GET           & /workflow/template                   & Auflistung der Templates            & -                                                           & Liste aller Templates                                                   \\ \hline
-POST          & /workflow/template                   & Template erstellen                  & Template                                                    & Erstelltes Template                                                     \\ \hline
-PUT           & /workflow/template/:id               & Template aktualisieren              & Tempalte                                                    & Aktualisiertes Template                                                 \\ \hline
-DELETE        & /workflow/template/:id               & Template löschen                    & -                                                           & -                                                                       \\ \hline
-POST          & /workflow/template/:id/start         & Start Schritt erstellen             & Step                                                        & Erstellter Step                                                         \\ \hline
-POST          & /workflow/template/:id/step          & Schritt hinzufügen                  & \begin{tabular}[c]{@{}l@{}}Step\\ Vorgänger ID\end{tabular} & Erstellter Step                                                         \\ \hline
-GET           & /workflow/template/:id/step/:id      & Schritt abfragen                    & -                                                           & Step                                                                    \\ \hline
-PUT           & /workflow/template/:id/step/:id      & Schritt aktualisieren               & Step                                                        & Aktualisierter Step                                                     \\ \hline
-DELETE        & /workflow/template/:id/step/:id      & Schritt löschen                     & -                                                           & -                                                                       \\ \hline
-POST          & /workflow/template/:id/step/:id/move & Schritt verschieben                 & Richtung                                                    & -                                                                       \\ \hline
-POST          & /workflow/template/revision          & Template Revision erstellen         & Label                                                       & Erstellte Revision                                                      \\ \hline
-GET           & /workflow/exec                       & Auflistung der Ausführungen         & -                                                           & Execution                                                               \\ \hline
-POST          & /workflow/exec                       & Ausführung erstellen                & Execution                                                   & Erstelle Execution                                                      \\ \hline
-POST          & /workflow/exec/:id/progress/:id      & Ausführung zu Schritt progressieren & -                                                           & -                                                                       \\ \hline
-POST          & /workflow/exec/:id/cancel            & Ausführung abbrechen                & -                                                           & -                                                                       \\ \hline
+\texttt{GET}    & \texttt{/workflow/template}                   & Auflistung der Templates            & -                                                           & Liste aller Templates                                                   \\ \hline
+\texttt{POST}   & \texttt{/workflow/template}                   & Template erstellen                  & Template                                                    & Erstelltes Template                                                     \\ \hline
+\texttt{PUT}    & \texttt{/workflow/template/:id}               & Template aktualisieren              & Tempalte                                                    & Aktualisiertes Template                                                 \\ \hline
+\texttt{DELETE} & \texttt{/workflow/template/:id}               & Template löschen                    & -                                                           & -                                                                       \\ \hline
+\texttt{POST}   & \texttt{/workflow/template/:id/start}         & Start Schritt erstellen             & Step                                                        & Erstellter Step                                                         \\ \hline
+\texttt{POST}   & \texttt{/workflow/template/:id/step}          & Schritt hinzufügen                  & \begin{tabular}[c]{@{}l@{}}Step\\ Vorgänger ID\end{tabular} & Erstellter Step                                                         \\ \hline
+\texttt{GET}    & \texttt{/workflow/template/:id/step/:id}      & Schritt abfragen                    & -                                                           & Step                                                                    \\ \hline
+\texttt{PUT}    & \texttt{/workflow/template/:id/step/:id}      & Schritt aktualisieren               & Step                                                        & Aktualisierter Step                                                     \\ \hline
+\texttt{DELETE} & \texttt{/workflow/template/:id/step/:id}      & Schritt löschen                     & -                                                           & -                                                                       \\ \hline
+\texttt{POST}   & \texttt{/workflow/template/:id/step/:id/move} & Schritt verschieben                 & Richtung                                                    & -                                                                       \\ \hline
+\texttt{POST}   & \texttt{/workflow/template/revision}          & Template Revision erstellen         & Label                                                       & Erstellte Revision                                                      \\ \hline
+\texttt{GET}    & \texttt{/workflow/exec}                       & Auflistung der Ausführungen         & -                                                           & Execution                                                               \\ \hline
+\texttt{POST}   & \texttt{/workflow/exec}                       & Ausführung erstellen                & Execution                                                   & Erstelle Execution                                                      \\ \hline
+\texttt{POST}   & \texttt{/workflow/exec/:id/progress/:id}      & Ausführung zu Schritt progressieren & -                                                           & -                                                                       \\ \hline
+\texttt{POST}   & \texttt{/workflow/exec/:id/cancel}            & Ausführung abbrechen                & -                                                           & -                                                                       \\ \hline
 \multicolumn{5}{c}{\textit{Sonstiges}}  \\ \hline
-GET           & /export.xlsx                         & Datenexport für Analyse             & -                                                           & Excel-Datei
+\texttt{GET} & \texttt{/export.xlsx} & Datenexport für Analyse & - & Excel-Datei
 	\end{longtable}
 \end{landscape}
 \end{footnotesize}

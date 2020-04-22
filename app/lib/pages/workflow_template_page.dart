@@ -160,14 +160,14 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
         previousStepID: prevStep.id,
         step: WFStep(
           label: stepLabelEditController.text,
-          roomID: roomDropdownController.selectedItem.id,
+          roomIDs: [roomDropdownController.selectedItem.id],
         ),
       );
       await templateClient.addStep(templateID, createStepRequest);
     } else {
       var step = WFStep(
         label: stepLabelEditController.text,
-        roomID: roomDropdownController.selectedItem.id,
+        roomIDs: [roomDropdownController.selectedItem.id],
       );
       await templateClient.addStartStep(templateID, step);
     }
@@ -201,7 +201,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
     Navigator.of(context).pop();
 
     stepLabelEditController.text = step.label;
-    roomDropdownController.defaultID = step.roomID;
+    roomDropdownController.defaultID = step.roomIDs[0];
     stepDecisionLabelEditController = [];
     step.options.forEach((decision, step) {
       stepDecisionLabelEditController.add(TextEditingController());
@@ -230,7 +230,7 @@ class _WorkflowTemplatePageState extends State<WorkflowTemplatePage> {
     var editedStep = WFStep(
       id: step.id,
       label: stepLabelEditController.text,
-      roomID: roomDropdownController.selectedItem.id,
+      roomIDs: [roomDropdownController.selectedItem.id],
       options: options,
     );
 

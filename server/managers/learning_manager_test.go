@@ -21,6 +21,7 @@ var _ = Describe("LearningManager", func() {
 		mockTrackerManager          *mock.MockTrackerManager
 		mockRoomManager             *mock.MockRoomManager
 		mockWorkflowTemplateManager *mock.MockWorkflowTemplateManager
+		mockTrackingManager         *mock.MockTrackingManager
 
 		trackerIdle             *models.Tracker
 		trackerLearning         *models.Tracker
@@ -55,6 +56,8 @@ var _ = Describe("LearningManager", func() {
 		roomManager = mockRoomManager
 		mockWorkflowTemplateManager = mock.NewMockWorkflowTemplateManager(mockCtrl)
 		workflowTemplateManager = mockWorkflowTemplateManager
+		mockTrackingManager = mock.NewMockTrackingManager(mockCtrl)
+		trackingManager = mockTrackingManager
 
 		gormNotFound := func(err error) bool {
 			return gorm.IsRecordNotFoundError(err)
@@ -164,6 +167,7 @@ var _ = Describe("LearningManager", func() {
 			mockScanResultRep.EXPECT().GetAllForTracker(id).Return([]*models.ScanResult{}, nil)
 			mockRoomManager.EXPECT().UpdateRoom(outRoom).Return(nil).Times(1)
 			mockTrackerManager.EXPECT().SetTrackerStatus(id, models.TrackerStatusIdle).Return(nil).Times(1)
+			mockTrackingManager.EXPECT().ConsolidateScanResults([]*models.ScanResult{}).Return([]models.BSSIDTrackingData{}).Times(1)
 			Expect(manager.FinishLearning(id, roomID, []string{})).To(Succeed())
 		})
 	})

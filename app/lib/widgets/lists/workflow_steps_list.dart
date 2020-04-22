@@ -122,7 +122,7 @@ class _WorkflowStepsListState extends State<WorkflowStepsList> {
       Row(
         children: [
           FutureBuilder(
-            future: widget.roomClient.getRoomByID(step.roomID),
+            future: widget.roomClient.getRoomByID(step.roomIDs[0]),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 Room room = snapshot.data;

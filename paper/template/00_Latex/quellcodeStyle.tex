@@ -9,26 +9,27 @@
 \definecolor{PyKeywordsBlue}{HTML}{0000AC}
 \definecolor{PyCommentGrey}{HTML}{808080}
 \definecolor{PyStringGreen}{HTML}{008080}
+\definecolor{light-gray}{gray}{0.95}
 
 % -- Default Listing-Styles
 
 \lstset{
-	% Das Paket "listings" kann kein UTF-8. Deswegen werden hier 
+	% Das Paket "listings" kann kein UTF-8. Deswegen werden hier
 	% die häufigsten Zeichen definiert (ä,ö,ü,...)
 	literate=%
 		{ä}{{\"a}}1 {ë}{{\"e}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
 		{Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
 		{ß}{{\ss}}1 {ø}{{\o}}1  {€}{{\euro}}1,
-	breaklines=true,        % Breche lange Zeilen um 
+	breaklines=true,        % Breche lange Zeilen um
 	breakatwhitespace=true, % Wenn möglich, bei Leerzeichen umbrechen
 	% Symbol für Zeilenumbruch einfügen
 	prebreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\rhookswarrow}},
 	postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\rcurvearrowse\space}},
-	tabsize=4,                                 % Setze die Breite eines Tabs
+	tabsize=2,                                 % Setze die Breite eines Tabs
 	basicstyle=\ttfamily\small,                % Grundsätzlicher Schriftstyle
 	columns=fixed,                             % Besseres Schriftbild
 	numbers=left,                              % Nummerierung der Zeilen
-	%frame=single,                             % Umrandung des Codes
+	% frame=single,                            % Umrandung des Codes
 	showstringspaces=false,                    % Keine Leerzeichen hervorheben
 	keywordstyle=\color{blue},
 	ndkeywordstyle=\bfseries\color{darkgray},
@@ -36,5 +37,6 @@
 	commentstyle=\itshape\color{JavaGruen},   % Kommentare in eigener Farbe
 	stringstyle=\color{JavaBlau},             % Strings in eigener Farbe,
 	captionpos=b,                             % Bild*unter*schrift
-	xleftmargin=5.0ex
+	xleftmargin=5.0ex,
+	backgroundcolor=\color{light-gray}
 }
