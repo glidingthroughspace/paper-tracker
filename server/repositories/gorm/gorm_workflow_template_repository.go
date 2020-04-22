@@ -5,6 +5,7 @@ import "paper-tracker/models"
 func init() {
 	databaseModels = append(databaseModels, &models.WorkflowTemplate{})
 	databaseModels = append(databaseModels, &models.Step{})
+	databaseModels = append(databaseModels, &models.StepRoom{})
 	databaseModels = append(databaseModels, &models.NextStep{})
 	databaseModels = append(databaseModels, &models.WorkflowExec{})
 	databaseModels = append(databaseModels, &models.ExecStepInfo{})
@@ -54,14 +55,24 @@ func (rep *GormWorkflowTemplateRepository) CreateStep(step *models.Step) (err er
 	return
 }
 
+func (rep *GormWorkflowTemplateRepository) CreateStepRoom(stepRoom *models.StepRoom) (err error) {
+	err = databaseConnection.Create(stepRoom).Error
+	return
+}
+
 func (rep *GormWorkflowTemplateRepository) GetStepByID(stepID models.StepID) (step *models.Step, err error) {
 	step = &models.Step{}
 	err = databaseConnection.First(step, &models.Step{ID: stepID}).Error
 	return
 }
 
-func (rep *GormWorkflowTemplateRepository) GetStepsByRoomID(roomID models.RoomID) (steps []*models.Step, err error) {
-	err = databaseConnection.Find(&steps, &models.Step{RoomID: roomID}).Error
+func (rep *GormWorkflowTemplateRepository) GetRoomsByStepID(stepID models.StepID) (stepRooms []*models.StepRoom, err error) {
+	err = databaseConnection.Find(&stepRooms, &models.StepRoom{StepID: stepID}).Error
+	return
+}
+
+func (rep *GormWorkflowTemplateRepository) GetStepsByRoomID(roomID models.RoomID) (stepRooms []*models.StepRoom, err error) {
+	err = databaseConnection.Find(&stepRooms, &models.StepRoom{RoomID: roomID}).Error
 	return
 }
 
@@ -72,6 +83,11 @@ func (rep *GormWorkflowTemplateRepository) UpdateStep(step *models.Step) (err er
 
 func (rep *GormWorkflowTemplateRepository) DeleteStep(stepID models.StepID) (err error) {
 	err = databaseConnection.Delete(&models.Step{ID: stepID}).Error
+	return
+}
+
+func (rep *GormWorkflowTemplateRepository) ClearStepRooms(stepID models.StepID) (err error) {
+	err = databaseConnection.Delete(&models.StepRoom{StepID: stepID}).Error
 	return
 }
 
