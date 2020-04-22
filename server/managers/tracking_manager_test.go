@@ -10,7 +10,7 @@ import (
 
 var _ = Describe("TrackingManager", func() {
 	var (
-		manager *TrackingManager
+		manager *TrackingManagerImpl
 	)
 
 	BeforeEach(func() {

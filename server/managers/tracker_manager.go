@@ -6,14 +6,30 @@ import (
 	"paper-tracker/models"
 	"paper-tracker/models/communication"
 	"paper-tracker/repositories"
+	"paper-tracker/utils"
 	"sync"
 	"time"
 
 	"github.com/jinzhu/now"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
-var trackerManager *TrackerManager
+var trackerManager TrackerManager
+
+type TrackerManager interface {
+	GetTrackerByID(trackerID models.TrackerID) (*models.Tracker, error)
+	GetAllTrackers() ([]*models.Tracker, error)
+	SetTrackerStatus(trackerID models.TrackerID, status models.TrackerStatus) error
+	UpdateTrackerLabel(trackerID models.TrackerID, label string) (*models.Tracker, error)
+	DeleteTracker(trackerID models.TrackerID) error
+	NotifyNewTracker() (*models.Tracker, error)
+	PollCommand(trackerID models.TrackerID) (*models.Command, error)
+	InWorkingHours() (inHours bool, toStart time.Duration)
+	UpdateFromResponse(trackerID models.TrackerID, resp communication.TrackerCmdResponse) error
+	UpdateRoom(tracker *models.Tracker, roomID models.RoomID) error
+	NewTrackingData(trackerID models.TrackerID, resultID uint64, batchCount uint8, scanRes []*models.ScanResult) error
+}
 
 type CachedScanResults struct {
 	ResultID        uint64
@@ -22,7 +38,7 @@ type CachedScanResults struct {
 	ScanResults     []*models.ScanResult
 }
 
-type TrackerManager struct {
+type TrackerManagerImpl struct {
 	trackerRep            repositories.TrackerRepository
 	scanResultsCacheMutex sync.Mutex
 	scanResultsCache      map[models.TrackerID]CachedScanResults
@@ -35,35 +51,27 @@ type TrackerManager struct {
 	workStartHour         int
 	workEndHour           int
 	workOnWeekend         bool
+	lowBatteryThreshold   int
 	done                  chan struct{}
 }
 
-func CreateTrackerManager(
-	trackerRep repositories.TrackerRepository,
-	idleSleepSec,
-	trackingSleepSec,
-	learningSleepSec,
-	sendInfoSleepSec,
-	sendInfoIntervalSec,
-	maxSleepSec,
-	workStartHour,
-	workEndHour int,
-	workOnWeekend bool) *TrackerManager {
+func CreateTrackerManager(trackerRep repositories.TrackerRepository) TrackerManager {
 	if trackerManager != nil {
 		return trackerManager
 	}
 
-	trackerManager = &TrackerManager{
+	trackerManager = &TrackerManagerImpl{
 		trackerRep:          trackerRep,
-		idleSleepSec:        idleSleepSec,
-		trackingSleepSec:    trackingSleepSec,
-		learningSleepSec:    learningSleepSec,
-		sendInfoSleepSec:    sendInfoSleepSec,
-		sendInfoIntervalSec: sendInfoIntervalSec,
-		maxSleepSec:         maxSleepSec,
-		workStartHour:       workStartHour,
-		workEndHour:         workEndHour,
-		workOnWeekend:       workOnWeekend,
+		idleSleepSec:        viper.GetInt("cmd.idle.sleep"),
+		trackingSleepSec:    viper.GetInt("cmd.track.sleep"),
+		learningSleepSec:    viper.GetInt("cmd.learn.sleep"),
+		sendInfoSleepSec:    viper.GetInt("cmd.info.sleep"),
+		sendInfoIntervalSec: viper.GetInt("cmd.info.interval"),
+		maxSleepSec:         viper.GetInt("cmd.maxSleep"),
+		workStartHour:       viper.GetInt("work.startHour"),
+		workEndHour:         viper.GetInt("work.endHour"),
+		workOnWeekend:       viper.GetBool("work.onWeekend"),
+		lowBatteryThreshold: viper.GetInt("lowBatteryThreshold"),
 		done:                make(chan struct{}),
 		scanResultsCache:    make(map[models.TrackerID]CachedScanResults),
 	}
@@ -71,11 +79,11 @@ func CreateTrackerManager(
 	return trackerManager
 }
 
-func GetTrackerManager() *TrackerManager {
+func GetTrackerManager() TrackerManager {
 	return trackerManager
 }
 
-func (mgr *TrackerManager) GetTrackerByID(trackerID models.TrackerID) (tracker *models.Tracker, err error) {
+func (mgr *TrackerManagerImpl) GetTrackerByID(trackerID models.TrackerID) (tracker *models.Tracker, err error) {
 	tracker, err = mgr.trackerRep.GetByID(trackerID)
 	if err != nil {
 		log.WithFields(log.Fields{"trackerID": trackerID, "err": err}).Error("Tracker not found")
@@ -84,7 +92,7 @@ func (mgr *TrackerManager) GetTrackerByID(trackerID models.TrackerID) (tracker *
 	return
 }
 
-func (mgr *TrackerManager) GetAllTrackers() (trackers []*models.Tracker, err error) {
+func (mgr *TrackerManagerImpl) GetAllTrackers() (trackers []*models.Tracker, err error) {
 	trackers, err = mgr.trackerRep.GetAll()
 	if err != nil {
 		log.WithError(err).Error("Failed to get all trackers")
@@ -93,7 +101,7 @@ func (mgr *TrackerManager) GetAllTrackers() (trackers []*models.Tracker, err err
 	return
 }
 
-func (mgr *TrackerManager) SetTrackerStatus(trackerID models.TrackerID, status models.TrackerStatus) (err error) {
+func (mgr *TrackerManagerImpl) SetTrackerStatus(trackerID models.TrackerID, status models.TrackerStatus) (err error) {
 	err = mgr.trackerRep.SetStatusByID(trackerID, status)
 	if err != nil {
 		log.WithFields(log.Fields{"trackerID": trackerID, "status": status, "err": err}).Error("Failed to set status of tracker")
@@ -102,7 +110,7 @@ func (mgr *TrackerManager) SetTrackerStatus(trackerID models.TrackerID, status m
 	return
 }
 
-func (mgr *TrackerManager) UpdateTrackerLabel(trackerID models.TrackerID, label string) (tracker *models.Tracker, err error) {
+func (mgr *TrackerManagerImpl) UpdateTrackerLabel(trackerID models.TrackerID, label string) (tracker *models.Tracker, err error) {
 	setLabelLog := log.WithFields(log.Fields{"trackerID": trackerID, "label": label})
 
 	tracker, err = mgr.trackerRep.GetByID(trackerID)
@@ -120,7 +128,7 @@ func (mgr *TrackerManager) UpdateTrackerLabel(trackerID models.TrackerID, label 
 	return
 }
 
-func (mgr *TrackerManager) DeleteTracker(trackerID models.TrackerID) (err error) {
+func (mgr *TrackerManagerImpl) DeleteTracker(trackerID models.TrackerID) (err error) {
 	deleteLog := log.WithField("trackerID", trackerID)
 
 	tracker, err := mgr.GetTrackerByID(trackerID)
@@ -142,7 +150,7 @@ func (mgr *TrackerManager) DeleteTracker(trackerID models.TrackerID) (err error)
 	return
 }
 
-func (mgr *TrackerManager) NotifyNewTracker() (tracker *models.Tracker, err error) {
+func (mgr *TrackerManagerImpl) NotifyNewTracker() (tracker *models.Tracker, err error) {
 	tracker = &models.Tracker{Label: "New Tracker", Status: models.TrackerStatusIdle}
 	err = mgr.trackerRep.Create(tracker)
 	if err != nil {
@@ -152,7 +160,7 @@ func (mgr *TrackerManager) NotifyNewTracker() (tracker *models.Tracker, err erro
 	return
 }
 
-func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.Command, err error) {
+func (mgr *TrackerManagerImpl) PollCommand(trackerID models.TrackerID) (cmd *models.Command, err error) {
 	pollLog := log.WithField("trackerID", trackerID)
 
 	tracker, err := mgr.trackerRep.GetByID(trackerID)
@@ -209,7 +217,7 @@ func (mgr *TrackerManager) PollCommand(trackerID models.TrackerID) (cmd *models.
 
 //TODO: Write test and somehow mock time.Now() for that
 // InWorkingHours returns whether we are currently in working hours and if not, how long it will be until working hour
-func (mgr *TrackerManager) InWorkingHours() (inHours bool, toStart time.Duration) {
+func (mgr *TrackerManagerImpl) InWorkingHours() (inHours bool, toStart time.Duration) {
 	if mgr.workStartHour < 0 || mgr.workEndHour < 0 {
 		return true, time.Duration(0)
 	}
@@ -238,7 +246,7 @@ func (mgr *TrackerManager) InWorkingHours() (inHours bool, toStart time.Duration
 	return
 }
 
-func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp communication.TrackerCmdResponse) (err error) {
+func (mgr *TrackerManagerImpl) UpdateFromResponse(trackerID models.TrackerID, resp communication.TrackerCmdResponse) (err error) {
 	updateLog := log.WithFields(log.Fields{"trackerID": trackerID, "resp": resp})
 
 	tracker, err := mgr.trackerRep.GetByID(trackerID)
@@ -251,16 +259,31 @@ func (mgr *TrackerManager) UpdateFromResponse(trackerID models.TrackerID, resp c
 	tracker.IsCharging = resp.IsCharging
 	tracker.LastBatteryUpdate = time.Now()
 
+	if tracker.BatteryPercentage < mgr.lowBatteryThreshold && !tracker.IsCharging && !tracker.LowBatteryNotified {
+		err = utils.SendMail(
+			fmt.Sprintf("Paper-Tracker: '%s' has a low battery", tracker.Label),
+			fmt.Sprintf("The battery of the tracker '%s' only has %d%% left! Please charge the tracker as soon as possible.", tracker.Label, tracker.BatteryPercentage))
+		if err != nil {
+			updateLog.WithError(err).Warn("Failed to send low battery notification - ignore for now")
+			err = nil
+		} else {
+			tracker.LowBatteryNotified = true
+		}
+	} else if tracker.IsCharging {
+		tracker.LowBatteryNotified = false
+	}
+
 	updateLog.Debugf("Tracker %ds battery is at %d%% capacity", tracker.ID, resp.BatteryPercentage)
 	err = mgr.trackerRep.Update(tracker)
 	if err != nil {
 		updateLog.WithError(err).Error("Failed to update tracker")
 		return
 	}
+
 	return
 }
 
-func (mgr *TrackerManager) UpdateRoom(tracker *models.Tracker, roomID models.RoomID) (err error) {
+func (mgr *TrackerManagerImpl) UpdateRoom(tracker *models.Tracker, roomID models.RoomID) (err error) {
 	updateLog := log.WithFields(log.Fields{"trackerID": tracker.ID, "roomID": roomID})
 
 	tracker.LastRoom = roomID
@@ -272,7 +295,7 @@ func (mgr *TrackerManager) UpdateRoom(tracker *models.Tracker, roomID models.Roo
 	return
 }
 
-func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, resultID uint64, batchCount uint8, scanRes []*models.ScanResult) (err error) {
+func (mgr *TrackerManagerImpl) NewTrackingData(trackerID models.TrackerID, resultID uint64, batchCount uint8, scanRes []*models.ScanResult) (err error) {
 	trackingDataLog := log.WithField("trackerID", trackerID)
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
@@ -318,7 +341,7 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, resultID 
 		err = errors.New("No tracking data expected")
 		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unexpected tracking data")
 	case models.TrackerStatusLearning:
-		err = GetLearningManager().newLearningTrackingData(trackerID, scanRes)
+		err = GetLearningManager().NewLearningTrackingData(trackerID, scanRes)
 	case models.TrackerStatusTracking:
 		if mgr.receivedAllBatchesForTracker(tracker.ID) {
 			err = GetWorkflowExecManager().ProgressToTrackerRoom(tracker.ID, tracker.LastRoom)
@@ -336,7 +359,7 @@ func (mgr *TrackerManager) NewTrackingData(trackerID models.TrackerID, resultID 
 	return
 }
 
-func (mgr *TrackerManager) receivedAllBatchesForTracker(trackerID models.TrackerID) bool {
+func (mgr *TrackerManagerImpl) receivedAllBatchesForTracker(trackerID models.TrackerID) bool {
 	return mgr.scanResultsCache[trackerID].BatchesReceived == mgr.scanResultsCache[trackerID].BatchesExpected
 }
 

@@ -17,9 +17,10 @@ type Tracker struct {
 	// LastRoom is the last known room in which the tracker was located
 	LastRoom RoomID `json:"last_room" codec:"-"`
 	// Status indicates what mode of operation the tracker is in
-	Status            TrackerStatus `json:"status" codec:"-"`
-	BatteryPercentage int           `json:"battery_percentage" codec:"-"`
-	IsCharging        bool          `json:"is_charging" codec:"-"`
+	Status             TrackerStatus `json:"status" codec:"-"`
+	BatteryPercentage  int           `json:"battery_percentage" codec:"-"`
+	IsCharging         bool          `json:"is_charging" codec:"-"`
+	LowBatteryNotified bool          `json:"low_battery_notified" codec:"-"`
 }
 
 func (tracker *Tracker) GetSecondsToNextPoll() int {

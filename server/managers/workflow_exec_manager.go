@@ -10,29 +10,42 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var workflowExecManager *WorkflowExecManager
+var workflowExecManager WorkflowExecManager
 
-type WorkflowExecManager struct {
+type WorkflowExecManager interface {
+	GetExecCountByTemplate(templateID models.WorkflowTemplateID) (int, error)
+	GetAllExec() ([]*models.WorkflowExec, error)
+	GetExecsByTemplate(templateID models.WorkflowTemplateID) ([]*models.WorkflowExec, error)
+	GetExec(execID models.WorkflowExecID) (*models.WorkflowExec, error)
+	GetExecByTrackerID(trackerID models.TrackerID) (*models.WorkflowExec, error)
+	StartExecution(exec *models.WorkflowExec) error
+	ProgressToTrackerRoom(trackerID models.TrackerID, roomID models.RoomID) error
+	ProgressToStep(execID models.WorkflowExecID, stepID models.StepID) error
+	SetExecutionFinished(execID models.WorkflowExecID) error
+	CancelExec(execID models.WorkflowExecID) error
+}
+
+type WorkflowExecManagerImpl struct {
 	workflowRep repositories.WorkflowExecRepository
 }
 
-func CreateWorkflowExecManager(workflowRep repositories.WorkflowExecRepository) *WorkflowExecManager {
+func CreateWorkflowExecManager(workflowRep repositories.WorkflowExecRepository) WorkflowExecManager {
 	if workflowExecManager != nil {
 		return workflowExecManager
 	}
 
-	workflowExecManager = &WorkflowExecManager{
+	workflowExecManager = &WorkflowExecManagerImpl{
 		workflowRep: workflowRep,
 	}
 
 	return workflowExecManager
 }
 
-func GetWorkflowExecManager() *WorkflowExecManager {
+func GetWorkflowExecManager() WorkflowExecManager {
 	return workflowExecManager
 }
 
-func (mgr *WorkflowExecManager) GetExecCountByTemplate(templateID models.WorkflowTemplateID) (int, error) {
+func (mgr *WorkflowExecManagerImpl) GetExecCountByTemplate(templateID models.WorkflowTemplateID) (int, error) {
 	execs, err := mgr.workflowRep.GetExecsByTemplateID(templateID)
 	if err != nil {
 		log.WithFields(log.Fields{"templateID": templateID, "err": err}).Error("Failed to get all execs by template id")
@@ -41,7 +54,7 @@ func (mgr *WorkflowExecManager) GetExecCountByTemplate(templateID models.Workflo
 	return len(execs), nil
 }
 
-func (mgr *WorkflowExecManager) GetAllExec() (execs []*models.WorkflowExec, err error) {
+func (mgr *WorkflowExecManagerImpl) GetAllExec() (execs []*models.WorkflowExec, err error) {
 	rawExecs, err := mgr.workflowRep.GetAllExec()
 	if err != nil {
 		log.WithError(err).Error("Failed to get all execs")
@@ -60,7 +73,7 @@ func (mgr *WorkflowExecManager) GetAllExec() (execs []*models.WorkflowExec, err 
 	return
 }
 
-func (mgr *WorkflowExecManager) GetExecsByTemplate(templateID models.WorkflowTemplateID) (execs []*models.WorkflowExec, err error) {
+func (mgr *WorkflowExecManagerImpl) GetExecsByTemplate(templateID models.WorkflowTemplateID) (execs []*models.WorkflowExec, err error) {
 	rawExecs, err := mgr.workflowRep.GetExecsByTemplateID(templateID)
 	if err != nil {
 		log.WithError(err).WithField("templateID", templateID).Error("Failed to get all execs by template id")
@@ -79,7 +92,7 @@ func (mgr *WorkflowExecManager) GetExecsByTemplate(templateID models.WorkflowTem
 	return
 }
 
-func (mgr *WorkflowExecManager) GetExec(execID models.WorkflowExecID) (exec *models.WorkflowExec, err error) {
+func (mgr *WorkflowExecManagerImpl) GetExec(execID models.WorkflowExecID) (exec *models.WorkflowExec, err error) {
 	execLog := log.WithField("execID", execID)
 
 	exec, err = mgr.workflowRep.GetExecByID(execID)
@@ -96,7 +109,7 @@ func (mgr *WorkflowExecManager) GetExec(execID models.WorkflowExecID) (exec *mod
 	return
 }
 
-func (mgr *WorkflowExecManager) GetExecByTrackerID(trackerID models.TrackerID) (exec *models.WorkflowExec, err error) {
+func (mgr *WorkflowExecManagerImpl) GetExecByTrackerID(trackerID models.TrackerID) (exec *models.WorkflowExec, err error) {
 	execLog := log.WithField("trackerID", trackerID)
 
 	exec, err = mgr.workflowRep.GetRunningExecByTrackerID(trackerID)
@@ -113,7 +126,7 @@ func (mgr *WorkflowExecManager) GetExecByTrackerID(trackerID models.TrackerID) (
 	return
 }
 
-func (mgr *WorkflowExecManager) fillExecOptions(exec *models.WorkflowExec) (err error) {
+func (mgr *WorkflowExecManagerImpl) fillExecOptions(exec *models.WorkflowExec) (err error) {
 	execOptionsLog := log.WithField("execID", exec.ID)
 
 	infos, err := mgr.workflowRep.GetExecStepInfoForExecID(exec.ID)
@@ -129,7 +142,7 @@ func (mgr *WorkflowExecManager) fillExecOptions(exec *models.WorkflowExec) (err 
 	return
 }
 
-func (mgr *WorkflowExecManager) StartExecution(exec *models.WorkflowExec) (err error) {
+func (mgr *WorkflowExecManagerImpl) StartExecution(exec *models.WorkflowExec) (err error) {
 	startExecLog := log.WithField("exec", exec)
 
 	tracker, err := GetTrackerManager().GetTrackerByID(exec.TrackerID)
@@ -206,7 +219,7 @@ func (mgr *WorkflowExecManager) StartExecution(exec *models.WorkflowExec) (err e
 	return
 }
 
-func (mgr *WorkflowExecManager) ProgressToTrackerRoom(trackerID models.TrackerID, roomID models.RoomID) (err error) {
+func (mgr *WorkflowExecManagerImpl) ProgressToTrackerRoom(trackerID models.TrackerID, roomID models.RoomID) (err error) {
 	progressLog := log.WithFields(log.Fields{"trackerID": trackerID, "roomID": roomID})
 
 	exec, err := mgr.GetExecByTrackerID(trackerID)
@@ -218,7 +231,7 @@ func (mgr *WorkflowExecManager) ProgressToTrackerRoom(trackerID models.TrackerID
 	return mgr.progress(exec, nil, &roomID, progressLog)
 }
 
-func (mgr *WorkflowExecManager) ProgressToStep(execID models.WorkflowExecID, stepID models.StepID) (err error) {
+func (mgr *WorkflowExecManagerImpl) ProgressToStep(execID models.WorkflowExecID, stepID models.StepID) (err error) {
 	progressLog := log.WithFields(log.Fields{"execID": execID, "stepID": stepID})
 
 	exec, err := mgr.GetExec(execID)
@@ -230,7 +243,7 @@ func (mgr *WorkflowExecManager) ProgressToStep(execID models.WorkflowExecID, ste
 	return mgr.progress(exec, &stepID, nil, progressLog)
 }
 
-func (mgr *WorkflowExecManager) progress(exec *models.WorkflowExec, stepID *models.StepID, roomID *models.RoomID, progressLog *log.Entry) (err error) {
+func (mgr *WorkflowExecManagerImpl) progress(exec *models.WorkflowExec, stepID *models.StepID, roomID *models.RoomID, progressLog *log.Entry) (err error) {
 	if exec.Status != models.ExecStatusRunning {
 		progressLog.Error("Workflow exec is not in status running")
 		return errors.New("Workflow exec is not in status running")
@@ -271,7 +284,7 @@ func (mgr *WorkflowExecManager) progress(exec *models.WorkflowExec, stepID *mode
 	return
 }
 
-func (mgr *WorkflowExecManager) progressInSteps(exec *models.WorkflowExec, stepID *models.StepID, roomID *models.RoomID, steps []*models.Step, currentPassed, progressToNextStep *bool, updatedStepInfo *[]*models.ExecStepInfo, progressLog *log.Entry) (bool, error) {
+func (mgr *WorkflowExecManagerImpl) progressInSteps(exec *models.WorkflowExec, stepID *models.StepID, roomID *models.RoomID, steps []*models.Step, currentPassed, progressToNextStep *bool, updatedStepInfo *[]*models.ExecStepInfo, progressLog *log.Entry) (bool, error) {
 	timeNow := time.Now()
 	for _, step := range steps {
 		currentStepInfo := exec.StepInfos[step.ID]
@@ -316,7 +329,7 @@ func (mgr *WorkflowExecManager) progressInSteps(exec *models.WorkflowExec, stepI
 	return false, nil
 }
 
-func (mgr *WorkflowExecManager) markStepAsCompleted(exec *models.WorkflowExec, step *models.Step, currentStepInfo *models.ExecStepInfo, timeNow time.Time, updatedStepInfo *[]*models.ExecStepInfo) {
+func (mgr *WorkflowExecManagerImpl) markStepAsCompleted(exec *models.WorkflowExec, step *models.Step, currentStepInfo *models.ExecStepInfo, timeNow time.Time, updatedStepInfo *[]*models.ExecStepInfo) {
 	if currentStepInfo != nil {
 		currentStepInfo.CompletedOn = &timeNow
 		if currentStepInfo.StartedOn == nil {
@@ -328,7 +341,7 @@ func (mgr *WorkflowExecManager) markStepAsCompleted(exec *models.WorkflowExec, s
 	}
 }
 
-func (mgr *WorkflowExecManager) markStepAsCurrent(exec *models.WorkflowExec, step *models.Step, timeNow time.Time, currentStepInfo *models.ExecStepInfo, updatedStepInfo *[]*models.ExecStepInfo, progressLog *log.Entry) (err error) {
+func (mgr *WorkflowExecManagerImpl) markStepAsCurrent(exec *models.WorkflowExec, step *models.Step, timeNow time.Time, currentStepInfo *models.ExecStepInfo, updatedStepInfo *[]*models.ExecStepInfo, progressLog *log.Entry) (err error) {
 	if currentStepInfo != nil {
 		currentStepInfo.StartedOn = &timeNow
 		*updatedStepInfo = append(*updatedStepInfo, currentStepInfo)
@@ -345,7 +358,7 @@ func (mgr *WorkflowExecManager) markStepAsCurrent(exec *models.WorkflowExec, ste
 	return
 }
 
-func (mgr *WorkflowExecManager) markStepAsSkipped(exec *models.WorkflowExec, step *models.Step, timeNow time.Time, currentStepInfo *models.ExecStepInfo, updatedStepInfo *[]*models.ExecStepInfo) {
+func (mgr *WorkflowExecManagerImpl) markStepAsSkipped(exec *models.WorkflowExec, step *models.Step, timeNow time.Time, currentStepInfo *models.ExecStepInfo, updatedStepInfo *[]*models.ExecStepInfo) {
 	if currentStepInfo != nil {
 		currentStepInfo.Skipped = true
 		*updatedStepInfo = append(*updatedStepInfo, currentStepInfo)
@@ -354,7 +367,7 @@ func (mgr *WorkflowExecManager) markStepAsSkipped(exec *models.WorkflowExec, ste
 	}
 }
 
-func (mgr *WorkflowExecManager) SetExecutionFinished(execID models.WorkflowExecID) (err error) {
+func (mgr *WorkflowExecManagerImpl) SetExecutionFinished(execID models.WorkflowExecID) (err error) {
 	execFinishLog := log.WithField("execID", execID)
 
 	exec, err := mgr.GetExec(execID)
@@ -382,7 +395,7 @@ func (mgr *WorkflowExecManager) SetExecutionFinished(execID models.WorkflowExecI
 	return
 }
 
-func (mgr *WorkflowExecManager) CancelExec(execID models.WorkflowExecID) (err error) {
+func (mgr *WorkflowExecManagerImpl) CancelExec(execID models.WorkflowExecID) (err error) {
 	cancelLog := log.WithField("execID", execID)
 
 	exec, err := mgr.GetExec(execID)

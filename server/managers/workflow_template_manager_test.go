@@ -13,9 +13,9 @@ import (
 var _ = Describe("WorkflowTemplateManager", func() {
 	var (
 		mockWorkflowTemplateRep *mock.MockWorkflowTemplateRepository
-		mockWorkflowExecRep     *mock.MockWorkflowExecRepository
 		mockCtrl                *gomock.Controller
-		manager                 *WorkflowTemplateManager
+		manager                 *WorkflowTemplateManagerImpl
+		mockWorkflowExecMgr     *mock.MockWorkflowExecManager
 
 		recordNotFoundErr = errors.New("record not found")
 		testErr           = errors.New("error")
@@ -32,9 +32,10 @@ var _ = Describe("WorkflowTemplateManager", func() {
 
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockWorkflowTemplateRep = mock.NewMockWorkflowTemplateRepository(mockCtrl)
-		mockWorkflowExecRep = mock.NewMockWorkflowExecRepository(mockCtrl)
-		manager = CreateWorkflowTemplateManager(mockWorkflowTemplateRep)
-		CreateWorkflowExecManager(mockWorkflowExecRep)
+		manager = CreateWorkflowTemplateManager(mockWorkflowTemplateRep).(*WorkflowTemplateManagerImpl)
+
+		mockWorkflowExecMgr = mock.NewMockWorkflowExecManager(mockCtrl)
+		workflowExecManager = mockWorkflowExecMgr
 
 		gormNotFound := func(err error) bool {
 			return err == recordNotFoundErr
@@ -73,7 +74,7 @@ var _ = Describe("WorkflowTemplateManager", func() {
 		It("CreateTemplateStart calls repo create exactly once, gets workflow and inserts startstep", func() {
 			mockWorkflowTemplateRep.EXPECT().CreateStep(step).Return(nil).Times(1)
 			mockWorkflowTemplateRep.EXPECT().GetTemplateByID(workflow.ID).Return(workflow, nil).Times(1)
-			mockWorkflowExecRep.EXPECT().GetExecsByTemplateID(workflow.ID).Return(make([]*models.WorkflowExec, 0), nil).Times(1)
+			mockWorkflowExecMgr.EXPECT().GetExecCountByTemplate(workflow.ID).Return(0, nil).Times(1)
 			mockWorkflowTemplateRep.EXPECT().UpdateTemplate(workflow).Return(nil).Times(1)
 
 			Expect(manager.CreateTemplateStart(workflow.ID, step)).To(Succeed())

@@ -14,7 +14,7 @@ var _ = Describe("TrackerManager", func() {
 	var (
 		mockTrackerRep *mock.MockTrackerRepository
 		mockCtrl       *gomock.Controller
-		manager        *TrackerManager
+		manager        *TrackerManagerImpl
 
 		//trackerIdle             *models.Tracker
 		trackerLearningFinished *models.Tracker
@@ -33,7 +33,7 @@ var _ = Describe("TrackerManager", func() {
 
 		mockCtrl = gomock.NewController(GinkgoT())
 		mockTrackerRep = mock.NewMockTrackerRepository(mockCtrl)
-		manager = CreateTrackerManager(mockTrackerRep, sleepTimeSec, 5, 5, 5, 5, 5, 5, 5, false)
+		manager = CreateTrackerManager(mockTrackerRep).(*TrackerManagerImpl)
 
 		//trackerIdle = &models.Tracker{ID: id, Label: "New Tracker", Status: models.TrackerStatusIdle}
 		trackerLearningFinished = &models.Tracker{ID: id, Label: "New Tracker", Status: models.TrackerStatusLearningFinished}
@@ -48,7 +48,7 @@ var _ = Describe("TrackerManager", func() {
 	})
 
 	Context("Test GetAllTrackers", func() {
-		outTrackers := []*models.Tracker{&models.Tracker{ID: 1, Label: "Tracker 1"}}
+		outTrackers := []*models.Tracker{{ID: 1, Label: "Tracker 1"}}
 
 		It("GetAllTrackers should call get all in rep exactly once", func() {
 			mockTrackerRep.EXPECT().GetAll().Return(outTrackers, nil).Times(1)

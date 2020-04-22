@@ -1,0 +1,39 @@
+[cmd]
+  maxsleep = 1800
+
+  [cmd.idle]
+    sleep = 5
+
+  [cmd.info]
+    interval = 60
+    sleep = 5
+
+  [cmd.learn]
+    count = 5
+    sleep = 5
+
+  [cmd.track]
+    sleep = 5
+
+[coap]
+  network = "udp"
+  port = 5688
+
+[db]
+  name = "paper-tracker.db"
+
+[http]
+  port = 8080
+
+[mail]
+  host = ""
+  password = ""
+  port = 25
+  recipients = []
+  sender = ""
+  username = ""
+
+[work]
+  endhour = -1
+  onweekend = false
+  starthour = -1

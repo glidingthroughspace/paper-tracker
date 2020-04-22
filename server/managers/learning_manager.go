@@ -10,35 +10,44 @@ import (
 
 	"github.com/onsi/ginkgo"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
-var learningManager *LearningManager
+var learningManager LearningManager
 
-type LearningManager struct {
+type LearningManager interface {
+	StartLearning(trackerID models.TrackerID) (learnTimeSec int, err error)
+	FinishLearning(trackerID models.TrackerID, roomID models.RoomID, ssids []string) error
+	GetLearningStatus(trackerID models.TrackerID) (done bool, ssids []string, err error)
+	CancelLearning(trackerID models.TrackerID) error
+	NewLearningTrackingData(trackerID models.TrackerID, scanRes []*models.ScanResult) error
+}
+
+type LearningManagerImpl struct {
 	scanResultRep repositories.ScanResultRepository
 	learnCount    int
 	learnSleepSec int
 }
 
-func CreateLearningManager(scanResultRep repositories.ScanResultRepository, learnCount, learnSleepSec int) *LearningManager {
+func CreateLearningManager(scanResultRep repositories.ScanResultRepository) LearningManager {
 	if learningManager != nil {
 		return learningManager
 	}
 
-	learningManager = &LearningManager{
+	learningManager = &LearningManagerImpl{
 		scanResultRep: scanResultRep,
-		learnCount:    learnCount,
-		learnSleepSec: learnSleepSec,
+		learnCount:    viper.GetInt("cmd.learn.count"),
+		learnSleepSec: viper.GetInt("cmd.learn.sleep"),
 	}
 
 	return learningManager
 }
 
-func GetLearningManager() *LearningManager {
+func GetLearningManager() LearningManager {
 	return learningManager
 }
 
-func (mgr *LearningManager) StartLearning(trackerID models.TrackerID) (learnTimeSec int, err error) {
+func (mgr *LearningManagerImpl) StartLearning(trackerID models.TrackerID) (learnTimeSec int, err error) {
 	learnLog := log.WithField("trackerID", trackerID)
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
@@ -63,7 +72,7 @@ func (mgr *LearningManager) StartLearning(trackerID models.TrackerID) (learnTime
 	return
 }
 
-func (mgr *LearningManager) learningRoutine(trackerID models.TrackerID, logger *log.Entry) {
+func (mgr *LearningManagerImpl) learningRoutine(trackerID models.TrackerID, logger *log.Entry) {
 	defer ginkgo.GinkgoRecover() //FIXME: Leave this in for now as sometimes the unit tests crash in this goroutine
 
 	logger.Info("Start learning routine")
@@ -88,7 +97,7 @@ func (mgr *LearningManager) learningRoutine(trackerID models.TrackerID, logger *
 }
 
 // Returns whether the learning was canceled and also "waits" the learning time
-func (mgr *LearningManager) checkLearningCanceled(trackerID models.TrackerID, logger *log.Entry) bool {
+func (mgr *LearningManagerImpl) checkLearningCanceled(trackerID models.TrackerID, logger *log.Entry) bool {
 	logger.Info("Start checking for canceled learning")
 
 	for it := 0; it < mgr.learnCount; it++ {
@@ -104,7 +113,7 @@ func (mgr *LearningManager) checkLearningCanceled(trackerID models.TrackerID, lo
 	return false
 }
 
-func (mgr *LearningManager) newLearningTrackingData(trackerID models.TrackerID, scanRes []*models.ScanResult) (err error) {
+func (mgr *LearningManagerImpl) NewLearningTrackingData(trackerID models.TrackerID, scanRes []*models.ScanResult) (err error) {
 	for _, scan := range scanRes {
 		scan.TrackerID = trackerID
 	}
@@ -113,7 +122,7 @@ func (mgr *LearningManager) newLearningTrackingData(trackerID models.TrackerID, 
 	return
 }
 
-func (mgr *LearningManager) FinishLearning(trackerID models.TrackerID, roomID models.RoomID, ssids []string) (err error) {
+func (mgr *LearningManagerImpl) FinishLearning(trackerID models.TrackerID, roomID models.RoomID, ssids []string) (err error) {
 	finishLearningLog := log.WithFields(log.Fields{"trackerID": trackerID, "roomID": roomID})
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
@@ -160,7 +169,7 @@ func (mgr *LearningManager) FinishLearning(trackerID models.TrackerID, roomID mo
 	return
 }
 
-func (mgr *LearningManager) GetLearningStatus(trackerID models.TrackerID) (done bool, ssids []string, err error) {
+func (mgr *LearningManagerImpl) GetLearningStatus(trackerID models.TrackerID) (done bool, ssids []string, err error) {
 	learningStatusLog := log.WithField("trackerID", trackerID)
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
@@ -198,7 +207,7 @@ func (mgr *LearningManager) GetLearningStatus(trackerID models.TrackerID) (done 
 	return
 }
 
-func (mgr *LearningManager) CancelLearning(trackerID models.TrackerID) (err error) {
+func (mgr *LearningManagerImpl) CancelLearning(trackerID models.TrackerID) (err error) {
 	cancelLearningLog := log.WithField("trackerID", trackerID)
 
 	tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
