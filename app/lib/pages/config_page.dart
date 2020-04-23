@@ -115,18 +115,23 @@ class _ConfigPageState extends State<ConfigPage> {
       var key = entry.key;
       var oldVal = entry.value;
 
-      var input = textController[key].text;
-      if (oldVal is int) {
-        newConfig[key] = int.parse(input);
-      } else if (oldVal is bool) {
-        newConfig[key] = input.toLowerCase() == "true" ? true : false;
-      } else if (oldVal is List) {
-        // Only supports string lists for now
-        input = input.replaceAll("[", "");
-        input = input.replaceAll("]", "");
-        newConfig[key] = input.split(",").map((val) => val.trim()).toList();
-      } else {
-        Fluttertoast.showToast(msg: "Unsupported config type: ${oldVal.runtimeType}");
+      try {
+        var input = textController[key].text;
+        if (oldVal is int) {
+          newConfig[key] = int.parse(input);
+        } else if (oldVal is bool) {
+          newConfig[key] = input.toLowerCase() == "true" ? true : false;
+        } else if (oldVal is List) {
+          // Only supports string lists for now
+          input = input.replaceAll("[", "");
+          input = input.replaceAll("]", "");
+          newConfig[key] = input.split(",").map((val) => val.trim()).toList();
+        } else {
+          Fluttertoast.showToast(msg: "Unsupported config type: ${oldVal.runtimeType}");
+          return;
+        }
+      } catch (ex) {
+        Fluttertoast.showToast(msg: "Failed to parse config value '$key': $ex");
         return;
       }
     }
