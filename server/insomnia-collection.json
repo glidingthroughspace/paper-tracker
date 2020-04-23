@@ -1,7 +1,7 @@
 {
 	"_type": "export",
 	"__export_format": 4,
-	"__export_date": "2020-04-22T11:13:10.720Z",
+	"__export_date": "2020-04-23T11:22:41.280Z",
 	"__export_source": "insomnia.desktop.app:v7.1.1",
 	"resources": [
 		{
@@ -644,6 +644,96 @@
 			"settingSendCookies": true,
 			"settingStoreCookies": true,
 			"url": "{{ base_url  }}/tracker/1/learn/cancel",
+			"_type": "request"
+		},
+		{
+			"_id": "req_45a641724bd44607acd24db0fa7d7d73",
+			"authentication": {},
+			"body": {},
+			"created": 1587627092883,
+			"description": "",
+			"headers": [],
+			"isPrivate": false,
+			"metaSortKey": -1587627092883,
+			"method": "GET",
+			"modified": 1587627122125,
+			"name": "Export",
+			"parameters": [],
+			"parentId": "fld_4b5d868d6726479f8840d156d9ec36a2",
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingFollowRedirects": "global",
+			"settingRebuildPath": true,
+			"settingSendCookies": true,
+			"settingStoreCookies": true,
+			"url": "{{ base_url  }}/export.xlsx",
+			"_type": "request"
+		},
+		{
+			"_id": "fld_4b5d868d6726479f8840d156d9ec36a2",
+			"created": 1587627089276,
+			"description": "",
+			"environment": {},
+			"environmentPropertyOrder": null,
+			"metaSortKey": -1582469028565,
+			"modified": 1587627102753,
+			"name": "Config",
+			"parentId": "wrk_ae044d20be6d4e04afd7886eaea7cdd4",
+			"_type": "request_group"
+		},
+		{
+			"_id": "req_18f3e3d8303a49b891e7dc020e9b0328",
+			"authentication": {},
+			"body": {},
+			"created": 1587628780406,
+			"description": "",
+			"headers": [],
+			"isPrivate": false,
+			"metaSortKey": -1586980023454.25,
+			"method": "GET",
+			"modified": 1587628786855,
+			"name": "Get Settings",
+			"parameters": [],
+			"parentId": "fld_4b5d868d6726479f8840d156d9ec36a2",
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingFollowRedirects": "global",
+			"settingRebuildPath": true,
+			"settingSendCookies": true,
+			"settingStoreCookies": true,
+			"url": "{{ base_url  }}/config",
+			"_type": "request"
+		},
+		{
+			"_id": "req_be4adf7654ad44258377d8809fc71d97",
+			"authentication": {},
+			"body": {
+				"mimeType": "application/json",
+				"text": "{\n  \"cmd_idle_sleep\": 30,\n  \"cmd_info_sleep\": 5,\n  \"cmd_info_interval\": 20,\n  \"cmd_track_sleep\": 5,\n  \"cmd_learn_sleep\": 5,\n  \"cmd_learn_count\": 5,\n  \"cmd_max_sleep\": 5,\n  \"low_battery_threshold\": 20,\n  \"work_start_hour\": 5,\n  \"work_end_hour\": 18,\n  \"work_on_weekend\": true,\n  \"mail_recipients\": [\"mail@max-heidinger.de\", \"test@test.com\"]\n}"
+			},
+			"created": 1587627187981,
+			"description": "",
+			"headers": [
+				{
+					"id": "pair_98a0272ea4014afa87749a3a6f179762",
+					"name": "Content-Type",
+					"value": "application/json"
+				}
+			],
+			"isPrivate": false,
+			"metaSortKey": -1586332954025.5,
+			"method": "POST",
+			"modified": 1587638906379,
+			"name": "Update Settings",
+			"parameters": [],
+			"parentId": "fld_4b5d868d6726479f8840d156d9ec36a2",
+			"settingDisableRenderRequestBody": false,
+			"settingEncodeUrl": true,
+			"settingFollowRedirects": "global",
+			"settingRebuildPath": true,
+			"settingSendCookies": true,
+			"settingStoreCookies": true,
+			"url": "{{ base_url  }}/config",
 			"_type": "request"
 		},
 		{
