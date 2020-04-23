@@ -69,7 +69,7 @@ func main() {
 	wg.Add(1)
 	go coapRouter.Serve(coapNetwork, ":"+strconv.Itoa(coapPort), &wg)
 
-	httpPort := config.GetInt(config.KeyHttpPort)
+	httpPort := config.GetInt(config.KeyHTTPPort)
 	log.WithField("port", httpPort).Info("Listening for http on specified port")
 	wg.Add(1)
 	go httpRouter.Serve(":"+strconv.Itoa(httpPort), &wg)

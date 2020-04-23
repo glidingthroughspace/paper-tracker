@@ -19,7 +19,7 @@ type ExportManagerImpl struct {
 }
 
 func CreateExportManager() ExportManager {
-	if trackingManager != nil {
+	if exportManager != nil {
 		return exportManager
 	}
 

@@ -58,5 +58,5 @@ func (r *HttpRouter) buildRoutes() {
 	r.buildAppTrackerAPIRoutes()
 	r.buildAppTemplateAPIRoutes()
 	r.buildAppExecAPIRoutes()
-	r.buildAppExportAPIRoutes()
+	r.buildAppConfigAPIRoutes()
 }
