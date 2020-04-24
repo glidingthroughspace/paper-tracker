@@ -19,5 +19,9 @@ jobs:
           working_directory: paper
           root_file: Studienarbeit.tex
           args: -interaction=nonstopmode -pdflatex=lualatex -lualatex -file-line-error -pdf -e "$max_repeat=10"
+      - uses: actions/upload-artifact@v1
+        with:
+          name: Studienarbeit.pdf
+          path: paper/Studienarbeit.pdf
 
 
