@@ -4,13 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"paper-tracker/config"
 	"paper-tracker/models"
 	"paper-tracker/repositories"
 	"time"
 
 	"github.com/onsi/ginkgo"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 var learningManager LearningManager
@@ -25,8 +25,6 @@ type LearningManager interface {
 
 type LearningManagerImpl struct {
 	scanResultRep repositories.ScanResultRepository
-	learnCount    int
-	learnSleepSec int
 }
 
 func CreateLearningManager(scanResultRep repositories.ScanResultRepository) LearningManager {
@@ -36,8 +34,6 @@ func CreateLearningManager(scanResultRep repositories.ScanResultRepository) Lear
 
 	learningManager = &LearningManagerImpl{
 		scanResultRep: scanResultRep,
-		learnCount:    viper.GetInt("cmd.learn.count"),
-		learnSleepSec: viper.GetInt("cmd.learn.sleep"),
 	}
 
 	return learningManager
@@ -67,7 +63,9 @@ func (mgr *LearningManagerImpl) StartLearning(trackerID models.TrackerID) (learn
 	go mgr.learningRoutine(trackerID, learnLog)
 
 	// Send a learn time 20% higher to take response time of tracker into account
-	learnTime := float64(mgr.learnCount) * float64(mgr.learnSleepSec) * 1.2
+	learnCount := config.GetInt(config.KeyCmdLearnCount)
+	learnSleepSec := config.GetInt(config.KeyCmdLearnSleep)
+	learnTime := float64(learnCount) * float64(learnSleepSec) * 1.2
 	learnTimeSec = int(math.RoundToEven(learnTime))
 	return
 }
@@ -100,13 +98,15 @@ func (mgr *LearningManagerImpl) learningRoutine(trackerID models.TrackerID, logg
 func (mgr *LearningManagerImpl) checkLearningCanceled(trackerID models.TrackerID, logger *log.Entry) bool {
 	logger.Info("Start checking for canceled learning")
 
-	for it := 0; it < mgr.learnCount; it++ {
+	learnCount := config.GetInt(config.KeyCmdLearnCount)
+	learnSleepSec := config.GetInt(config.KeyCmdLearnSleep)
+	for it := 0; it < learnCount; it++ {
 		tracker, err := GetTrackerManager().GetTrackerByID(trackerID)
 		if err == nil && tracker.Status != models.TrackerStatusLearning {
 			return true
 		}
 
-		time.Sleep(time.Duration(mgr.learnSleepSec) * time.Second)
+		time.Sleep(time.Duration(learnSleepSec) * time.Second)
 	}
 	logger.Info("Finished checking for canceled learning")
 
