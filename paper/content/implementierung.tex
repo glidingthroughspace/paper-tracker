@@ -56,6 +56,19 @@ Im Code des Servers muss hierfür lediglich eine erweiterte Konfiguration ermög
 
 \subsection{REST-Schnittstelle}
 
+Die \gls{REST}-Schnittstelle zur Anbindung der App wurde wie in \autoref{par:app-schnittstelle}
+beschrieben implementiert.
+Dabei wurden alle Endpunkte entsprechend umgesetzt.
+Wie in \autoref{sec:impl-server-technology} erwähnt wird das Gin-Framework als
+\gls{HTTP}-Router und zum Serialisieren, sowie Deserialisieren der Nutzdaten verwendet.
+Das Framework ermöglicht es, für jeden \gls{REST}-Endpunkt, also für jede Kombination aus
+\gls{HTTP}-Verb und \gls{URL} eine sogenannte Handler-Funktion zu definieren. Diese wird aufgerufen,
+wenn eine Anfrage an die entsprechende Ressource getätigt wird. Die Handler-Funktionen parsen
+zunächst die Anfragedaten in entsprechende Go-Strukturen. Im Anschluss werden ein oder mehrere
+Manager-Funktionen aufgerufen, welche die Geschäftslogik enthalten. Das Ergebnis dieses Aufrufes
+wird dann von der Handler-Funktion in das Zielformat, in diesem Fall \gls{JSON}, serialisiert und an
+den Aufrufer gesendet.
+
 \subsection{CoAP-Schnittstelle}
 
 Die \gls{CoAP}-Schnittstelle für die Tracker wurde grundsätzlich wie in
