@@ -18,6 +18,6 @@ jobs:
         with:
           working_directory: paper
           root_file: Studienarbeit.tex
-          args: -interaction=nonstopmode -pdflatex=lualatex -lualatex -file-line-error -pdf
+          args: -interaction=nonstopmode -pdflatex=lualatex -lualatex -file-line-error -pdf -e "$max_repeat=10"
 
 
