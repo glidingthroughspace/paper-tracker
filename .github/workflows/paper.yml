@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Compile LaTeX document
-        uses: xu-cheng/latex-action@1.2.1
+        uses: xu-cheng/latex-action@1
         with:
           working_directory: paper
           root_file: Studienarbeit.tex
