@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v2-preview
         with:
           name: flasher
-          path: "**/flasher*.zip"
+          path: "hardware/flasher/flasher*.zip"
     strategy:
       matrix:
         os: [ 'ubuntu-latest' ]
