@@ -39,7 +39,7 @@ jobs:
         uses: subosito/flutter-action@v1
         with:
           channel: 'stable'
-      - run: flutter build apk && mv build/app/outputs/apk/app.apk build/Paper-Tracker-${{ github.ref }}.apk
+      - run: flutter build apk && mv build/app/outputs/apk/app.apk build/Paper-Tracker.apk
         working-directory: ./app
       # Attach the APK as an artifact to each build (so it can easily be viewed for each build)
       # We're using v2-preview of the action, since it allows to upload single files
@@ -60,7 +60,6 @@ jobs:
         uses: actions/download-artifact@v2-preview
         with:
           name: app
-          path: /artifacts/
       - name: Create Release
         id: create_release
         if: startsWith(github.ref, 'refs/tags/v')
@@ -71,7 +70,7 @@ jobs:
           allowUpdates: true
           tag_name: ${{ github.ref }}
           replacesArtifacts: false
-          artifacts: "/artifacts/**/*.apk"
+          artifacts: "**/*.apk"
           artifactContentType: "application/vnd.android.package-archive"
           draft: false
           prerelease: ${{ endsWith(github.ref, '-rc') || endsWith(github.ref, 'nightly') }}
