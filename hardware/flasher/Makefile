@@ -1,13 +1,15 @@
-dependencies:
+default: executable
+
+dependencies: requirements.txt
 	pip3 install -r requirements.txt
 
-run:
+run: dependencies
 	python3 flasher.py
 
-executable:
+executable: dependencies
 	pyinstaller --onefile flasher.py
 
-executable_mac:
+executable_mac: dependencies
 	pyinstaller --onefile --add-binary='/System/Library/Frameworks/Tk.framework/Tk':'tk' --add-binary='/System/Library/Frameworks/Tcl.framework/Tcl':'tcl' flasher.py
 
 zip:
