@@ -1,0 +1,56 @@
+# This workflow will build the paper
+
+name: Paper
+on:
+  pull_request:
+  push:
+    paths:
+      - paper/**
+
+jobs:
+  compile:
+    name: Compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Compile LaTeX document
+        uses: xu-cheng/latex-action@1.2.1
+        with:
+          working_directory: paper
+          root_file: Studienarbeit.tex
+          args: -interaction=nonstopmode -pdflatex=lualatex -lualatex -file-line-error -pdf -e "$max_repeat=10"
+      # Attach the paper as an artifact to each build (so it can easily be viewed for each build)
+      # We're using v2-preview of the action, since it allows to upload single files
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2-preview
+        with:
+          name: paper
+          path: paper/Studienarbeit.pdf
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: compile
+    steps:
+      - name: Download artifact
+        id: download_artifact
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/download-artifact@v2-preview
+        with:
+          name: paper
+      # If we pushed a tag, create a release and attach the paper to it
+      # This will update the release, if it already exists
+      - name: Create Release
+        id: create_release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: ncipollo/release-action@v1.6.1
+        with:
+          allowUpdates: true
+          draft: false
+          replacesArtifacts: false
+          artifacts: "**/Studienarbeit.pdf"
+          artifactContentType: "application/pdf"
+          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, 'nightly') || contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+

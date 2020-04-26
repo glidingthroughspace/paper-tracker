@@ -1,5 +1,5 @@
 target = Studienarbeit.tex
-latexmk_options = -synctex=1 -interaction=nonstopmode -pdflatex=lualatex -lualatex -file-line-error -pdf $(target)
+latexmk_options = -synctex=1 -interaction=nonstopmode -lualatex -file-line-error -pdf $(target)
 
 Studienarbeit.pdf:
 	latexmk $(latexmk_options)
