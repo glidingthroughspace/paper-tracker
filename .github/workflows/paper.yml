@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Compile LaTeX document
         uses: xu-cheng/latex-action@1
         with:
@@ -21,9 +21,33 @@ jobs:
           args: -interaction=nonstopmode -pdflatex=lualatex -lualatex -file-line-error -pdf -e "$max_repeat=10"
       # Attach the paper as an artifact to each build (so it can easily be viewed for each build)
       # We're using v2-preview of the action, since it allows to upload single files
-      - uses: actions/upload-artifact@v2-preview
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2-preview
         with:
           name: Studienarbeit.pdf
           path: paper/Studienarbeit.pdf
+      # If we pushed a tag, create a release and attach the paper to it
+      - name: Create Release
+        id: create_release
+        if: startsWith(github.ref, 'refs/tags')
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        if: startsWith(github.ref, 'refs/tags')
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./paper/Studienarbeit.pdf
+          asset_name: Paper.pdf
+          asset_content_type: application/pdf
 
 

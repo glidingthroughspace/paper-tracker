@@ -2,14 +2,15 @@ name: Backend
 on:
   pull_request:
   push:
-    paths: server/**
+    paths:
+      - server/**
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
     - name: Set up Go 1.13
       uses: actions/setup-go@v1
       with:
