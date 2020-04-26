@@ -14,8 +14,8 @@ executable_mac: dependencies
 
 zip:
 	-rm dist.zip
-	cd dist && zip ../dist.zip flasher*
-	cd .. && zip -r flasher/dist.zip firmware
+	cd dist && 7za a -tzip ../dist.zip flasher*
+	cd .. && 7za a flasher/dist.zip firmware
 
 clean:
 	-rm -r dist.zip dist build
