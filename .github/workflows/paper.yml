@@ -19,7 +19,9 @@ jobs:
           working_directory: paper
           root_file: Studienarbeit.tex
           args: -interaction=nonstopmode -pdflatex=lualatex -lualatex -file-line-error -pdf -e "$max_repeat=10"
-      - uses: actions/upload-artifact@v1
+      # Attach the paper as an artifact to each build (so it can easily be viewed for each build)
+      # We're using v2-preview of the action, since it allows to upload single files
+      - uses: actions/upload-artifact@v2-preview
         with:
           name: Studienarbeit.pdf
           path: paper/Studienarbeit.pdf
