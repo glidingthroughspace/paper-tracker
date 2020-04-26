@@ -37,7 +37,7 @@ jobs:
           path: "**/flasher*.zip"
     strategy:
       matrix:
-        os: [ 'windows-latest', 'ubuntu-latest' ]
+        os: [ 'ubuntu-latest' ]
 
   release:
     name: Release
