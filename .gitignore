@@ -28,6 +28,7 @@
 # *.pdf
 
 paper/papers
+paper/Studienarbeit.pdf
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
 *.bbl
