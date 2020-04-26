@@ -39,6 +39,7 @@ jobs:
         uses: actions/download-artifact@v2-preview
         with:
           name: paper
+          path: /artifacts/
       # If we pushed a tag, create a release and attach the paper to it
       # This will update the release, if it already exists
       - name: Create Release
@@ -48,8 +49,8 @@ jobs:
         with:
           allowUpdates: true
           draft: false
-          replaceArtifacts: false
-          artifact: "paper/Studienarbeit.pdf"
+          replacesArtifacts: false
+          artifact: "/artifacts/**/Studienarbeit.pdf"
           artifactContentType: "application/pdf"
           prerelease: ${{ endsWith(github.ref, '-rc') || endsWith(github.ref, 'nightly') }}
           token: ${{ secrets.GITHUB_TOKEN }}
