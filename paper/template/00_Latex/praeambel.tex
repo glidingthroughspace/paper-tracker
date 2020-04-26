@@ -78,9 +78,16 @@
 \newcommandx{\FIXME}[2][1=]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,#1]{#2}}
 
 % Glossar, Akronyme
-\usepackage[acronym,toc,automake]{glossaries}
+\usepackage[acronym,toc,automake,nopostdot,nogroupskip]{glossaries}
 \makeglossaries
 
 \def\arraystretch{1.5}
 \usepackage{lscape}
 \interfootnotelinepenalty=10000
+
+\usepackage{glossary-longragged}
+
+\renewcommand*{\glsentryfmt}{%
+	\glsgenentryfmt
+	\ifglsused{\glslabel}{}{\space^\tiny{\textbf{GLS}}}%
+}
