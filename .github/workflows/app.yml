@@ -39,7 +39,7 @@ jobs:
         uses: subosito/flutter-action@v1
         with:
           channel: 'stable'
-      - run: flutter build apk && mv build/app/outputs/apk/app.apk build/Paper-Tracker.apk
+      - run: flutter build apk --release --split-per-abi
         working-directory: ./app
       # Attach the APK as an artifact to each build (so it can easily be viewed for each build)
       # We're using v2-preview of the action, since it allows to upload single files
@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v2-preview
         with:
           name: app
-          path: "build/*.apk"
+          path: "build/app/outputs/apk/release/*.apk"
 
   release:
     name: Release
