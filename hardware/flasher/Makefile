@@ -1,17 +1,15 @@
-SITE_PACKAGES := $(shell pip show pip | grep '^Location' | cut -f2 -d':')
-
 default: executable
 
-$(SITE_PACKAGES): requirements.txt
+requirements: requirements.txt
 	pip3 install -r requirements.txt
 
-run: $(SITE_PACKAGES)
+run: requirements
 	python3 flasher.py
 
-executable: $(SITE_PACKAGES)
+executable: requirements
 	pyinstaller --onefile flasher.py
 
-executable_mac: $(SITE_PACKAGES)
+executable_mac: requirements
 	pyinstaller --onefile --add-binary='/System/Library/Frameworks/Tk.framework/Tk':'tk' --add-binary='/System/Library/Frameworks/Tcl.framework/Tcl':'tcl' flasher.py
 
 zip:
