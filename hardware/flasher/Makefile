@@ -16,3 +16,6 @@ zip:
 	-rm dist.zip
 	cd dist && zip ../dist.zip flasher*
 	cd .. && zip -r flasher/dist.zip firmware
+
+clean:
+	-rm -r dist.zip dist build
