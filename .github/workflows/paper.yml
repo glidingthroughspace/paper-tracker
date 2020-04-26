@@ -51,6 +51,6 @@ jobs:
           replacesArtifacts: false
           artifact: "**/Studienarbeit.pdf"
           artifactContentType: "application/pdf"
-          prerelease: ${{ endsWith(github.ref, '-rc') || endsWith(github.ref, 'nightly') }}
+          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, 'nightly') || contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
           token: ${{ secrets.GITHUB_TOKEN }}
 

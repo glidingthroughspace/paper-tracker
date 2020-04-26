@@ -73,5 +73,5 @@ jobs:
           artifacts: "**/*.apk"
           artifactContentType: "application/vnd.android.package-archive"
           draft: false
-          prerelease: ${{ endsWith(github.ref, '-rc') || endsWith(github.ref, 'nightly') }}
+          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, 'nightly') || contains(github.ref, 'alpha') || contains(github.ref, 'beta') }}
 
