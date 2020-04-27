@@ -10,6 +10,7 @@ on:
 defaults:
   run:
     working-directory: hardware/flasher
+    shell: bash
 
 jobs:
   build-linux:
