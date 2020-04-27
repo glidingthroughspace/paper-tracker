@@ -106,7 +106,7 @@ def main():
         flash_window.Refresh()
     except Exception as e:
         traceback.print_exc()
-        text = '..Failed: ' + str(e) + '\n'
+        text = '...Failed: ' + str(e) + '\n'
         output.Update(value=text, append=True)
         flash_window.Refresh()
 
