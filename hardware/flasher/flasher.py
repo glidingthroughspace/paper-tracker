@@ -31,11 +31,14 @@ def generateCredentials(values):
     with open(values[KEY_FW_DIR]+'/include/credentials.example.hpp', 'r') as example_file:
         content = example_file.read()
 
+    # Replace the IP address first, so that 0xFn are valid character sequences for passwords, SSIDs
+    # and usernames.
     ip = values[KEY_IP].split('.')
     for it in range(len(ip)):
         content = content.replace('0xF'+str(it), ip[it])
 
     content = content.replace('$$WIFI_SSID$$', values[KEY_SSID])
+    # To not use 802.11 authentication, the username needs to be set to a nullptr.
     if values[KEY_USERNAME] != "":
         content = content.replace('$$WIFI_USERNAME$$', values[KEY_USERNAME])
     else:
@@ -47,7 +50,7 @@ def generateCredentials(values):
 
 def flash(values, window, output):
     port = values[KEY_PORT].split(' ')[0]
-    cmd = ['pio', 'run', '-e', 'tinypico', '-t', 'upload', '--upload-port', port]
+    cmd = ['pio', 'run', '-e', 'tinypico-release', '-t', 'upload', '--upload-port', port]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True ,cwd=values[KEY_FW_DIR])
     while True:
         if process.poll() is not None:
@@ -103,7 +106,7 @@ def main():
         flash_window.Refresh()
     except Exception as e:
         traceback.print_exc()
-        text = '..Failed: ' + str(e) + '\n'
+        text = '...Failed: ' + str(e) + '\n'
         output.Update(value=text, append=True)
         flash_window.Refresh()
 
@@ -116,7 +119,7 @@ def main():
             flash_window.Refresh()
         except Exception as e:
             traceback.print_exc()
-            text = '..Failed: ' + str(e) + '\n'
+            text = '...Failed: ' + str(e) + '\n'
             output.Update(value=text, append=True)
             flash_window.Refresh()
 

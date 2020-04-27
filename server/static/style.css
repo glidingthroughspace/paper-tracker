@@ -4,6 +4,7 @@ body {
 	padding: 20px;
 	background-color: #f3f3f3;
 	color: #333;
+	line-height: 1.5;
 }
 
 p {
@@ -19,14 +20,21 @@ p {
 }
 
 .card {
+	flex: 1 1 33%;
+	max-width: 50%;
 	background-color: white;
 	padding: 20px;
 	box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
 	border-radius: 10px;
-	margin: 40px;
+	margin: 40px 10px;
 }
 
-.card > a {
+a {
+	color: hsl(213.9, 100%, 23.0%);
+	text-decoration: none;
+}
+
+.card a.btn {
 	padding: 5px 15px;
 	background-color: hsl(213.5, 45.6%, 66.9%);
 	color: hsl(213.9, 100%, 23.9%);
@@ -34,4 +42,26 @@ p {
 	margin: 5px;
 	text-decoration: none;
 	cursor: pointer;
+	display: inline-block;
+}
+
+p.github-explanation {
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+img.github-downloads {
+	width: 90vw;
+	min-width: 200px;
+	max-width: 500px;
+	border-radius: 10px;
+	box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+figcaption {
+	margin-top: 1rem;
+}
+
+figure {
+	margin: 2rem 0;
 }
