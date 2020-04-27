@@ -12,9 +12,9 @@ defaults:
     working-directory: hardware/flasher
 
 jobs:
-  build:
-    name: Build flasher for ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  build-linux:
+    name: Build flasher for Linux
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -35,14 +35,34 @@ jobs:
         with:
           name: flasher
           path: "hardware/flasher/flasher*.zip"
-    strategy:
-      matrix:
-        os: [ 'ubuntu-latest' ]
+  build-windows:
+    name: Build flasher for Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+      - name: Install python tools
+        run: python -m pip install --upgrade pip setuptools wheel
+      - name: Build
+        run: make
+      - name: Pack zip
+        run: cd dist && 7za.exe a -tzip ../dist.zip flasher* && cd .. && 7za.exe a flasher/dist.zip firmware
+      - name: Rename zip
+        run: mv dist.zip flasher-${{ runner.os }}.zip
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2-preview
+        with:
+          name: flasher
+          path: "hardware/flasher/flasher*.zip"
 
   release:
     name: Release
     runs-on: ubuntu-latest
-    needs: build
+    needs: [ build-linux, build-windows ]
     steps:
       - name: Download artifact
         id: download_artifact
