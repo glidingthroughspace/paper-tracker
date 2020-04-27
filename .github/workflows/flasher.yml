@@ -51,7 +51,11 @@ jobs:
       - name: Build
         run: make
       - name: Pack zip
-        run: cd dist && 7z.exe a -tzip ../dist.zip flasher* && cd .. && 7z.exe a flasher/dist.zip firmware
+        run: |
+          cd dist
+          7z.exe a -tzip ../dist.zip flasher*
+          cd ../..
+          7z.exe a flasher/dist.zip firmware
       - name: Rename zip
         run: mv dist.zip flasher-${{ runner.os }}.zip
       - name: Upload artifact
