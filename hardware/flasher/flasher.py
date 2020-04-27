@@ -50,7 +50,7 @@ def generateCredentials(values):
 
 def flash(values, window, output):
     port = values[KEY_PORT].split(' ')[0]
-    cmd = ['pio', 'run', '-e', 'tinypico', '-t', 'upload', '--upload-port', port]
+    cmd = ['pio', 'run', '-e', 'tinypico-release', '-t', 'upload', '--upload-port', port]
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True ,cwd=values[KEY_FW_DIR])
     while True:
         if process.poll() is not None:
