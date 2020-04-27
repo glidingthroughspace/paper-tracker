@@ -31,11 +31,14 @@ def generateCredentials(values):
     with open(values[KEY_FW_DIR]+'/include/credentials.example.hpp', 'r') as example_file:
         content = example_file.read()
 
+    # Replace the IP address first, so that 0xFn are valid character sequences for passwords, SSIDs
+    # and usernames.
     ip = values[KEY_IP].split('.')
     for it in range(len(ip)):
         content = content.replace('0xF'+str(it), ip[it])
 
     content = content.replace('$$WIFI_SSID$$', values[KEY_SSID])
+    # To not use 802.11 authentication, the username needs to be set to a nullptr.
     if values[KEY_USERNAME] != "":
         content = content.replace('$$WIFI_USERNAME$$', values[KEY_USERNAME])
     else:
