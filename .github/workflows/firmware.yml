@@ -21,7 +21,7 @@ jobs:
     - name: Build
       run: |
         cp include/credentials.example.hpp include/credentials.hpp
-        make
+        make build-all
       working-directory: ./hardware/firmware
 
 # FIXME: The unit tests currently don't work on the desktop platform.
