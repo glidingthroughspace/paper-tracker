@@ -23,6 +23,9 @@ requests to that port in your servers firewall.
 You could also install [Go](https://go.dev) and build the server yourself by running `make` or `make
 run` in the `server/` directory. This way, you can run the server on Windows and MacOS as well.
 
+Additionally there is a Dockerfile available in the `server` folder. The docker also uses `8080` as port default and
+the config file and database are located in the `/config` folder.
+
 ### The Tracker
 
 The tracker is built out of a [TinyPICO](https://tinypico.com), which is an ESP32-based development
