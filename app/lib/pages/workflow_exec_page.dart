@@ -38,7 +38,9 @@ class _WorkflowExecPageState extends State<WorkflowExecPage> {
         WorkflowExec exec = snapshot.data;
         return DetailContent(
           title: exec != null ? exec.label : "",
-          iconData: WorkflowExec.IconData,
+          iconData: exec != null
+              ? exec.status == WorkflowExecStatus.Finished ? WorkflowExec.CompletedIconData : WorkflowExec.IconData
+              : WorkflowExec.IconData,
           bottomButtons: [],
           content: exec != null ? buildContent(exec) : CircularProgressIndicator(),
           onRefresh: refreshExec,
