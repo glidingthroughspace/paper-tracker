@@ -127,7 +127,7 @@ package model {
 
   WorkflowTemplate -- Step : StartStep
   WorkflowTemplate -- WorkflowTemplate : FirstRevision
-  Step "0..*" -- "1" Room
+  Step "0..*" -- "1..*" Room
   Step "1" -- "0..*" Step
   (Step, Step) .. NextStep
   
