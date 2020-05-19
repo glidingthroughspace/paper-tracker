@@ -139,18 +139,18 @@ func (mr *MockTrackerManagerMockRecorder) PollCommand(trackerID interface{}) *go
 }
 
 // InWorkingHours mocks base method
-func (m *MockTrackerManager) InWorkingHours() (bool, time.Duration) {
+func (m *MockTrackerManager) InWorkingHours(currentTime time.Time) (bool, time.Duration) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "InWorkingHours")
+	ret := m.ctrl.Call(m, "InWorkingHours", currentTime)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(time.Duration)
 	return ret0, ret1
 }
 
 // InWorkingHours indicates an expected call of InWorkingHours
-func (mr *MockTrackerManagerMockRecorder) InWorkingHours() *gomock.Call {
+func (mr *MockTrackerManagerMockRecorder) InWorkingHours(currentTime interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InWorkingHours", reflect.TypeOf((*MockTrackerManager)(nil).InWorkingHours))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InWorkingHours", reflect.TypeOf((*MockTrackerManager)(nil).InWorkingHours), currentTime)
 }
 
 // UpdateFromResponse mocks base method

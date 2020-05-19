@@ -122,7 +122,6 @@ func (*TrackingManagerImpl) ScoreRoomForScanResults(room *models.Room, scanResul
 // getScoreForScanResultAndTrackingData calculates the score for a single scan result and the given
 // tracking data.
 func getScoreForScanResultAndTrackingData(td models.BSSIDTrackingData, sr *models.ScanResult) float64 {
-	// TODO: Evaluate how good this scoring works
 	score := 0.0
 	rssiFloat := float64(sr.RSSI)
 	rssiFactor := math.Abs(rssiFloat / 100.0)

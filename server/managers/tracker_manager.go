@@ -25,7 +25,7 @@ type TrackerManager interface {
 	DeleteTracker(trackerID models.TrackerID) error
 	NotifyNewTracker() (*models.Tracker, error)
 	PollCommand(trackerID models.TrackerID) (*models.Command, error)
-	InWorkingHours() (inHours bool, toStart time.Duration)
+	InWorkingHours(currentTime time.Time) (inHours bool, toStart time.Duration)
 	UpdateFromResponse(trackerID models.TrackerID, resp communication.TrackerCmdResponse) error
 	UpdateRoom(tracker *models.Tracker, roomID models.RoomID) error
 	NewTrackingData(trackerID models.TrackerID, resultID uint64, batchCount uint8, scanRes []*models.ScanResult) error
@@ -182,7 +182,7 @@ func (mgr *TrackerManagerImpl) PollCommand(trackerID models.TrackerID) (cmd *mod
 		}
 	}
 
-	if inWorkHours, toWorkHours := mgr.InWorkingHours(); !inWorkHours {
+	if inWorkHours, toWorkHours := mgr.InWorkingHours(time.Now().Local()); !inWorkHours {
 		maxSleepSec := config.GetInt(config.KeyCmdMaxSleep)
 		toWorkHoursSec := int(toWorkHours.Seconds())
 		if toWorkHoursSec > maxSleepSec {
@@ -205,29 +205,35 @@ func (mgr *TrackerManagerImpl) PollCommand(trackerID models.TrackerID) (cmd *mod
 
 //TODO: Write test and somehow mock time.Now() for that
 // InWorkingHours returns whether we are currently in working hours and if not, how long it will be until working hour
-func (mgr *TrackerManagerImpl) InWorkingHours() (inHours bool, toStart time.Duration) {
+func (mgr *TrackerManagerImpl) InWorkingHours(currentTime time.Time) (inHours bool, toStart time.Duration) {
 	workStartHour := config.GetInt(config.KeyWorkStartHour)
 	workEndHour := config.GetInt(config.KeyWorkEndHour)
 	workOnWeekend := config.GetBool(config.KeyWorkOnWeekend)
 
+	return mgr.inWorkingHours(currentTime, workStartHour, workEndHour, workOnWeekend)
+}
+
+func (mgr *TrackerManagerImpl) inWorkingHours(currentTime time.Time, workStartHour, workEndHour int, workOnWeekend bool) (inHours bool, toStart time.Duration) {
 	if workStartHour < 0 || workEndHour < 0 {
 		return true, time.Duration(0)
 	}
 
 	toStartDuration := time.Duration(workStartHour) * time.Hour // Time from midnight to work start
-	timeDay := time.Hour * 24
+	oneDay := time.Hour * 24
 
-	currentTime := time.Now().Local()
+	workStartTime := todayWithSetHour(currentTime, workStartHour)
+	workEndTime := todayWithSetHour(currentTime, workEndHour)
+
 	var startTime time.Time
-	if day := currentTime.Weekday(); !workOnWeekend && (day == time.Saturday || day == time.Sunday) {
+	if itIsWeekend(currentTime) && !workOnWeekend {
 		// If we don't work on the weekend, check if we have Saturday/Sunday
 		// startTime of next working day is the Monday of next week at the proper hour
-		startTime = now.With(currentTime.Add(timeDay * 3)).Monday().Add(toStartDuration)
-	} else if currentTime.Hour() < workStartHour {
+		startTime = now.With(currentTime.Add(oneDay * 3)).Monday().Add(toStartDuration)
+	} else if currentTime.Before(workStartTime) {
 		// If we have a workday but are BEFORE the working hours
 		// startTime is today at the proper hour
-		startTime = now.With(currentTime.Add(timeDay)).BeginningOfDay().Add(toStartDuration)
-	} else if currentTime.Hour() > workEndHour {
+		startTime = now.With(currentTime.Add(oneDay)).BeginningOfDay().Add(toStartDuration)
+	} else if currentTime.After(workEndTime) {
 		// If we have a workday but are AFTER the working hours
 		// startTime is the next day at the proper hour (ignore transition to the weekend for now)
 		startTime = now.With(currentTime).BeginningOfDay().Add(toStartDuration)
@@ -236,6 +242,14 @@ func (mgr *TrackerManagerImpl) InWorkingHours() (inHours bool, toStart time.Dura
 	}
 	toStart = startTime.Sub(currentTime)
 	return
+}
+
+func todayWithSetHour(today time.Time, hour int) time.Time {
+	return time.Date(today.Year(), today.Month(), today.Day(), hour, 0, 0, 0, today.Location())
+}
+
+func itIsWeekend(today time.Time) bool {
+	return today.Weekday() == time.Saturday || today.Weekday() == time.Sunday
 }
 
 func (mgr *TrackerManagerImpl) UpdateFromResponse(trackerID models.TrackerID, resp communication.TrackerCmdResponse) (err error) {

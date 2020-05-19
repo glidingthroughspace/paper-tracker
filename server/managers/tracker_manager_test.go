@@ -4,6 +4,7 @@ import (
 	"errors"
 	"paper-tracker/mock"
 	"paper-tracker/models"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
@@ -100,4 +101,42 @@ var _ = Describe("TrackerManager", func() {
 			Expect(manager.NewTrackingData(id, nil)).To(HaveOccurred())
 		})*/
 	})
+
+	Context("Test InWorkingHours", func() {
+		mgr := &TrackerManagerImpl{}
+
+		It("Returns that we are in working hours, if either the start or end time are < 0", func() {
+			var inHours bool
+			inHours, _ = mgr.inWorkingHours(time.Now(), -1, 0, false)
+			Expect(inHours).To(Equal(true))
+			inHours, _ = mgr.inWorkingHours(time.Now(), 0, -1, false)
+			Expect(inHours).To(Equal(true))
+			inHours, _ = mgr.inWorkingHours(time.Now(), -1, -1, false)
+			Expect(inHours).To(Equal(true))
+			inHours, _ = mgr.inWorkingHours(time.Now(), -1, -1, true)
+			Expect(inHours).To(Equal(true))
+		})
+
+		It("Returns that we are in working hours, if we are", func() {
+			var inHours bool
+			inHours, _ = mgr.inWorkingHours(time.Date(2020, time.January, 1, 10, 0, 0, 0, time.Local), 9, 16, false)
+			Expect(inHours).To(Equal(true))
+			inHours, _ = mgr.inWorkingHours(time.Date(2020, time.January, 1, 15, 0, 0, 0, time.Local), 9, 16, false)
+			Expect(inHours).To(Equal(true))
+			inHours, _ = mgr.inWorkingHours(time.Date(2020, time.January, 1, 15, 59, 59, 0, time.Local), 9, 16, false)
+			Expect(inHours).To(Equal(true))
+		})
+
+		It("Returns that we are not in working hours, if we aren't", func() {
+			var inHours bool
+			inHours, _ = mgr.inWorkingHours(time.Date(2020, time.January, 1, 8, 0, 0, 0, time.Local), 9, 16, false)
+			Expect(inHours).To(Equal(false))
+			inHours, _ = mgr.inWorkingHours(time.Date(2020, time.January, 1, 8, 59, 59, 0, time.Local), 9, 16, false)
+			Expect(inHours).To(Equal(false))
+			inHours, _ = mgr.inWorkingHours(time.Date(2020, time.January, 1, 16, 0, 0, 1, time.Local), 9, 16, false)
+			Expect(inHours).To(Equal(false))
+		})
+
+	})
+
 })
