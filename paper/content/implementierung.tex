@@ -373,7 +373,7 @@ Die verwendeten Bibliotheken sind im Folgenden aufgelistet:
 	\item[http (https://pub.dev/packages/http)] \hfill \\
 		\enquote{http} ist eine Bilbiothek, die es ermöglicht asynchron \gls{HTTP}-Anfragen durchzuführen. Die Bibliothek wird dafür verwendet, um mit dem Backend-Server zu kommunizieren.
 	\item[json\_annotation (https://pub.dev/packages/json\_annotation)] \hfill \\
-		Mit \enquote{json\_annotation} kann über Annotationen im Programmcode eine Serialisierung zu JSON und Deserialisierung von JSON für Datenklassen generiert werden.
+		Mit \enquote{json\_annotation} kann über Annotationen im Programmcode eine Serialisierung zu \gls{JSON} und Deserialisierung von \gls{JSON} für Datenklassen generiert werden.
 	\item[shared\_preferences (https://pub.dev/packages/shared\_preferences)] \hfill \\
 		Durch die \enquote{shared\_preferences} Bibliothek können einfache Konfigurationen als Schlüssel-Wert-Paare abgespeichert werden. Dies wird für die \gls{URL} des Backend-Servers verwendet.
 	\item[material\_design\_icons (https://pub.dev/packages/material\_design\_icons\_flutter)] \hfill \\
@@ -387,6 +387,68 @@ Die verwendeten Bibliotheken sind im Folgenden aufgelistet:
 	\item[intl (https://pub.dev/packages/intl)] \hfill \\
 		Die \enquote{intl}-Bibliothek wird für das Formatieren von Daten und Uhrzeiten verwendet. Zudem kann sie für die Übersetzung der App in andere Sprachen verwendet werden.
 \end{description}
+
+\subsection{Struktur der App}
+
+Die Struktur der App teilt sich in fünf Teile auf.
+Der erste Teil bildet die Hauptdatei, in der die App gestartet wird, sowie zusätzlich eine Konfigurations- und eine
+Hilfsfunktions-Datei.
+In der Hauptdatei wird neben dem Start der App auch das Design (hauptsächlich die zu verwendenden Farben) und die
+Navigation aufgesetzt.
+Die Navigation wird weiter unten detailiert erläutert.
+
+Weiter sind im Unterordner \enquote{model} alle Modell-Klassen, die auch für den Server verwendet werden, vorhanden.
+Für diese wird mit Hilfe der \enquote{json\_annotation} Bibliothek Code für die Serialisierung zu \gls{JSON} und die
+Deserialisierung von \gls{JSON} generiert.
+
+Um Daten dieser Modelle vom Server abzurufen, werden verschiedene Klienten-Klassen aus dem \enquote{client} Ornder verwendet.
+Es gibt einen grundlegenden Klienten, welcher eine Verfügbarkeitsabfrage und Anfragen an den Server zur Verfügung stellt.
+Dieser verwendet die konfigurierte Server \gls{URL}.
+Die Anfragen werden über die \enquote{http} Bibliothek ausgeführt.
+Die weiteren Klienten (z.B. \enquote{RoomClient}) verwendet den grundlegenden Klienten und stellen Funktionen direkt im Bezug
+auf die zugehörige Klasse des Klienten zur Verfügung.
+So können über den \enquote{RoomClient} zum Beispiel alle Räume abgefragt werden.
+Diese Klienten führen dann die Konvertierung von und zu \gls{JSON} durch.
+
+Im \enquote{pages} Unterordner sind alle anzuzeigenden Seiten der App untergebracht.
+Dies sind zum Beispiel die Hauptübersichtsseite oder die Detailseite für einen Raum.
+Auf diesen Seiten werden so genannte \enquote{Widgets} verwendet, aus denen letztendlich das Layout und der Inhalt einer
+Seite zusammengesetzt werden.
+Neben den durch die Standardbibliothek und weiteren Bibliotheken bereitgestellten Widgets werden auch selbst programmierte verwendet.
+Diese befinden sich im \enquote{widgets} Unterordner.
+Der Aufbau einer Seite und eines Widgets sind weiter unten näher erklärt.
+
+\subsection{Routing}
+
+Unter Routing versteht man die Navigation innerhalb der App auf verschiedene Routen und damit im Falle der Paper-Tracker
+App auf verschiedene Seiten.
+Für das Routing wird in der App die Standard-Klasse \enquote{MaterialApp} verwendet.
+Dieser wird eine Zuordnung von einer Route in Form einer Zeichenkette auf eine Seite mitgegeben.
+
+In der kompletten App kann dann über \enquote{Navigator.of(context)} auf die Navigation zugegriffen werden.
+Der Kontext ist in jeder zur App zugehörigen Seite und Widget vorhanden.
+Die Navigation bietet die folgenden wichtigen Funktionalitäten:
+Mit \enquote{pushNamed} kann über die zuvor in der Zuordnung definierte Route, auf die dazugehörige Seite navigiert werden.
+Diesem Funktionsaufruf können auch Parameter mitgegeben werden, die von der geöffnete Seite verwendet werden können.
+Über \enquote{pop} kann die zuletzt geöffnete Seite wieder geschlossen werden.
+Dabei wird die zuvor geöffnete Seite wieder angezeigt oder bei der letzten Seite die App geschlossen.
+
+Für die Paper-Tracker App gibt es für jede Seite eine eigene Route.
+Diese Route ist in der Klasse der Seite statisch definiert.
+Somit kann jederzeit in der App auf eine beliebige Seite navigiert werden.
+
+Einige Beispiele für die Navigation innerhalb der App sind in \autoref{lst:app_navigation} aufgeführt.
+
+\begin{lstlisting}[caption={Beispiele für die Navigation innerhalb der App},label={lst:app_navigation},tabsize=2]
+// Navigiere zur ConfigPage
+Navigator.of(context).pushNamed(ConfigPage.Route);
+
+// Navigiere zur RoomPage mit der ID des Raumes als Parameter
+Navigator.of(context).pushNamed(RoomPage.Route, arguments: room.id);
+
+// Schließe die aktuelle Seite und kehre zur vorherigen zurück
+Navigator.of(context).pop();
+\end{lstlisting}
 
 \section{Hardware-Gehäuse}
 
