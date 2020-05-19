@@ -450,6 +450,107 @@ Navigator.of(context).pushNamed(RoomPage.Route, arguments: room.id);
 Navigator.of(context).pop();
 \end{lstlisting}
 
+\subsection{Seiten}
+
+Insgesamt beinhaltet die App elf verschiedene Seiten:
+\begin{enumerate}
+	\item InitPage
+	\item ConfigPage
+	\item ServerConfigPage
+	\item MainPage
+	\item WorkflowExecPage
+	\item WorkflowTemplatePage
+	\item RoomPage
+	\item TrackerPage
+	\item LearningPage
+	\item StartExecPage
+	\item TutorialPage
+\end{enumerate}
+Der Großteil der Seiten spiegelt Seiten aus dem Entwurf der App wieder.
+Zwei dieser Seiten sind in \autoref{fig:app_pages} dargestellt.
+Weitere Seiten, wie die \enquote{InitPage} oder \enquote{ConfigPage}, werden nur als Weiterleitung oder für nicht im
+Entwurf beinhaltete Funktionen genutzt.
+
+\begin{figure}[]
+	\includegraphics[width=\textwidth]{images/app.png}
+	\centering
+	\caption{Umsetzung des App Entwurfs}
+	\label{fig:app_pages}
+\end{figure}
+
+Eine Seite selbst ist, wie bereits erwähnt, aus verschiedenen Widgets zusammengesetzt.
+Für alle Seiten der Paper-Tracker App wird dafür als Grundlage das \enquote{Scaffold}-Widget verwendet.
+Dieses bietet eine \enquote{AppBar} als Titel für die Seite und als Container für z.b. eine Zurück-Schaltfläche.
+Auch kann über das \enquote{Scaffold}-Widget ein \enquote{FloatingActionButton} für die Seite verwendet werden.
+Dieser wird für die \enquote{WorkflowExecPage} zum Erstellen einer neuen Ausführung und für die \enquote{RoomPage}
+zum Erstellen eines neuen Raums benötigt.
+Der eigentliche Inhalt der Seite wird dem \enquote{Scaffold} als Inhalt mitgegeben.
+Ein \enquote{Scaffold} mit Titel und \enquote{FloatingActionButton} ist in \autoref{fig:app_scaffold} dargestellt.
+
+\begin{figure}[]
+	\includegraphics[width=\textwidth]{images/scaffold.png}
+	\centering
+	\caption{Scaffold-Widget}
+	\small Quelle: \url{https://api.flutter.dev/flutter/material/Scaffold-class.html}
+	\label{fig:app_scaffold}
+\end{figure}
+
+Der eigentliche Inhalt der Seiten variiert stark und besteht gemischt aus Widget der Standardbibliothek, weiteren Bibliotheken
+und eigenen Widgets.
+
+\subsection{Widgets}
+
+Wie bereits erwähnt, wurden einige Widgets, die auf den Seiten der App verwendet werden, selbst programmiert.
+Dies hilft dabei duplizierte Konstellationen von Widgets auf verschiedenen Seiten zu verringern, indem man diese
+verallgemeinert und als eigenen Widget zur Verfügung stellt.
+Auch können in diesen Widgets bestimmte Design-Formattierungen gemacht werden, die dann an dieser Stelle zentral verwaltet
+werden können.
+Allgemein können die eigenen Widget in drei Kategorien aufgeteilt werden:
+Dialoge, Listen und allgemeine Widgets.
+
+Dialoge beinhalten teilweise generalisierte und teilweise spezialisierte Dialoge, die von den Seiten aus aufgerufen werden können.
+Ein Beispiel für einen generalisierten Dialog ist ein einfacher \enquote{Bestätigen} Dialog.
+Ein spezialisierter Dialog ist der Dialog für das Eingeben der Parameter für einen neuen Raum. 
+Diese sind in der \autoref{fig:app_dialog} dargestellt.
+Inhaltlich unterscheiden sich die Dialog-Widgets nicht von anderen Widgets.
+Sie verwenden auch andere Widgets und passen diese je nach Logik des Dialogs gegebenenfalls etwas an oder stellen
+Eingabefelder zur Verfügung.
+Lediglich das Design der Dialog-Widgets ist darauf angepasst, in einem Dialogfenster angezeigt zu werden.
+
+\begin{figure}[]
+	\includegraphics[width=\textwidth]{images/app_dialog.png}
+	\centering
+	\caption{Dialog Widgets}
+	\label{fig:app_dialog}
+\end{figure}
+
+Unter den Listen-Widgets sind zum einen allgemeine Listen, die dem Design aus dem Entwurf der App entsprechen, und zum
+anderen Listen für spezifische Modell-Klassen.
+Diese Listen basieren auf dem allgemeinen Listen.
+So gibt es zum Beispiel Listen für Räume, Tracker oder auch die Schritte eines Workflow.
+Die verschiedenen Listen sind in \autoref{fig:app_lists} zu sehen.
+
+\begin{figure}[]
+	\includegraphics[width=\textwidth]{images/app_lists.png}
+	\centering
+	\caption{Listen Widgets}
+	\label{fig:app_lists}
+\end{figure}
+
+Unter den allgemeinen Widgets gibt es zum Beispiel Auswahllisten oder ein Countdown.
+
+Alle Widgets können Parameter entgegennehmen, die zur Übergabe von Einstellungen für dieses Widget oder als Rückgabe
+von Informationen dienen können.
+Als Rückgabe werden meistens entweder sogenannte \enquote{Callback}-Funktionen oder \enquote{Controller} verwendet.
+Callback-Funktionen sind Funktionen von zum Beispiel der Seite, die das Widget verwendet, die dem Widget als Parameter
+mitgegeben werden.
+Möchte das Widget Informationen zurück geben, wird der entsprechende Callback aufgerufen und als Parameter die eigentliche
+Funktion mitgegeben.
+Verwendet das Widget einen Controller, statt Callbacks, wird dem Widget ein Objekt mitgegeben, welches die zu verschickenden
+Informationen speichern kann.
+Da dem Widget selbst nur eine Referenz des Objektes mitgegeben wird, kann das Widget neue Informationen einfach in dieses
+Controller-Objekt schreiben.
+
 \section{Hardware-Gehäuse}
 
 Neben der Hardware des spezifischen Trackers und der Software wurde auch ein Hardware-Gehäuse entwickelt.
