@@ -167,8 +167,7 @@ func (mgr *TrackerManagerImpl) PollCommand(trackerID models.TrackerID) (cmd *mod
 		}
 	case models.TrackerStatusTracking:
 		sleepTime := 1
-		// FIXME: Make this configurable
-		if len(mgr.trackingCounts[tracker.ID]) >= 2 {
+		if len(mgr.trackingCounts[tracker.ID]) >= config.GetInt(config.KeyTrackingRuns)-1 {
 			sleepTime = config.GetInt(config.KeyCmdTrackSleep)
 		}
 		cmd = &models.Command{
@@ -341,7 +340,7 @@ func (mgr *TrackerManagerImpl) NewTrackingData(trackerID models.TrackerID, resul
 				return
 			}
 			mgr.trackingCounts[tracker.ID] = append(mgr.trackingCounts[tracker.ID], scoredRooms)
-			if len(mgr.trackingCounts[tracker.ID]) >= 3 {
+			if len(mgr.trackingCounts[tracker.ID]) >= config.GetInt(config.KeyTrackingRuns) {
 				err = setMatchingRoomForTracker(tracker, mgr.trackingCounts[tracker.ID])
 				mgr.trackingCounts[tracker.ID] = make([]map[models.RoomID]float64, 0, 0)
 				if err != nil {

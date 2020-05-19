@@ -35,13 +35,14 @@ const (
 	KeyMailSender     = "mail.sender"
 	KeyMailRecipients = "mail.recipients"
 
-	KeyTrackingScoreInMinMaxRange = "tracking.score.inminmax"
-	KeyTrackingScoreInQuartiles   = "tracking.score.inquartiles"
-	KeyTrackingScoreMeanFactor    = "tracking.score.mean.factor"
-	KeyTrackingScoreMedianFactor  = "tracking.score.median.factor"
-	KeyTrackingRangeForMean       = "tracking.range.mean"
-	KeyTrackingRangeForMedian     = "tracking.range.median"
-	KeyTrackingScoreThreshold     = "tracking.score.threshold"
+	KeyTrackingScoreInMinMaxRangeFactor = "tracking.score.minmax.factor"
+	KeyTrackingScoreInQuartilesFactor   = "tracking.score.quartiles.factor"
+	KeyTrackingScoreMeanFactor          = "tracking.score.mean.factor"
+	KeyTrackingScoreMedianFactor        = "tracking.score.median.factor"
+	KeyTrackingRangeForMean             = "tracking.range.mean"
+	KeyTrackingRangeForMedian           = "tracking.range.median"
+	KeyTrackingScoreThreshold           = "tracking.score.threshold"
+	KeyTrackingRuns                     = "tracking.runs"
 )
 
 type EditableConfigs struct {
@@ -86,13 +87,14 @@ func Initialize() {
 	pflag.Int(KeyMailPort, 25, "Port used for SMTP Host. Defaults to 25")
 	pflag.String(KeyMailSender, "", "Email address to send email from. Leave empty to use 'mail.username'.")
 	pflag.StringSlice(KeyMailRecipients, []string{}, "List of email addresses to recevive email notifications")
-	pflag.Float64(KeyTrackingScoreInMinMaxRange, 1.0, "Score a room gets awarded, when a scan result is in the range of the minimum and maximum learned scans")
-	pflag.Float64(KeyTrackingScoreInQuartiles, 5.0, "Score a room gets awarded, when a scan result is in the quartile range of the learned scans")
-	pflag.Float64(KeyTrackingScoreMeanFactor, 5.0, "tracking.score.mean.factor")
-	pflag.Float64(KeyTrackingScoreMedianFactor, 5.0, "tracking.score.median.factor")
-	pflag.Float64(KeyTrackingRangeForMean, 5.0, "tracking.range.mean")
-	pflag.Float64(KeyTrackingRangeForMedian, 5.0, "tracking.range.median")
-	pflag.Int(KeyTrackingScoreThreshold, 750.0, "threshold from which to consider a room matchable")
+	pflag.Float64(KeyTrackingScoreInMinMaxRangeFactor, 1.0, "Scaling factor for awarding scan results which are in the min/max range of the learned scans")
+	pflag.Float64(KeyTrackingScoreInQuartilesFactor, 5.0, "Scaling factor for awarding scan results which are in the quartile range of the learned scans")
+	pflag.Float64(KeyTrackingScoreMeanFactor, 5.0, "Scaling factor for awarding scan results fitting to the learned mean")
+	pflag.Float64(KeyTrackingScoreMedianFactor, 5.0, "Scaling factor for awarding scan results fitting to the learned median")
+	pflag.Float64(KeyTrackingRangeForMean, 5.0, "Range in which to consider scan results for fitting to the learned mean")
+	pflag.Float64(KeyTrackingRangeForMedian, 5.0, "Range in which to consider scan results for fitting to the learned median")
+	pflag.Int(KeyTrackingScoreThreshold, 750.0, "Threshold score from which to consider a room matchable")
+	pflag.Int(KeyTrackingRuns, 3, "Number of tracking runs to do before matching a room")
 
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)

@@ -123,25 +123,28 @@ func (*TrackingManagerImpl) ScoreRoomForScanResults(room *models.Room, scanResul
 // tracking data.
 func getScoreForScanResultAndTrackingData(td models.BSSIDTrackingData, sr *models.ScanResult) float64 {
 	score := 0.0
-	rssiFloat := float64(sr.RSSI)
-	rssiFactor := math.Abs(rssiFloat / 100.0)
+	rssi := float64(sr.RSSI)
+	rssiFactor := math.Abs(rssi / 100.0)
+	rangeForMean := config.GetFloat64(config.KeyTrackingRangeForMean)
+	rangeForMedian := config.GetFloat64(config.KeyTrackingRangeForMedian)
 	if sr.RSSI <= td.Maximum && sr.RSSI >= td.Minimum {
-		score += config.GetFloat64(config.KeyTrackingScoreInMinMaxRange) * rssiFactor
+		score += config.GetFloat64(config.KeyTrackingScoreInMinMaxRangeFactor) * rssiFactor
 	}
-	if rssiFloat < td.Quantiles.ThirdQuartile && rssiFloat > td.Quantiles.FirstQuartile {
-		score += config.GetFloat64(config.KeyTrackingScoreInQuartiles) * rssiFactor
+	if rssi < td.Quantiles.ThirdQuartile && rssi > td.Quantiles.FirstQuartile {
+		score += config.GetFloat64(config.KeyTrackingScoreInQuartilesFactor) * rssiFactor
 	}
-	if isInRange(rssiFloat, td.Mean, config.GetFloat64(config.KeyTrackingRangeForMean)) {
-		score += math.Abs((math.Abs(td.Mean-rssiFloat)-config.GetFloat64(config.KeyTrackingRangeForMean))*config.GetFloat64(config.KeyTrackingScoreMeanFactor)) * rssiFactor
+	if isInRange(rssi, td.Mean, rangeForMean) {
+		d := math.Abs(td.Mean - rssi)
+		score += math.Abs(d-rangeForMean) * config.GetFloat64(config.KeyTrackingScoreMeanFactor) * rssiFactor
 	}
-	if isInRange(rssiFloat, td.Median, config.GetFloat64(config.KeyTrackingRangeForMedian)) {
-		score += math.Abs((math.Abs(td.Median-rssiFloat)-config.GetFloat64(config.KeyTrackingRangeForMedian))*config.GetFloat64(config.KeyTrackingScoreMedianFactor)) * rssiFactor
+	if isInRange(rssi, td.Median, rangeForMean) {
+		d := math.Abs(td.Median - rssi)
+		score += math.Abs(d-rangeForMedian) * config.GetFloat64(config.KeyTrackingScoreMedianFactor) * rssiFactor
 	}
 	return score
 }
 
-// isInRange returns whether the given actual number is in the range of the wanted number +/- a
-// delta.
+// isInRange returns whether the given actual number is in the range of the wanted number +/- delta
 func isInRange(actual, wanted, delta float64) bool {
 	return actual > wanted-delta && actual < wanted+delta
 }
