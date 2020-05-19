@@ -32,6 +32,7 @@ jobs:
       - name: Rename zip
         run: mv dist.zip flasher-${{ runner.os }}.zip
       - name: Upload artifact
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/upload-artifact@v2-preview
         with:
           name: flasher
