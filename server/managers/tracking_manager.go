@@ -12,9 +12,9 @@ import (
 var trackingManager TrackingManager
 
 type TrackingManager interface {
-	GetRoomMatchingBest(rooms []*models.Room, scanResults []*models.ScanResult) *models.Room
+	GetRoomMatchingBest(scoredRooms []map[models.RoomID]float64) models.RoomID
 	ConsolidateScanResults(scanResults []*models.ScanResult) []models.BSSIDTrackingData
-	ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[*models.Room]float64
+	ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[models.RoomID]float64
 }
 
 type TrackingManagerImpl struct {
@@ -57,29 +57,48 @@ func (*TrackingManagerImpl) ConsolidateScanResults(scanResults []*models.ScanRes
 	return trackingData
 }
 
-func (tm *TrackingManagerImpl) GetRoomMatchingBest(rooms []*models.Room, scanResults []*models.ScanResult) *models.Room {
-	var bestMatch *models.Room = nil
-	var bestScore float64 = -1.0
-	scoredRooms := tm.ScoreRoomsForScanResults(rooms, scanResults)
-	for room, score := range scoredRooms {
-		log.Debugf("Scored room for matching: %s (%d): %f", room.Label, room.ID, score)
-		if (bestMatch == nil && score > config.GetFloat64(config.KeyTrackingScoreThreshold)) || (bestMatch != nil && score > bestScore && score > config.GetFloat64(config.KeyTrackingScoreThreshold)) {
+func (tm *TrackingManagerImpl) GetRoomMatchingBest(scoredRooms []map[models.RoomID]float64) models.RoomID {
+	scores := make(map[models.RoomID]float64)
+	for _, sr := range scoredRooms {
+		for room, score := range sr {
+			scores[room] += score
+		}
+	}
+
+	for room, score := range scores {
+		scores[room] = score / float64(len(scoredRooms))
+	}
+
+	var bestScore float64 = 0.0
+	var bestMatch models.RoomID = -1
+
+	threshold := config.GetFloat64(config.KeyTrackingScoreThreshold)
+
+	log.Debug(threshold)
+
+	for room, score := range scores {
+		if score < threshold {
+			log.Debugf("Room %d not considerd, score is lower than threshold (%f < %f)", room, score, threshold)
+			continue
+		}
+		log.Debugf("Room %d scored for matching: %f", room, score)
+		if bestMatch == -1 || score > bestScore {
 			bestScore = score
 			bestMatch = room
 		}
 	}
-	if bestMatch != nil {
-		log.Debugf("Selected the best match to be: %s", bestMatch.Label)
+	if bestMatch != -1 {
+		log.Debugf("Selected the best match to be: %d", bestMatch)
 	} else {
 		log.Debug("Did not find a matching room")
 	}
 	return bestMatch
 }
 
-func (tm *TrackingManagerImpl) ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[*models.Room]float64 {
-	scoredRooms := make(map[*models.Room]float64)
+func (tm *TrackingManagerImpl) ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[models.RoomID]float64 {
+	scoredRooms := make(map[models.RoomID]float64)
 	for _, room := range rooms {
-		scoredRooms[room] = tm.ScoreRoomForScanResults(room, scanResults)
+		scoredRooms[room.ID] = tm.ScoreRoomForScanResults(room, scanResults)
 	}
 	return scoredRooms
 }
@@ -91,7 +110,7 @@ func (*TrackingManagerImpl) ScoreRoomForScanResults(room *models.Room, scanResul
 	for _, trackingData := range room.TrackingData {
 		srs := getScanResultsForBSSID(trackingData.BSSID, scanResults)
 		if len(srs) == 0 {
-			score -= 10
+			score -= math.Abs(trackingData.Mean / 100.0)
 		}
 		for _, sr := range srs {
 			score += getScoreForScanResultAndTrackingData(trackingData, sr)
@@ -106,17 +125,18 @@ func getScoreForScanResultAndTrackingData(td models.BSSIDTrackingData, sr *model
 	// TODO: Evaluate how good this scoring works
 	score := 0.0
 	rssiFloat := float64(sr.RSSI)
+	rssiFactor := math.Abs(rssiFloat / 100.0)
 	if sr.RSSI <= td.Maximum && sr.RSSI >= td.Minimum {
-		score += config.GetFloat64(config.KeyTrackingScoreInMinMaxRange)
+		score += config.GetFloat64(config.KeyTrackingScoreInMinMaxRange) * rssiFactor
 	}
 	if rssiFloat < td.Quantiles.ThirdQuartile && rssiFloat > td.Quantiles.FirstQuartile {
-		score += config.GetFloat64(config.KeyTrackingScoreInQuartiles)
+		score += config.GetFloat64(config.KeyTrackingScoreInQuartiles) * rssiFactor
 	}
 	if isInRange(rssiFloat, td.Mean, config.GetFloat64(config.KeyTrackingRangeForMean)) {
-		score += math.Abs((math.Abs(td.Mean-rssiFloat) - config.GetFloat64(config.KeyTrackingRangeForMean)) * config.GetFloat64(config.KeyTrackingScoreMeanFactor))
+		score += math.Abs((math.Abs(td.Mean-rssiFloat)-config.GetFloat64(config.KeyTrackingRangeForMean))*config.GetFloat64(config.KeyTrackingScoreMeanFactor)) * rssiFactor
 	}
 	if isInRange(rssiFloat, td.Median, config.GetFloat64(config.KeyTrackingRangeForMedian)) {
-		score += math.Abs((math.Abs(td.Median-rssiFloat) - config.GetFloat64(config.KeyTrackingRangeForMedian)) * config.GetFloat64(config.KeyTrackingScoreMedianFactor))
+		score += math.Abs((math.Abs(td.Median-rssiFloat)-config.GetFloat64(config.KeyTrackingRangeForMedian))*config.GetFloat64(config.KeyTrackingScoreMedianFactor)) * rssiFactor
 	}
 	return score
 }

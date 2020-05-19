@@ -42,6 +42,7 @@ type TrackerManagerImpl struct {
 	trackerRep            repositories.TrackerRepository
 	scanResultsCacheMutex sync.Mutex
 	scanResultsCache      map[models.TrackerID]CachedScanResults
+	trackingCounts        map[models.TrackerID][]map[models.RoomID]float64
 	done                  chan struct{}
 }
 
@@ -54,6 +55,7 @@ func CreateTrackerManager(trackerRep repositories.TrackerRepository) TrackerMana
 		trackerRep:       trackerRep,
 		done:             make(chan struct{}),
 		scanResultsCache: make(map[models.TrackerID]CachedScanResults),
+		trackingCounts:   make(map[models.TrackerID][]map[models.RoomID]float64),
 	}
 
 	return trackerManager
@@ -164,9 +166,14 @@ func (mgr *TrackerManagerImpl) PollCommand(trackerID models.TrackerID) (cmd *mod
 			}
 		}
 	case models.TrackerStatusTracking:
+		sleepTime := 1
+		// FIXME: Make this configurable
+		if len(mgr.trackingCounts[tracker.ID]) >= 2 {
+			sleepTime = config.GetInt(config.KeyCmdTrackSleep)
+		}
 		cmd = &models.Command{
 			Type:         models.CmdSendTrackingInformation,
-			SleepTimeSec: config.GetInt(config.KeyCmdTrackSleep),
+			SleepTimeSec: sleepTime,
 		}
 	case models.TrackerStatusLearning:
 		cmd = &models.Command{
@@ -314,11 +321,24 @@ func (mgr *TrackerManagerImpl) NewTrackingData(trackerID models.TrackerID, resul
 
 		if mgr.receivedAllBatchesForTracker(tracker.ID) {
 			scanResults := mgr.scanResultsCache[tracker.ID].ScanResults
-			err = setMatchingRoomForTracker(tracker, scanResults)
+			var scoredRooms map[models.RoomID]float64
+			scoredRooms, err = scoreRoomsForTracker(tracker, scanResults)
 			if err != nil {
 				return
 			}
-			log.Debugf("Last known room ID for tracker is: %v", tracker.LastRoom)
+			mgr.trackingCounts[tracker.ID] = append(mgr.trackingCounts[tracker.ID], scoredRooms)
+			if len(mgr.trackingCounts[tracker.ID]) >= 3 {
+				err = setMatchingRoomForTracker(tracker, mgr.trackingCounts[tracker.ID])
+				mgr.trackingCounts[tracker.ID] = make([]map[models.RoomID]float64, 0, 0)
+				if err != nil {
+					return
+				}
+				log.Debugf("Last known room ID for tracker is: %v", tracker.LastRoom)
+				err = GetWorkflowExecManager().ProgressToTrackerRoom(tracker.ID, tracker.LastRoom)
+				if err != nil {
+					return
+				}
+			}
 		}
 	}
 
@@ -329,9 +349,7 @@ func (mgr *TrackerManagerImpl) NewTrackingData(trackerID models.TrackerID, resul
 	case models.TrackerStatusLearning:
 		err = GetLearningManager().NewLearningTrackingData(trackerID, scanRes)
 	case models.TrackerStatusTracking:
-		if mgr.receivedAllBatchesForTracker(tracker.ID) {
-			err = GetWorkflowExecManager().ProgressToTrackerRoom(tracker.ID, tracker.LastRoom)
-		}
+		// empty
 	default:
 		err = errors.New("Unknown tracker status")
 		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unknown tracker status")
@@ -349,16 +367,21 @@ func (mgr *TrackerManagerImpl) receivedAllBatchesForTracker(trackerID models.Tra
 	return mgr.scanResultsCache[trackerID].BatchesReceived == mgr.scanResultsCache[trackerID].BatchesExpected
 }
 
-func setMatchingRoomForTracker(tracker *models.Tracker, scanResults []*models.ScanResult) error {
+func scoreRoomsForTracker(tracker *models.Tracker, scanResults []*models.ScanResult) (map[models.RoomID]float64, error) {
 	rooms, err := GetRoomManager().GetAllRooms()
 	if err != nil {
 		err = fmt.Errorf("could not get rooms: %w", err)
-		return err
+		return nil, err
 	}
-	bestMatch := GetTrackingManager().GetRoomMatchingBest(rooms, scanResults)
-	if bestMatch == nil {
-		err = fmt.Errorf("no matching room found")
-		return err
+	log.Debug("Scored rooms")
+	scoredRooms := GetTrackingManager().ScoreRoomsForScanResults(rooms, scanResults)
+	return scoredRooms, nil
+}
+
+func setMatchingRoomForTracker(tracker *models.Tracker, scoredRooms []map[models.RoomID]float64) error {
+	bestMatch := GetTrackingManager().GetRoomMatchingBest(scoredRooms)
+	if bestMatch <= 0 {
+		return fmt.Errorf("no matching room found")
 	}
-	return GetTrackerManager().UpdateRoom(tracker, bestMatch.ID)
+	return GetTrackerManager().UpdateRoom(tracker, bestMatch)
 }

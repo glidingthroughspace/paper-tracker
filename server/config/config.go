@@ -57,7 +57,7 @@ type EditableConfigs struct {
 	WorkEndHour         int      `json:"work_end_hour" ptc_key:"work.endHour"`
 	WorkOnWeekend       bool     `json:"work_on_weekend" ptc_key:"work.onWeekend"`
 	MailRecipients      []string `json:"mail_recipients" ptc_key:"mail.recipients"`
-	ScoreThreshold      float64  `json:"score_threshold" ptc_key:"score.threshold"`
+	ScoreThreshold      int      `json:"score_threshold" ptc_key:"tracking.score.threshold"`
 }
 
 // Initialize sets up the cmd line args and parses them with the config file
@@ -90,9 +90,9 @@ func Initialize() {
 	pflag.Float64(KeyTrackingScoreInQuartiles, 5.0, "Score a room gets awarded, when a scan result is in the quartile range of the learned scans")
 	pflag.Float64(KeyTrackingScoreMeanFactor, 5.0, "tracking.score.mean.factor")
 	pflag.Float64(KeyTrackingScoreMedianFactor, 5.0, "tracking.score.median.factor")
-	pflag.Float64(KeyTrackingRangeForMean, 10.0, "tracking.range.mean")
-	pflag.Float64(KeyTrackingRangeForMedian, 10.0, "tracking.range.median")
-	pflag.Float64(KeyTrackingScoreThreshold, 20.0, "threshold from which to consider a room matchable")
+	pflag.Float64(KeyTrackingRangeForMean, 5.0, "tracking.range.mean")
+	pflag.Float64(KeyTrackingRangeForMedian, 5.0, "tracking.range.median")
+	pflag.Int(KeyTrackingScoreThreshold, 750.0, "threshold from which to consider a room matchable")
 
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
