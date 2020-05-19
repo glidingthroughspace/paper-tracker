@@ -16,7 +16,13 @@ class Utils {
 }
 
 class Config {
-  GetConfigValue(String id) : any
+  Initialize()
+  GetEditableConfig() : EditableConfig
+  UpdateEditableConfig(EditableConfig config)
+  GetInt(String key) : int
+  GetBool(String key) : bool
+  GetString(String key) : String
+  GetStringSlice(String key) : String[]
 }
 
 package router {
@@ -207,6 +213,7 @@ WorkflowTemplateManager --> WorkflowTemplateRepository
 Main ..> managers : <creates>
 Main .> HttpRouter : <starts>
 Main .> CoapRouter : <starts>
+Main ..> Config : <initializes>
 
 Main -[hidden]- ExportManager
 

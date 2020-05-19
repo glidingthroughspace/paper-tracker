@@ -7,8 +7,10 @@ class WaitTrackerPollDialog extends StatelessWidget {
   final int trackerID;
   final void Function() onWaitFinished;
   final TrackerClient trackerClient;
+  final int waitMargin; // Widget will wait for waitTime - waitMargin
 
-  const WaitTrackerPollDialog({Key key, this.trackerID, this.trackerClient, this.onWaitFinished}) : super(key: key);
+  const WaitTrackerPollDialog({Key key, this.trackerID, this.trackerClient, this.onWaitFinished, this.waitMargin = 2})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +35,10 @@ class WaitTrackerPollDialog extends StatelessWidget {
     return FutureBuilder(
       future: trackerClient.getNextPollSecs(trackerID),
       builder: (context, snapshot) {
-        var timeToWait = snapshot.hasData ? snapshot.data : 0;
+        var timeToWait = snapshot.hasData ? snapshot.data - waitMargin : 0;
+        if (timeToWait < 0) {
+          timeToWait = 0;
+        }
 
         return ConditionalBuilder(
           conditional: snapshot.hasData,

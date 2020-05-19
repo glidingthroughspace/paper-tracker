@@ -141,7 +141,7 @@ Diese \enquote{TrackerResponse}-Klasse besitzt auch ein Feld für den aktuellen 
 Unter den Klassen \enquote{WorkflowTemplate} und \enquote{WorkflowExec} sind die Workflows modelliert.
 \enquote{WorkflowTemplate} stellt eine Blaupause dar, wie ein Workflow aussieht.
 In diesem werden die einzelnen Schritte (\enquote{Steps}) des Workflows festgelegt.
-Für einen \enquote{Step} werden ein Label und eine Referenz auf den dazugehörigen Raum gespeichert.
+Für einen \enquote{Step} werden ein Label und eine oder mehrere Referenzen auf dazugehörige Räume gespeichert.
 Über die Klasse \enquote{NextStep} werden Referenzen auf nachfolgende Schritte modelliert.
 Die \enquote{NextStep} Klasse besitzt ein Attribut \enquote{DecisionLabel}.
 Ist diese ein leerer String, so ist dieser verbundene Schritt ein linearer.
@@ -265,7 +265,9 @@ Alle verfügbaren Endpunkte der App-Schnittstelle sind in \autoref{tab:http-api}
 \texttt{POST}   & \texttt{/workflow/exec/:id/progress/:id}      & Ausführung zu Schritt progressieren & -                                                           & -                                                                       \\ \hline
 \texttt{POST}   & \texttt{/workflow/exec/:id/cancel}            & Ausführung abbrechen                & -                                                           & -                                                                       \\ \hline
 \multicolumn{5}{c}{\textit{Sonstiges}}  \\ \hline
-\texttt{GET} & \texttt{/export.xlsx} & Datenexport für Analyse & - & Excel-Datei
+\texttt{GET} & \texttt{/export.xlsx} & Datenexport für Analyse & - & Excel-Datei            \\ \hline
+\texttt{GET} & \texttt{/config} & Einstellungen abrufen & - & Konfigurierbare Einstellungen \\ \hline
+\texttt{POST} & \texttt{/config} & Einstellungen setzen & Einstellungen & -
 	\end{longtable}
 \end{landscape}
 \end{footnotesize}
@@ -290,7 +292,6 @@ Weitere Methoden für z.B. das Abfragen eines Kommandos für einen Tracker sind 
 Alle Manager sind als Singleton implementiert so, dass sie sich auch untereinander problemlos aufrufen können.
 \TODO{Spezielle Fkt einzelner Manager erklären?}
 Konfiguriert werden die Manager über die global verfügbare \enquote{Config} Klasse.
-Über diese Klasse können verschiedene Einstellungen über einzigartige Identifizierer abgefragt werden.
 
 Die unterste Schicht bildet das \enquote{repositories} Paket.
 Dieses enthält verschiedene Datenbank-Repositories, die die Datenbank und damit die Datenpersistenz des Servers abbilden.
@@ -298,7 +299,16 @@ Alle Methoden eines Repository bilden direkte Anfragen an die Datenbank.
 Dabei ist ein Repository meist für eine Modellklasse verantwortlich.
 
 Die main-Klasse ist für das Starten des Servers und das Erstellen der einzelnen Komponenten verantwortlich.
-In dieser wird zum Beispiel auch die Konfiguration eingelesen und initialisiert.
+In dieser wird zum Beispiel auch die Konfiguration mit Hilfe der \enquote{Config}-Klasse eingelesen und initialisiert.
+
+Die Config-Klasse ist global verfügbar und liest bei der Initialisierung aus einer Konfigurationsdatei
+und über Kommandozeilenparameter verschiedene Einstellungen ein.
+Die Einstellungen können dann über einzigartige Identifizierer abgefragt werden.
+Auch stellt die Klasse Funktionen für das Abfragen und das Aktualisieren einer \enquote{EditableConfig} bereit.
+Die \enquote{EditableConfig} ist eine reine Datenstruktur, welche vordefinierte Einstellungen beinhaltet, die während
+der Laufzeit des Servers geändert werden dürfen.
+Eine Aktualisierung der Einstellungen während der Laufzeit schreibt diese Änderungen auch in die Konfigurationsdatei.
+
 In der Utils-Klasse sind einige verschiedene Hilfsmittel untergebracht.
 Dies sind zum einen das Versenden von E-Mails und zum anderen einige mathematische Hilfsfunktionen.
 

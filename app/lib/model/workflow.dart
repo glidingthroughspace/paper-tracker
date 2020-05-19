@@ -8,7 +8,6 @@ part 'workflow.g.dart';
 @JsonSerializable()
 class WorkflowTemplate extends DropdownCapable {
   static const IconData = MdiIcons.clipboardFileOutline;
-  static const CompletedIconData = MdiIcons.clipboardCheckOutline;
 
   @JsonKey(name: "id")
   int id;
@@ -63,6 +62,7 @@ dynamic _optionsToJson(Map<String, List<WFStep>> options) {
 @JsonSerializable()
 class WorkflowExec {
   static const IconData = MdiIcons.clipboardTextPlayOutline;
+  static const CompletedIconData = MdiIcons.clipboardCheckOutline;
   static const CompletedColor = Colors.teal;
 
   @JsonKey(name: "id")
