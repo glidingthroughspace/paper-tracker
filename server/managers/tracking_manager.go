@@ -90,6 +90,9 @@ func (*TrackingManagerImpl) ScoreRoomForScanResults(room *models.Room, scanResul
 	score := 0.0
 	for _, trackingData := range room.TrackingData {
 		srs := getScanResultsForBSSID(trackingData.BSSID, scanResults)
+		if len(srs) == 0 {
+			score -= 10
+		}
 		for _, sr := range srs {
 			score += getScoreForScanResultAndTrackingData(trackingData, sr)
 		}
@@ -109,12 +112,11 @@ func getScoreForScanResultAndTrackingData(td models.BSSIDTrackingData, sr *model
 	if rssiFloat < td.Quantiles.ThirdQuartile && rssiFloat > td.Quantiles.FirstQuartile {
 		score += config.GetFloat64(config.KeyTrackingScoreInQuartiles)
 	}
-	// The +0.5e-7 additions below are to prevent division by zero
 	if isInRange(rssiFloat, td.Mean, config.GetFloat64(config.KeyTrackingRangeForMean)) {
-		score += (1.0 / (math.Abs(td.Mean-rssiFloat) + 0.1)) * config.GetFloat64(config.KeyTrackingScoreMeanFactor)
+		score += math.Abs((math.Abs(td.Mean-rssiFloat) - config.GetFloat64(config.KeyTrackingRangeForMean)) * config.GetFloat64(config.KeyTrackingScoreMeanFactor))
 	}
 	if isInRange(rssiFloat, td.Median, config.GetFloat64(config.KeyTrackingRangeForMedian)) {
-		score += (1.0 / (math.Abs(td.Median-rssiFloat) + 0.1)) * config.GetFloat64(config.KeyTrackingScoreMedianFactor)
+		score += math.Abs((math.Abs(td.Median-rssiFloat) - config.GetFloat64(config.KeyTrackingRangeForMedian)) * config.GetFloat64(config.KeyTrackingScoreMedianFactor))
 	}
 	return score
 }
