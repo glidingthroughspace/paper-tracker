@@ -34,17 +34,17 @@ func (m *MockTrackingManager) EXPECT() *MockTrackingManagerMockRecorder {
 }
 
 // GetRoomMatchingBest mocks base method
-func (m *MockTrackingManager) GetRoomMatchingBest(rooms []*models.Room, scanResults []*models.ScanResult) *models.Room {
+func (m *MockTrackingManager) GetRoomMatchingBest(scoredRooms []map[models.RoomID]float64) models.RoomID {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRoomMatchingBest", rooms, scanResults)
-	ret0, _ := ret[0].(*models.Room)
+	ret := m.ctrl.Call(m, "GetRoomMatchingBest", scoredRooms)
+	ret0, _ := ret[0].(models.RoomID)
 	return ret0
 }
 
 // GetRoomMatchingBest indicates an expected call of GetRoomMatchingBest
-func (mr *MockTrackingManagerMockRecorder) GetRoomMatchingBest(rooms, scanResults interface{}) *gomock.Call {
+func (mr *MockTrackingManagerMockRecorder) GetRoomMatchingBest(scoredRooms interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoomMatchingBest", reflect.TypeOf((*MockTrackingManager)(nil).GetRoomMatchingBest), rooms, scanResults)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRoomMatchingBest", reflect.TypeOf((*MockTrackingManager)(nil).GetRoomMatchingBest), scoredRooms)
 }
 
 // ConsolidateScanResults mocks base method
@@ -62,10 +62,10 @@ func (mr *MockTrackingManagerMockRecorder) ConsolidateScanResults(scanResults in
 }
 
 // ScoreRoomsForScanResults mocks base method
-func (m *MockTrackingManager) ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[*models.Room]float64 {
+func (m *MockTrackingManager) ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[models.RoomID]float64 {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ScoreRoomsForScanResults", rooms, scanResults)
-	ret0, _ := ret[0].(map[*models.Room]float64)
+	ret0, _ := ret[0].(map[models.RoomID]float64)
 	return ret0
 }
 
