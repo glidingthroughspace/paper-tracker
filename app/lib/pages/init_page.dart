@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:paper_tracker/client/api_client.dart';
+import 'package:paper_tracker/pages/main_page.dart';
+import 'package:paper_tracker/pages/server_config_page.dart';
 
 class InitPage extends StatefulWidget {
   static const Route = "/";
@@ -14,11 +16,11 @@ class _InitPageState extends State<InitPage> {
     super.initState();
     APIClient().isAvailable().timeout(Duration(seconds: 2)).then((serverAvailable) {
       if (serverAvailable)
-        Navigator.pushReplacementNamed(context, "/main");
+        Navigator.pushReplacementNamed(context, MainPage.Route);
       else
-        Navigator.pushReplacementNamed(context, "/config");
+        Navigator.pushReplacementNamed(context, ServerConfigPage.Route);
     }).catchError((error) {
-      Navigator.pushReplacementNamed(context, "/config");
+      Navigator.pushReplacementNamed(context, ServerConfigPage.Route);
     });
   }
 
