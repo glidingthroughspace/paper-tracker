@@ -34,6 +34,14 @@ const (
 	KeyMailPort       = "mail.port"
 	KeyMailSender     = "mail.sender"
 	KeyMailRecipients = "mail.recipients"
+
+	KeyTrackingScoreInMinMaxRange = "tracking.score.inminmax"
+	KeyTrackingScoreInQuartiles   = "tracking.score.inquartiles"
+	KeyTrackingScoreMeanFactor    = "tracking.score.mean.factor"
+	KeyTrackingScoreMedianFactor  = "tracking.score.median.factor"
+	KeyTrackingRangeForMean       = "tracking.range.mean"
+	KeyTrackingRangeForMedian     = "tracking.range.median"
+	KeyTrackingScoreThreshold     = "tracking.score.threshold"
 )
 
 type EditableConfigs struct {
@@ -49,6 +57,7 @@ type EditableConfigs struct {
 	WorkEndHour         int      `json:"work_end_hour" ptc_key:"work.endHour"`
 	WorkOnWeekend       bool     `json:"work_on_weekend" ptc_key:"work.onWeekend"`
 	MailRecipients      []string `json:"mail_recipients" ptc_key:"mail.recipients"`
+	ScoreThreshold      float64  `json:"score_threshold" ptc_key:"score.threshold"`
 }
 
 // Initialize sets up the cmd line args and parses them with the config file
@@ -77,6 +86,13 @@ func Initialize() {
 	pflag.Int(KeyMailPort, 25, "Port used for SMTP Host. Defaults to 25")
 	pflag.String(KeyMailSender, "", "Email address to send email from. Leave empty to use 'mail.username'.")
 	pflag.StringSlice(KeyMailRecipients, []string{}, "List of email addresses to recevive email notifications")
+	pflag.Float64(KeyTrackingScoreInMinMaxRange, 1.0, "Score a room gets awarded, when a scan result is in the range of the minimum and maximum learned scans")
+	pflag.Float64(KeyTrackingScoreInQuartiles, 5.0, "Score a room gets awarded, when a scan result is in the quartile range of the learned scans")
+	pflag.Float64(KeyTrackingScoreMeanFactor, 5.0, "tracking.score.mean.factor")
+	pflag.Float64(KeyTrackingScoreMedianFactor, 5.0, "tracking.score.median.factor")
+	pflag.Float64(KeyTrackingRangeForMean, 10.0, "tracking.range.mean")
+	pflag.Float64(KeyTrackingRangeForMedian, 10.0, "tracking.range.median")
+	pflag.Float64(KeyTrackingScoreThreshold, 20.0, "threshold from which to consider a room matchable")
 
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
@@ -142,6 +158,10 @@ func UpdateEditableConfig(config *EditableConfigs) (err error) {
 
 func GetInt(key string) int {
 	return viper.GetInt(key)
+}
+
+func GetFloat64(key string) float64 {
+	return viper.GetFloat64(key)
 }
 
 func GetBool(key string) bool {

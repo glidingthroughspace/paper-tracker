@@ -2,6 +2,7 @@ package managers
 
 import (
 	"math"
+	"paper-tracker/config"
 	"paper-tracker/models"
 	"paper-tracker/utils/collections"
 
@@ -62,7 +63,7 @@ func (tm *TrackingManagerImpl) GetRoomMatchingBest(rooms []*models.Room, scanRes
 	scoredRooms := tm.ScoreRoomsForScanResults(rooms, scanResults)
 	for room, score := range scoredRooms {
 		log.Debugf("Scored room for matching: %s (%d): %f", room.Label, room.ID, score)
-		if (bestMatch == nil && score > 0.1e-7) || (bestMatch != nil && score > bestScore) {
+		if (bestMatch == nil && score > config.GetFloat64(config.KeyTrackingScoreThreshold)) || (bestMatch != nil && score > bestScore && score > config.GetFloat64(config.KeyTrackingScoreThreshold)) {
 			bestScore = score
 			bestMatch = room
 		}
@@ -100,20 +101,20 @@ func (*TrackingManagerImpl) ScoreRoomForScanResults(room *models.Room, scanResul
 // tracking data.
 func getScoreForScanResultAndTrackingData(td models.BSSIDTrackingData, sr *models.ScanResult) float64 {
 	// TODO: Evaluate how good this scoring works
-	//       We might also use distances (e.g. d(Mean, RSSI)) to get more fine-grained scores
 	score := 0.0
+	rssiFloat := float64(sr.RSSI)
 	if sr.RSSI <= td.Maximum && sr.RSSI >= td.Minimum {
-		score += 1
+		score += config.GetFloat64(config.KeyTrackingScoreInMinMaxRange)
 	}
-	if float64(sr.RSSI) < td.Quantiles.ThirdQuartile && float64(sr.RSSI) > td.Quantiles.FirstQuartile {
-		score += 5
+	if rssiFloat < td.Quantiles.ThirdQuartile && rssiFloat > td.Quantiles.FirstQuartile {
+		score += config.GetFloat64(config.KeyTrackingScoreInQuartiles)
 	}
 	// The +0.5e-7 additions below are to prevent division by zero
-	if isInRange(float64(sr.RSSI), td.Mean, 10) {
-		score += (1.0 / (math.Abs(td.Mean-float64(sr.RSSI)) + 0.1)) * 5
+	if isInRange(rssiFloat, td.Mean, config.GetFloat64(config.KeyTrackingRangeForMean)) {
+		score += (1.0 / (math.Abs(td.Mean-rssiFloat) + 0.1)) * config.GetFloat64(config.KeyTrackingScoreMeanFactor)
 	}
-	if isInRange(float64(sr.RSSI), td.Median, 10) {
-		score += (1.0 / (math.Abs(td.Median-float64(sr.RSSI)) + 0.1)) * 5
+	if isInRange(rssiFloat, td.Median, config.GetFloat64(config.KeyTrackingRangeForMedian)) {
+		score += (1.0 / (math.Abs(td.Median-rssiFloat) + 0.1)) * config.GetFloat64(config.KeyTrackingScoreMedianFactor)
 	}
 	return score
 }
