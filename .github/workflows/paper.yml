@@ -24,6 +24,7 @@ jobs:
       # We're using v2-preview of the action, since it allows to upload single files
       - name: Upload artifact
         uses: actions/upload-artifact@v2-preview
+        if: startsWith(github.ref, 'refs/tags/v')
         with:
           name: paper
           path: paper/Studienarbeit.pdf

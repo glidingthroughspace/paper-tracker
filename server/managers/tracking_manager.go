@@ -2,6 +2,7 @@ package managers
 
 import (
 	"math"
+	"paper-tracker/config"
 	"paper-tracker/models"
 	"paper-tracker/utils/collections"
 
@@ -11,9 +12,9 @@ import (
 var trackingManager TrackingManager
 
 type TrackingManager interface {
-	GetRoomMatchingBest(rooms []*models.Room, scanResults []*models.ScanResult) *models.Room
+	GetRoomMatchingBest(scoredRooms []map[models.RoomID]float64) models.RoomID
 	ConsolidateScanResults(scanResults []*models.ScanResult) []models.BSSIDTrackingData
-	ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[*models.Room]float64
+	ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[models.RoomID]float64
 }
 
 type TrackingManagerImpl struct {
@@ -56,29 +57,48 @@ func (*TrackingManagerImpl) ConsolidateScanResults(scanResults []*models.ScanRes
 	return trackingData
 }
 
-func (tm *TrackingManagerImpl) GetRoomMatchingBest(rooms []*models.Room, scanResults []*models.ScanResult) *models.Room {
-	var bestMatch *models.Room = nil
-	var bestScore float64 = -1.0
-	scoredRooms := tm.ScoreRoomsForScanResults(rooms, scanResults)
-	for room, score := range scoredRooms {
-		log.Debugf("Scored room for matching: %s (%d): %f", room.Label, room.ID, score)
-		if (bestMatch == nil && score > 0.1e-7) || (bestMatch != nil && score > bestScore) {
+func (tm *TrackingManagerImpl) GetRoomMatchingBest(scoredRooms []map[models.RoomID]float64) models.RoomID {
+	scores := make(map[models.RoomID]float64)
+	for _, sr := range scoredRooms {
+		for room, score := range sr {
+			scores[room] += score
+		}
+	}
+
+	for room, score := range scores {
+		scores[room] = score / float64(len(scoredRooms))
+	}
+
+	var bestScore float64 = 0.0
+	var bestMatch models.RoomID = -1
+
+	threshold := config.GetFloat64(config.KeyTrackingScoreThreshold)
+
+	log.Debug(threshold)
+
+	for room, score := range scores {
+		if score < threshold {
+			log.Debugf("Room %d not considerd, score is lower than threshold (%f < %f)", room, score, threshold)
+			continue
+		}
+		log.Debugf("Room %d scored for matching: %f", room, score)
+		if bestMatch == -1 || score > bestScore {
 			bestScore = score
 			bestMatch = room
 		}
 	}
-	if bestMatch != nil {
-		log.Debugf("Selected the best match to be: %s", bestMatch.Label)
+	if bestMatch != -1 {
+		log.Debugf("Selected the best match to be: %d", bestMatch)
 	} else {
 		log.Debug("Did not find a matching room")
 	}
 	return bestMatch
 }
 
-func (tm *TrackingManagerImpl) ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[*models.Room]float64 {
-	scoredRooms := make(map[*models.Room]float64)
+func (tm *TrackingManagerImpl) ScoreRoomsForScanResults(rooms []*models.Room, scanResults []*models.ScanResult) map[models.RoomID]float64 {
+	scoredRooms := make(map[models.RoomID]float64)
 	for _, room := range rooms {
-		scoredRooms[room] = tm.ScoreRoomForScanResults(room, scanResults)
+		scoredRooms[room.ID] = tm.ScoreRoomForScanResults(room, scanResults)
 	}
 	return scoredRooms
 }
@@ -89,6 +109,9 @@ func (*TrackingManagerImpl) ScoreRoomForScanResults(room *models.Room, scanResul
 	score := 0.0
 	for _, trackingData := range room.TrackingData {
 		srs := getScanResultsForBSSID(trackingData.BSSID, scanResults)
+		if len(srs) == 0 {
+			score -= math.Abs(trackingData.Mean / 100.0)
+		}
 		for _, sr := range srs {
 			score += getScoreForScanResultAndTrackingData(trackingData, sr)
 		}
@@ -99,27 +122,29 @@ func (*TrackingManagerImpl) ScoreRoomForScanResults(room *models.Room, scanResul
 // getScoreForScanResultAndTrackingData calculates the score for a single scan result and the given
 // tracking data.
 func getScoreForScanResultAndTrackingData(td models.BSSIDTrackingData, sr *models.ScanResult) float64 {
-	// TODO: Evaluate how good this scoring works
-	//       We might also use distances (e.g. d(Mean, RSSI)) to get more fine-grained scores
 	score := 0.0
+	rssi := float64(sr.RSSI)
+	rssiFactor := math.Abs(rssi / 100.0)
+	rangeForMean := config.GetFloat64(config.KeyTrackingRangeForMean)
+	rangeForMedian := config.GetFloat64(config.KeyTrackingRangeForMedian)
 	if sr.RSSI <= td.Maximum && sr.RSSI >= td.Minimum {
-		score += 1
+		score += config.GetFloat64(config.KeyTrackingScoreInMinMaxRangeFactor) * rssiFactor
 	}
-	if float64(sr.RSSI) < td.Quantiles.ThirdQuartile && float64(sr.RSSI) > td.Quantiles.FirstQuartile {
-		score += 5
+	if rssi < td.Quantiles.ThirdQuartile && rssi > td.Quantiles.FirstQuartile {
+		score += config.GetFloat64(config.KeyTrackingScoreInQuartilesFactor) * rssiFactor
 	}
-	// The +0.5e-7 additions below are to prevent division by zero
-	if isInRange(float64(sr.RSSI), td.Mean, 10) {
-		score += (1.0 / (math.Abs(td.Mean-float64(sr.RSSI)) + 0.1)) * 5
+	if isInRange(rssi, td.Mean, rangeForMean) {
+		d := math.Abs(td.Mean - rssi)
+		score += math.Abs(d-rangeForMean) * config.GetFloat64(config.KeyTrackingScoreMeanFactor) * rssiFactor
 	}
-	if isInRange(float64(sr.RSSI), td.Median, 10) {
-		score += (1.0 / (math.Abs(td.Median-float64(sr.RSSI)) + 0.1)) * 5
+	if isInRange(rssi, td.Median, rangeForMean) {
+		d := math.Abs(td.Median - rssi)
+		score += math.Abs(d-rangeForMedian) * config.GetFloat64(config.KeyTrackingScoreMedianFactor) * rssiFactor
 	}
 	return score
 }
 
-// isInRange returns whether the given actual number is in the range of the wanted number +/- a
-// delta.
+// isInRange returns whether the given actual number is in the range of the wanted number +/- delta
 func isInRange(actual, wanted, delta float64) bool {
 	return actual > wanted-delta && actual < wanted+delta
 }

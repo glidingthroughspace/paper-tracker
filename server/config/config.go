@@ -34,6 +34,15 @@ const (
 	KeyMailPort       = "mail.port"
 	KeyMailSender     = "mail.sender"
 	KeyMailRecipients = "mail.recipients"
+
+	KeyTrackingScoreInMinMaxRangeFactor = "tracking.score.minmax.factor"
+	KeyTrackingScoreInQuartilesFactor   = "tracking.score.quartiles.factor"
+	KeyTrackingScoreMeanFactor          = "tracking.score.mean.factor"
+	KeyTrackingScoreMedianFactor        = "tracking.score.median.factor"
+	KeyTrackingRangeForMean             = "tracking.range.mean"
+	KeyTrackingRangeForMedian           = "tracking.range.median"
+	KeyTrackingScoreThreshold           = "tracking.score.threshold"
+	KeyTrackingRuns                     = "tracking.runs"
 )
 
 type EditableConfigs struct {
@@ -49,6 +58,7 @@ type EditableConfigs struct {
 	WorkEndHour         int      `json:"work_end_hour" ptc_key:"work.endHour"`
 	WorkOnWeekend       bool     `json:"work_on_weekend" ptc_key:"work.onWeekend"`
 	MailRecipients      []string `json:"mail_recipients" ptc_key:"mail.recipients"`
+	ScoreThreshold      int      `json:"score_threshold" ptc_key:"tracking.score.threshold"`
 }
 
 // Initialize sets up the cmd line args and parses them with the config file
@@ -77,6 +87,14 @@ func Initialize() {
 	pflag.Int(KeyMailPort, 25, "Port used for SMTP Host. Defaults to 25")
 	pflag.String(KeyMailSender, "", "Email address to send email from. Leave empty to use 'mail.username'.")
 	pflag.StringSlice(KeyMailRecipients, []string{}, "List of email addresses to recevive email notifications")
+	pflag.Float64(KeyTrackingScoreInMinMaxRangeFactor, 1.0, "Scaling factor for awarding scan results which are in the min/max range of the learned scans")
+	pflag.Float64(KeyTrackingScoreInQuartilesFactor, 5.0, "Scaling factor for awarding scan results which are in the quartile range of the learned scans")
+	pflag.Float64(KeyTrackingScoreMeanFactor, 5.0, "Scaling factor for awarding scan results fitting to the learned mean")
+	pflag.Float64(KeyTrackingScoreMedianFactor, 5.0, "Scaling factor for awarding scan results fitting to the learned median")
+	pflag.Float64(KeyTrackingRangeForMean, 5.0, "Range in which to consider scan results for fitting to the learned mean")
+	pflag.Float64(KeyTrackingRangeForMedian, 5.0, "Range in which to consider scan results for fitting to the learned median")
+	pflag.Int(KeyTrackingScoreThreshold, 750.0, "Threshold score from which to consider a room matchable")
+	pflag.Int(KeyTrackingRuns, 3, "Number of tracking runs to do before matching a room")
 
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
@@ -142,6 +160,10 @@ func UpdateEditableConfig(config *EditableConfigs) (err error) {
 
 func GetInt(key string) int {
 	return viper.GetInt(key)
+}
+
+func GetFloat64(key string) float64 {
+	return viper.GetFloat64(key)
 }
 
 func GetBool(key string) bool {

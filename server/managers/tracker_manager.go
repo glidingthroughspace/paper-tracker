@@ -25,7 +25,7 @@ type TrackerManager interface {
 	DeleteTracker(trackerID models.TrackerID) error
 	NotifyNewTracker() (*models.Tracker, error)
 	PollCommand(trackerID models.TrackerID) (*models.Command, error)
-	InWorkingHours() (inHours bool, toStart time.Duration)
+	InWorkingHours(currentTime time.Time) (inHours bool, toStart time.Duration)
 	UpdateFromResponse(trackerID models.TrackerID, resp communication.TrackerCmdResponse) error
 	UpdateRoom(tracker *models.Tracker, roomID models.RoomID) error
 	NewTrackingData(trackerID models.TrackerID, resultID uint64, batchCount uint8, scanRes []*models.ScanResult) error
@@ -42,6 +42,7 @@ type TrackerManagerImpl struct {
 	trackerRep            repositories.TrackerRepository
 	scanResultsCacheMutex sync.Mutex
 	scanResultsCache      map[models.TrackerID]CachedScanResults
+	trackingCounts        map[models.TrackerID][]map[models.RoomID]float64
 	done                  chan struct{}
 }
 
@@ -54,6 +55,7 @@ func CreateTrackerManager(trackerRep repositories.TrackerRepository) TrackerMana
 		trackerRep:       trackerRep,
 		done:             make(chan struct{}),
 		scanResultsCache: make(map[models.TrackerID]CachedScanResults),
+		trackingCounts:   make(map[models.TrackerID][]map[models.RoomID]float64),
 	}
 
 	return trackerManager
@@ -164,9 +166,13 @@ func (mgr *TrackerManagerImpl) PollCommand(trackerID models.TrackerID) (cmd *mod
 			}
 		}
 	case models.TrackerStatusTracking:
+		sleepTime := 1
+		if len(mgr.trackingCounts[tracker.ID]) >= config.GetInt(config.KeyTrackingRuns)-1 {
+			sleepTime = config.GetInt(config.KeyCmdTrackSleep)
+		}
 		cmd = &models.Command{
 			Type:         models.CmdSendTrackingInformation,
-			SleepTimeSec: config.GetInt(config.KeyCmdTrackSleep),
+			SleepTimeSec: sleepTime,
 		}
 	case models.TrackerStatusLearning:
 		cmd = &models.Command{
@@ -175,7 +181,7 @@ func (mgr *TrackerManagerImpl) PollCommand(trackerID models.TrackerID) (cmd *mod
 		}
 	}
 
-	if inWorkHours, toWorkHours := mgr.InWorkingHours(); !inWorkHours {
+	if inWorkHours, toWorkHours := mgr.InWorkingHours(time.Now().Local()); !inWorkHours {
 		maxSleepSec := config.GetInt(config.KeyCmdMaxSleep)
 		toWorkHoursSec := int(toWorkHours.Seconds())
 		if toWorkHoursSec > maxSleepSec {
@@ -198,29 +204,35 @@ func (mgr *TrackerManagerImpl) PollCommand(trackerID models.TrackerID) (cmd *mod
 
 //TODO: Write test and somehow mock time.Now() for that
 // InWorkingHours returns whether we are currently in working hours and if not, how long it will be until working hour
-func (mgr *TrackerManagerImpl) InWorkingHours() (inHours bool, toStart time.Duration) {
+func (mgr *TrackerManagerImpl) InWorkingHours(currentTime time.Time) (inHours bool, toStart time.Duration) {
 	workStartHour := config.GetInt(config.KeyWorkStartHour)
 	workEndHour := config.GetInt(config.KeyWorkEndHour)
 	workOnWeekend := config.GetBool(config.KeyWorkOnWeekend)
 
+	return mgr.inWorkingHours(currentTime, workStartHour, workEndHour, workOnWeekend)
+}
+
+func (mgr *TrackerManagerImpl) inWorkingHours(currentTime time.Time, workStartHour, workEndHour int, workOnWeekend bool) (inHours bool, toStart time.Duration) {
 	if workStartHour < 0 || workEndHour < 0 {
 		return true, time.Duration(0)
 	}
 
 	toStartDuration := time.Duration(workStartHour) * time.Hour // Time from midnight to work start
-	timeDay := time.Hour * 24
+	oneDay := time.Hour * 24
 
-	currentTime := time.Now().Local()
+	workStartTime := todayWithSetHour(currentTime, workStartHour)
+	workEndTime := todayWithSetHour(currentTime, workEndHour)
+
 	var startTime time.Time
-	if day := currentTime.Weekday(); !workOnWeekend && (day == time.Saturday || day == time.Sunday) {
+	if itIsWeekend(currentTime) && !workOnWeekend {
 		// If we don't work on the weekend, check if we have Saturday/Sunday
 		// startTime of next working day is the Monday of next week at the proper hour
-		startTime = now.With(currentTime.Add(timeDay * 3)).Monday().Add(toStartDuration)
-	} else if currentTime.Hour() < workStartHour {
+		startTime = now.With(currentTime.Add(oneDay * 3)).Monday().Add(toStartDuration)
+	} else if currentTime.Before(workStartTime) {
 		// If we have a workday but are BEFORE the working hours
 		// startTime is today at the proper hour
-		startTime = now.With(currentTime.Add(timeDay)).BeginningOfDay().Add(toStartDuration)
-	} else if currentTime.Hour() > workEndHour {
+		startTime = now.With(currentTime.Add(oneDay)).BeginningOfDay().Add(toStartDuration)
+	} else if currentTime.After(workEndTime) {
 		// If we have a workday but are AFTER the working hours
 		// startTime is the next day at the proper hour (ignore transition to the weekend for now)
 		startTime = now.With(currentTime).BeginningOfDay().Add(toStartDuration)
@@ -229,6 +241,14 @@ func (mgr *TrackerManagerImpl) InWorkingHours() (inHours bool, toStart time.Dura
 	}
 	toStart = startTime.Sub(currentTime)
 	return
+}
+
+func todayWithSetHour(today time.Time, hour int) time.Time {
+	return time.Date(today.Year(), today.Month(), today.Day(), hour, 0, 0, 0, today.Location())
+}
+
+func itIsWeekend(today time.Time) bool {
+	return today.Weekday() == time.Saturday || today.Weekday() == time.Sunday
 }
 
 func (mgr *TrackerManagerImpl) UpdateFromResponse(trackerID models.TrackerID, resp communication.TrackerCmdResponse) (err error) {
@@ -314,11 +334,24 @@ func (mgr *TrackerManagerImpl) NewTrackingData(trackerID models.TrackerID, resul
 
 		if mgr.receivedAllBatchesForTracker(tracker.ID) {
 			scanResults := mgr.scanResultsCache[tracker.ID].ScanResults
-			err = setMatchingRoomForTracker(tracker, scanResults)
+			var scoredRooms map[models.RoomID]float64
+			scoredRooms, err = scoreRoomsForTracker(tracker, scanResults)
 			if err != nil {
 				return
 			}
-			log.Debugf("Last known room ID for tracker is: %v", tracker.LastRoom)
+			mgr.trackingCounts[tracker.ID] = append(mgr.trackingCounts[tracker.ID], scoredRooms)
+			if len(mgr.trackingCounts[tracker.ID]) >= config.GetInt(config.KeyTrackingRuns) {
+				err = setMatchingRoomForTracker(tracker, mgr.trackingCounts[tracker.ID])
+				mgr.trackingCounts[tracker.ID] = make([]map[models.RoomID]float64, 0, 0)
+				if err != nil {
+					return
+				}
+				log.Debugf("Last known room ID for tracker is: %v", tracker.LastRoom)
+				err = GetWorkflowExecManager().ProgressToTrackerRoom(tracker.ID, tracker.LastRoom)
+				if err != nil {
+					return
+				}
+			}
 		}
 	}
 
@@ -329,9 +362,7 @@ func (mgr *TrackerManagerImpl) NewTrackingData(trackerID models.TrackerID, resul
 	case models.TrackerStatusLearning:
 		err = GetLearningManager().NewLearningTrackingData(trackerID, scanRes)
 	case models.TrackerStatusTracking:
-		if mgr.receivedAllBatchesForTracker(tracker.ID) {
-			err = GetWorkflowExecManager().ProgressToTrackerRoom(tracker.ID, tracker.LastRoom)
-		}
+		// empty
 	default:
 		err = errors.New("Unknown tracker status")
 		trackingDataLog.WithField("trackerStatus", tracker.Status).Error("Unknown tracker status")
@@ -349,16 +380,21 @@ func (mgr *TrackerManagerImpl) receivedAllBatchesForTracker(trackerID models.Tra
 	return mgr.scanResultsCache[trackerID].BatchesReceived == mgr.scanResultsCache[trackerID].BatchesExpected
 }
 
-func setMatchingRoomForTracker(tracker *models.Tracker, scanResults []*models.ScanResult) error {
+func scoreRoomsForTracker(tracker *models.Tracker, scanResults []*models.ScanResult) (map[models.RoomID]float64, error) {
 	rooms, err := GetRoomManager().GetAllRooms()
 	if err != nil {
 		err = fmt.Errorf("could not get rooms: %w", err)
-		return err
+		return nil, err
 	}
-	bestMatch := GetTrackingManager().GetRoomMatchingBest(rooms, scanResults)
-	if bestMatch == nil {
-		err = fmt.Errorf("no matching room found")
-		return err
+	log.Debug("Scored rooms")
+	scoredRooms := GetTrackingManager().ScoreRoomsForScanResults(rooms, scanResults)
+	return scoredRooms, nil
+}
+
+func setMatchingRoomForTracker(tracker *models.Tracker, scoredRooms []map[models.RoomID]float64) error {
+	bestMatch := GetTrackingManager().GetRoomMatchingBest(scoredRooms)
+	if bestMatch <= 0 {
+		return fmt.Errorf("no matching room found")
 	}
-	return GetTrackerManager().UpdateRoom(tracker, bestMatch.ID)
+	return GetTrackerManager().UpdateRoom(tracker, bestMatch)
 }
