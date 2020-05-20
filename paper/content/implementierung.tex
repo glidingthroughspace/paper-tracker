@@ -83,7 +83,7 @@ die verbleibende Restladung aktualisiert werden können.
 \subsection{Tracker-Lokalisierung}
 
 Wie in \autoref{sec:tracking-hardware} beschrieben wird die Lokalisierung der Tracker mit einem
-Score-basierten Sysytem durchgeführt.
+Score-basierten System durchgeführt.
 
 Dazu werden zunächst Scanergebnisse vom jeweiligen Tracker gesammelt und dann ausgewertet. Da die
 Datengröße der Scanergebnisse je nach Anzahl der vom Tracker sichtbaren \gls{WLAN}-Netzwerken zu
@@ -99,56 +99,75 @@ vorherigen Paket empfangenen Scanergebnisse verworfen und die neuen Pakete gespe
 \TODO{Das hier kann vielleicht zu CoAP-Schnittstelle verschoben werden}
 
 Sobald ein vollständiger Ergebnissatz empfangen wurde, wir aus diesem ein Score für jeden Raum
-ermittelt. Dieser Score ist eine positive Zahl, deren Wert größer wird, je besser die gemessene
-\gls{WLAN}-Umgebung mit der gelernten übereinstimmt. Hat der Score den Wert $0$, kann davon
-ausgegangen werden, dass der jeweilige Raum nicht in der Nähe befindlich ist, da die
-\gls{WLAN}-Umgebungen zu unterschiedlich sind. Der Score berechnet sich wie folgt:
+ermittelt. Dieser Score ist eine Zahl, deren Wert größer wird, je besser die gemessene
+\gls{WLAN}-Umgebung mit der gelernten übereinstimmt.
 
 \begin{lstlisting}[caption={Pseudocode-Beschreibung der Scoring-Funktion},label={lst:scoring},tabsize=2]
-# Berechnet den Score für einen bestimmten Raum.
+# Berechnet den Score für ein Scanergebnis und einen Raum
 #
 # rssi ist das aktuelle Scanergebnis des Trackers
 # room enthält die zuvor gelernten Scandaten
-function getScoreForRoom(rssi, room) {
+func getScoreForScanResultAndRoom(rssi, room) float {
 	score := 0.0
+	rssiFactor := math.Abs(rssi / 100.0)
 
 	if rssi <= room.Maximum && rssi >= room.Minimum {
-		score += 1
+		score += inMinimumMaximumFactor * rssiFactor
 	}
 	if rssi < room.ThirdQuartile && rssi > room.FirstQuartile {
-		score += 5
+		score += inQuartilesFactor * rssiFactor
 	}
-	if rssi > room.Mean - 10 && rssi < room.Mean + 10 {
-		dist := math.Abs(room.Mean - rssi) + 0.1
-		score += (1 / dist) * 5
+	if isInRange(rssi, room.Mean, rangeForMean) {
+		distance := math.Abs(room.Mean - rssi)
+		score += math.Abs(distance-rangeForMean) * inMeanRangeFactor * rssiFactor
 	}
-	if rssi > room.Median - 10 && rssi < room.Median + 10 {
-		dist := math.Abs(room.Median - rssi) + 0.1
-		score += (1 / dist) * 5
+	if isInRange(rssi, room.Median, rangeForMedian) {
+		distance := math.Abs(room.Median - rssi)
+		score += math.Abs(distance-rangeForMedian) * inMedianRangeFactor * rssiFactor
 	}
-
 	return score
 }
 \end{lstlisting}
 
-Wie in \autoref{lst:scoring} in den Zeilen 9 und 12 zu sehen ist, wird der Score erhöht,
-wenn der aktuelle Messwert im Bereich zwischen Minimum und Maximum der gelernten Daten, oder dem
-ersten und dritten Quartil liegt.
-Einige Tests haben gezeigt, dass diese Kriterien für das Teilen der Räume in \enquote{in der Nähe}
-und \enquote{außerhalb der Reichweite} hinreichend sind. Sobald die Messergebnisse innerhalb
-der genannten Größen liegen, wird daher ein Raum beim Scoring berücksichtigt, indem dessen Score
-über $0$ erhöht wird.
-Der Hauptteil des Scores berechnet sich allerdings mit Hilfe von Distanzen, wie in den Zeilen 14 bis
-21 zu sehen ist. Fällt die gemessene \gls{RSSI} in einen definierten Bereich um das arithmetische
-Mittel oder den Median der gelernten Messwerte, wird das Reziproke der Distanz zu diesen zum Score
-addiert. Somit wächst der Score exponentiell, je näher der Tracker sich zur gelernten
-\gls{WLAN}-Umgebung befindet.
-Mit der Addition von $0.1$ zur Distanz in den Zeilen 16 und 20 wird eine Division durch $0$
-ausgeschlossen.
+\autoref{lst:scoring} zeigt einen Teil des Scoring-Algorithmus. Dieser Teil wird für jeden Raum und
+jedes Scanergebnis ausgeführt. In den vier \texttt{if}-Zweigen werden jeweils Punkte dafür vergeben,
+dass das Scanergebnis in einem bestimmten Bereich liegt. Die Zweige sind nach ihrer Signifikanz
+geordnet. So wird ein Scanergebnis, welches im Bereich des vorher gelenten Minimums und Maximums
+liegt mit wenigen Punkten \enquote{belohnt}, während es viele Punkte bekommen kann, wenn es sehr
+nahe am arithmetischen Mittel liegt.
 
-Nachdem für jeden Raum der Score mit der beschriebenen Funktion berechnet wurde, wird der Raum mit
-dem höchsten Score -- vorrausgesetzt es gibt einen Raum mit einem Score größer $0$ -- als der Raum
-angesehen, in welchem sich der Tracker aktuell befindet.
+Die genaue Punkteverteilung ist konfigurierbar, um den Algorithmus möglichst offen für
+unterschiedliche \gls{WLAN}-Umgebungen zu machen. Die Standardwerte der Parameter
+\texttt{inMinimumMaximumFactor}, \texttt{inQuartilesFactor}, \texttt{inMeanRangeFactor} und
+\texttt{inMedianRangeFactor} wurden experimentell für das \gls{WLAN}-Netz der \gls{DHBW} ermittelt und liegen
+bei $1$, $5$, $5$ und $5$.
+
+Zu beachten ist, dass ein Einschluss in Minimum/Maximum und erstem und drittem Quartil dem
+Scanergebnis eine fixe Punktzahl gewährt, während beim Median und Mittel jeweils mit Abständen
+kalkuliert wird. So bekommt ein Ergebnis, welches näher an einem der beiden Werte liegt eine größere
+Punkzahl. Die Punkzahl skaliert dabei linear zum Abstand.
+
+Der \texttt{rssiFactor} in Zeile 7 wird verwendet, um weiter entfernte \glspl{AP} weniger in die
+Berechnung mit einfließen zu lassen. Da die von den Trackern ermittelte \gls{RSSI} nicht exakt ist
+und oft auch ohne ein Bewegen des Trackers um wenige $dBm$ schwankt, wird so verhindert, dass eine
+Schwankung von beispielsweise $-80dBm$ auf $-82dBm$ die gleiche Auswirkung hat, wie eine gleichgroße
+Schwankung eines \gls{AP} mit deutlich besserem Empfang.
+
+Die Scores für jede \gls{BSSID}, also auch für jedes Scanergebnis werden dann pro Raum addiert,
+wobei eine eingelernte \gls{BSSID}, für welche kein Scanergebnis existiert mit $-10$ Punkten
+\enquote{bestraft} wird. Nun liegt für jeden Raum ein Gesamt-Score vor, anhand dessen der passendste
+Raum ausgewählt werden kann. Dies ist der Raum mit dem größten Score.
+
+Aufgrund der bereits beschriebenen Schwankungen beim Scannen der \glspl{AP} wird dieses Scoring
+jedoch mehrfach (Standardfall: dreifach) durchgeführt, und der beste Raum anhand des arithmetischen
+Mittels der Scores ausgewählt. Dies verlängert einen Lokalisierungsvorgang pro Messung um etwa
+$5-15$ Sekunden, was allerdings kein Problem ist, da die Lokalisierung nicht in Echtzeit
+durchgeführt werden muss.
+
+Damit kein Raum ausgewählt wird, in dem der Tracker nicht liegt, muss jeder Raum einen Schwellwert
+erreichen, um in die Auswahl aufgenommen zu werden. Dieser Schwellwert ist auf $600$ gesetzt, was im
+Umfeld der \gls{DHBW} zu guten Ergebnissen geführt hat. Dieser Wert ist jedoch, wie die restlichen
+Scoring-Parameter, durch den Nutzer konfigurierbar.
 
 \subsection{Daten-Export}
 
