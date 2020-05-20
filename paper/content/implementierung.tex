@@ -496,7 +496,38 @@ Ein \enquote{Scaffold} mit Titel und \enquote{FloatingActionButton} ist in \auto
 \end{figure}
 
 Der eigentliche Inhalt der Seiten variiert stark und besteht gemischt aus Widget der Standardbibliothek, weiteren Bibliotheken
-und eigenen Widgets.
+und eigenen Widgets, die letztendlich eine Baumstruktur aufbauen.
+Eine besonders wichtige Rolle spielt dabei unter anderem das \enquote{FutureBuilder} Widget.
+Dieses erlaubt einer Seite, asynchron auf ein Ergebnis eines \enquote{Future}\footnote{Ein Future repräsentiert in Dart das Ergebnis
+einer asynchronen Ausführung. Dabei kann ein Future entweder das Ergebnis selbst oder im Fehlerfall einen Fehler zurückgeben. \cite{dart2020}}
+ zu warten.
+Dies wird bei allen Anfragen über die Klienten an den Server verwendet, da die Ergebnisse der Netzwerkanfragen asynchron
+über Futures zurückgegeben werden.
+Welche Widgets letztendlich durch den \enquote{FutureBuilder} angezeigt werden, entscheidet sich in einer Funktion,
+die dem Widget mitgegeben wird.
+In dieser Funktion kann je nachdem, ob ein Ergebnis vorhanden ist und ob das Ergebnis die erwarteten Daten oder
+ein Fehler ist, entsprechend weitere Widgets gebaut werden.
+Ein Beispiel ist in \autoref{lst:app_futurebuilder} aufgelistet.
+
+\begin{lstlisting}[caption={Beispiel für die Verwendung des \enquote{FutureBuilder}},label={lst:app_futurebuilder},tabsize=2]
+@override
+Widget build(BuildContext context) {
+	return FutureBuilder(
+		future: RoomClient.getAllRooms(),
+		builder: (context, snapshot) {
+			if (snapshot.hasData) {
+        // Zeige eine Raumliste bei erfolgreichem Abfragen der Daten an
+				return RoomList(snapshot.data);
+			} else if (snapshot.hasError) {
+        // Zeige einen Fehler bei Auftreten an
+        return Center(child: Text("${snapshot.error}"));
+      }
+      // Falls es noch kein Ergebnis gibt, zeige einen Ladekreis an
+			return CircularProgressIndicator();
+		},
+	);
+}
+\end{lstlisting}
 
 \FloatBarrier
 \subsection{Widgets}
