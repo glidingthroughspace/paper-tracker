@@ -700,7 +700,36 @@ den Körper des Gehäuses angebracht. Diese werden nach dem Druck aufgeklebt.
 \end{figure}
 
 \section{Bestehende Herausforderungen}
-% Erstmal ein paar Beispiele
-\subsection{Ungenauigkeit des Tracking}
 
-\subsection{UI-Details in der App}
+Es konnte zwar eine funktionierende und fast vollständige Lösung implementiert werden, die jedoch noch ein paar
+Herausforderungen beinhaltet.
+Dies sind mehrere Anpassungen oder Fehler, die aufgrund der begrenzten Projektzeit nicht angegangen werden konnten.
+
+\subsection{\gls{UI}-Details in der App}
+
+Innerhalb der App für den Paper-Tracker gibt es ein fehlende Funktion, die noch nicht implementiert wurde.
+Dies ist die Unterstützung für mehrere Räume pro Schritt in einem Workflow Template.
+Aktuell kann nur ein Raum ausgewählt werden, der immer in einer eigenen Liste an erster Stelle an den Server geschickt wird.
+Konkret müsste auf der \enquote{WorkflowTemplatePage} und den dazugehörigen Widgets alle Auswahllisten für einen Raum durch
+eine Mehrfachauswahl ersetzt werden.
+Weiter müsste das Widget für die Darstellung von Steps eines Templates angepasst werden, mehrere Räume anzuzeigen.
+
+Zusätzlich neben dieser fehlenden Funktionalität, gibt es einige kleinere \gls{UI}-Änderungen.
+Zum einen muss das Farbschema der App überarbeitet werden.
+Laut \TODO{Hier Quelle} besitzt die verwendete Farbkombination aus Grau und Lila einen sehr schlechten Kontrast.
+Auch weiter verwendete Farben sind schwer erkennbar und können durch bessere ersetzt werden.
+
+Die Mehrfachauswahl der für das Einlernen eines Raumes verwendeten \gls{SSID}s besitzt einen kleinen Fehler, der jedoch
+für den Benutzer sehr verwirrend sein kann.
+Es ist möglich die Auswahlbox eines Eintrages der Liste durch Drücken auf den gesamten Eintrag zu setzten, jedoch nicht
+bei einem Druck auf die Auswahlbox selbst.
+Dies kann dem Nutzer suggerieren, dass er keine Auswahl treffen kann, da meistens versucht wird, mit der Auswahlbox selbst
+zu interagieren. 
+
+Zum Schluss exisitiert noch eine Inkonsistenz in der Nutzung von Textfeldern innerhalb der App.
+Bei einigen Textfeldern, zum Beispiel in dem Dialog zum Erstellen eines Raumes, ist der Text der letzten Eingabe vorausgefüllt.
+In anderen Textfeldern ist dies nicht der Fall und das Feld ist bei jedem Öffnen des Dialogs leer.
+Hier muss sich auf ein konsistentes Verhalten geeinigt werden und dieses konsequent in der App umgesetzt werden.
+
+\subsection{Messung des Batteriestand}
+\TODO{}
