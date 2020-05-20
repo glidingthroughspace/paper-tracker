@@ -373,7 +373,7 @@ Die verwendeten Bibliotheken sind im Folgenden aufgelistet:
 	\item[http (https://pub.dev/packages/http)] \hfill \\
 		\enquote{http} ist eine Bilbiothek, die es ermöglicht asynchron \gls{HTTP}-Anfragen durchzuführen. Die Bibliothek wird dafür verwendet, um mit dem Backend-Server zu kommunizieren.
 	\item[json\_annotation (https://pub.dev/packages/json\_annotation)] \hfill \\
-		Mit \enquote{json\_annotation} kann über Annotationen im Programmcode eine Serialisierung zu JSON und Deserialisierung von JSON für Datenklassen generiert werden.
+		Mit \enquote{json\_annotation} kann über Annotationen im Programmcode eine Serialisierung zu \gls{JSON} und Deserialisierung von \gls{JSON} für Datenklassen generiert werden.
 	\item[shared\_preferences (https://pub.dev/packages/shared\_preferences)] \hfill \\
 		Durch die \enquote{shared\_preferences} Bibliothek können einfache Konfigurationen als Schlüssel-Wert-Paare abgespeichert werden. Dies wird für die \gls{URL} des Backend-Servers verwendet.
 	\item[material\_design\_icons (https://pub.dev/packages/material\_design\_icons\_flutter)] \hfill \\
@@ -387,6 +387,201 @@ Die verwendeten Bibliotheken sind im Folgenden aufgelistet:
 	\item[intl (https://pub.dev/packages/intl)] \hfill \\
 		Die \enquote{intl}-Bibliothek wird für das Formatieren von Daten und Uhrzeiten verwendet. Zudem kann sie für die Übersetzung der App in andere Sprachen verwendet werden.
 \end{description}
+
+\subsection{Struktur der App}
+
+Die Struktur der App teilt sich in fünf Teile auf.
+Der erste Teil bildet die Hauptdatei, in der die App gestartet wird, sowie zusätzlich eine Konfigurations- und eine
+Hilfsfunktions-Datei.
+In der Hauptdatei wird neben dem Start der App auch das Design (hauptsächlich die zu verwendenden Farben) und die
+Navigation aufgesetzt.
+Die Navigation wird weiter unten detailiert erläutert.
+
+Weiter sind im Unterordner \enquote{model} alle Modell-Klassen, die auch für den Server verwendet werden, vorhanden.
+Für diese wird mit Hilfe der \enquote{json\_annotation} Bibliothek Code für die Serialisierung zu \gls{JSON} und die
+Deserialisierung von \gls{JSON} generiert.
+
+Um Daten dieser Modelle vom Server abzurufen, werden verschiedene Klienten-Klassen aus dem \enquote{client} Ornder verwendet.
+Es gibt einen grundlegenden Klienten, welcher eine Verfügbarkeitsabfrage und Anfragen an den Server zur Verfügung stellt.
+Dieser verwendet die konfigurierte Server \gls{URL}.
+Die Anfragen werden über die \enquote{http} Bibliothek ausgeführt.
+Die weiteren Klienten (z.B. \enquote{RoomClient}) verwendet den grundlegenden Klienten und stellen Funktionen direkt im Bezug
+auf die zugehörige Klasse des Klienten zur Verfügung.
+So können über den \enquote{RoomClient} zum Beispiel alle Räume abgefragt werden.
+Diese Klienten führen dann die Konvertierung von und zu \gls{JSON} durch.
+
+Im \enquote{pages} Unterordner sind alle anzuzeigenden Seiten der App untergebracht.
+Dies sind zum Beispiel die Hauptübersichtsseite oder die Detailseite für einen Raum.
+Auf diesen Seiten werden so genannte \enquote{Widgets} verwendet, aus denen letztendlich das Layout und der Inhalt einer
+Seite zusammengesetzt werden.
+Neben den durch die Standardbibliothek und weiteren Bibliotheken bereitgestellten Widgets werden auch selbst programmierte verwendet.
+Diese befinden sich im \enquote{widgets} Unterordner.
+Der Aufbau einer Seite und eines Widgets sind weiter unten näher erklärt.
+
+\subsection{Routing}
+
+Unter Routing versteht man die Navigation innerhalb der App auf verschiedene Routen und damit im Falle der Paper-Tracker
+App auf verschiedene Seiten.
+Für das Routing wird in der App die Standard-Klasse \enquote{MaterialApp} verwendet.
+Dieser wird eine Zuordnung von einer Route in Form einer Zeichenkette auf eine Seite mitgegeben.
+
+In der kompletten App kann dann über \enquote{Navigator.of(context)} auf die Navigation zugegriffen werden.
+Der Kontext ist in jeder zur App zugehörigen Seite und Widget vorhanden.
+Die Navigation bietet die folgenden wichtigen Funktionalitäten:
+Mit \enquote{pushNamed} kann über die zuvor in der Zuordnung definierte Route, auf die dazugehörige Seite navigiert werden.
+Diesem Funktionsaufruf können auch Parameter mitgegeben werden, die von der geöffnete Seite verwendet werden können.
+Über \enquote{pop} kann die zuletzt geöffnete Seite wieder geschlossen werden.
+Dabei wird die zuvor geöffnete Seite wieder angezeigt oder bei der letzten Seite die App geschlossen.
+
+Für die Paper-Tracker App gibt es für jede Seite eine eigene Route.
+Diese Route ist in der Klasse der Seite statisch definiert.
+Somit kann jederzeit in der App auf eine beliebige Seite navigiert werden.
+
+Einige Beispiele für die Navigation innerhalb der App sind in \autoref{lst:app_navigation} aufgeführt.
+
+\begin{lstlisting}[caption={Beispiele für die Navigation innerhalb der App},label={lst:app_navigation},tabsize=2]
+// Navigiere zur ConfigPage
+Navigator.of(context).pushNamed(ConfigPage.Route);
+
+// Navigiere zur RoomPage mit der ID des Raumes als Parameter
+Navigator.of(context).pushNamed(RoomPage.Route, arguments: room.id);
+
+// Schließe die aktuelle Seite und kehre zur vorherigen zurück
+Navigator.of(context).pop();
+\end{lstlisting}
+
+\subsection{Seiten}
+
+Insgesamt beinhaltet die App elf verschiedene Seiten:
+\begin{enumerate}
+	\item InitPage
+	\item ConfigPage
+	\item ServerConfigPage
+	\item MainPage
+	\item WorkflowExecPage
+	\item WorkflowTemplatePage
+	\item RoomPage
+	\item TrackerPage
+	\item LearningPage
+	\item StartExecPage
+	\item TutorialPage
+\end{enumerate}
+Der Großteil der Seiten spiegelt Seiten aus dem Entwurf der App wieder.
+Zwei dieser Seiten sind in \autoref{fig:app_pages} dargestellt.
+Weitere Seiten, wie die \enquote{InitPage} oder \enquote{ConfigPage}, werden nur als Weiterleitung oder für nicht im
+Entwurf beinhaltete Funktionen genutzt.
+
+\begin{figure}[hb]
+	\includegraphics[height=300px]{images/app.png}
+	\centering
+	\caption{Umsetzung des App Entwurfs}
+	\label{fig:app_pages}
+\end{figure}
+
+Eine Seite selbst ist, wie bereits erwähnt, aus verschiedenen Widgets zusammengesetzt.
+Für alle Seiten der Paper-Tracker App wird dafür als Grundlage das \enquote{Scaffold}-Widget verwendet.
+Dieses bietet eine \enquote{AppBar} als Titel für die Seite und als Container für z.b. eine Zurück-Schaltfläche.
+Auch kann über das \enquote{Scaffold}-Widget ein \enquote{FloatingActionButton} für die Seite verwendet werden.
+Dieser wird für die \enquote{WorkflowExecPage} zum Erstellen einer neuen Ausführung und für die \enquote{RoomPage}
+zum Erstellen eines neuen Raums benötigt.
+Der eigentliche Inhalt der Seite wird dem \enquote{Scaffold} als Inhalt mitgegeben.
+Ein \enquote{Scaffold} mit Titel und \enquote{FloatingActionButton} ist in \autoref{fig:app_scaffold} dargestellt.
+
+\begin{figure}[h]
+	\includegraphics[height=300px]{images/scaffold.png}
+	\centering
+	\caption{Scaffold-Widget}
+	\small Quelle: \url{https://api.flutter.dev/flutter/material/Scaffold-class.html}
+	\label{fig:app_scaffold}
+\end{figure}
+
+Der eigentliche Inhalt der Seiten variiert stark und besteht gemischt aus Widget der Standardbibliothek, weiteren Bibliotheken
+und eigenen Widgets, die letztendlich eine Baumstruktur aufbauen.
+Eine besonders wichtige Rolle spielt dabei unter anderem das \enquote{FutureBuilder} Widget.
+Dieses erlaubt einer Seite, asynchron auf ein Ergebnis eines \enquote{Future}\footnote{Ein Future repräsentiert in Dart das Ergebnis
+einer asynchronen Ausführung. Dabei kann ein Future entweder das Ergebnis selbst oder im Fehlerfall einen Fehler zurückgeben. \cite{dart2020}}
+ zu warten.
+Dies wird bei allen Anfragen über die Klienten an den Server verwendet, da die Ergebnisse der Netzwerkanfragen asynchron
+über Futures zurückgegeben werden.
+Welche Widgets letztendlich durch den \enquote{FutureBuilder} angezeigt werden, entscheidet sich in einer Funktion,
+die dem Widget mitgegeben wird.
+In dieser Funktion kann je nachdem, ob ein Ergebnis vorhanden ist und ob das Ergebnis die erwarteten Daten oder
+ein Fehler ist, entsprechend weitere Widgets gebaut werden.
+Ein Beispiel ist in \autoref{lst:app_futurebuilder} aufgelistet.
+
+\begin{lstlisting}[caption={Beispiel für die Verwendung des \enquote{FutureBuilder}},label={lst:app_futurebuilder},tabsize=2]
+@override
+Widget build(BuildContext context) {
+	return FutureBuilder(
+		future: RoomClient.getAllRooms(),
+		builder: (context, snapshot) {
+			if (snapshot.hasData) {
+        // Zeige eine Raumliste bei erfolgreichem Abfragen der Daten an
+				return RoomList(snapshot.data);
+			} else if (snapshot.hasError) {
+        // Zeige einen Fehler bei Auftreten an
+        return Center(child: Text("${snapshot.error}"));
+      }
+      // Falls es noch kein Ergebnis gibt, zeige einen Ladekreis an
+			return CircularProgressIndicator();
+		},
+	);
+}
+\end{lstlisting}
+
+\FloatBarrier
+\subsection{Widgets}
+
+Wie bereits erwähnt, wurden einige Widgets, die auf den Seiten der App verwendet werden, selbst programmiert.
+Dies hilft dabei duplizierte Konstellationen von Widgets auf verschiedenen Seiten zu verringern, indem man diese
+verallgemeinert und als eigenen Widget zur Verfügung stellt.
+Auch können in diesen Widgets bestimmte Design-Formattierungen gemacht werden, die dann an dieser Stelle zentral verwaltet
+werden können.
+Allgemein können die eigenen Widget in drei Kategorien aufgeteilt werden:
+Dialoge, Listen und allgemeine Widgets.
+
+Dialoge beinhalten teilweise generalisierte und teilweise spezialisierte Dialoge, die von den Seiten aus aufgerufen werden können.
+Ein Beispiel für einen generalisierten Dialog ist ein einfacher \enquote{Bestätigen} Dialog.
+Ein spezialisierter Dialog ist der Dialog für das Eingeben der Parameter für einen neuen Raum. 
+Diese sind in der \autoref{fig:app_dialog} dargestellt.
+Inhaltlich unterscheiden sich die Dialog-Widgets nicht von anderen Widgets.
+Sie verwenden auch andere Widgets und passen diese je nach Logik des Dialogs gegebenenfalls etwas an oder stellen
+Eingabefelder zur Verfügung.
+Lediglich das Design der Dialog-Widgets ist darauf angepasst, in einem Dialogfenster angezeigt zu werden.
+
+\begin{figure}[]
+	\includegraphics[width=\textwidth]{images/app_dialog.png}
+	\centering
+	\caption{Dialog Widgets}
+	\label{fig:app_dialog}
+\end{figure}
+
+Unter den Listen-Widgets sind zum einen allgemeine Listen, die dem Design aus dem Entwurf der App entsprechen, und zum
+anderen Listen für spezifische Modell-Klassen.
+Diese Listen basieren auf dem allgemeinen Listen.
+So gibt es zum Beispiel Listen für Räume, Tracker oder auch die Schritte eines Workflow.
+Die verschiedenen Listen sind in \autoref{fig:app_lists} zu sehen.
+
+\begin{figure}[]
+	\includegraphics[width=\textwidth]{images/app_lists.png}
+	\centering
+	\caption{Listen Widgets}
+	\label{fig:app_lists}
+\end{figure}
+
+Unter den allgemeinen Widgets gibt es zum Beispiel Auswahllisten oder ein Countdown.
+
+Alle Widgets können Parameter entgegennehmen, die zur Übergabe von Einstellungen für dieses Widget oder als Rückgabe
+von Informationen dienen können.
+Als Rückgabe werden meistens entweder sogenannte \enquote{Callback}-Funktionen oder \enquote{Controller} verwendet.
+Callback-Funktionen sind Funktionen von zum Beispiel der Seite, die das Widget verwendet, die dem Widget als Parameter
+mitgegeben werden.
+Möchte das Widget Informationen zurück geben, wird der entsprechende Callback aufgerufen und als Parameter die eigentliche
+Funktion mitgegeben.
+Verwendet das Widget einen Controller, statt Callbacks, wird dem Widget ein Objekt mitgegeben, welches die zu verschickenden
+Informationen speichern kann.
+Da dem Widget selbst nur eine Referenz des Objektes mitgegeben wird, kann das Widget neue Informationen einfach in dieses
+Controller-Objekt schreiben.
 
 \section{Hardware-Gehäuse}
 
