@@ -1,11 +1,49 @@
 \chapter{Ausblick und Weiterentwicklungen}
-% Einfach mal paar Beispiele
+
+Mit dem aktuellen Stand des Paper-Trackers konnten alle Anforderungen erfüllt werden.
+Trotzdem gibt es viele Ansätze, mit denen das Projekt weiterentwickelt werden kann.
+In den folgenden Abschnitten werden einige mögliche Weiterentwicklungen skizziert und damit ein Ausblick gegeben werden,
+wie das Projekt fortgeführt werden kann.
+
 \section{Audiovisuelle Signale}
 
-\section{Verbessertes Gehäuse}
+Mit dem aktuellen Stand kann ein Dokument, das mit dem Paper-Tracker ausgestattet ist, auf die Genauigkeit eines Raumes
+lokalisiert werden.
+Innerhalb des Raumes kann es aber trotzdem schwierig sein, das richtige Dokument zu finden, wenn es zum Beispiel von
+weiteren Dokumenten verdeckt wird.
+Eine Möglichkeit, dieses Problem zu lösen, wäre das Hinzufügen von Audiovisuellen Signalen zu dem Tracker selbst.
+Dies könnte zum Beispiel eine \gls{LED} in Kombination mit einem Lautsprecher, Summer oder Piepser sein.
+Der Endnutzer könnte diese Signale über die App auslösen und somit das Dokument innerhalb eines Raumes lokalisieren.
 
-\section{Tracking von Smartphones}
+\section{Erhöhte Tracking Genauigkeit}
 
-Es ist wünschenswert, dass eine Person, die einen Raum betritt, in welchem ein Dokument auf deren
-Bearbeitung wartet, darüber informiert wird. Zu diesem Zweck können Smartphones in das
-Tracking-System mit aufgenommen werden.
+Um vor allem das Tracking von Dokumenten in von mehreren Personen genutzten Räumen, wie zum Beispiel einem Großraumbüro,
+zu verbessern, wäre eine erhöhte Genauigkeit erforderlich.
+Mit Hilfe von Verbesserungen des Algorithmus wäre solch eine Verbesserung denkbar.
+
+\section{Nutzer und Benachrichtigungen}
+
+In der aktuellen Version des Paper-Trackers kann jede Person, die die Adresse des Servers kennt, interne Informationen
+abfragen.
+Dies ist ein großes Sicherheitsproblem, welches über ein Nutzermanagement gelößt werden kann, indem sich die Benutzer
+anmelden müssen.
+
+Weiter können die Nutzer dafür verwendet werden, ihnen einzelne Schritte in einem Workflow, einzelne Räume
+oder Workflow Ausführungen zuzuweisen.
+Damit könnte der Nutzer in der App einsehen, welche Dokumente seine Aufmerksamkeit benötigen oder wo sich eigene Dokumente
+zum aktuellen Zeitpunkt befinden.
+
+Mit der Information, welcher Nutzer einem Schritt, Raum oder Ausführung zugeordnet ist, könnte der Server personalisiert
+Benachrichtigungen verschicken.
+Denkbar wären Benachrichtigungen, wenn eine eigene Ausführung einen Fortschritt gemacht hat, ein Dokument im Büro
+des Nutzers ist und mehr.
+
+\section{Tracking von Smartphones und Laptops}
+
+Momentan wird die Tracking-Technologie nur für die Tracker selbst verwendet.
+Es wäre allerdings auch möglich, mit Hilfe der gleichen Technologie auch Smartphones oder Laptops zu tracken.
+In Kombination mit dem Nutzermanagement und Benachrichtigungen wäre es vorstellbar, einen Nutzer zu benachrichtigen
+wenn er einen Raum betritt, in dem ein Dokument auf ihn wartet.
+
+Da dadurch letztendlich die Nutzer selbst getrackt werden, müsste hier besonders auf den Datenschutz geachtet werden.
+Es sollte nicht möglich sein, dass der Betreiber des Paper-Trackers oder der Manager dadurch Mitarbeiter nachverfolgen kann.
