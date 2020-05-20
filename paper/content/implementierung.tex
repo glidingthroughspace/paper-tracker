@@ -239,7 +239,10 @@ Deshalb gibt es, im Gegensatz zum Entwurf, für jeden Manager ein Interface und 
 Für die Tests wird dann die Instanz des Singletons auf ein Stellvertreterobjekt gesetzt.
 
 Mit diesen Techniken wurden einige Tests für die Manager-, Modell- und Utilities-Klassen geschrieben.
-Es sind somit ca. 20\% der Manager, ca. 27\% der Modelle und ca. 68\% der Utilities getestet. \TODO{MEHR!}
+Es sind somit ca. $20\%$ der Manager, ca. $27\%$ der Modelle und ca. $68\%$ der Utilities getestet.
+Leider ist dies noch nicht ausreichend für eine gute Testabdeckung.
+Vor allem, um komplexe Konstrukte wie den Fortschritt einer Workflow Ausführung zu testen, wäre um einiges mehr Zeit erforderlich
+gewesen.
 
 \section{Hardware und Firmware}
 
@@ -697,7 +700,36 @@ den Körper des Gehäuses angebracht. Diese werden nach dem Druck aufgeklebt.
 \end{figure}
 
 \section{Bestehende Herausforderungen}
-% Erstmal ein paar Beispiele
-\subsection{Ungenauigkeit des Tracking}
 
-\subsection{UI-Details in der App}
+Es konnte zwar eine funktionierende und fast vollständige Lösung implementiert werden, die jedoch noch ein paar
+Herausforderungen beinhaltet.
+Dies sind mehrere Anpassungen oder Fehler, die aufgrund der begrenzten Projektzeit nicht angegangen werden konnten.
+
+\subsection{\gls{UI}-Details in der App}
+
+Innerhalb der App für den Paper-Tracker gibt es eine fehlende Funktion, die noch nicht implementiert wurde.
+Dies ist die Unterstützung für mehrere Räume pro Schritt in einem Workflow Template.
+Aktuell kann nur ein Raum ausgewählt werden, der immer in einer eigenen Liste an erster Stelle an den Server geschickt wird.
+Konkret müssten auf der \enquote{WorkflowTemplatePage} und den dazugehörigen Widgets alle Auswahllisten für einen Raum durch
+eine Mehrfachauswahl ersetzt werden.
+Weiter müsste das Widget für die Darstellung von Steps eines Templates angepasst werden, dass es mehrere Räume anzeigen kann.
+
+Zusätzlich neben dieser funktionalen Änderung, sollten einige nichtfunktionale Änderungen durchgeführt werden.
+Zum einen muss das Farbschema der App überarbeitet werden.
+Laut \TODO{Hier Quelle} besitzt die verwendete Farbkombination aus Grau und Violett einen sehr schlechten Kontrast.
+Auch weiter verwendete Farben sind schwer erkennbar und können durch bessere ersetzt werden.
+
+Die Mehrfachauswahl der für das Einlernen eines Raumes verwendeten \gls{SSID}s besitzt einen kleinen Fehler, der jedoch
+für den Benutzer sehr verwirrend sein kann.
+Es ist möglich die Auswahlbox eines Eintrages der Liste durch Drücken auf den gesamten Eintrag zu setzten, jedoch nicht
+bei einem Druck auf die Auswahlbox selbst.
+Dies kann dem Nutzer suggerieren, dass er keine Auswahl treffen kann, da meistens versucht wird, mit der Auswahlbox selbst
+zu interagieren. 
+
+Zum Schluss exisitiert noch eine Inkonsistenz in der Nutzung von Textfeldern innerhalb der App.
+Bei einigen Textfeldern, zum Beispiel in dem Dialog zum Erstellen eines Raumes, ist der Text der letzten Eingabe vorausgefüllt.
+In anderen Textfeldern ist dies nicht der Fall und das Feld ist bei jedem Öffnen des Dialogs leer.
+Hier muss sich auf ein konsistentes Verhalten geeinigt werden und dieses konsequent in der App umgesetzt werden.
+
+\subsection{Messung des Batteriestand}
+\TODO{}

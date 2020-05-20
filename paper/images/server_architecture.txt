@@ -20,6 +20,7 @@ class Config {
   GetEditableConfig() : EditableConfig
   UpdateEditableConfig(EditableConfig config)
   GetInt(String key) : int
+  GetFloat64(String key) : float
   GetBool(String key) : bool
   GetString(String key) : String
   GetStringSlice(String key) : String[]
@@ -85,14 +86,15 @@ package managers {
     UpdateFromResponse(int trackerID, TrackerCmdResponse resp)
     UpdateRoom(int trackerID, int roomID)
     NewTrackingData(int trackerID, scanRes ScanResult[])
-    InWorkingHours() : bool
+    InWorkingHours(Time currentTime) : bool
   }
   
   class TrackingManager {
     CreateTrackingManager() : TrackingManager
     GetTrackingManager() : TrackingManager
     ConsolidateScanResults(ScanResult[] scanResults) : BSSIDTrackingData[]
-    GetRoomMatchingBest(Room[] rooms, ScanResult[] scanResults) : Room
+    GetRoomMatchingBest(Map<int roomID, float64>[] scoredRooms) : Room
+    ScoreRoomsForScanResults(Room[] rooms, ScanResult[] scanResults) : Map<int roomID, float64 score>
   }
   
   class WorkflowExecManager {
