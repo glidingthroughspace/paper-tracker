@@ -66,8 +66,7 @@ Anforderungen und der Methodik dieser Arbeit abgleichen.
 \subsection{Relative Positionsmessung in Meshnetzwerken}
 
 Eine Möglichkeit, Geräte innerhalb von Gebäuden zu lokalisieren wird in \cite{Patwari2003}
-geschildert. In der hier vorgeschlagenen Methode wird ein Mesh-Netzwerk aus Sensoren aufgebaut.
-\TODO{Glossar: Mesh-Netzwerk}
+geschildert. In der hier vorgeschlagenen Methode wird ein \gls{Mesh-Netzwerk} aus Sensoren aufgebaut.
 In diesem Mesh können sich die Sensoren nun untereinander Signale zusenden und dann die
 Empfangsstärke oder sogenannte Time-of-Arrival messen, um die Entfernung zu Nachbarn abzuschätzen.
 So kann für jeden Sensor die relative Position zu anderen Sensoren berechnet werden.
@@ -89,3 +88,11 @@ ist, kann das \gls{WLAN}-Netz für die Lokalisierung von Geräten verwendet werd
 anderem in \cite{Xiang2004}, \cite{Dong2009}, \cite{Paschalidis2009} und \cite{Liang2009} gezeigt.
 In allen diesen Werken wird die Position eines Endgerätes dadurch bestimmt, dass ausgewertet wird,
 von welchen \gls{WLAN}-\glspl{AP} das Endgerät ein Signal empfängt und wie stark dieses ist.
+
+Dazu werden Mobile Geräte, wie Mobiltelefone und Laptops mit einer Software ausgestattet, welche in
+regelmäßigen Abständen alle \glspl{AP} in seiner Umgebung abruft und die jeweilige Signalstärke
+speichert. Die vorgestellten Lokalisierungsalgorithmen basieren darauf, dass \gls{WLAN}-Umgebungen
+\enquote{eingelernt} werden und dann neue Messungen auf die gelenten gematched werden.
+
+Über diese Verfahren können Geräte mit bis zu $95\%$ Sicherheit auf einem Meter genau lokalisiert
+werden. Diese Genauigkeit ist ausreichend für den gewünschten Verwendungszweck.
