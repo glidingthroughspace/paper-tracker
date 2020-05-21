@@ -91,8 +91,41 @@ Punkteverteilung ist hierbei noch nicht spezifiziert, es handelt sich um Paramet
 werden können, um die Genauigkeit des Trackings zu optimieren. Daher werden diese in
 \autoref{chap:implementierung} beschrieben.
 
-\TODO{Lifecycle des Paper-Trackers erläutern}
+Die Kommunikation zwischen dem Tracker und dem Server läuft über Kommandos, die der Tracker sich beim Server abholt.
+Dies ist in einem Sequenzdiagramm in \autoref{fig:tracker_comm} dargestellt.
+Sobald der Tracker nach einem vorherigen Kommando aufwacht oder er zum ersten Mal gestartet wird, verbindet er sich zuerst
+mit dem konfigurierten \gls{WLAN} Netzwerk.
+Nachdem der Tracker verbunden ist, liest er seine zugewiesene Tracker ID aus dem Speicher.
+Ist noch keine Tracker ID gespeichert, fordert er beim Server eine neue ID an.
+Mit dieser ID kann der Tracker sich ein Kommando beim Server abholen.
+Es gibt drei verschiedene Typen an Kommandos:
+\begin{description}
+	\item[SendTrackingInformation] \hfill \\
+		Informationen über vorhandene \gls{WLAN}-Netzwerke an den Server schicken
+	\item[SendInformation] \hfill \\
+		Aktuellen Batteriestatus an den Server schicken
+	\item[Sleep] \hfill \\
+		Keine Aktion ausführen
+\end{description}
+Welcher Typ Kommando geschickt wird, entscheidet der Server je nach Status des Trackers.
+Das Kommando wird direkt ausgeführt und dabei gegebenenfalls angefallene Ergebnisse an den Server geschickt.
+Als Beispiel für ein Kommando ist das \enquote{SendTrackingInformation} weiter unten im Sequenzdiagramm dargestellt.
 
+Mit dem Kommando erhält der Tracker zusätzlich eine Zeit, für die er schlafen soll.
+Ist diese Zeit über einem bestimmten Grenzwert (z.B. 10 Sekunden) geht der Tracker in den sogenannten \enquote{Deep Sleep},
+in welchem er möglichst wenig Strom verbraucht.
+Wird dieser Grenzwert bei nur kurzen Zeiten nicht überschritten, wartet der Tracker die Zeit lediglich ab.
+Dies verhindert ein ständiges Neuaufbauen der Verbindung zum \gls{WLAN}, welches sowohl Zeit als auch Strom kostet.
+Nachdem entweder die Zeit im \enquote{Deep Sleep} oder wartend verbracht wurde, geht der Prozess wieder von vorne los.
+
+\begin{figure}[]
+	\includegraphics[height=0.9\textheight]{images/communication.png}
+	\centering
+	\caption{Sequenzdiagramm Kommunikation zwischen Tracker und Server}
+	\label{fig:tracker_comm}
+\end{figure}
+
+\FloatBarrier
 \subsection{Backend-Anwendung} \label{sec:backend}
 
 \subsubsection{UML Daten Modellierung}
