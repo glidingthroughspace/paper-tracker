@@ -103,15 +103,15 @@ Es gibt drei verschiedene Typen an Kommandos:
 	\item[SendTrackingInformation] \hfill \\
 		Informationen über vorhandene \gls{WLAN}-Netzwerke an den Server schicken
 	\item[SendInformation] \hfill \\
-		Aktueller Batteriestatus an den Server schicken
+		Aktuellen Batteriestatus an den Server schicken
 	\item[Sleep] \hfill \\
 		Keine Aktion ausführen
 \end{description}
-Welcher Typ an Kommando geschickt wird, entscheidet der Server je nach Status des Trackers.
+Welcher Typ Kommando geschickt wird, entscheidet der Server je nach Status des Trackers.
 Das Kommando wird direkt ausgeführt und dabei gegebenenfalls angefallene Ergebnisse an den Server geschickt.
 Als Beispiel für ein Kommando ist das \enquote{SendTrackingInformation} weiter unten im Sequenzdiagramm dargestellt.
 
-Mit dem Kommando erhält der Tracker zusätzlich eine Zeit, für die er Schlafen soll.
+Mit dem Kommando erhält der Tracker zusätzlich eine Zeit, für die er schlafen soll.
 Ist diese Zeit über einem bestimmten Grenzwert (z.B. 10 Sekunden) geht der Tracker in den sogenannten \enquote{Deep Sleep},
 in welchem er möglichst wenig Strom verbraucht.
 Wird dieser Grenzwert bei nur kurzen Zeiten nicht überschritten, wartet der Tracker die Zeit lediglich ab.
