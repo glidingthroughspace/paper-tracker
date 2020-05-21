@@ -737,17 +737,19 @@ Wie in \autoref{sec:hardware-used-technologies} beschrieben, stellt die TinyPICO
 Bibliothek bereit, mit der die Spannung des \gls{Akku} abgefragt werden kann und somit der aktuelle
 Ladestand berechnet werden kann. Diese Information ist wertvoll, um zu verhindern, dass ein Workflow
 nicht richtig getracked wird, weil der \gls{Akku} eines Trackers leer wird. Daher wird der
-Ladestand, wie in \autoref{tab:detail-attributes} gezeigt, auch in der App dargestellt. Dies macht das ...
-Überprüfen des Ladestandes sehr komfortabel macht.
+Ladestand, wie in \autoref{tab:detail-attributes} gezeigt, auch in der App dargestellt. Dies macht das
+Überprüfen des Ladestandes sehr komfortabel.
 
 Problematisch ist jedoch, dass die Spannung des \gls{Akku} nur sehr grob gemessen wird, was dazu
 führt, dass der Tracker bei zwei direkt hintereinander durchgeführten Abfragen des Ladestandes mit
-Schwankungen bis zu $5\%$ antwortet. Dieses Hindernis lässt sich nur durch weitere Hardware, welche
-die Spannung misst, überwinden. Dies würde den Tracker weiter vergrößern. Daher kommt diese Option
-nicht in Frage und es wird eine ungenaue Anzeige des Ladezustandes in Kauf genommen. Schwankungen um
-$5\%$ sollten nicht problematisch werden.
+Schwankungen bis zu $5\%$ antwortet. Dieses Hindernis lässt sich durch weitere Hardware, welche
+die Spannung misst, überwinden. Dies würde den Tracker weiter vergrößern, weswegen diese Option
+nicht in Frage kommt. Eine weitere mögliche Lösung könnte eine Filterung nach mehreren Messungen
+sein. Diese könnte auf Seiten des Trackers oder im Server implementiert werden.
 
 Auch der Ladestatus, also ob ein Tracker aktuell aufgeladen wird oder sich entlädt, wird von der
 gelieferten Bilbiothek nicht immer korrekt wiedergegeben. Dies kann dazu führen, dass ein sich
 entladender Tracker in der App vorübergehend als ladend angezeigt wird. Auch für die Korrektur dieses
-Fehlers wäre externe Hardware nötig.
+Fehlers wäre externe Hardware nötig. Anders als das vorherig beschriebene Problem kann hierfür kein
+Filter genutzt werden, da auch mehrere hintereinander durchgeführte Abfragen des Status sehr häufig zum
+gleichen Ergebnis führen, auch wenn dieses falsch ist.
