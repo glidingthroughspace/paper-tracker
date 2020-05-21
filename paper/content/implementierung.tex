@@ -268,11 +268,11 @@ gewesen.
 Im Folgenden wird erläutert, wie der Tracker hinsichtlich der verwendeten Hardware und der
 entsprechenden Firmware implementiert wurde.
 
-\subsection{Verwendete Technologien}
+\subsection{Verwendete Technologien}\label{sec:hardware-used-technologies}
 
 Als Mikrokontrollerplattform wurde die sogenannte \enquote{TinyPICO}-Plattform gewählt. Nach eigener
 Aussage handelt es sich dabei um die kleinste vorgefertigte Entwicklungsplattform basierend auf
-Mikrocontrollern vom Typ ESP32. Dieser Aspekt ist für die Erfüllung von \ref{nf:klein} wichtig.
+Mikrocontrollern vom Typ ESP32. (vgl. \cite{tinypico2020}) Dieser Aspekt ist für die Erfüllung von \ref{nf:klein} wichtig.
 Dieser Mikrocontroller wurde gewählt, da er alle benötigten Funktionen wie beispielsweise \gls{WLAN}
 bereits über ein \gls{API} bereitstellt.
 
@@ -564,7 +564,7 @@ Dialoge, Listen und allgemeine Widgets.
 
 Dialoge beinhalten teilweise generalisierte und teilweise spezialisierte Dialoge, die von den Seiten aus aufgerufen werden können.
 Ein Beispiel für einen generalisierten Dialog ist ein einfacher \enquote{Bestätigen} Dialog.
-Ein spezialisierter Dialog ist der Dialog für das Eingeben der Parameter für einen neuen Raum. 
+Ein spezialisierter Dialog ist der Dialog für das Eingeben der Parameter für einen neuen Raum.
 Diese sind in der \autoref{fig:app_dialog} dargestellt.
 Inhaltlich unterscheiden sich die Dialog-Widgets nicht von anderen Widgets.
 Sie verwenden auch andere Widgets und passen diese je nach Logik des Dialogs gegebenenfalls etwas an oder stellen
@@ -743,12 +743,32 @@ für den Benutzer sehr verwirrend sein kann.
 Es ist möglich die Auswahlbox eines Eintrages der Liste durch Drücken auf den gesamten Eintrag zu setzten, jedoch nicht
 bei einem Druck auf die Auswahlbox selbst.
 Dies kann dem Nutzer suggerieren, dass er keine Auswahl treffen kann, da meistens versucht wird, mit der Auswahlbox selbst
-zu interagieren. 
+zu interagieren.
 
 Zum Schluss exisitiert noch eine Inkonsistenz in der Nutzung von Textfeldern innerhalb der App.
 Bei einigen Textfeldern, zum Beispiel in dem Dialog zum Erstellen eines Raumes, ist der Text der letzten Eingabe vorausgefüllt.
 In anderen Textfeldern ist dies nicht der Fall und das Feld ist bei jedem Öffnen des Dialogs leer.
 Hier muss sich auf ein konsistentes Verhalten geeinigt werden und dieses konsequent in der App umgesetzt werden.
 
-\subsection{Messung des Batteriestand}
-\TODO{}
+\subsection{Messung des Batteriestandes}
+
+Wie in \autoref{sec:hardware-used-technologies} beschrieben, stellt die TinyPICO-Plattform eine
+Bibliothek bereit, mit der die Spannung des \gls{Akku} abgefragt werden kann und somit der aktuelle
+Ladestand berechnet werden kann. Diese Information ist wertvoll, um zu verhindern, dass ein Workflow
+nicht richtig getracked wird, weil der \gls{Akku} eines Trackers leer wird. Daher wird der
+Ladestand, wie in \autoref{tab:detail-attributes} gezeigt, auch in der App dargestellt. Dies macht das
+Überprüfen des Ladestandes sehr komfortabel.
+
+Problematisch ist jedoch, dass die Spannung des \gls{Akku} nur sehr grob gemessen wird, was dazu
+führt, dass der Tracker bei zwei direkt hintereinander durchgeführten Abfragen des Ladestandes mit
+Schwankungen bis zu $5\%$ antwortet. Dieses Hindernis lässt sich durch weitere Hardware, welche
+die Spannung misst, überwinden. Dies würde den Tracker weiter vergrößern, weswegen diese Option
+nicht in Frage kommt. Eine weitere mögliche Lösung könnte eine Filterung nach mehreren Messungen
+sein. Diese könnte auf Seiten des Trackers oder im Server implementiert werden.
+
+Auch der Ladestatus, also ob ein Tracker aktuell aufgeladen wird oder sich entlädt, wird von der
+gelieferten Bilbiothek nicht immer korrekt wiedergegeben. Dies kann dazu führen, dass ein sich
+entladender Tracker in der App vorübergehend als ladend angezeigt wird. Auch für die Korrektur dieses
+Fehlers wäre externe Hardware nötig. Anders als das vorherig beschriebene Problem kann hierfür kein
+Filter genutzt werden, da auch mehrere hintereinander durchgeführte Abfragen des Status sehr häufig zum
+gleichen Ergebnis führen, auch wenn dieses falsch ist.
