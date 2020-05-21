@@ -1,49 +1,37 @@
 @startuml
-title ESP-Server communication
+title Tracker-Server Kommunikation
 
-participant ESP
+participant Tracker
 participant Server
 
 loop
-  ESP->ESP: Wakeup
-  ESP->ESP: Connect to WiFi
-  alt No tracker ID saved
-  ESP->Server: Request tracker ID
-  Server-->ESP: New tracker ID
-  ESP->ESP: Save tracker ID
+  Tracker->Tracker: Aufwachen
+  Tracker->Tracker: Verbindung zu WLAN aufbauen
+  alt Keine Tracker ID gespeichert
+  Tracker->Server: Tracker ID beantragen
+  Server-->Tracker: Neue Tracker ID
+  Tracker->Tracker: Tracker ID speichern
   end
-  ESP->Server: Ask for new commands
-  ESP<--Server: Command
-  ESP->ESP: Execute command
-  ESP->Server: Result
-  ESP<--Server: Acknowledge + sleep time
-  alt Sleep Time is greater than X seconds
-  ESP->ESP: Deep sleep with given sleep time
+  Tracker->Server: Nach Kommando fragen
+  Tracker<--Server: Kommando + Zeit zum Schlafen
+  Tracker->Tracker: Kommando ausführen
+  alt Zeit zum Schlafen ist größer als X Sekunden
+  Tracker->Tracker: Schlafen für gegebene Zeit
   else
-  ESP->ESP: Wait for given sleep time
+  Tracker->Tracker: Warten auf gegebene Zeit
   end
 end
 
 |||
 |||
-...Commands...
+...Beispiel Kommando...
 
-group Tracking command
-  ESP->ESP: Collect number of available APs
-
-  ESP->ESP: Gather information about AP into List
-  loop For every AP batch of size X
-  ESP->Server: Send batch information about APs
+group Tracking Kommando
+  Tracker->Tracker: Anzahl verfügbarer APs abfragen
+  Tracker->Tracker: Informationen über APs in Liste sammeln
+  loop Für alle X APs
+  Tracker->Server: Gesammelt Informationen über X APs
   end
-  ESP<--Server: Acknowledge
-end
-
-group Signal location
-  loop For X seconds
-  ESP->ESP: Turn on LED and/or buzzer
-  ESP->ESP: Wait X milliseconds
-  ESP->ESP: Turn off LED and/or buzzer
-  ESP->ESP: Wait X milliseconds
-  end
+  Tracker<--Server: Bestätigung
 end
 @enduml
