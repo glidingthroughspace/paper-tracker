@@ -55,3 +55,44 @@ beschreibt, die nicht zum Betrieb notwendig sind.
 	\item \label{nf:skalierbarkeit} \textit{P2}  Die Lösung sollte skalierbar hinsichtlich der Anzahl der Tracker und der Größe des Tracking-Bereiches sein
 	\item \label{nf:nachvollziehbarkeit} \textit{P2}  Zur optimalen Nachvollziehbarkeit von Workflows sollten deren auch nach Abschluss nicht gelöscht werden
 \end{enumerate}
+
+\section{Stand der Forschung} \label{sec:stand-der-forschung}
+
+Positionsbestimmung in Gebäuden ist ein Problem, zu welchem es viel Forschung gibt, da bestehende
+Lokalisierungsdienste wie \gls{GPS} in Gebäuden nur unzureichend nutzbar sind. Dieser Abschnitt soll
+daher eine grobe Übersicht über den Stand der Forschung bieten und bestehende Arbeit mit den
+Anforderungen und der Methodik dieser Arbeit abgleichen.
+
+\subsection{Relative Positionsmessung in Meshnetzwerken}
+
+Eine Möglichkeit, Geräte innerhalb von Gebäuden zu lokalisieren wird in \cite{Patwari2003}
+geschildert. In der hier vorgeschlagenen Methode wird ein \gls{Mesh-Netzwerk} aus Sensoren aufgebaut.
+In diesem Mesh können sich die Sensoren nun untereinander Signale zusenden und dann die
+Empfangsstärke oder sogenannte Time-of-Arrival messen, um die Entfernung zu Nachbarn abzuschätzen.
+So kann für jeden Sensor die relative Position zu anderen Sensoren berechnet werden.
+Ist die Position einiger weniger Knoten des Meshes bekannt, kann auch die absolute Position aller
+anderen Sensoren angegeben werden.
+
+Mit dieser Methode kann eine Genauigkeit von bis zu einem Meter bei der Lokalisierung erzielt
+werden.
+
+Für den hier vorgestellten Anwendungsfall ist dieser Ansatz jedoch nicht geeignet, da im gesamten
+Gebäude Sensoren verteilt werden müssen, um eine lückenlose Positionierung gewährleisten zu können.
+
+\subsection{Lokalisierung durch \gls{WLAN}-Netzwerke}
+
+Eine weitere Möglichkeit ist, auf bestehende Infrastruktur zurückzugreifen. \Gls{WLAN} ist
+heutzutage in praktisch jedem Gebäude verfügbar.
+In Gebäuden, in welchen es mehrere \glspl{AP} gibt, wie es unter anderem in der \gls{DHBW} der Fall
+ist, kann das \gls{WLAN}-Netz für die Lokalisierung von Geräten verwendet werden. Dies wird unter
+anderem in \cite{Xiang2004}, \cite{Dong2009}, \cite{Paschalidis2009} und \cite{Liang2009} gezeigt.
+In allen diesen Werken wird die Position eines Endgerätes dadurch bestimmt, dass ausgewertet wird,
+von welchen \gls{WLAN}-\glspl{AP} das Endgerät ein Signal empfängt und wie stark dieses ist.
+
+Dazu werden Mobile Geräte, wie Mobiltelefone und Laptops mit einer Software ausgestattet, welche in
+regelmäßigen Abständen alle \glspl{AP} in seiner Umgebung abruft und die jeweilige Signalstärke
+speichert. Die vorgestellten Lokalisierungsalgorithmen basieren darauf, dass \gls{WLAN}-Umgebungen
+\enquote{eingelernt} werden und dann neue Messungen auf die gelenten gematched werden.
+
+Über diese Verfahren können Geräte mit bis zu $95\%$ Sicherheit auf einem Meter genau lokalisiert
+werden. Diese Genauigkeit ist ausreichend für den gewünschten Verwendungszweck.

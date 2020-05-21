@@ -44,30 +44,15 @@ Gesamtsystem fließen.
 Zur Erfassung der Standortdaten der Dokumente werden, wie in \autoref{sec:soll-analyse}
 beschrieben, Hardware-Tracker eingesetzt.
 Diese verwenden jedoch keine absolute Positionierungstechnologie wie beispielsweise \gls{GPS}, da
-das hierfür benötigte Satellitensignal in Gebäuden zu schwach, und somit die Positionierung
+das hierfür benötigte Satellitensignal in Gebäuden zu schwach ist und somit die Positionierung
 fehlschlagen kann.
 \TODO{Quelle für die Genauigkeit von GPS in Gebäuden}
 
-\TODO{Ist das hier eher Analyse?}
-Für die Lokalisierung von Geräten innerhalb eines Gebäudes gibt es daher mehrere Ansätze.
-\TODO{Glossar: Mesh-Netzwerk}
-Eine Möglichkeit ist es, ein Mesh-Netzwerk aus den Tracker-Geräten aufzubauen. Ist die Position
-einiger weniger Knoten des Meshes bekannt, kann durch die Signalstärke zu umliegenden Knoten oder
-über die sogenannte Time-of-Arrival bestimmt werden, wo sich ein Knoten relativ zu anderen Knoten
-und damit auch zu den Knoten mit bekannter Position befindet.
-\TODO{Time-of-Arrival erläutern}
-Mit dieser Methode kann eine Genauigkeit von bis zu einem Meter bei der Lokalisierung erzielt
-werden. (vgl. \cite{Patwari2003})
-
-Eine weitere Möglichkeit ist, auf bestehende Infrastruktur zurückzugreifen. \Gls{WLAN} ist
-heutzutage in praktisch jedem Gebäude verfügbar.
-In Gebäuden, in welchen es mehrere \glspl{AP} gibt, kann die Position dadurch bestimmt werden,
-dass der Tracker auswertet, von welchen \glspl{AP} er ein Signal empfängt und wie stark der
-Empfang zum jeweiligen \gls{AP} ist.
+Für die Lokalisierung von Geräten innerhalb eines Gebäudes gibt es daher mehrere Ansätze, wie in
+\autoref{sec:stand-der-forschung} beschrieben wurde.
 Da die Positionsdaten ohnehin zur Auswertung an das Backend übertragen werden müssen, wofür eine
 \gls{WLAN}-Verbindung notwendig ist, wird diese Methode eingesetzt.
 Die gesammelten Daten werden dann im Anschluss an das Backend übermittelt.
-\TODO{Papers zu RSSI-Basiertem Tracking einfügen (Microsoft)}
 
 Als Metrik für das Tracking über \gls{WLAN} können die in \autoref{sec:grundlagen-wlan} erläuterten
 \gls{RSSI} oder \gls{RCPI} verwendet werden. Da diese Werte jedoch nicht unbedingt proportional zum
