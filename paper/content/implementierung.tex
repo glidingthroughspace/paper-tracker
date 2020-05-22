@@ -113,6 +113,60 @@ Nun kann das Fenster und damit das gesamte Programm über den Schließen-Button 
 Tritt während diesem gesamten Vorgang ein Fehler auf, wird dieser entsprechend aufgefangen und die Fehlermeldung im Textfeld angezeigt.
 Das Löschen der generierten Datei wird auf im Fehlerfall ausgeführt.
 
+\subsection{Akkumulator}
+
+Um \ref*{nf:akku} zu erfüllen, muss ein \gls{Akku} mit entsprechend großer Kapazität gewählt werden.
+Zu diesem Zweck wird die Laufzeit des Trackers mit einem \gls{Akku} mit einer Kapazität von $850
+mAh$ in verschiedenen Szenarien gemessen. Bei den Tests befindet sich der Tracker dauerhaft im
+\enquote{Tracking}-Status, meldet also immer wieder die aktuelle Position an den Server. Dieser
+Zustand wurde gewählt, da hier der Stromverbrauch am größten ist. Zu beachten ist jedoch, dass der
+Tracker pro Zyklus immer nur einmal die \gls{WLAN}-Umgebung an den Server übermittelt. Wie in
+\autoref{sec:tracker-lokalisierung} beschrieben, ist dies noch nicht unbedingt ausreichend, um den
+Tracker zu lokalisieren.
+
+Im ersten Test, dessen Ergebnis in
+\autoref{fig:battery-runtime-quicktrack} zu sehen ist, wurde dabei alle $10$ Sekunden die Position
+des Trackers abgefragt.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=.6\textwidth]{images/battery-runtime-quicktrack.png}
+	\caption{Akkulaufzeit mit einem Tracking-Intervall von 10 Sekunden}
+	\label{fig:battery-runtime-quicktrack}
+\end{figure}
+
+Beim ersten Test ist der Tracker nach dem Bearbeiten einer Aufgabe direkt in den \enquote{Deep-Sleep}
+übergegangen. Beim zweiten Test erst, wenn die vom Server übermittelte Schlafdauer größer als $10$
+Sekunden ist, was in diesem Test nie der Fall war. Wie deutlich zu sehen ist, kann durch das
+sofortige Schlafen des Trackers eine um circa $400$ Minuten längere Laufzeit erreicht werden. Es ist
+jedoch zu erwarten, dass der Tracker immer länger als $10$ Sekunden schläft, außer beim Einlernen
+eines neuen Raumes. Bei dieser Operation ist vor allem die Reaktivität des Trackers wichtig, um
+möglichst viele \glspl{AP} mit möglichst vielen Messungen zu erfassen. Daher wird die
+Funktionalität, dass der Tracker sich nur in den \enquote{Deep-Sleep} begibt, wenn die Schlafdauer
+$10$ Sekunden überschreitet implementiert und die damit verbundene, geringere Laufzeit in Kauf
+genommen.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=.6\textwidth]{images/battery-runtime-slowtrack2.png}
+	\caption{Akkulaufzeit mit einem Tracking-Intervall von 60 Sekunden}
+	\label{fig:battery-runtime-slowtrack}
+\end{figure}
+
+In einem zweiten Szenario ist der Tracker alle $60$ Sekunden aufgewacht, um die aktuelle Position
+zu ermitteln. Die Laufzeit des Trackers mit diesen Parametern ist in
+\autoref{fig:battery-runtime-slowtrack} zu sehen. Wie zu sehen ist, skaliert die Laufzeit des
+Trackers nahezu linear mit der Schlafdauer. Mit einer Schlafdauer von $60$ Sekunden konnte bereits
+eine Laufzeit von mehr als 4 Tagen erreicht werden.
+
+Daraus lässt sich schließen, dass \ref*{nf:akku} mit einem \gls{Akku} mit einer Kapazität von $850
+mAh$ erfüllen lässt, indem der Tracker nicht den gesamten Tag aktiv ist oder das Tracking-Intervall
+auf $120$ Sekunden erhöht wird. Da Dokumente üblicherweise nicht den gesamten Tag über getracked
+werden müssen, sondern nur in den üblichen Arbeitszeiten, wird die Möglichkeit in den Server
+implementiert, ebendiese zu definieren. So kann der Tracker meist den halben Tag inaktiv sein, am
+Wochenende muss er gar nicht aufwachen.
+\TODO{Das hier gehört eher zum Server?}
+
 \section{Backend-Server}
 
 \subsection{Verwendete Technologien} \label{sec:impl-server-technology}
@@ -193,7 +247,7 @@ Scanergebnis-Paketen übermittelt. Wenn der Tracker sich jedoch im Leerlauf befi
 Server periodisch Status-Kommandos an den Tracker, sodass auch hier der Ladezustand des \gls{Akku}, sowie
 die verbleibende Restladung aktualisiert werden können.
 
-\subsection{Tracker-Lokalisierung}
+\subsection{Tracker-Lokalisierung} \label{sec:tracker-lokalisierung}
 
 Wie in \autoref{sec:tracking-hardware} beschrieben wird die Lokalisierung der Tracker mit einem
 Score-basierten System durchgeführt.
