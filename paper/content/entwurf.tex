@@ -217,8 +217,6 @@ Bei einem Vergleich zwischen der \gls{CBOR} Bibliothek \enquote{libCBOR} und der
 konnte zudem festgestellt werden, dass bei gleicher Nachricht das \gls{CBOR} Format ca. 26.5\% kleinere Nachrichten
 in 83.3\% der Zeit schnellerer Zeit serialisiert hat.
 
-\TODO{Hier das Polling-Prinzip oder unter Hardware?!}
-
 Die Tracker-Schnittstelle soll drei Endpunkte zur Verfügung stellen.
 Diese sind in \autoref{tab:coap-api} aufgelistet.
 Bis auf den Endpunkt zum Erstellen eines neuen Trackers, erhalten alle Endpunkte als Parameter die Tracker ID des Trackers, der die Anfrage stellt.
@@ -293,7 +291,6 @@ Alle verfügbaren Endpunkte der App-Schnittstelle sind in \autoref{tab:http-api}
 \subsubsection{Software-Architektur}
 \FloatBarrier
 Die Architektur des Backend-Servers ist in folgendem Klassendiagramm \ref{fig:software-architecture} dargestellt.
-\TODO{Erstellung der DB Verbindung reinpacken}
 
 Generell kann die Architektur in drei verschiedene Schichten aufgeteilt werden.
 Die erste Schicht bildet das Paket \enquote{router}, die zweite Schicht das Paket \enquote{managers} und die dritte Schicht das Paket \enquote{repositories}.
@@ -304,11 +301,25 @@ Beide Klassen besitzen eine Methode \enquote{Serve}.
 Mit dieser Methode werden die Router letztendlich gestartet so, dass sie Verbingungen annehmen können.
 Als Parameter bekommen sie die Adresse, auf die sie Verbindungen annehmen, und im Falle des \enquote{CoapRouter} auch das Transport-Protokoll.
 
-Das \enquote{managers} Paket beinhaltet sechs verschiedene Manager, die die Businesslogik für verschiedene Teilbereiche des Servers beinhalten.
-Ein Beispiel ist der \enquote{TrackerManager}, über den Tracker angelegt, abgefragt, verändert und auch gelöscht werden können.
-Weitere Methoden für z.B. das Abfragen eines Kommandos für einen Tracker sind auch beinhaltet.
+Das \enquote{managers} Paket beinhaltet sechs verschiedene Manager, die die Businesslogik für verschiedene Teilbereiche 
+und damit Anforderungen des Servers beinhalten:
+\begin{description}
+	\item[TrackerManager] Anforderungen \ref{fa:tracking}, \ref{fa:neue-tracker}, \ref{fa:arbeitszeiten}, \ref{fa:wochenende}, \ref{fa:benachrichtigung} \hfill \\
+		Verantwortlich für das Verwalten der Tracker. Entscheidet über die Kommandos für einen Tracker, wenn dieser ein Kommando abfragt.
+	\item[RoomManager] Anforderung \ref{fa:raumplan} \hfill \\
+		Verwalten alle Operationen für Räume
+	\item[LearningManager] Anforderung \ref{fa:tracking} \hfill \\
+		Regelt das Einlernen von Scanergebnisse für einen Raum
+	\item[WorkflowTemplateManager] Anforderungen \ref{fa:neue-workflows}, \ref{fa:mehrere-orte} \hfill \\
+		Bietet Möglichkeiten zur Verwaltung der Templates
+	\item[WorkflowExecManager] Anforderungen \ref{fa:tracking}, \ref{fa:optionale-schritte} \hfill \\
+		Starten von Templates als Ausführungen und Durchführung von Fortschritten eines Workflows
+	\item[TrackingManager] Anforderung \ref{fa:tracking} \hfill \\
+		Enthält Algorithmen für das eigentliche Tracking
+	\item[ExportManager] Anforderung \ref{fa:export} \hfill \\
+		Stellt den Excel-Export zur Verfügung
+\end{description}
 Alle Manager sind als Singleton implementiert so, dass sie sich auch untereinander problemlos aufrufen können.
-\TODO{Spezielle Fkt einzelner Manager erklären?}
 Konfiguriert werden die Manager über die global verfügbare \enquote{Config} Klasse.
 
 Die unterste Schicht bildet das \enquote{repositories} Paket.
@@ -326,6 +337,10 @@ Auch stellt die Klasse Funktionen für das Abfragen und das Aktualisieren einer 
 Die \enquote{EditableConfig} ist eine reine Datenstruktur, welche vordefinierte Einstellungen beinhaltet, die während
 der Laufzeit des Servers geändert werden dürfen.
 Eine Aktualisierung der Einstellungen während der Laufzeit schreibt diese Änderungen auch in die Konfigurationsdatei.
+
+Innerhalb dieser Config-Klasse sollen unter anderem auch die Einstellungen für die Anforderungen \ref{fa:arbeitszeiten}
+und \ref{fa:wochenende} gespeichert werden.
+Berücksichtigt werden diese Einstellungen im \enquote{TrackerManager}, wenn ein Tracker ein Kommando abfragt.
 
 In der Utils-Klasse sind einige verschiedene Hilfsmittel untergebracht.
 Dies sind zum einen das Versenden von E-Mails und zum anderen einige mathematische Hilfsfunktionen.
