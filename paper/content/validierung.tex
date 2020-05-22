@@ -4,7 +4,8 @@ Besonders interessant sind im Falle des Paper-Trackers zum einen die Genauigkeit
 kann und zum anderen, wie gut das Gesamtsystem miteinander funktioniert und bedienbar ist.
 Auch das Setup eines neuen Paper-Tracker-Systems soll dabei mit berücksichtigt werden.
 
-\section{Genauigkeitsmessung des Tracking}
+\section{Genauigkeitsmessung des Trackings}
+
 \subsection{Beschreibung}
 Bei der Validierung der Genauigkeit des Trackings soll in mehreren Versuchen ermittelt werden, wie genau die Position
 eines Dokuments mit Hilfe der Technik des Paper-Trackers bestimmt werden kann.
@@ -30,13 +31,13 @@ Die auszuführenden Versuche sind sortiert von \enquote{einfachen} zu \enquote{s
 Als einfach zählt zum Beispiel ein Versuch mit nur einem Raum und zu schwierig, wenn als Raum nur eine
 Raumhälfte verwendet wird.
 Folgendes sind die auszuführenden Versuche:
-\begin{enumerate}
-	\item Ein Raum wird eingelernt und in diesem getrackt
-	\item Ein Raum wird eingelernt und in einem entfernten Raum getrackt
-	\item Ein Raum wird eingelernt und in einem angrenzenden Raum getrackt
-	\item Zwei entfernte Räume werden eingelernt und in selbiger Reihenfolge getrackt
-	\item Zwei angrenzende Räume werden eingelernt und in selbiger Reihenfolge getrackt
-	\item Ein Raum wird in zwei Raumhälften geteilt, welche als Räume getrackt werden und in selbiger Reihenfolge getrackt
+\begin{enumerate}[label=\textbf{TS-\arabic*}]
+	\item \label{ts:gleicher-raum} Ein Raum wird eingelernt und in diesem getrackt
+	\item \label{ts:entfernter-raum} Ein Raum wird eingelernt und in einem entfernten Raum getrackt
+	\item \label{ts:angrenzender-raum} Ein Raum wird eingelernt und in einem angrenzenden Raum getrackt
+	\item \label{ts:zwei-nacheinander} Zwei entfernte Räume werden eingelernt und in selbiger Reihenfolge getrackt
+	\item \label{ts:zwei-angrenzende-nacheinander} Zwei angrenzende Räume werden eingelernt und in selbiger Reihenfolge getrackt
+	\item \label{ts:raumhälften} Ein Raum wird in zwei Raumhälften geteilt, welche als Räume getrackt werden und in selbiger Reihenfolge getrackt
 \end{enumerate}
 
 Zu den Ergebnissen der Versuche selbst muss auch das Umfeld der Versuche angegeben werden.
@@ -44,22 +45,83 @@ Dies ist das Gebäude, in dem der Versuch stattgefunden hat, eine ungefähre Rau
 und die Struktur des für das Tracking verwendeten \gls{WLAN}-Netzes.
 
 \subsection{Ergebnisse}
-Aufgrund der aktuellen Coronavirus-Lage (\cite{bw2020}, \cite{dhbwka2020}) während dem Bearbeitungszeitraum dieser Arbeit,
-ist es leider nicht möglich diese Validierung entsprechend durchzuführen.
-Grund dafür ist ein fehlendes passendes Gebäude mit Zimmern, die teilweise entfernt voneinander liegen, und einem gut
-genug ausgebauten \gls{WLAN} Netzwerk. 
 
-Trotzdem können eingeschränkt zu den ersten beiden Tests Aussagen gemacht werden, da diese vor der Coronavirus-Lage
-getestet wurden.
-Hierbei muss angemerkt werden, dass die oben beschrieben Versuchsabläufe nicht angewendet wurden sondern frei getestet wurde.
-Das Umfeld des Versuches war die \gls{DHBW} Karlsruhe.
-In dieser wurden zwei Vorlesungsräume in einem Gang verwendet.
-Die Entfernung zwischen den zwei Räumen, die an unterschiedlichen Seiten des Ganges abgehen, betrug ungefähr fünf Meter.
-Als \gls{WLAN}-Netz zum Tracken wurden alle verfügbaren Netze verwendet (\enquote{eduroam}, \enquote{DHBW-KA} und weitere kleinere Netze).
+Die Tests wurden in den Räumlichkeiten der \gls{DHBW} Karlsruhe durchgeführt.
+Dabei konnten alle Testszenarien nach Anpassung der Parameter des Tracking-Algorithmus, wie
+in \autoref{sec:tracker-lokalisierung} beschrieben, erfolgreich durchlaufen werden.
 
-Unter diesen Umständen konnten beide Tests erfolgreich abgeschlossen werden.
-Dies bestätigt zumindest teilweise die Anforderung für eine raumgenaue Ortung.
-Für eine komplette Bestätigung der Erfüllung, müssten alle Versuche durchgeführt werden.
+\subsubsection{Verwendete Räume}
+
+Für die Tests wurden drei Räume verwendet. \emph{Raum 1} und \emph{Raum 2} haben eine Größe von
+circa $6m\times10m$, \emph{Raum 3} ist circa $6m\times5m$ groß. Raum 1 und Raum 2 sind dabei direkt
+angrenzend, Raum 3 liegt gegenüber von Raum 2. Die beiden Räume werden durch einen ungefähr $1.5m$
+breiten Gang voneinander getrennt.
+\TODO{Vielleicht ein Raumplan?}
+
+\FloatBarrier
+
+\subsubsection{Testszenario 1, 2 und 3}
+
+Für das erste Szenario (\ref{ts:gleicher-raum}) wurde Raum 1 in das System eingelernt. Im Anschluss
+wurde erfolgreich überprüft, dass das System den Tracker diesem Raum zuordnet, wenn er lokalisiert
+wird.
+
+Im Raum 1 wurden $30$ \glspl{AP} in der \gls{WLAN}-Umgebung gemessen. Ein Ausschnitt aus den
+entsprechenden Daten ist in \autoref{tab:wlan-umgebung-raum1} zu sehen.
+
+\begin{table}[htbp]
+	\def\arraystretch{1.1}
+	\centering
+	\begin{tabular}{l c c c c c c}
+		\gls{BSSID}	 & Minimum & Maximum & Median & Mittel & 1. Quartil & 3. Quartil \\ \hline
+		\texttt{7C:95:F3:72:59:52} & $-74$     & $-73$     & $-73.0$  & $-73.3$  & $-74.0$ & $-73.0$ \\
+		\texttt{70:6D:15:F6:5E:44} & $-83$     & $-81$     & $-82.0$  & $-82.0$  & $-83.0$ & $-81.0$ \\
+		\texttt{0C:75:BD:BC:85:24} & $-87$     & $-83$     & $-83.0$  & $-84.3$  & $-87.0$ & $-83.0$ \\
+		\texttt{7C:95:F3:72:17:B0} & $-89$     & $-88$     & $-88.5$  & $-88.5$  & $-89.0$ & $-88.0$ \\
+		\texttt{00:EA:BD:76:21:23} & $-65$     & $-64$     & $-64.0$  & $-64.3$  & $-65.0$ & $-64.0$ \\
+		\texttt{70:6D:15:E4:6F:00} & $-74$     & $-72$     & $-73.0$  & $-73.0$  & $-74.0$ & $-72.0$ \\
+		\texttt{70:6D:15:E4:6F:05} & $-73$     & $-72$     & $-73.0$  & $-72.6$  & $-73.0$ & $-72.0$ \\
+		\texttt{DC:A5:F4:8D:DC:D3} & $-88$     & $-86$     & $-88.0$  & $-87.3$  & $-88.0$ & $-86.0$ \\
+		\texttt{00:EA:BD:76:21:20} & $-62$     & $-60$     & $-62.0$  & $-61.36$ & $-62.0$ & $-60.0$ \\
+		\texttt{70:6D:15:E4:6F:02} & $-73$     & $-72$     & $-73.0$  & $-72.6$  & $-73.0$ & $-72.0$ \\
+	\end{tabular}
+	\caption{Ausschnitt aus der \gls{WLAN}-Umgebung von Raum 1}
+	\label{tab:wlan-umgebung-raum1}
+\end{table}
+
+Für den ersten Negativtest wurde der Tracker in Raum 3 gelegt. Hierbei wurde der Tracker, wie
+erwartet, nicht mehr Raum 1 zugewiesen, sodass auch dieser Test bestanden wurde. Auch als der
+Tracker für den zweiten Negativtest (\ref{ts:angrenzender-raum}) in Raum 2 gelegt wurde, erkannte
+das System korrekt, dass er nicht in Raum 1 liegt, da der vorher eingetragene Score-Schwellwert
+nicht erreicht wurde.
+
+\subsubsection{Testszenario 4}
+
+Im Anschluss an den ersten Test wurde der Raum 3 eingelernt, um, wie in \ref{ts:zwei-nacheinander}
+beschrieben, in einem \enquote{entfernten} Raum zu tracken. Ziel dieses Tests ist es, zu überprüfen,
+ob der korrekte Raum ausgewählt wird. Nachdem Raum 3 eingelernt wurde, wurde zunächst hier ein
+Tracking-Vorgang gestartet, wobei Raum 3 korrekt lokalisiert wurde. Nun wurde der Tracker in
+Raum 1 abgelegt und ein Tracking-Vorgang gestartet. Auch Raum 1 wurde korrekt als aktueller Raum
+identifiziert.
+Dieser Test zeigt, dass der Tracker zwischen zwei Räumen unterscheiden kann, deren
+\gls{WLAN}-Umgebungen sich deutlich unterscheiden.
+
+\subsubsection{Testszenario 5}
+
+Entsprechend \ref{ts:zwei-angrenzende-nacheinander} wurde nun Raum 2 eingelernt und der gleiche Test
+wie für \ref{ts:zwei-nacheinander} durchgeführt. Auch hierbei konnten die beiden Räume erfolgreich
+unterschieden werden.
+Sogar, als der Tracker innerhalb von Raum 2 direkt an die an Raum 1 angrenzende Wand gehalten wurde,
+konnte noch der korrekte Raum erkannt werden. Dies zeigt, dass eine Distanz von circa 2 Metern
+korrekt gemessen werden kann.
+
+\subsubsection{Testszenario 6}
+
+Für diesen Test wurde Raum 1 in zwei Hälften geteilt, wie in \ref{ts:raumhälften} beschrieben,
+sodass er als zwei $6m\times5m$ große Räume angesehen wurde.
+Anschließend wurde in beiden Raumhälften ein Lernprozess gestartet und danach jeweils in einer
+Raumhälfte ein Tracking-Prozess. Beide Male erkannte das System die richtige Raumhälfte, sodass auch
+dieser letzte Test als bestanden anzusehen ist.
 
 \section{Einfaches Setup und Nutzung des Gesamtsystems}
 \subsection{Beschreibung}
@@ -79,7 +141,7 @@ zur Verfügung stehen.
 Für Apple-Geräte ist dies leider nicht möglich.
 
 Zum Start des Tests bekommt die Testperson einige Informationen, was der Paper-Tracker ist, wofür er bestimmt ist
-und die Aufgabe, das System in Betrieb zu nehmen. 
+und die Aufgabe, das System in Betrieb zu nehmen.
 Weiter bekommt sie als Ressource, wie oben beschrieben, das GitHub-Repository des Paper-Trackers.
 Dieses bietet im Detail die folgenden Komponenten:
 \begin{itemize}
@@ -107,5 +169,4 @@ Mit Hilfe dieser Komponenten werden folgende Schritte von der Testperson erwarte
 
 \subsection{Ergebnisse}
 
-
-\subsection{Gesamtergebniss der Validierung}
+\section{Gesamtergebnis der Validierung}
