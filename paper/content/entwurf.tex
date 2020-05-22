@@ -350,6 +350,54 @@ Dies sind zum einen das Versenden von E-Mails und zum anderen einige mathematisc
 	\label{fig:software-architecture}
 \end{sidewaysfigure}
 
+\FloatBarrier
+\subsubsection{Tracker Lokalisierung}
+
+Die raumgenaue Lokalisierung eines Trackers besteht aus zwei Teilen.
+Der erste Teil ist das Einscannen eines Raumes mit Hilfe eines Trackers und der zweite das Zuordnen von Scanergebnissen
+zu einem zuvor eingescannten Raum.
+
+Beim Einscannen eines Raumes werden von einem Tracker, wie bei der eigentlichen Lokalisierung, Scanergebnisse angefordert.
+Dies soll mehrfach über einen größeren Zeitraum geschehen.
+Die genaue Anzahl an Wiederholungen und die Pause zwischen Scans soll konfigurierbar sein.
+Nach den Scans liegen für alle verfügbaren \glspl{BSSID} ein oder mehrere \glspl{RSSI} (also Signalstärken) vor.
+Weiter gehört jede \gls{BSSID} zu einer \gls{SSID}.
+
+Diese Daten sollen im nächsten Schritt von dem Benutzer nach \glspl{SSID} gefiltert werden, die für die Lokalisierung
+genutzt werden sollen.
+Dadurch können zum Beispiel mobile \gls{WLAN}-Netzwerke von Smartphones, die nicht permanent vorhanden sind, herausgefiltert werden.
+Dies verhindert ein Fehlschlagen einer Lokalisierung, wenn ein mobiles Netzwerk nicht verfügbar ist.
+
+Nach der Filterung werden aus den mehreren \glspl{RSSI} pro \gls{BSSID} statistische Kenngrößen berechnet.
+Diese werden im zweiten Teil für die Lokalisierung verwendet.
+Berechnet werden, wie die Klasse \enquote{BSSIDTrackingData} zeigt:
+\begin{itemize}
+	\item Minimum
+	\item Maximum
+	\item Arithmetisches Mittel
+	\item Median
+	\item Erstes Quartil
+	\item Drittes Quartil
+\end{itemize}
+
+Soll nun ein Tracker lokalisiert werden, werden von diesem wieder Scanergebnisse angefordert.
+Dies liefert pro \gls{BSSID} einen \gls{RSSI}-Wert.
+Um nun einen \enquote{besten} Raum aufgrund dieser Werte dem Tracker zuzuweisen, soll ein Scoring-System verwendet werden.
+Dafür wird zuerst jedem Raum ein Score zugewiesen.
+Die genaue Berechnung für diesen Wert soll während der Implementierung über verschiedene Tests herausgefunden werden.
+Grob soll zum Beispiel für jeden \gls{RSSI}-Wert, der innerhalb des gespeicherten Minimum und Maximum dieser \gls{BSSID}
+eines Raumes liegt, eine gewisse Punktzahl vergeben werden.
+Auch ist eine Punktevergabe je nach Abstand vom Mittelwert und/oder Median denkbar.
+
+Erhält ein Raum eine Punktzahl über einem bestimmten Schwellwert, ist dieser ein Kandidat für den Raum, in dem der Tracker
+sich befindet.
+Letztendlich wird der Raum gewählt, der über dem Schwellwert liegt und insgesamt die meisten Punkte erhalten hat.
+Dieser Raum kann dann als aktueller Raum des Trackers eingetragen werden und für den Fortschritt einer Workflow-Ausführung
+verwendet werden.
+Der Schwellwert erzielt, dass einem Tracker, welcher sich in keinem eingelernten Raum befindet, nicht der nächstbeste
+Raum zugewiesen wird. 
+In diesem Fall wird als Raum für den Tracker \enquote{Unbekannt} eingetragen und auch keine Workflow-Ausführung aktualisiert.
+
 \subsubsection{Daten-Export}
 
 Für einen Daten-Export muss zuerst ausgewählt werden, welche Daten exportiert werden sollen.
