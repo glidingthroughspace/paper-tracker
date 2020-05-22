@@ -45,8 +45,7 @@ Zur Erfassung der Standortdaten der Dokumente werden, wie in \autoref{sec:soll-a
 beschrieben, Hardware-Tracker eingesetzt.
 Diese verwenden jedoch keine absolute Positionierungstechnologie wie beispielsweise \gls{GPS}, da
 das hierfür benötigte Satellitensignal in Gebäuden zu schwach ist und somit die Positionierung
-fehlschlagen kann.
-\TODO{Quelle für die Genauigkeit von GPS in Gebäuden}
+fehlschlagen kann (vgl. \cite{Liu}).
 
 Für die Lokalisierung von Geräten innerhalb eines Gebäudes gibt es daher mehrere Ansätze, wie in
 \autoref{sec:stand-der-forschung} beschrieben wurde.
@@ -206,7 +205,6 @@ Instruktionen müssen vom Prozessor des Trackers durchgeführt werden, was zu ei
 führt.
 Werden die Protokolle anhand dieses Aspektes verglichen, erweist sich \gls{CoAP} als effizientestes
 Protokoll. (vgl. \cite{Dizdarevic2019}, \cite{Naik2017})
-\TODO{Quellen verwenden, die in diesem Paper zitiert werden}
 
 \gls{CBOR} ist ein Datenformat, das auf kleine Code- und Nachrichtengrößen optimiert ist.
 Demnach ist es auch für der \gls{IoT}-Bereich sehr gut geeignet.
@@ -236,11 +234,11 @@ POST          & /tracker/tracking & Ergebnisse des Tracking speichern & -
 \paragraph{App-Schnittstelle} \label{par:app-schnittstelle}
 Die Schnittstelle für die App hat keine besonderen Anforderungen und kann daher frei gewählt werden.
 Aus diesem Grund werden Protokolle und Datenformate verwendet, die momentan dem aktuellen Stand der
-Technik entsprechen. \TODO{Quelle für aktuelle Protokolle}
+Technik entsprechen.
 Daraus ergibt sich der Vorteil, dass sie mit allen anderen gewählten Technologien sehr gut
 kombinierbar sind und entsprechende Bibliotheken vorhanden sind.
 Das verwendete Protokoll ist das \gls{HTTP}-Protokoll und das Datenformat ist \gls{JSON}.
-Die Schnittstelle basiert auf dem \gls{REST} Paradigma (vgl. \cite{Fielding2000}). \TODO{Soll REST erläutert werden?}
+Die Schnittstelle basiert auf dem \gls{REST} Paradigma (vgl. \cite{Fielding2000}). 
 Alle verfügbaren Endpunkte der App-Schnittstelle sind in \autoref{tab:http-api} dargestellt.
 
 \begin{footnotesize}
@@ -452,7 +450,6 @@ gibt, um diese auf einem Bildschirm anzeigen zu können.
 Als letzte Box in der Liste wird ein Button angezeigt, mit dem der Nutzer einen neuen Schritt an die Liste anhängen kann.
 Die Eingabe der Informationen des neuen Schritts soll in einem Dialog erfolgen.
 Diese Box wird nur angezeigt, falls der anzuzeigende Workflow bearbeitbar ist.
-\TODO{Ist schon irgendwo erläutert, wann ein Workflow nicht mehr bearbeitbar ist?}
 
 In den Boxen zu den Schritten sollen einige Informationen angezeit werden.
 So werden beispielsweise der Name des Schrittes, der dem Schritt zugewiesenen Raum und die
@@ -597,8 +594,6 @@ Dafür sind die folgenden Inhalte angedacht:
 \end{enumerate}
 
 \subsubsection{Icons für zentrale Klassen}
-
-\TODO{Studie über Nutzen von Icons zur Wiedererkennung von Schlüsselwörtern einbringen}
 
 Wie schon zu der Hauptseite und Detailseite angemerkt, gibt es für jede zentrale Klasse ein zugehöriges Icon.
 Die soll ermöglichen, dass der Endbenutzer in der App über die Icons die dazugehörige Klasse wiedererkennen kann.
