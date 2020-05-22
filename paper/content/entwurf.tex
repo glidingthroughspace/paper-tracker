@@ -391,11 +391,14 @@ Grob soll zum Beispiel für jeden \gls{RSSI}-Wert, der innerhalb des gespeichert
 eines Raumes liegt, eine gewisse Punktzahl vergeben werden.
 Auch ist eine Punktevergabe je nach Abstand vom Mittelwert und/oder Median denkbar.
 
-Erhält ein Raume eine Punktzahl über einem bestimmten Schwellwert, ist dieser ein Kandidat für den Raum, in dem der Tracker
+Erhält ein Raum eine Punktzahl über einem bestimmten Schwellwert, ist dieser ein Kandidat für den Raum, in dem der Tracker
 sich befindet.
 Letztendlich wird der Raum gewählt, der über dem Schwellwert liegt und insgesamt die meisten Punkte erhalten hat.
 Dieser Raum kann dann als aktueller Raum des Trackers eingetragen werden und für den Fortschritt einer Workflow-Ausführung
 verwendet werden.
+Der Schwellwert erzielt, dass einem Tracker, welcher sich in keinem eingelernten Raum befindet, nicht der nächstbeste
+Raum zugewiesen wird. 
+In diesem Fall wird als Raum für den Tracker \enquote{Unbekannt} eingetragen und auch keine Workflow-Ausführung aktualisiert.
 
 \subsubsection{Daten-Export}
 
