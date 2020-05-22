@@ -1,5 +1,118 @@
 \chapter{Implementierung} \label{chap:implementierung}
 
+\section{Hardware und Firmware}
+
+Im Folgenden wird erläutert, wie der Tracker hinsichtlich der verwendeten Hardware und der
+entsprechenden Firmware implementiert wurde.
+
+\subsection{Verwendete Technologien}\label{sec:hardware-used-technologies}
+
+Als Mikrokontrollerplattform wurde die sogenannte \enquote{TinyPICO}-Plattform gewählt. Nach eigener
+Aussage handelt es sich dabei um die kleinste vorgefertigte Entwicklungsplattform basierend auf
+Mikrocontrollern vom Typ ESP32. (vgl. \cite{tinypico2020}) Dieser Aspekt ist für die Erfüllung von \ref{nf:klein} wichtig.
+Dieser Mikrocontroller wurde gewählt, da er alle benötigten Funktionen wie beispielsweise \gls{WLAN}
+bereits über ein \gls{API} bereitstellt.
+
+Die TinyPICO-Entwicklungsplattform stellt neben dem Mikrocontroller weitere Hardware bereit, so sind
+unter anderem
+die Stromversorgung über \gls{USB} sowie Lithium-Polymer-\gls{Akku}, ein Übersetzer von \gls{USB}
+zu \gls{UART} zur Programmierung des Mikrocontroller und eine Vollspektrum-\gls{LED} verbaut.
+Ein weiterer Vorteil ist das bereits integrierte Ladesystem, welches einen angeschlossen
+Lithium-Polymer-\gls{Akku} automatisch auflädt, sobald der Tracker über \gls{USB} mit einer
+Stromquelle verbunden wird. Außerdem können über das Ladesystem der aktuelle Ladezustand und die
+Spannung des \gls{Akku} abgefragt werden, was für die Erfüllung von \ref{fa:benachrichtigung}
+unabdingbar ist.
+
+Die Firmware wurde in der Programmiersprache C++ auf Basis des Arduino-Frameworks erstellt. Dieses
+Framework wurde gewählt, da es auf vielen Plattformen, wie auch dem ESP32 lauffähig ist, weit
+verbreitet ist und somit viele Bibliotheken für das Framework existieren.
+
+Das \enquote{Flasher}-Tool zum Programmieren und Konfigurieren der Firmware wurde in Python
+entwickelt.
+Der Grund dafür liegt in Möglichkeit sehr schnell und simpel ein Programm und auch ein \gls{GUI} zu
+programmieren.
+Dies wird durch die Bibliothek \enquote{PySimpleGUI} ermöglicht, die lediglich mit einer groben Layout-Beschreibung
+ein Oberfläche zusammenstellt.
+Alle weiteren benötigten Bibliotheken sind in der Python-Standardbibliothek enthalten.
+Vor allem ist hierbei die \enquote{multiprocessing}-Bibliothek wichtig, mit welcher andere Programme aufgerufen werden können.
+Um aus dem enstandenen Python-Skript eine ausführbare Datei für die verbreitesten Betriebssysteme zu erstellen, wird \enquote{PyInstaller} verwendet.
+Die daraus enstehende Datei beinhaltet bis auf das PlatformIO-Tooling alle benötigten Ressourcen. \TODO{Kann man das mit bundeln?!}
+
+\subsection{Flasher}
+Aufgrund der angestrebten Einfachheit dieses Programmes, besteht es aus insgesamt nur drei Dateien.
+Der Hauptbestandteil des Flashers ist das eigentliche Python-Skript.
+Zusätzlich wird die Datei \enquote{requirements.txt} benötigt, welche alle Bibliotheken für den
+Bibliotheksmanager \enquote{pip} auflistet.
+In dieser Datei sind lediglich, wie oben erwähnt, \enquote{pysimplegui} und \enquote{pyinstaller} aufgeführt.
+Die dritte und letzte Datei ist ein \enquote{Makefile}, welches einige Befehle zum Installieren der Bibliotheken,
+Ausführen des Skripts oder Erstellen der ausführbaren Datei bereitstellt.
+
+Das Skript selbst beginnt nach dem Importieren der benötigten Bibliotheken mit dem Parsen der
+Kommandozeilenargumente.
+Möglich ist nur das Argument \texttt{--keep-credentials}.
+Das Skript erzeugt eine Datei, in welcher die Zugangsdaten für das vom Tracker zu verwendende
+\gls{WLAN}-Netzwerk, sowie weitere potentiell sensitiven Informationen enthalten sind. Im
+Standardfall wird diese Datei nach dem Erstelln der Firmware und der Programmierung des Trackers
+gelöscht. Ist das Kommandozeilenargument \texttt{--keep-credentials} gegeben, wir die Datei nach
+Erfolgreichem Abschluss des Programmiervorganges nicht gelöscht, was vor allem in der
+Entwicklungsphase der Software vorteilhaft ist.
+
+Weiter werden einige Konstanten definiert.
+Diese sind zum einen der Titel des Programm-Fensters und einige sogenannte \enquote{Keys},
+die eindeutig bestimmte Elemente der \gls{GUI} identifizieren.
+
+Nach den Konstanten werden drei Funktionen definiert, die die eigentliche Logik des Flashers beinhalten.
+Zuerst eine Funktion, die alle möglichen Ports, über die ein Tracker programmiert werden kann, auflistet.
+Dies wird über ein Aufrufen von PlatformIO ermöglicht: \enquote{pio device list}.
+
+Die nächste Funktion generiert die für die Firmware benötigte Datei mit der Konfiguration des Trackers.
+Sie liest ein Template mit Platzhalter-Werten der Datei ein und ersetzt die Platzhalter mit den eingegebenen Werten, die als Parameter übergeben werden.
+Nach dem Einsetzen der Werte, wird die Datei geschrieben.
+Der Pfad, an dem sich die Firmware befindet, ist auch Teil der Werte, die als Parameter übergeben werden.
+Zugriff auf einen einzelnen Wert wird über die oben erwähnten konstanten \enquote{Keys} ermöglicht.
+
+In der letzten Funktion wird das Programmieren an sich ausgeführt.
+Auch diese Funktion bekommt die eingebenene Werte als Parameter. Aus diesen wird der ausgewählte Port benötigt.
+Mit diesem wird wieder PlatformIO aufgerufen: \enquote{pio run -e tinypico -t upload --upload-port port}.
+
+Vor dem Hauptteil des Skripts werden noch die Layouts für die \gls{GUI} benötigt.
+Es werden zwei verschiedene Layouts definiert: Ein Eingabe-Layout und ein Programmier-Layout.
+Das Eingabe-Layout ist in \autoref{fig:flasher-input} dargestellt.
+Es ist eine Tabelle aus Eingabe-Feldern mit Erklärungen, in denen alle benötigten Konfigurationen eingetragen werden können.
+Die Eingabe-Felder selbst sind mit den Keys verknüpft.
+Am unteren Teil des Layouts befindet sich ein Button, der das Programmieren startet.
+
+\begin{figure}[htbp]
+	\includegraphics[width=\textwidth]{images/flasher/input.png}
+	\centering
+	\caption{Layout des Eingabe-Fenster}
+	\label{fig:flasher-input}
+\end{figure}
+
+Das Programmier-Layout besteht lediglich aus einem Titel, einem Textfeld und einem Button.
+Es ist in \autoref{fig:flasher-flash} dargestellt.
+Im Textfeld soll der aktuelle Status angezeigt werden.
+Der Button ist zum Schließen des Programms, sobald der Vorgang abgeschlossen ist.
+
+\begin{figure}[htbp]
+	\includegraphics[width=\textwidth]{images/flasher/flash.png}
+	\centering
+	\caption{Layout des Programmier-Fenster}
+	\label{fig:flasher-flash}
+\end{figure}
+
+Im Hauptteil des Skripts werden nun zuerst das Fenster mit dem Eingabe-Layout geöffnet.
+Sobald der Button zum Start gedrückt wurde, werden die eingegebenen Werte ausgelesen.
+Das Eingabe-Fenster wird geschlossen und das Programmier-Fenster mit den entsprechendem Layout geöffnet.
+Ist dieses offen, wird die Funktion zum Generieren der Konfigurationsdatei und die Funktion zum Programmieren des Trackers aufgerufen.
+Im Textfeld des Layouts werden diese Schritte entsprechend dokumentiert.
+Auch die Ausgabe des Programmierens wird in das Textfeld ausgegeben.
+Nach dem Programmieren wird, je nach Kommandozeilenargument, die generierte Datei gelöscht.
+Nun kann das Fenster und damit das gesamte Programm über den Schließen-Button geschlossen werden.
+
+Tritt während diesem gesamten Vorgang ein Fehler auf, wird dieser entsprechend aufgefangen und die Fehlermeldung im Textfeld angezeigt.
+Das Löschen der generierten Datei wird auf im Fehlerfall ausgeführt.
+
 \section{Backend-Server}
 
 \subsection{Verwendete Technologien} \label{sec:impl-server-technology}
@@ -262,119 +375,6 @@ Es sind somit ca. $20\%$ der Manager, ca. $27\%$ der Modelle und ca. $68\%$ der 
 Leider ist dies noch nicht ausreichend für eine gute Testabdeckung.
 Vor allem, um komplexe Konstrukte wie den Fortschritt einer Workflow Ausführung zu testen, wäre um einiges mehr Zeit erforderlich
 gewesen.
-
-\section{Hardware und Firmware}
-
-Im Folgenden wird erläutert, wie der Tracker hinsichtlich der verwendeten Hardware und der
-entsprechenden Firmware implementiert wurde.
-
-\subsection{Verwendete Technologien}\label{sec:hardware-used-technologies}
-
-Als Mikrokontrollerplattform wurde die sogenannte \enquote{TinyPICO}-Plattform gewählt. Nach eigener
-Aussage handelt es sich dabei um die kleinste vorgefertigte Entwicklungsplattform basierend auf
-Mikrocontrollern vom Typ ESP32. (vgl. \cite{tinypico2020}) Dieser Aspekt ist für die Erfüllung von \ref{nf:klein} wichtig.
-Dieser Mikrocontroller wurde gewählt, da er alle benötigten Funktionen wie beispielsweise \gls{WLAN}
-bereits über ein \gls{API} bereitstellt.
-
-Die TinyPICO-Entwicklungsplattform stellt neben dem Mikrocontroller weitere Hardware bereit, so sind
-unter anderem
-die Stromversorgung über \gls{USB} sowie Lithium-Polymer-\gls{Akku}, ein Übersetzer von \gls{USB}
-zu \gls{UART} zur Programmierung des Mikrocontroller und eine Vollspektrum-\gls{LED} verbaut.
-Ein weiterer Vorteil ist das bereits integrierte Ladesystem, welches einen angeschlossen
-Lithium-Polymer-\gls{Akku} automatisch auflädt, sobald der Tracker über \gls{USB} mit einer
-Stromquelle verbunden wird. Außerdem können über das Ladesystem der aktuelle Ladezustand und die
-Spannung des \gls{Akku} abgefragt werden, was für die Erfüllung von \ref{fa:benachrichtigung}
-unabdingbar ist.
-
-Die Firmware wurde in der Programmiersprache C++ auf Basis des Arduino-Frameworks erstellt. Dieses
-Framework wurde gewählt, da es auf vielen Plattformen, wie auch dem ESP32 lauffähig ist, weit
-verbreitet ist und somit viele Bibliotheken für das Framework existieren.
-
-Das \enquote{Flasher}-Tool zum Programmieren und Konfigurieren der Firmware wurde in Python
-entwickelt.
-Der Grund dafür liegt in Möglichkeit sehr schnell und simpel ein Programm und auch ein \gls{GUI} zu
-programmieren.
-Dies wird durch die Bibliothek \enquote{PySimpleGUI} ermöglicht, die lediglich mit einer groben Layout-Beschreibung
-ein Oberfläche zusammenstellt.
-Alle weiteren benötigten Bibliotheken sind in der Python-Standardbibliothek enthalten.
-Vor allem ist hierbei die \enquote{multiprocessing}-Bibliothek wichtig, mit welcher andere Programme aufgerufen werden können.
-Um aus dem enstandenen Python-Skript eine ausführbare Datei für die verbreitesten Betriebssysteme zu erstellen, wird \enquote{PyInstaller} verwendet.
-Die daraus enstehende Datei beinhaltet bis auf das PlatformIO-Tooling alle benötigten Ressourcen. \TODO{Kann man das mit bundeln?!}
-
-\subsection{Flasher}
-Aufgrund der angestrebten Einfachheit dieses Programmes, besteht es aus insgesamt nur drei Dateien.
-Der Hauptbestandteil des Flashers ist das eigentliche Python-Skript.
-Zusätzlich wird die Datei \enquote{requirements.txt} benötigt, welche alle Bibliotheken für den
-Bibliotheksmanager \enquote{pip} auflistet.
-In dieser Datei sind lediglich, wie oben erwähnt, \enquote{pysimplegui} und \enquote{pyinstaller} aufgeführt.
-Die dritte und letzte Datei ist ein \enquote{Makefile}, welches einige Befehle zum Installieren der Bibliotheken,
-Ausführen des Skripts oder Erstellen der ausführbaren Datei bereitstellt.
-
-Das Skript selbst beginnt nach dem Importieren der benötigten Bibliotheken mit dem Parsen der
-Kommandozeilenargumente.
-Möglich ist nur das Argument \texttt{--keep-credentials}.
-Das Skript erzeugt eine Datei, in welcher die Zugangsdaten für das vom Tracker zu verwendende
-\gls{WLAN}-Netzwerk, sowie weitere potentiell sensitiven Informationen enthalten sind. Im
-Standardfall wird diese Datei nach dem Erstelln der Firmware und der Programmierung des Trackers
-gelöscht. Ist das Kommandozeilenargument \texttt{--keep-credentials} gegeben, wir die Datei nach
-Erfolgreichem Abschluss des Programmiervorganges nicht gelöscht, was vor allem in der
-Entwicklungsphase der Software vorteilhaft ist.
-
-Weiter werden einige Konstanten definiert.
-Diese sind zum einen der Titel des Programm-Fensters und einige sogenannte \enquote{Keys},
-die eindeutig bestimmte Elemente der \gls{GUI} identifizieren.
-
-Nach den Konstanten werden drei Funktionen definiert, die die eigentliche Logik des Flashers beinhalten.
-Zuerst eine Funktion, die alle möglichen Ports, über die ein Tracker programmiert werden kann, auflistet.
-Dies wird über ein Aufrufen von PlatformIO ermöglicht: \enquote{pio device list}.
-
-Die nächste Funktion generiert die für die Firmware benötigte Datei mit der Konfiguration des Trackers.
-Sie liest ein Template mit Platzhalter-Werten der Datei ein und ersetzt die Platzhalter mit den eingegebenen Werten, die als Parameter übergeben werden.
-Nach dem Einsetzen der Werte, wird die Datei geschrieben.
-Der Pfad, an dem sich die Firmware befindet, ist auch Teil der Werte, die als Parameter übergeben werden.
-Zugriff auf einen einzelnen Wert wird über die oben erwähnten konstanten \enquote{Keys} ermöglicht.
-
-In der letzten Funktion wird das Programmieren an sich ausgeführt.
-Auch diese Funktion bekommt die eingebenene Werte als Parameter. Aus diesen wird der ausgewählte Port benötigt.
-Mit diesem wird wieder PlatformIO aufgerufen: \enquote{pio run -e tinypico -t upload --upload-port port}.
-
-Vor dem Hauptteil des Skripts werden noch die Layouts für die \gls{GUI} benötigt.
-Es werden zwei verschiedene Layouts definiert: Ein Eingabe-Layout und ein Programmier-Layout.
-Das Eingabe-Layout ist in \autoref{fig:flasher-input} dargestellt.
-Es ist eine Tabelle aus Eingabe-Feldern mit Erklärungen, in denen alle benötigten Konfigurationen eingetragen werden können.
-Die Eingabe-Felder selbst sind mit den Keys verknüpft.
-Am unteren Teil des Layouts befindet sich ein Button, der das Programmieren startet.
-
-\begin{figure}[htbp]
-	\includegraphics[width=\textwidth]{images/flasher/input.png}
-	\centering
-	\caption{Layout des Eingabe-Fenster}
-	\label{fig:flasher-input}
-\end{figure}
-
-Das Programmier-Layout besteht lediglich aus einem Titel, einem Textfeld und einem Button.
-Es ist in \autoref{fig:flasher-flash} dargestellt.
-Im Textfeld soll der aktuelle Status angezeigt werden.
-Der Button ist zum Schließen des Programms, sobald der Vorgang abgeschlossen ist.
-
-\begin{figure}[htbp]
-	\includegraphics[width=\textwidth]{images/flasher/flash.png}
-	\centering
-	\caption{Layout des Programmier-Fenster}
-	\label{fig:flasher-flash}
-\end{figure}
-
-Im Hauptteil des Skripts werden nun zuerst das Fenster mit dem Eingabe-Layout geöffnet.
-Sobald der Button zum Start gedrückt wurde, werden die eingegebenen Werte ausgelesen.
-Das Eingabe-Fenster wird geschlossen und das Programmier-Fenster mit den entsprechendem Layout geöffnet.
-Ist dieses offen, wird die Funktion zum Generieren der Konfigurationsdatei und die Funktion zum Programmieren des Trackers aufgerufen.
-Im Textfeld des Layouts werden diese Schritte entsprechend dokumentiert.
-Auch die Ausgabe des Programmierens wird in das Textfeld ausgegeben.
-Nach dem Programmieren wird, je nach Kommandozeilenargument, die generierte Datei gelöscht.
-Nun kann das Fenster und damit das gesamte Programm über den Schließen-Button geschlossen werden.
-
-Tritt während diesem gesamten Vorgang ein Fehler auf, wird dieser entsprechend aufgefangen und die Fehlermeldung im Textfeld angezeigt.
-Das Löschen der generierten Datei wird auf im Fehlerfall ausgeführt.
 
 \section{App}
 
