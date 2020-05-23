@@ -130,7 +130,7 @@ des Trackers abgefragt.
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=.6\textwidth]{images/battery-runtime-quicktrack.png}
+	\includegraphics[width=.9\textwidth]{images/battery-runtime-quicktrack.png}
 	\caption{Akkulaufzeit mit einem Tracking-Intervall von 10 Sekunden}
 	\label{fig:battery-runtime-quicktrack}
 \end{figure}
@@ -148,7 +148,7 @@ genommen.
 
 \begin{figure}[htbp]
 	\centering
-	\includegraphics[width=.6\textwidth]{images/battery-runtime-slowtrack2.png}
+	\includegraphics[width=.9\textwidth]{images/battery-runtime-slowtrack2.png}
 	\caption{Akkulaufzeit mit einem Tracking-Intervall von 60 Sekunden}
 	\label{fig:battery-runtime-slowtrack}
 \end{figure}
@@ -165,7 +165,6 @@ auf $120$ Sekunden erhöht wird. Da Dokumente üblicherweise nicht den gesamten 
 werden müssen, sondern nur in den üblichen Arbeitszeiten, wird die Möglichkeit in den Server
 implementiert, ebendiese zu definieren. So kann der Tracker meist den halben Tag inaktiv sein, am
 Wochenende muss er gar nicht aufwachen.
-\TODO{Das hier gehört eher zum Server?}
 
 \section{Backend-Server}
 
@@ -560,7 +559,7 @@ Dieses bietet eine \enquote{AppBar} als Titel für die Seite und als Container f
 Auch kann über das \enquote{Scaffold}-Widget ein \enquote{FloatingActionButton} für die Seite verwendet werden.
 Dieser wird für die \enquote{WorkflowExecPage} zum Erstellen einer neuen Ausführung und für die \enquote{RoomPage}
 zum Erstellen eines neuen Raums benötigt.
-Der eigentliche Inhalt der Seite wird dem \enquote{Scaffold} als Inhalt mitgegeben.
+Der eigentliche Inhalt der Seite wird dem \enquote{Scaffold} als Parameter mitgegeben.
 Ein \enquote{Scaffold} mit Titel und \enquote{FloatingActionButton} ist in \autoref{fig:app_scaffold} dargestellt.
 
 \begin{figure}[htbp]
@@ -572,13 +571,14 @@ Ein \enquote{Scaffold} mit Titel und \enquote{FloatingActionButton} ist in \auto
 \end{figure}
 
 Der eigentliche Inhalt der Seiten variiert stark und besteht gemischt aus Widget der Standardbibliothek, weiteren Bibliotheken
-und eigenen Widgets, die letztendlich eine Baumstruktur aufbauen.
+und eigenen Widgets.
+Die Widgets bauen letztendlich eine Baumstruktur auf.
 Eine besonders wichtige Rolle spielt dabei unter anderem das \enquote{FutureBuilder} Widget.
-Dieses erlaubt einer Seite, asynchron auf ein Ergebnis eines \enquote{Future}\footnote{Ein Future repräsentiert in Dart das Ergebnis
+
+Der \enquote{FutureBuilder} erlaubt einer Seite asynchron auf ein Ergebnis eines \enquote{Future}\footnote{Ein Future repräsentiert in Dart das Ergebnis
 einer asynchronen Ausführung. Dabei kann ein Future entweder das Ergebnis selbst oder im Fehlerfall einen Fehler zurückgeben. \cite{dart2020}}
  zu warten.
-Dies wird bei allen Anfragen über die Klienten an den Server verwendet, da die Ergebnisse der Netzwerkanfragen asynchron
-über Futures zurückgegeben werden.
+Futures werden bei allen Anfragen über die Klienten an den Server verwendet, da die Ergebnisse der Netzwerkanfragen asynchron sind.
 Welche Widgets letztendlich durch den \enquote{FutureBuilder} angezeigt werden, entscheidet sich in einer Funktion,
 die dem Widget mitgegeben wird.
 In dieser Funktion kann je nachdem, ob ein Ergebnis vorhanden ist und ob das Ergebnis die erwarteten Daten oder
@@ -611,7 +611,7 @@ Widget build(BuildContext context) {
 Wie bereits erwähnt, wurden einige Widgets, die auf den Seiten der App verwendet werden, selbst programmiert.
 Dies hilft dabei duplizierte Konstellationen von Widgets auf verschiedenen Seiten zu verringern, indem man diese
 verallgemeinert und als eigenen Widget zur Verfügung stellt.
-Auch können in diesen Widgets bestimmte Design-Formattierungen gemacht werden, die dann an dieser Stelle zentral verwaltet
+Auch können in diesen Widgets bestimmte Design-Formatierungen gemacht werden, die dann an dieser Stelle zentral verwaltet
 werden können.
 Allgemein können die eigenen Widget in drei Kategorien aufgeteilt werden:
 Dialoge, Listen und allgemeine Widgets.
@@ -654,7 +654,7 @@ Callback-Funktionen sind Funktionen von zum Beispiel der Seite, die das Widget v
 mitgegeben werden.
 Möchte das Widget Informationen zurück geben, wird der entsprechende Callback aufgerufen und als Parameter die eigentliche
 Funktion mitgegeben.
-Verwendet das Widget einen Controller, statt Callbacks, wird dem Widget ein Objekt mitgegeben, welches die zu verschickenden
+Verwendet das Widget einen Controller wird dem Widget ein Objekt mitgegeben, welches die zu verschickenden
 Informationen speichern kann.
 Da dem Widget selbst nur eine Referenz des Objektes mitgegeben wird, kann das Widget neue Informationen einfach in dieses
 Controller-Objekt schreiben.
@@ -789,7 +789,8 @@ Weiter müsste das Widget für die Darstellung von Steps eines Templates angepas
 
 Zusätzlich neben dieser funktionalen Änderung, sollten einige nichtfunktionale Änderungen durchgeführt werden.
 Zum einen muss das Farbschema der App überarbeitet werden.
-Laut \TODO{Hier Quelle} besitzt die verwendete Farbkombination aus Grau und Violett einen sehr schlechten Kontrast.
+Der Kontrast zwischen dem Violett und verschiedenen Hintergrundfarben liegt lediglich zwischen $1.21:1 - 1.68:1$.
+Empfohlen wird laut dem Kriterium 1.4.3 in \cite{W3C2018} ein Kontrastwert von mindestens $4.5:1$.
 Auch weiter verwendete Farben sind schwer erkennbar und können durch bessere ersetzt werden.
 
 Die Mehrfachauswahl der für das Einlernen eines Raumes verwendeten \gls{SSID}s besitzt einen kleinen Fehler, der jedoch

@@ -39,7 +39,7 @@ In den folgenden Abschnitten wird detaillierter auf die einzelnen Komponenten de
 Dabei werden die Komponenten in derselben Reihenfolge beschrieben, in welcher die Daten im
 Gesamtsystem fließen.
 
-\subsection{Tracking mit \glsentrylong{IoT}-Hardware} \label{sec:tracking-hardware}
+\subsection{Hardware-Tracker} \label{sec:tracking-hardware}
 
 Zur Erfassung der Standortdaten der Dokumente werden, wie in \autoref{sec:soll-analyse}
 beschrieben, Hardware-Tracker eingesetzt.
@@ -57,23 +57,8 @@ Als Metrik für das Tracking über \gls{WLAN} können die in \autoref{sec:grundl
 \gls{RSSI} oder \gls{RCPI} verwendet werden. Da diese Werte jedoch nicht unbedingt proportional zum
 Abstand zum \gls{AP} wachsen oder fallen, da Funksignale durch unterschiedliche Materialien
 unterscheidlich gedämpft werden, können sie nicht als absolut angesehen und verwendet werden.
-
-Aus diesem Grund muss für jeden Raum die vorherrschende \gls{WLAN}-Umgebung in das System
-\enquote{eingelernt} werden. Zu diesem Zweck gibt es einen eigenen Modus in der Anwendung, in
-welchem ein ausgewählter Tracker ständig die verfügbaren \glspl{AP} und die zu diesen ermittelte
-Signalstärke an den Server sendet. Dieser sammelt die Messwerte und aggregierte sie nach Abschluss
-der Messung, also nach einem definierten Zeitintervall. Aggregriert werden die Metriken so, dass aus
-den \gls{RSSI}-Werten für jeden \gls{AP} das Minimum und Maximum, sowie das erste und dritte Quartil
-und Median und arithmetisches Mittel berechnet werden.
-
-Soll nun ein Tracker lokalisiert werden, scannt dieser die aktuelle \gls{WLAN}-Umgebung und sendet
-die Scanergebnisse an den Server. Dieser berechnet nun für jeden bereits eingelernten Raum einen
-\textit{Score}. Der Score berechnet sich aus der Übereinstimmung der nun gemessenen \glspl{RSSI} mit
-den vorher eingelernten. Hierfür wird über jeden für den Raum ermittelten \gls{AP} iteriert und
-abhängig davon, in welches statistische Maß der neue Messwert fällt, Punkte vergeben. Die konkrete
-Punkteverteilung ist hierbei noch nicht spezifiziert, es handelt sich um Parameter, welche genutzt
-werden können, um die Genauigkeit des Trackings zu optimieren. Daher werden diese in
-\autoref{chap:implementierung} beschrieben.
+Wie auf dem Server das eigentliche Einlernen eines Raumes und die Lokalisierung eines Trackers funktioniert,
+ist in \autoref{sec:server-tracking} erläutert.
 
 Die Kommunikation zwischen dem Tracker und dem Server läuft über Kommandos, die der Tracker sich beim Server abholt.
 Dies ist in einem Sequenzdiagramm in \autoref{fig:tracker_comm} dargestellt.
@@ -138,7 +123,7 @@ Es gibt vier verschiedene Zustände, die in Integern kodiert sind:
 		Der Tracker besitzt aktuell einen Workflow, den er trackt. Nach Abschluss dieses Workflows oder nach Abbruch, geht der Tracker in den Status \enquote{Idle} über.
 \end{description}
 
-Weiter besitzt der Tracker eine Referenz auf einen aktiven Workflow und den aktuellen Raum.
+Weiter besitzt der Tracker eine Referenz auf eine aktive Workflow-Ausführung und den aktuellen Raum.
 Beide Referenzen können nichtexistent sein, falls der Tracker keinen aktiven Workflow besitzt oder der Raum nicht bestimmbar ist.
 
 Ein \enquote{Room} ist ein physikalischer Raum, der von einem Tracker erkannt werden soll.
@@ -166,7 +151,7 @@ Mit einem nicht-leeren String, gibt es mit diesem Schritt verschiedene Auswahlm�
 Durch das transitive Attribut \enquote{StepEditingLocked} der \enquote{WorkflowTemplate}-Klasse, wird die Bearbeitung blockiert.
 Dieses Attribut ist gesetzt, sobald es eine Ausführung des Templates gab.
 
-Die \enquote{WorkflowExec}-Klasse stellt einen konkreten Workflow in der Durchführung dar.
+Die \enquote{WorkflowExec}-Klasse stellt einen konkreten Workflow in der Ausführung dar.
 Als Attribute besitzt diese Klasse ein Label, einen Status und Start-/Endzeit.
 Der Status ist entweder \enquote{Running}, \enquote{Completed} oder \enquote{Canceled}.
 Weiter besitzt die Klasse eine Referenz auf das Template, das ausgeführt wird, eine Menge an \enquote{ExecStepInfo} und an den aktuellen Schritt.
@@ -351,13 +336,13 @@ Dies sind zum einen das Versenden von E-Mails und zum anderen einige mathematisc
 \end{sidewaysfigure}
 
 \FloatBarrier
-\subsubsection{Tracker Lokalisierung}
+\subsubsection{Tracker Lokalisierung} \label{sec:server-tracking}
 
 Die raumgenaue Lokalisierung eines Trackers besteht aus zwei Teilen.
-Der erste Teil ist das Einscannen eines Raumes mit Hilfe eines Trackers und der zweite das Zuordnen von Scanergebnissen
+Der erste Teil ist das Einlernen eines Raumes mit Hilfe eines Trackers und der zweite das Zuordnen von Scanergebnissen
 zu einem zuvor eingescannten Raum.
 
-Beim Einscannen eines Raumes werden von einem Tracker, wie bei der eigentlichen Lokalisierung, Scanergebnisse angefordert.
+Beim Einlernen eines Raumes werden von einem Tracker, wie bei der eigentlichen Lokalisierung, Scanergebnisse angefordert.
 Dies soll mehrfach über einen größeren Zeitraum geschehen.
 Die genaue Anzahl an Wiederholungen und die Pause zwischen Scans soll konfigurierbar sein.
 Nach den Scans liegen für alle verfügbaren \glspl{BSSID} ein oder mehrere \glspl{RSSI} (also Signalstärken) vor.
@@ -424,15 +409,15 @@ Dies führt zu hauptsächlich zwei Exportformate: \gls{CSV} und Excel.
 Dadurch ist es sehr einfach zu erstellen und einzulesen.
 Die meisten Tools, die mit solchen Daten arbeiten, haben die Möglichkeit \gls{CSV}-Dateien einzulesen.
 Ein großer Nachteil von \gls{CSV} ist jedoch, dass es nicht standardisiert ist und mehrere Arten
-mit kleinen Unterschieden existieren \cite{rfc4180}.
+mit kleinen Unterschieden existieren (vgl. \cite{rfc4180}).
 Im RFC-4180 werden lediglich scheinbar übereinstimmende Teile der verschiedenen Implementierungen dargestellt.
 Nach diesen gibt es einen weiteren Nachteil: Pro \gls{CSV}-Datei kann nur eine Tabelle gespeichert werden.
 Dies würde für den Export des Paper-Trackers bedeuten, dass entweder mehrere Dateien oder eine gebündelte Datei angeboten werden muss.
 
 Excel oder genauer das von Excel verwendete \enquote{xlsx}-Format ist ein offenes und standardisiertes Format
-für Kalkulationstabellen \cite{iso29500}.
+für Kalkulationstabellen (vgl. \cite{iso29500}).
 Da es ein offenes Format ist, kann es auch von anderen Programmen, wie Libre Office, geöffnet und bearbeitet werden.
-Es muss nicht, wie bei \gls{CSV} erst importiert werden.
+Es muss nicht wie bei \gls{CSV} erst importiert werden.
 Auch unterstützt es mehrere Tabellen in einer Datei, welches den Download des Exports vereinfacht.
 Aus diesen Gründen wird Excel als Exportformat für den Paper-Tracker verwendet.
 
@@ -449,7 +434,7 @@ Diese Prototypen wurden zum Teil per Hand auf Papier gezeichnet und zum Teil dig
 Alle Designs wurden größtenteils mit Designelementen entworfen, die im zu verwendenden \gls{UI}-Framework vorhanden sind.
 Daher wurden auf Bausteine des
 Flutter-Frameworks\footnote{https://flutter.dev/docs/development/ui/widgets} zurückgegriffen, welche
-sich an die von Google entworfene Material-Designsprache halten. (vgl. \cite{Google2020})
+sich an die von Google entworfene Material-Designsprache halten (vgl. \cite{Google2020}).
 Im Folgenden werden einige dieser Prototypen vorgestellt.
 
 \FloatBarrier
@@ -496,7 +481,7 @@ Die einzelnen Schritte eines Workflows sollen als Boxen in einer Liste dargestel
 Der Nutzer muss in dieser Liste scrollen können, falls es in einem Workflow zu viele Einzelschritte
 gibt, um diese auf einem Bildschirm anzeigen zu können.
 Als letzte Box in der Liste wird ein Button angezeigt, mit dem der Nutzer einen neuen Schritt an die Liste anhängen kann.
-Die Eingabe der Informationen des neuen Schritts soll in einem Dialog erfolgen.
+Die Eingabe der Informationen des neuen Schrittes sollen in einem Dialog erfolgen.
 Diese Box wird nur angezeigt, falls der anzuzeigende Workflow bearbeitbar ist.
 
 In den Boxen zu den Schritten sollen einige Informationen angezeit werden.
@@ -646,9 +631,9 @@ Dafür sind die folgenden Inhalte angedacht:
 Wie schon zu der Hauptseite und Detailseite angemerkt, gibt es für jede zentrale Klasse ein zugehöriges Icon.
 Die soll ermöglichen, dass der Endbenutzer in der App über die Icons die dazugehörige Klasse wiedererkennen kann.
 So kann direkt erkannt werden, welcher Objekttyp auf der Detailseite angezeigt wird, oder welche
-Objekte in einem Dropdown ausgewählt werden.
+Objekte in einem Dropdown ausgewählt werden können.
 Zusätzlich kann das Icon abgeändert werden, wenn sich zum Beispiel der Zustand eines Objektes ändert.
-Dies wird bei der Workflow-Ausführung verwendet, die ein anderes Icon besitzt, falls die Ausführung abgeschlossen ist.
+Dies wird bei der Workflow-Ausführung verwendet, die nach erfolgreicher Ausführung ein anderes Icon besitzt.
 Eine Übersicht der zu verwendenden Icons ist in \autoref{fig:ui-icons} gegeben.
 
 \begin{figure}[h!tbp]
@@ -660,9 +645,9 @@ Eine Übersicht der zu verwendenden Icons ist in \autoref{fig:ui-icons} gegeben.
 
 \subsection{Flasher-Tool}
 Da das Flasher-Tool nicht zu den Hauptkomponenten des Paper-Trackers zählt, gibt es keinen konkreten Entwurf zum \gls{UI}-Design.
-Trotzdem muss konkret definiert werden, welche Funktionalitäten das Tool beinhaltet.
+Trotzdem muss definiert werden, welche Funktionalitäten das Tool beinhaltet.
 
-Das Tool muss plattformübergreifen mit möglichst wenigen externen Abhängigkeiten gestartet werden können.
+Das Tool muss plattformübergreifend mit möglichst wenigen externen Abhängigkeiten gestartet werden können.
 Mit dem Start der Anwendung soll der Nutzer in einem \gls{GUI} die Konfigurationsdaten für die Firmware eingeben können.
 Die benötigten Konfigurationswerte sind in der folgenden Liste dargestellt:
 
@@ -673,8 +658,8 @@ Die benötigten Konfigurationswerte sind in der folgenden Liste dargestellt:
 		Nutzername, mit dem sich der Tracker am \gls{WLAN} anmelden soll. Diese Konfiguration kann freigelassen werden, falls nur ein Passwort für die Anmeldung ausreicht.
 	\item[\gls{WLAN} Passwort] \hfill \\
 		Passwort, mit dem sich der Tracker am \gls{WLAN} anmelden soll.
-	\item[Backend-Server \gls{IP}] \hfill \\
-		Die IP-Adresse, unter welcher der Backend-Server aus dem angegebenen \gls{WLAN}-Netz erreichbar ist.
+	\item[Backend-Server \gls{IP} Adresse] \hfill \\
+		Die \gls{IP}-Adresse, unter welcher der Backend-Server aus dem angegebenen \gls{WLAN}-Netz erreichbar ist.
 \end{description}
 
 Neben den Konfigurationsdaten müssen noch der Ort der Firmware auf dem ausführenden Computer und der Port, an welchem die Hardware verbunden ist, angegeben werden.
