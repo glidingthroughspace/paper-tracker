@@ -1,3 +1,0 @@
-[submodule "hardware/firmware/src/coap"]
-	path = hardware/firmware/src/coap
-	url = ../CoAP-simple-library.git

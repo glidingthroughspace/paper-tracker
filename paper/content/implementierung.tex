@@ -195,6 +195,65 @@ zurückliefert. (vgl. \cite{Arduino2020.1}) Durch diese Standardisierung kann je
 Entwicklungsplattform genutzt werden, die mit dem Arduino-Framework kompatibel ist, ohne dass die
 Messung angepasst werden muss.
 
+\subsection{\glsentryshort{API}-Client}
+
+Um sich mit der vom Server angebotenen \gls{CoAP}-\gls{API} zu verbinden, wurde in der Firmware ein
+entsprechender Client implementiert. Dieser nutzt eine erweiterte Version der \enquote{CoAP simple
+library}\footnote{Original: \url{https://github.com/hirotakaster/CoAP-simple-library}} für die
+Arduino-Plattform. Diese implementiert die Kommunikation mit einem \gls{CoAP}-Server, indem sie
+Methoden zur Verfügung stellt, um Anfragen an einen Server zu senden und Antworten zu empfangen.
+
+Die Klasse \texttt{APIClient}, welche in der Firmware genutzt wird, um die Kommunkation zu kapseln,
+arbeitet mit Callbacks, um Antworten an Anfragen an den Aufrufer zurückzugeben. Dabei wird auch ein
+Timeout-Mechanismus implementiert, welcher Anfragen abbricht, wenn für eine gewisse Zeit keine
+Antwort empfangen wird. Dadurch wird verhindert, dass aufgrund der volatilen Natur von \gls{UDP} der
+Tracker beliebig lange auf Antworten wartet und so sehr schnell den \gls{Akku} entleert.
+
+Zusätzlich kümmert sich der \gls{API}-Client um die Serialisierung und Deserialisierung von
+Nutzdaten in das \gls{CBOR}-Format.
+
+\subsection{Serialisierung und Deserialisierung}
+
+Wie in \autoref{par:tracker-schnittstelle} beschrieben, werden Nutzdaten zwischen Server und Tracker
+mit \gls{CBOR} codiert ausgetauscht. Dieses Format ist besonders performant und leichtgewichtig und
+daher optimal für den Einsatz im \gls{IoT} geeignet. Implementiert wurde ein System zur
+Serialisierung und Deserialisierung auf Basis der \enquote{libCBOR}-Bibliothek \footnote{Siehe
+\url{https://github.com/ssilverman/libCBOR}}. Das entwickelte System ermöglicht es, sehr schnell und
+einfach Entitäten zu \gls{CBOR} zu serialisieren und zu deserialiseren.
+
+\begin{lstlisting}[caption={Beispiel zur Deserialisierung von \glsentryshort{CBOR} mit den
+entwickelten Helferklassen},label={lst:cbor-deserialiserung}]
+class Command {
+private:
+	CBORUint16 sleepTimeSec{"sleep_time_sec"};
+	CBORUint8 type{"type"};
+public:
+	bool fromCBOR(uint8_t* buffer, size_t bufferSize) {
+		auto cbor = CBORParser(buffer, bufferSize);
+		if (!cbor.isWellformedModel()) { return false; }
+
+		while(cbor.advance()) {
+			auto key = cbor.findNextKey();
+			if (key == nullptr) { continue; }
+
+			if (type.matchesKey(key)) {
+				type.deserializeFrom(cbor);
+			} else if (sleepTimeSec.matchesKey(key)) {
+				sleepTimeSec.deserializeFrom(cbor);
+			}
+		}
+
+		return true;
+	}
+};
+\end{lstlisting}
+
+So ist in \autoref{lst:cbor-deserialiserung} der vollständige, zur Deserialisierung eines Befehls
+vom Server an den Client nötige Code gezeigt. Einzig die Fehlerbehandlung wurde zur
+Übersichtlichkeit entfernt. Für die Implementierung der Bibliothek wurden eigene Typen entwickelt,
+die Basisdatentypen wiederspiegeln (\texttt{CBORUint8}, \texttt{CBORInt16}, \texttt{CBORString},
+...) und die Serialisierung und Deserialisierung in sich kapseln.
+
 \section{Backend-Server}
 
 \subsection{Verwendete Technologien} \label{sec:impl-server-technology}
