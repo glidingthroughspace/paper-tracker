@@ -167,6 +167,35 @@ implementiert, ebendiese zu definieren. So kann der Tracker meist den halben Tag
 Wochenende muss er gar nicht aufwachen.
 \TODO{Das hier gehört eher zum Server?}
 
+\subsection{Sammeln von \glsentryshort{WLAN}-Daten}
+
+Um die aktuelle \gls{WLAN}-Umgebung abzurufen und an den Server zu senden wird primär in das
+Arduino-Framework eingebaute Funktionalität genutzt. Die durch das Framework bereitgestellte Klasse
+\texttt{WiFi} bietet Methoden zur Abfrage aller \glspl{AP} inclusive deren \gls{BSSID},
+\gls{SSID} und \gls{RSSI}.
+
+\begin{lstlisting}[caption={Ausschnit aus der Firmware des Trackers -- Abrufen der \glsentryshort{WLAN}-Netzwerke},label={lst:wlan-firmware}]
+std::vector<ScanResult> WIFI::getAllVisibleNetworks() {
+  uint8_t visibleNetworkCount = WiFi.scanNetworks();
+  std::vector<ScanResult> scanResults(0);
+  for (auto i = 0; i < visibleNetworkCount; i++) {
+    scanResults.emplace_back(WiFi.RSSI(i), WiFi.BSSIDstr(i), WiFi.SSID(i));
+  }
+  return scanResults;
+}
+\end{lstlisting}
+
+In \autoref{lst:wlan-firmware} ist zu sehen, wie die Standardbibliothek genutzt wird. Die hier
+erstellte Liste von Scanergebnissen wird, bevor sie zum Server gesendet wird, in mehrere Teile
+geteilt. Diese enthalten jeweils fünf Scanergebnisse, damit die in
+\autoref{sec:tracker-lokalisierung} beschriebene, maximale Größe eines \gls{UDP}-Paketes nicht
+überschritten wird.
+
+Die Arduino-\gls{API} gibt für die \texttt{WiFi.RSSI()}-Funktion an, dass diese eine Angabe in $dBm$
+zurückliefert. (vgl. \cite{Arduino2020.1}) Durch diese Standardisierung kann jede
+Entwicklungsplattform genutzt werden, die mit dem Arduino-Framework kompatibel ist, ohne dass die
+Messung angepasst werden muss.
+
 \section{Backend-Server}
 
 \subsection{Verwendete Technologien} \label{sec:impl-server-technology}
