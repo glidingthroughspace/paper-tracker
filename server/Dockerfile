@@ -8,5 +8,6 @@ RUN make
 
 RUN mkdir /config
 WORKDIR /config
+COPY static /config/static
 
 CMD [ "/app/paper-tracker" ]
