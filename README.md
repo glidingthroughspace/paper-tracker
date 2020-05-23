@@ -26,6 +26,9 @@ run` in the `server/` directory. This way, you can run the server on Windows and
 Additionally there is a Dockerfile available in the `server` folder. The docker also uses `8080` as http and `5688` as CoAP port default.
 The config file and database are located in the `/config` folder.
 
+For individually configuring the server, you can use the `config_example.toml` as template and rename it to `config.toml`.
+Information about the available parameters are available through the `--help` command of the server executable.
+
 ### The Tracker
 
 The tracker is built out of a [TinyPICO](https://tinypico.com), which is an ESP32-based development
