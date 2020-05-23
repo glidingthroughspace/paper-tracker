@@ -137,7 +137,7 @@ func getScoreForScanResultAndTrackingData(td models.BSSIDTrackingData, sr *model
 		d := math.Abs(td.Mean - rssi)
 		score += math.Abs(d-rangeForMean) * config.GetFloat64(config.KeyTrackingScoreMeanFactor) * rssiFactor
 	}
-	if isInRange(rssi, td.Median, rangeForMean) {
+	if isInRange(rssi, td.Median, rangeForMedian) {
 		d := math.Abs(td.Median - rssi)
 		score += math.Abs(d-rangeForMedian) * config.GetFloat64(config.KeyTrackingScoreMedianFactor) * rssiFactor
 	}
