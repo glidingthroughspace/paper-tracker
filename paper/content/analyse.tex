@@ -30,32 +30,52 @@ Anforderungen mit Priorität 0 nicht einsetzbar ist und Priorität 3 optionale F
 beschreibt, die nicht zum Betrieb notwendig sind.
 
 \begin{enumerate}[label=\textbf{F-\arabic*}]
-	\item \label{fa:tracking} \textit{P0} Der Standort von Dokumenten kann raumgenau verfolgt werden
-	\item \label{fa:workflow} \textit{P0} Der aktuelle Status des mit dem Dokument verbundenen
-		Workflows kann nachvollzogen werden
-	\item \label{fa:neue-workflows} \textit{P2} Neue Workflows können vom Nutzer definiert werden
-	\item \label{fa:neue-tracker} \textit{P1}  Neue Tracker können dem System vom Nutzer hinzugefügt werden
-	\item \label{fa:raumplan} \textit{P2}  Der Raumplan kann vom Nutzer eingelernt werden
-	\item \label{fa:benachrichtigung} \textit{P3} Nutzer werden vom System benachrichtigt, wenn die Akkuladung eines
-	Trackers unter einen gegebenen Prozentsatz fällt oder die Batterie ausgetauscht werden muss
-	\item \label{fa:optionale-schritte} \textit{P1} Einzelne Schritte von Workflows können optional sein und
-	übersprungen werden
-	\item \label{fa:mehrere-orte} \textit{P3}  Für einen Schritt im Workflow können mehrere Orte hinterlegt werden
-	\item \label{fa:export} \textit{P1} Es soll ein Daten-Export in ein passendes Format möglich sein, das für Analysen \\
+	\item \label{fa:tracking} \textit{Priorität 0} \\
+		Der Standort von Dokumenten kann raumgenau verfolgt werden
+	\item \label{fa:workflow} \textit{Priorität 0} \\
+		Der aktuelle Status des mit dem Dokument verbundenen Workflows kann nachvollzogen werden
+	\item \label{fa:neue-workflows} \textit{Priorität 2} \\
+		Neue Workflows können vom Nutzer definiert werden
+	\item \label{fa:neue-tracker} \textit{Priorität 1} \\
+		Neue Tracker können dem System vom Nutzer hinzugefügt werden
+	\item \label{fa:raumplan} \textit{Priorität 2} \\
+		Der Raumplan kann vom Nutzer eingelernt werden
+	\item \label{fa:benachrichtigung} \textit{Priorität 3} \\
+		Nutzer werden vom System benachrichtigt, wenn die Akkuladung eines Trackers unter einen
+		gegebenen Prozentsatz fällt oder die Batterie ausgetauscht werden muss
+	\item \label{fa:optionale-schritte} \textit{Priorität 1}  \\
+		Einzelne Schritte von Workflows können optional sein und übersprungen werden
+	\item \label{fa:mehrere-orte} \textit{Priorität 3} \\
+		Für einen Schritt im Workflow können mehrere Orte hinterlegt werden
+	\item \label{fa:export} \textit{Priorität 1} \\
+		Es soll ein Daten-Export in ein passendes Format möglich sein, das für Analysen
 	  zu Optimierungen genutzt werden kann
-	\item \label{fa:arbeitszeiten} \textit{P3} Es sollen Arbeitszeiten angegeben werden können. \\
-		Der Tracker soll nur innerhalb der Arbeitzeiten aktiv sein.
-	\item \label{fa:wochenende} \textit{P3} Es soll einstellbar sein, dass der Tracker am Wochenende nicht aktiv ist
+	\item \label{fa:arbeitszeiten} \textit{Priorität 3} \\
+		Es sollen Arbeitszeiten angegeben werden können.  Der Tracker soll nur innerhalb der
+		Arbeitzeiten aktiv sein.
+	\item \label{fa:wochenende} \textit{Priorität 3} \\
+		Es soll einstellbar sein, dass der Tracker am Wochenende nicht aktiv ist
 \end{enumerate}
 
+\dotfill
 
 \begin{enumerate}[label=\textbf{NF-\arabic*}]
-	\item \label{nf:akku} \textit{P2}  Die Laufzeit der Tracker im Batteriebetrieb beläuft sich auf mindestens eine Woche
-	\item \label{nf:klein} \textit{P1}  Die Tracker sollen möglichst unscheinbar und daher klein und leicht sein
-	\item \label{nf:app} \textit{P0}  Die Daten können in einer Applikation für Mobiltelefone abgefragt werden.  Dabei ist besonders die Verwendbarkeit unter dem Betriebssystem Android wichtig, die Unterstützung von iOS ist optional
-	\item \label{nf:stabilität} \textit{P1}  Die Anwendung muss stabil laufen und sollte sich nicht unerwartet beenden
-	\item \label{nf:skalierbarkeit} \textit{P2}  Die Lösung sollte skalierbar hinsichtlich der Anzahl der Tracker und der Größe des Tracking-Bereiches sein
-	\item \label{nf:nachvollziehbarkeit} \textit{P2}  Zur optimalen Nachvollziehbarkeit von Workflows sollten deren auch nach Abschluss nicht gelöscht werden
+	\item \label{nf:akku} \textit{Priorität 2}  \\
+		Die Laufzeit der Tracker im Batteriebetrieb beläuft sich auf mindestens eine Woche
+	\item \label{nf:klein} \textit{Priorität 1}  \\
+		Die Tracker sollen möglichst unscheinbar und daher klein und leicht sein
+	\item \label{nf:app} \textit{Priorität 0}\\
+		Die Daten können in einer Applikation für Mobiltelefone abgefragt werden.  Dabei ist besonders
+		die Verwendbarkeit unter dem Betriebssystem Android wichtig, die Unterstützung von iOS ist
+		optional
+	\item \label{nf:stabilität} \textit{Priorität 1}\\
+		Die Anwendung muss stabil laufen und sollte sich nicht unerwartet beenden
+	\item \label{nf:skalierbarkeit} \textit{Priorität 2}\\
+		Die Lösung sollte skalierbar hinsichtlich der Anzahl der Tracker und der Größe des
+		Tracking-Bereiches sein
+	\item \label{nf:nachvollziehbarkeit} \textit{Priorität 2}\\
+		Zur optimalen Nachvollziehbarkeit von Workflows sollten deren auch nach Abschluss nicht gelöscht
+		werden
 \end{enumerate}
 
 \section{Stand der Forschung} \label{sec:stand-der-forschung}
