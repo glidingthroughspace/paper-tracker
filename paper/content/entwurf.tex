@@ -223,10 +223,11 @@ Technik entsprechen.
 Daraus ergibt sich der Vorteil, dass sie mit allen anderen gewählten Technologien sehr gut
 kombinierbar sind und entsprechende Bibliotheken vorhanden sind.
 Das verwendete Protokoll ist das \gls{HTTP}-Protokoll und das Datenformat ist \gls{JSON}.
-Die Schnittstelle basiert auf dem \gls{REST} Paradigma (vgl. \cite{Fielding2000}). 
+Die Schnittstelle basiert auf dem \gls{REST} Paradigma (vgl. \cite{Fielding2000}).
 Alle verfügbaren Endpunkte der App-Schnittstelle sind in \autoref{tab:http-api} dargestellt.
 
 \begin{footnotesize}
+\def\arraystretch{1.45}
 \begin{landscape}
 	\begin{longtable}{l|l|l|l|l}
 		\caption{Liste aller Endpunkte der App-Schnittstelle \label{tab:http-api}} \\
@@ -241,7 +242,7 @@ Alle verfügbaren Endpunkte der App-Schnittstelle sind in \autoref{tab:http-api}
 \texttt{GET}    & \texttt{/tracker}                  & Auflistung der Tracker             & -                                                       & Liste aller Tracker                                                      \\ \hline
 \texttt{PUT}    & \texttt{/tracker/:id}              & Tracker aktualisieren              & Tracker                                                 & Aktualisierter Tracker                                                  \\ \hline
 \texttt{DELETE} & \texttt{/tracker/:id}              & Tracker löschen                    & -                                                       & -                                                                       \\ \hline
-\texttt{GET}    & \texttt{/tracker/:id/next\_poll}   & Zeit zur nächsten Kommando Abholung & -                                                       & Sekunden                                                                \\ \hline
+\texttt{GET}    & \texttt{/tracker/:id/next\_poll}   & Zeit zum nächsten Poll & -                                                       & Sekunden                                                                \\ \hline
 \texttt{POST}   & \texttt{/tracker/:id/learn}        & Lernen mit Tracker starten         & -                                                       & Lernzeit                                                                \\ \hline
 \texttt{GET}    & \texttt{/tracker/:id/learn}        & Lernstatus abfragen                & -                                                       & \begin{tabular}[c]{@{}l@{}}Abgeschlossen\\ Gefundene SSIDs\end{tabular} \\ \hline
 \texttt{DELETE} & \texttt{/tracker/:id/learn}        & Lernen abbrechen                   & -                                                       & -                                                                       \\ \hline
@@ -283,7 +284,7 @@ Beide Klassen besitzen eine Methode \enquote{Serve}.
 Mit dieser Methode werden die Router letztendlich so gestartet, dass sie Verbindungen annehmen können.
 Als Parameter bekommen sie die Adresse, auf der sie Verbindungen annehmen, und im Falle des \enquote{CoapRouter} auch das Transport-Protokoll.
 
-Das \enquote{managers} Paket beinhaltet sechs verschiedene Manager, die die Businesslogik für verschiedene Teilbereiche 
+Das \enquote{managers} Paket beinhaltet sechs verschiedene Manager, die die Businesslogik für verschiedene Teilbereiche
 und damit Anforderungen des Servers beinhalten:
 \begin{description}
 	\item[TrackerManager] Anforderungen \ref{fa:tracking}, \ref{fa:neue-tracker}, \ref{fa:arbeitszeiten}, \ref{fa:wochenende}, \ref{fa:benachrichtigung} \hfill \\
@@ -379,7 +380,7 @@ Letztendlich wird der Raum gewählt, der über dem Schwellwert liegt und insgesa
 Dieser Raum kann dann als aktueller Raum des Trackers eingetragen werden und für den Fortschritt einer Workflow-Ausführung
 verwendet werden.
 Der Schwellwert erzielt, dass einem Tracker, welcher sich in keinem eingelernten Raum befindet, nicht der nächstbeste
-Raum zugewiesen wird. 
+Raum zugewiesen wird.
 In diesem Fall wird als Raum für den Tracker \enquote{Unbekannt} eingetragen und auch keine Workflow-Ausführung aktualisiert.
 
 \subsubsection{Daten-Export}
