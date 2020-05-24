@@ -66,7 +66,7 @@ var tutorialList = <TutorialStep>[
   TutorialStep("Tracker List",
       "Switch to the fourth tab for all trackers. If your list is empty use the Flasher tool to setup your tracker. To download the tool visit the URL you entered for configuration."),
   TutorialStep("Pull to refresh",
-      "Pull down the empty list to refresh. It should the show your set up tracker. This works on all tabs and also detail pages."),
+      "Pull down the empty list to refresh. It should show your set up tracker. This works on all tabs and also detail pages."),
   TutorialStep("Tracker Detail",
       "Tap on the tracker to open its Detail Page. Tap on the edit button to enable editing and the same button again to save. The delete button deletes the tracker."),
   TutorialStep("Room List",

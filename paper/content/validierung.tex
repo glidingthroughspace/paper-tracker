@@ -4,7 +4,7 @@ Besonders interessant sind im Falle des Paper-Trackers zum einen die Genauigkeit
 kann und zum anderen, wie gut das Gesamtsystem miteinander funktioniert und bedienbar ist.
 Auch das Setup eines neuen Paper-Tracker-Systems soll dabei mit berücksichtigt werden.
 
-\section{Genauigkeitsmessung des Trackings}
+\section{Genauigkeitsmessung des Trackings} \label{sec:validation-tracking}
 
 \subsection{Beschreibung}
 Bei der Validierung der Genauigkeit des Trackings soll in mehreren Versuchen ermittelt werden, wie genau die Position
@@ -129,7 +129,7 @@ Anschließend wurde in beiden Raumhälften ein Lernprozess gestartet und danach 
 Raumhälfte ein Tracking-Prozess. Beide Male erkannte das System die richtige Raumhälfte, sodass auch
 dieser letzte Test als bestanden anzusehen ist.
 
-\section{Einfaches Setup und Nutzung des Gesamtsystems}
+\section{Einfaches Setup und Nutzung des Gesamtsystems} \label{sec:validation-setup-usability}
 \subsection{Beschreibung}
 In dieser Validierung des Projektes soll bewertet werden, wie einfach ein potentieller Nutzer/Betreiber
 des Paper-Trackers ein neues System aufsetzen und verwenden kann.
@@ -165,14 +165,81 @@ Mit Hilfe dieser Komponenten werden folgende Schritte von der Testperson erwarte
 		\item Lesen der \enquote{README}-Datei
 		\item Anpassen der Konfigurationsdatei mit geeigneten Werten
 		\item Erstellen des Docker-Images und Start von diesem auf einem Server \hfill \\
-			\hspace*{20mm} oder \hfill \\
+			\hspace*{10mm} \emph{oder} \hfill \\
 			Lokal den Code kompilieren, kopieren der ausführbaren Datei auf den Server, Starten der Datei
+			\\
+			\hspace*{10mm} \emph{oder} \\
+			Die vorkompilierte ausführbare Datei des Backends von GitHub herunterladen und auf einem
+			Server starten
 	\end{enumerate}
 	\item Aufrufen der Download Seite des Servers
 	\item Download der Android App und Installation
-	\item Durcharbeiten des Tutorials innerhalb der App inklusive des Flashen eines Trackers
+	\item Durcharbeiten des Tutorials innerhalb der App
 \end{enumerate}
 
 \subsection{Ergebnisse}
 
+\subsubsection{Setup des Servers}
+
+Die gewählte Testperson hatte bereits Vorwissen zur Nutzung von Docker und entschied sich daher für
+die Installation des Servers über das Docker-Image. Dies war reibungslos möglich und der Server konnte
+erfolgreich gestartet werden. Es wurde sich dazu entschlossen, die Beispielkonfiguration ohne
+Anpassungen zu übernehmen.
+
+Die Download-Seite konnte im Anschluss erfolgreich aufgerufen werden.
+
+\subsubsection{Installation und Verwendung der App}
+
+Nachdem die Download-Seite des Servers aufgerufen und die entsprechende Version der App
+heruntergeladen wurde, konnte sie problemlos installiert werden.
+Direkt nach dem Öffnen der Anwendung wurde das Tutorial, welches sich automatisch beim ersten Start
+der Anwendung öffnet, durchlaufen.
+Insgesamt wurde das Vorhandensein eines Tutorials als sehr positiv gewertet, da dieses es auch einer
+domänenfremden Person ermöglicht hat, sich in der App sehr schnell zurecht zu finden. Allerdings
+wurde ein Problem mit der App deutlich. Wie in \autoref{fig:tutorial-feedback} zu sehen ist, sind
+auf kleineren Smartphones einige der Texte im Tutorial abgeschnitten. Diesen Fehler gilt es zu
+beheben, um die Nutzerfreundlichkeit zu erhöhen.
+
+Abgesehen von diesem Problem konnten keine gravierenden Probleme mit der App festgestellt werden.
+Jegliche Funktionalität war ohne Probleme nutzbar.
+
+Allerdings wurden einige Punkte kritisiert, welches es für eine einfachere Nutzbarkeit optimiert
+werden sollten.
+Einerseits war anfänglich der Unterschied zwischen einem Workflow-Template und einer
+Workflow-Execution nicht klar. Hier könnte durch ein konkretes Beispiel im Tutorial nachgebessert
+werden. Auch zur Farbgestaltung gab es negatives Feedback. Wie in \autoref{sec:impl-challenges-ui}
+beschrieben, harmonieren der verwendete Violettton und die Grautöne nicht gut. Violetter Text
+ist auf einem grauen Hintergrund sehr schwer zu lesen. Auch problematisch war die farbliche
+Hervorhebung von Workflow-Executions. Erwartet war, dass hervorgehobene Executions die aktuell
+aktiven sind und die grau dargestellten abgeschlossene, was jedoch nicht der Fall ist. Auch wurde
+bemängelt, dass man einer Execution in der Listenansicht nicht ansehen kann, ob sie abgebrochen
+wurde. Hier wäre eine Möglichkeit, diese rot hervorzuheben.
+
+Auch kritisiert wurde das Interface für Verzweigungen in Workflows. Hier ist nicht von Anfang an
+klar, wie diese zu benutzen sind.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=.3\textwidth]{images/screenshot_app_tutorial_feedback.png}
+	\caption{Abgeschnittener Tutorial-Text in der App}
+	\label{fig:tutorial-feedback}
+\end{figure}
+
+Insgesamt war die App wurde die App für gut nutzbar befunden, jedoch könen vor allem an der
+Farbgestaltung noch einige Kleinigkeiten verbessert werden.
+
 \section{Gesamtergebnis der Validierung}
+
+Insgesamt konnte durch die Validierung gezeigt werden, dass das Gesamtsystem vergleichsweise einfach
+einzurichten und zu bedienen ist. Als besonders vorteilhaft wurde das in der App enthaltene Tutorial
+wargenommen. Dennoch gibt es, vor allem in der App, einige Punkte an welchen nachgebessert werden
+sollte.
+
+Durch die in \autoref{sec:validation-tracking} durchgeführten Genauigkeitsmessungen des Trackings
+konnte gezeigt werden, dass nahezu alle funktionalen Anforderungen umgesetzt wurden, da deren
+Umsetzung für die Durchführung der Tests notwendig war. Einzig \ref{fa:mehrere-orte} und
+\ref{fa:export} konnten durch diese Tests nicht validiert werden. Da \ref{fa:mehrere-orte} bisher
+nicht in der App umgesetzt werden konnte, sondern nur in der Backend-Anwendung, wird diese
+Anforderung als nicht umgesetzt angesehen. \ref{fa:export} wurde umgesetzt und ist daher auch ohne
+explizite Validierung als abgeschlossen angesehen.
+
