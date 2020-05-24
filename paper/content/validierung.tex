@@ -182,7 +182,7 @@ Mit Hilfe dieser Komponenten werden folgende Schritte von der Testperson erwarte
 \subsubsection{Setup des Servers}
 
 Die gewählte Testperson hatte bereits Vorwissen zur Nutzung von Docker und entschied sich daher für
-die Installation des Servers über das Docker-Image. Dies war reibungslos möglich, der Server konnte
+die Installation des Servers über das Docker-Image. Dies war reibungslos möglich und der Server konnte
 erfolgreich gestartet werden. Es wurde sich dazu entschlossen, die Beispielkonfiguration zu
 übernehmen, wobei nur das Feld \texttt{mail.recipients} um eine entsprechende Mailadresse ergänzt
 wurde.
@@ -194,7 +194,7 @@ Die Download-Seite konnte im Anschluss erfolgreich aufgerufen werden.
 Nachdem die Download-Seite des Servers aufgerufen und die entsprechende Version der App
 heruntergeladen wurde, konnte sie problemlos installiert werden.
 Direkt nach dem Öffnen der Anwendung wurde das Tutorial, welches sich automatisch beim ersten Start
-der Anwendung öffnet durchlaufen.
+der Anwendung öffnet, durchlaufen.
 Insgesamt wurde das Vorhandensein eines Tutorials als sehr positiv gewertet, da dieses es auch einer
 domänenfremden Person ermöglicht hat, sich in der App sehr schnell zurecht zu finden. Allerdings
 wurde ein Problem mit der App deutlich. Wie in \autoref{fig:tutorial-feedback} zu sehen ist, sind
@@ -209,8 +209,8 @@ werden sollten.
 Einerseits war anfänglich der Unterschied zwischen einem Workflow-Template und einer
 Workflow-Execution nicht klar. Hier könnte durch ein konkretes Beispiel im Tutorial nachgebessert
 werden. Auch zur Farbgestaltung gab es negatives Feedback. Wie in \autoref{sec:impl-challenges-ui}
-beschrieben, harmonieren der verwendete Violettton und die Grautöne nicht gut, sodass violetter Text
-auf einem grauen Hintergrund sehr schwer zu lesen ist. Auch problematisch war die farbliche
+beschrieben, harmonieren der verwendete Violettton und die Grautöne nicht gut. Violetter Text
+ist auf einem grauen Hintergrund sehr schwer zu lesen. Auch problematisch war die farbliche
 Hervorhebung von Workflow-Executions. Erwartet war, dass hervorgehobene Executions die aktuell
 aktiven sind und die grau dargestellten abgeschlossene, was jedoch nicht der Fall ist. Auch wurde
 bemängelt, dass man einer Execution in der Listenansicht nicht ansehen kann, ob sie abgebrochen
@@ -233,14 +233,14 @@ Farbgestaltung noch einige Kleinigkeiten verbessert werden.
 
 Dieser Schritt konnte leider nicht validiert werden. Grund dafür ist, dass die entsprechende
 Hardware bereits an der \gls{DHBW} abgegeben wurde und somit nicht mehr zur Verfügung stand.
-Die Tracker wurden während Tests der App emuliert, indem die entsprechenden Endpunkte des Servers
+Die Tracker wurden während den Tests der App emuliert, indem die entsprechenden Endpunkte des Servers
 manuell aufgerufen wurden.
 
 \section{Gesamtergebnis der Validierung}
 
 Insgesamt konnte durch die Validierung gezeigt werden, dass das Gesamtsystem vergleichsweise einfach
 einzurichten und zu bedienen ist. Als besonders vorteilhaft wurde das in der App enthaltene Tutorial
-wargenommen. Dennoch gibt es einige Punkte, vor allem in der App, an welchen nachgebessert werden
+wargenommen. Dennoch gibt es, vor allem in der App, einige Punkte an welchen nachgebessert werden
 sollte.
 
 Durch die in \autoref{sec:validation-tracking} durchgeführten Genauigkeitsmessungen des Trackings
@@ -249,7 +249,7 @@ Umsetzung für die Durchführung der Tests notwendig war. Einzig \ref{fa:mehrere
 \ref{fa:export} konnten durch diese Tests nicht validiert werden. Da \ref{fa:mehrere-orte} bisher
 nicht in der App umgesetzt werden konnte, sondern nur in der Backend-Anwendung, wird diese
 Anforderung als nicht umgesetzt angesehen. \ref{fa:export} wurde umgesetzt und ist daher auch ohne
-explizite validierung als abeschlossen angesehen.
+explizite Validierung als abgeschlossen angesehen.
 
 Die in \autoref{sec:validation-setup-usability} beschriebenen Tests haben gezeigt, dass die
-Anwendung von Domänenfremden installierbar und nutzbar ist.
+Anwendung von einer domänenfremden Person installierbar und nutzbar ist.
