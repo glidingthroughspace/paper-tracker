@@ -37,7 +37,8 @@ Folgendes sind die auszuführenden Versuche:
 	\item \label{ts:angrenzender-raum} Ein Raum wird eingelernt und in einem angrenzenden Raum getrackt
 	\item \label{ts:zwei-nacheinander} Zwei entfernte Räume werden eingelernt und in selbiger Reihenfolge getrackt
 	\item \label{ts:zwei-angrenzende-nacheinander} Zwei angrenzende Räume werden eingelernt und in selbiger Reihenfolge getrackt
-	\item \label{ts:raumhälften} Ein Raum wird in zwei Raumhälften geteilt, welche als Räume getrackt werden und in selbiger Reihenfolge getrackt
+	\item \label{ts:raumhälften} Ein Raum wird in zwei Raumhälften geteilt, welche als Räume getrackt
+		werden, und in selbiger Reihenfolge getrackt
 \end{enumerate}
 
 Zu den Ergebnissen der Versuche selbst muss auch das Umfeld der Versuche angegeben werden.
@@ -95,7 +96,8 @@ entsprechenden Daten ist in \autoref{tab:wlan-umgebung-raum1} zu sehen.
 	\label{tab:wlan-umgebung-raum1}
 \end{table}
 
-Für den ersten Negativtest wurde der Tracker in Raum 3 gelegt. Hierbei wurde der Tracker, wie
+Für den ersten Negativtest (\ref{ts:entfernter-raum}) wurde der Tracker in Raum 3 gelegt. Hierbei
+wurde der Tracker, wie
 erwartet, nicht mehr Raum 1 zugewiesen, sodass auch dieser Test bestanden wurde. Auch als der
 Tracker für den zweiten Negativtest (\ref{ts:angrenzender-raum}) in Raum 2 gelegt wurde, erkannte
 das System korrekt, dass er nicht in Raum 1 liegt, da der vorher eingetragene Score-Schwellwert
@@ -135,7 +137,8 @@ In dieser Validierung des Projektes soll bewertet werden, wie einfach ein potent
 des Paper-Trackers ein neues System aufsetzen und verwenden kann.
 Um dies zu bestimmen, soll eine oder mehrere Testpersonen alleine mit den Informationen aus dem GitHub-Repository, das
 den kompletten Code und die Dokumentation beinhaltet, das System aufsetzen und in Betrieb nehmen.
-Im Nachhinein wird den Testpersonen einige Fragen zum Prozess gestellt und sie können selbst freies Feedback geben.
+Im Nachhinein werden den Testpersonen einige Fragen zum Prozess gestellt und sie können selbst
+freies Feedback geben.
 
 \subsection{Durchführung}
 Im Folgenden wird beschrieben, wie der Testverlauf für eine Testperson aussieht.
@@ -166,7 +169,7 @@ Mit Hilfe dieser Komponenten werden folgende Schritte von der Testperson erwarte
 		\item Anpassen der Konfigurationsdatei mit geeigneten Werten
 		\item Erstellen des Docker-Images und Start von diesem auf einem Server \hfill \\
 			\hspace*{10mm} \emph{oder} \hfill \\
-			Lokal den Code kompilieren, kopieren der ausführbaren Datei auf den Server, Starten der Datei
+			Lokales Kompilieren des Codes, Kopieren der ausführbaren Datei auf den Server, Starten der Datei
 			\\
 			\hspace*{10mm} \emph{oder} \\
 			Die vorkompilierte ausführbare Datei des Backends von GitHub herunterladen und auf einem
@@ -203,14 +206,14 @@ beheben, um die Nutzerfreundlichkeit zu erhöhen.
 Abgesehen von diesem Problem konnten keine gravierenden Probleme mit der App festgestellt werden.
 Jegliche Funktionalität war ohne Probleme nutzbar.
 
-Allerdings wurden einige Punkte kritisiert, welches es für eine einfachere Nutzbarkeit optimiert
+Allerdings wurden einige Punkte kritisiert, welche für eine einfachere Nutzbarkeit optimiert
 werden sollten.
 Einerseits war anfänglich der Unterschied zwischen einem Workflow-Template und einer
 Workflow-Execution nicht klar. Hier könnte durch ein konkretes Beispiel im Tutorial nachgebessert
 werden. Auch zur Farbgestaltung gab es negatives Feedback. Wie in \autoref{sec:impl-challenges-ui}
 beschrieben, harmonieren der verwendete Violettton und die Grautöne nicht gut. Violetter Text
 ist auf einem grauen Hintergrund sehr schwer zu lesen. Auch problematisch war die farbliche
-Hervorhebung von Workflow-Executions. Erwartet war, dass hervorgehobene Executions die aktuell
+Hervorhebung von Workflow-Executions. Erwartet wurde, dass hervorgehobene Executions die aktuell
 aktiven sind und die grau dargestellten abgeschlossene, was jedoch nicht der Fall ist. Auch wurde
 bemängelt, dass man einer Execution in der Listenansicht nicht ansehen kann, ob sie abgebrochen
 wurde. Hier wäre eine Möglichkeit, diese rot hervorzuheben.
@@ -225,14 +228,14 @@ klar, wie diese zu benutzen sind.
 	\label{fig:tutorial-feedback}
 \end{figure}
 
-Insgesamt war die App wurde die App für gut nutzbar befunden, jedoch könen vor allem an der
+Insgesamt wurde die App für gut nutzbar befunden, jedoch können vor allem an der
 Farbgestaltung noch einige Kleinigkeiten verbessert werden.
 
 \section{Gesamtergebnis der Validierung}
 
 Insgesamt konnte durch die Validierung gezeigt werden, dass das Gesamtsystem vergleichsweise einfach
 einzurichten und zu bedienen ist. Als besonders vorteilhaft wurde das in der App enthaltene Tutorial
-wargenommen. Dennoch gibt es, vor allem in der App, einige Punkte an welchen nachgebessert werden
+wahrgenommen. Dennoch gibt es, vor allem in der App, einige Punkte, an welchen nachgebessert werden
 sollte.
 
 Durch die in \autoref{sec:validation-tracking} durchgeführten Genauigkeitsmessungen des Trackings
@@ -241,5 +244,5 @@ Umsetzung für die Durchführung der Tests notwendig war. Einzig \ref{fa:mehrere
 \ref{fa:export} konnten durch diese Tests nicht validiert werden. Da \ref{fa:mehrere-orte} bisher
 nicht in der App umgesetzt werden konnte, sondern nur in der Backend-Anwendung, wird diese
 Anforderung als nicht umgesetzt angesehen. \ref{fa:export} wurde umgesetzt und ist daher auch ohne
-explizite Validierung als abgeschlossen angesehen.
+explizite Validierung als abgeschlossen anzusehen.
 

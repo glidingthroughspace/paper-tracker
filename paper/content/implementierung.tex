@@ -274,21 +274,22 @@ Im Folgenden sind die verwendeten Bibliotheken aufgelistet:
 	\item[viper (https://github.com/spf13/viper)] \hfill \\
 		Für die Konfiguration des Servers wird \enquote{viper} verwendet. Es kann Konfigurationen aus \enquote{pflag}, Dateien und mehr einlesen.
 	\item[logrus (https://github.com/sirupsen/logrus)] \hfill \\
-		\enquote{logrus} ist strukturiertes Logging-Tool, dass für jegliche Logs innerhalb des Servers verwendet wird.
+		\enquote{logrus} ist ein strukturiertes Logging-Tool, das für jegliche Logs innerhalb des Servers verwendet wird.
 	\item[gorm (https://github.com/jinzhu/gorm)] \hfill \\
-		\enquote{gorm} ist ein \gls{ORM} Framework, dass die Datenbankanbindung für den Server zur Verfügung stellt.
+		\enquote{gorm} ist ein \gls{ORM} Framework, das die Datenbankanbindung für den Server zur Verfügung stellt.
 	\item[Gin (https://github.com/gin-gonic/gin)] \hfill \\
-		\enquote{Gin} ist ein HTTP Framework, dass Routing, Parameter-Matching, etc. übernimmt. Zudem kann es standardmäßig \gls{JSON} verstehen.
+		\enquote{Gin} ist ein HTTP Framework, das Routing, Parameter-Matching, etc. übernimmt. Zudem kann es standardmäßig \gls{JSON} verstehen.
 	\item[go-coap (https://github.com/go-ocf/go-coap)] \hfill \\
-		\enquote{go-coap} ist ein \gls{CoAP} Framework, dass hauptsächlich das Routing übernimmt. Einige weitere Aufgaben, die z.B. \enquote{Gin} übernimmt, müssen selbst programmiert werden.
+		\enquote{go-coap} ist ein \gls{CoAP} Framework, das hauptsächlich das Routing übernimmt. Einige weitere Aufgaben, die z.B. \enquote{Gin} übernimmt, müssen selbst programmiert werden.
 	\item[go-codec (https://github.com/ugorji/go)] \hfill \\
 		\enquote{go-codec} stellt die Codierung für \gls{CBOR} zur Verfügung.
 	\item[now (https://github.com/jinzhu/now)] \hfill \\
-		\enquote{now} stellt Hilfsfunktionen zur Verfügung für Zeitberechnungen.
+		\enquote{now} stellt Hilfsfunktionen für Zeitberechnungen zur Verfügung.
 	\item[stats (https://github.com/montanaflynn/stats)] \hfill \\
 		\enquote{stats} stellt einige mathematische Funktionalitäten für statistische Berechnungen zur Verfügung.
 	\item[xlsx (https://github.com/tealeg/xlsx)] \hfill \\
-		Mit \enquote{xlsx} können Dateien im \gls{XLSX} Dateiformat erstellt, bearbeitet und gelesen werden. Im Server wird sie für das Erstellen des Excel-Export genutzt.
+		Mit \enquote{xlsx} können Dateien im \gls{XLSX} Dateiformat erstellt, bearbeitet und gelesen
+		werden. Im Server wird sie für das Erstellen des Excel-Exports genutzt.
 	\item[gomail (https://github.com/go-gomail/gomail)] \hfill \\
 		\enquote{gomail} wird verwendet, um E-Mails verschicken zu können.
 	\item[ginkgo (https://github.com/onsi/ginkgo)] \hfill \\
@@ -296,15 +297,16 @@ Im Folgenden sind die verwendeten Bibliotheken aufgelistet:
 	\item[gomega (https://github.com/onsi/gomega)] \hfill \\
 		\enquote{gomega} ist eine Matching Library, die zu \enquote{ginkgo} gehört. Sie stellt Vergleiche zwischen erwarteten Werten und tatsächlichen Werten zur Verfügung.
 	\item[GoMock (https://github.com/golang/mock)] \hfill \\
-		\enquote{GoMock} ist ein Mocking Framework, dass für verschiedene Tests verwendet wird.
+		\enquote{GoMock} ist ein Mocking Framework, das für verschiedene Tests verwendet wird.
 \end{description}
 
 Als Datenbank wird in Kombination mit \enquote{gorm} eine \enquote{SQLite} verwendet.
 Der große Vorteil ist, dass eine SQLite Datenbank eine einfache Datei ist und kein externer Server aufgesetzt werden muss.
 Dies vereinfacht vor allem die Entwicklung.
-Zum Beispiel ist ein einfaches Zurücksetzten der Daten durch ein Löschen der Datei möglich.
+Zum Beispiel ist ein einfaches Zurücksetzen der Daten durch ein Löschen der Datei möglich.
 
-In einem späteren Einsatz des Paper-Trackers kann dank der \enquote{gorm} Bibliothek auch andere Datenbanken verwendet werden, die eher für einen dauerhaften und sichereren Einsatz vorgesehen sind.
+In einem späteren Einsatz des Paper-Trackers können dank der \enquote{gorm} Bibliothek auch andere
+Datenbanken verwendet werden, die eher für einen dauerhaften und sichereren Einsatz vorgesehen sind.
 Möglich sind dafür \enquote{MySQL}, \enquote{PostgreSQL}, \enquote{Microsoft SQL Server} und wie erwähnt SQLite.
 Im Code des Servers muss hierfür lediglich eine erweiterte Konfiguration ermöglicht werden. (vgl. \cite{Jinzhu2020})
 
@@ -313,12 +315,12 @@ Im Code des Servers muss hierfür lediglich eine erweiterte Konfiguration ermög
 Die \gls{REST}-Schnittstelle zur Anbindung der App wurde wie in \autoref{par:app-schnittstelle}
 beschrieben implementiert.
 Dabei wurden alle Endpunkte entsprechend umgesetzt.
-Wie in \autoref{sec:impl-server-technology} erwähnt wird das Gin-Framework als
-\gls{HTTP}-Router und zum Serialisieren, sowie Deserialisieren der Nutzdaten verwendet.
+Wie in \autoref{sec:impl-server-technology} erwähnt, wird das Gin-Framework als
+\gls{HTTP}-Router und zum Serialisieren sowie Deserialisieren der Nutzdaten verwendet.
 Das Framework ermöglicht es, für jeden \gls{REST}-Endpunkt, also für jede Kombination aus
 \gls{HTTP}-Verb und \gls{URL} eine sogenannte Handler-Funktion zu definieren. Diese wird aufgerufen,
 wenn eine Anfrage an die entsprechende Ressource getätigt wird. Die Handler-Funktionen parsen
-zunächst die Anfragedaten in entsprechende Go-Strukturen. Im Anschluss werden ein oder mehrere
+zunächst die Anfragedaten in entsprechende Go-Strukturen. Im Anschluss werden eine oder mehrere
 Manager-Funktionen aufgerufen, welche die Geschäftslogik enthalten. Das Ergebnis dieses Aufrufes
 wird dann von der Handler-Funktion in das Zielformat, in diesem Fall \gls{JSON}, serialisiert und an
 den Aufrufer gesendet.
@@ -331,28 +333,28 @@ Endpunkt hinzugefügt: Über den Pfad \texttt{/tracker/status}, welcher mit dem 
 angesprochen wird, kann der Tracker aktuelle Statuswerte, wie beispielsweise die aktuelle
 Akkuladung, an den Server übermitteln. Diese Statuswerte werden bei aktivem Tracking in den
 Scanergebnis-Paketen übermittelt. Wenn der Tracker sich jedoch im Leerlauf befindet, sendet der
-Server periodisch Status-Kommandos an den Tracker, sodass auch hier der Ladezustand des \gls{Akku}, sowie
+Server periodisch Status-Kommandos an den Tracker, sodass auch hier der Ladezustand des \gls{Akku}s, sowie
 die verbleibende Restladung aktualisiert werden können.
 
 \subsection{Tracker-Lokalisierung} \label{sec:tracker-lokalisierung}
 
-Wie in \autoref{sec:tracking-hardware} beschrieben wird die Lokalisierung der Tracker mit einem
+Wie in \autoref{sec:tracking-hardware} beschrieben, wird die Lokalisierung der Tracker mit einem
 Score-basierten System durchgeführt.
 
 Dazu werden zunächst Scanergebnisse vom jeweiligen Tracker gesammelt und dann ausgewertet. Da die
-Datengröße der Scanergebnisse je nach Anzahl der vom Tracker sichtbaren \gls{WLAN}-Netzwerken zu
+Datengröße der Scanergebnisse je nach Anzahl der vom Tracker sichtbaren \gls{WLAN}-Netzwerke zu
 groß für ein einzelnes \gls{UDP}-Paket ist\footnote{Im Arduino-Framework gibt es eine
 Limitierung von 1446 Bytes für die Größe eines \gls{UDP}-Paketes. (vgl. \cite{Arduino2020})}, wurde
 das \gls{API} so gestaltet, dass die Ergebnisse in mehreren Paketen an den Server übermittelt werden
 können. Dazu berechnet der Tracker im Voraus, in wie viele Pakete die Scanergebnisse geteilt werden
-müssen. Diese Zahl, sowie ein für den Ergebnissatz einheitlicher, zufällig erzeugter \gls{ID} sind
+müssen. Diese Zahl, sowie eine für den Ergebnissatz einheitlicher, zufällig erzeugter \gls{ID} sind
 jedem Teilpaket angehängt. So kann der Server erkennen, ob alle Ergebnisse empfangen wurden und
-diese dann verwenden. Dass nicht alle Pakete eines Ergebnissatzes beim Server angekommen sind ist
-dadurch erkennbar, dass ein anderer \gls{ID} empfangen wird. In diesem Fall werden alle vom
+diese dann verwenden. Dass nicht alle Pakete eines Ergebnissatzes beim Server angekommen sind, ist
+dadurch erkennbar, dass eine andere \gls{ID} empfangen wird. In diesem Fall werden alle vom
 vorherigen Paket empfangenen Scanergebnisse verworfen und die neuen Pakete gespeichert.
 \TODO{Das hier kann vielleicht zu CoAP-Schnittstelle verschoben werden}
 
-Sobald ein vollständiger Ergebnissatz empfangen wurde, wir aus diesem ein Score für jeden Raum
+Sobald ein vollständiger Ergebnissatz empfangen wurde, wird aus diesem ein Score für jeden Raum
 ermittelt. Dieser Score ist eine Zahl, deren Wert größer wird, je besser die gemessene
 \gls{WLAN}-Umgebung mit der gelernten übereinstimmt.
 
@@ -386,8 +388,8 @@ func getScoreForScanResultAndRoom(rssi, room) float {
 \autoref{lst:scoring} zeigt einen Teil des Scoring-Algorithmus. Dieser Teil wird für jeden Raum und
 jedes Scanergebnis ausgeführt. In den vier \texttt{if}-Zweigen werden jeweils Punkte dafür vergeben,
 dass das Scanergebnis in einem bestimmten Bereich liegt. Die Zweige sind nach ihrer Signifikanz
-geordnet. So wird ein Scanergebnis, welches im Bereich des vorher gelenten Minimums und Maximums
-liegt mit wenigen Punkten \enquote{belohnt}, während es viele Punkte bekommen kann, wenn es sehr
+geordnet. So wird ein Scanergebnis, welches im Bereich des vorher gelernten Minimums und Maximums
+liegt, mit wenigen Punkten \enquote{belohnt}, während es viele Punkte bekommen kann, wenn es sehr
 nahe am arithmetischen Mittel liegt.
 
 Die genaue Punkteverteilung ist konfigurierbar, um den Algorithmus möglichst offen für
@@ -398,22 +400,22 @@ bei $1$, $5$, $5$ und $5$.
 
 Zu beachten ist, dass ein Einschluss in Minimum/Maximum und erstem und drittem Quartil dem
 Scanergebnis eine fixe Punktzahl gewährt, während beim Median und Mittel jeweils mit Abständen
-kalkuliert wird. So bekommt ein Ergebnis, welches näher an einem der beiden Werte liegt eine größere
-Punkzahl. Die Punkzahl skaliert dabei linear zum Abstand.
+kalkuliert wird. So bekommt ein Ergebnis, welches näher an einem der beiden Werte liegt, eine
+größere Punktzahl. Die Punktzahl skaliert dabei linear zum Abstand.
 
 Der \texttt{rssiFactor} in Zeile 7 wird verwendet, um weiter entfernte \glspl{AP} weniger in die
 Berechnung mit einfließen zu lassen. Da die von den Trackern ermittelte \gls{RSSI} nicht exakt ist
 und oft auch ohne ein Bewegen des Trackers um wenige $dBm$ schwankt, wird so verhindert, dass eine
 Schwankung von beispielsweise $-80dBm$ auf $-82dBm$ die gleiche Auswirkung hat, wie eine gleichgroße
-Schwankung eines \gls{AP} mit deutlich besserem Empfang.
+Schwankung eines \gls{AP}s mit deutlich besserem Empfang.
 
-Die Scores für jede \gls{BSSID}, also auch für jedes Scanergebnis werden dann pro Raum addiert,
-wobei eine eingelernte \gls{BSSID}, für welche kein Scanergebnis existiert mit $-10$ Punkten
+Die Scores für jede \gls{BSSID}, also auch für jedes Scanergebnis, werden dann pro Raum addiert,
+wobei eine eingelernte \gls{BSSID}, für welche kein Scanergebnis existiert, mit $-10$ Punkten
 \enquote{bestraft} wird. Nun liegt für jeden Raum ein Gesamt-Score vor, anhand dessen der passendste
 Raum ausgewählt werden kann. Dies ist der Raum mit dem größten Score.
 
 Aufgrund der bereits beschriebenen Schwankungen beim Scannen der \glspl{AP} wird dieses Scoring
-jedoch mehrfach (Standardfall: dreifach) durchgeführt, und der beste Raum anhand des arithmetischen
+jedoch mehrfach (Standardfall: dreifach) durchgeführt und der beste Raum anhand des arithmetischen
 Mittels der Scores ausgewählt. Dies verlängert einen Lokalisierungsvorgang pro Messung um etwa
 $5-15$ Sekunden, was allerdings kein Problem ist, da die Lokalisierung nicht in Echtzeit
 durchgeführt werden muss.
@@ -426,8 +428,8 @@ Scoring-Parameter, durch den Nutzer konfigurierbar.
 \subsection{Daten-Export}
 
 In diesem Kapitel wird die Implementierung des Datenexports in eine Excel-Datei näher erläutert.
-Dies besteht aus größtenteils zwei Unterpunkten: Dem Sammeln und Aufbereiten der Daten für den Export und das
-Schreiben der Excel-Datei selbst.
+Dieser besteht aus größtenteils zwei Unterpunkten: Dem Sammeln und Aufbereiten der Daten für den
+Export und das Schreiben der Excel-Datei selbst.
 Beides wird zusammengefasst im \enquote{ExportManager} durchgeführt.
 
 Um die Daten für den Export zu sammeln, nutzt der \enquote{ExportManager} einige andere Manager:
@@ -436,17 +438,17 @@ Um die Daten für den Export zu sammeln, nutzt der \enquote{ExportManager} einig
 Zuerst werden alle Templates abgefragt.
 Für jedes Template werden alle verfügbaren Ausführungen des Templates angefordert.
 Weiter wird für jeden Schritt in einem Template/einer Ausführung Informationen über die Schritte und die den Schritten
-zugewiesenen Räumen abgefragt.
+zugewiesenen Räume abgefragt.
 Während die Daten gesammelt werden, werden auch einige Metriken erfasst: Die Anzahl Ausführungen pro Template,
-wie viele Ausführungen beendet wurden und wie lange eine durchschnittliche Ausfürung gebraucht hat.
+wie viele Ausführungen beendet wurden und wie lange eine durchschnittliche Ausführung gebraucht hat.
 
 Nachdem alle grundlegenden Daten gesammelt wurden, wird nochmals durch alle Templates iteriert und diese nach Revisionen sortiert.
-Dies bedeutet, dass alle Templates zusammen gruppiert werden, die die gleiche urspüngliche Revision haben.
+Dies bedeutet, dass alle Templates zusammen gruppiert werden, die die gleiche ursprüngliche Revision haben.
 Die ursprüngliche Revision selbst wird auch mit gruppiert.
 Damit sind alle Daten entsprechend gesammelt und aufbereitet, um exportiert zu werden.
 
 Für den Export selbst wird, wie schon in \autoref{sec:impl-server-technology} angemerkt, die Bibliothek \enquote{xlsx} verwendet.
-Die Entscheidung wurde für diese Bibliothek getroffen, da sie eine simple Schnittstelle hat und regelmäßig aktualisiert wird
+Die Entscheidung, diese Bilbiothek zu nutzen, wurde getroffen, da sie eine simple Schnittstelle hat und regelmäßig aktualisiert wird
 (Stand 20. April 2020: Letzte Aktualisierung vor 24 Tagen \cite{tealeg2020}).
 
 \enquote{xlsx} arbeitet mit Pointern auf Objekte verschiedener Typen, die jeweils ein Objekt in Excel wiederspiegeln.
@@ -458,7 +460,7 @@ Für den Excel-Export des Paper-Trackers wird zunächst eine neue Datei erstellt
 Diese ist nur im Hauptspeicher vorhanden und wird nicht auf die Festplatte geschrieben.
 Weiter wird für jedes Workflow Template ein Sheet erstellt.
 In dieses Sheet werden als Tabelle alle Ausführungen dieses Templates mit Informationen zu den Schritten geschrieben.
-Dies geschieht schon während des Sammeln der Daten.
+Dies geschieht schon während des Sammelns der Daten.
 Ein Beispiel für ein solches Sheet ist in \autoref{fig:export-template} zu sehen.
 
 \begin{figure}[htbp]
@@ -469,7 +471,7 @@ Ein Beispiel für ein solches Sheet ist in \autoref{fig:export-template} zu sehe
 \end{figure}
 
 Für die Übersicht der Revisionen wird zusätzlich ein separates Sheet erstellt.
-In dieses werden nach dem aufbereiten der Daten, in einer Tabelle die verschiedenen ursprünglichen Revisionen
+In dieses werden nach dem Aufbereiten der Daten in einer Tabelle die verschiedenen ursprünglichen Revisionen
 mit ihren folgenden Revisionen gelistet.
 Hier werden auch die erfassten Metriken dargestellt.
 Dies resultiert in dem in \autoref{fig:export-orig-revisions} dargestellten Sheet.
@@ -477,14 +479,14 @@ Dies resultiert in dem in \autoref{fig:export-orig-revisions} dargestellten Shee
 \begin{figure}[htbp]
 	\includegraphics[width=\textwidth]{images/export_orig_revisions.png}
 	\centering
-	\caption{Ursprüngliche Revisionen-Sheet eines Excel-Exports}
+	\caption{Ursprüngliches Revisionen-Sheet eines Excel-Exports}
 	\label{fig:export-orig-revisions}
 \end{figure}
 
-Die daraus enstandene Excel-Datei ist immernoch nur im Hauptspeicher vorhanden
+Die daraus entstandene Excel-Datei ist immernoch nur im Hauptspeicher vorhanden
 und muss auch nicht auf die Festplatte geschrieben werden.
 Das Objekt der Datei kann auf ein \enquote{io.Writer}-Interface,
-dass in der Standardbibliothek von Go enthalten ist, schreiben.
+das in der Standardbibliothek von Go enthalten ist, schreiben.
 Dadurch kann das Objekt direkt in die Antwort der \gls{REST}-Schnittstelle die Datei schreiben.
 
 \subsection{Tests}
@@ -493,7 +495,7 @@ Wie in allen Software-Projekten ist es wichtig, den Paper-Tracker zu testen.
 Dabei spielt vor allem der Backend-Server ein große Rolle, da dieser die meiste Geschäftslogik implementiert.
 
 Alle für den Server existierenden Tests sind automatisierte Tests, die einzelne Einheiten des Codes testen.
-Vor allem werden die Manager getestet, da diese letzendlich die Geschäftslogik beinhalten.
+Vor allem werden die Manager getestet, da diese letztendlich die Geschäftslogik beinhalten.
 Dafür werden verschiedene Bibliotheken verwendet.
 Die \enquote{ginkgo}-Bibliothek stellt Funktionen zur Verfügung, um die Tests zu definieren
 und Code vor/nach den Tests auszuführen.
@@ -519,22 +521,22 @@ gewesen.
 
 \section{App}
 
-Im diesem Kapitel wird die technische Umsetzung der App für Mobilgeräte beschrieben.
+In diesem Kapitel wird die technische Umsetzung der App für Mobilgeräte beschrieben.
 
 \subsection{Verwendete Technologien}
 
 Zur Programmierung der App wurden die Programmiersprache Dart und das Framework Flutter verwendet.
-Ein großer Vorteil dieser Kombination ist, dass Anwendungen sowohl für Android, als auch für iOS
+Ein großer Vorteil dieser Kombination ist, dass Anwendungen sowohl für Android als auch für iOS
 kompiliert werden können, ohne den Quellcode anpassen zu müssen. Auch eine Laufzeitumgebung für
 Desktopcomputer unter Windows, macOS und GNU/Linux befindet sich aktuell im Teststadium, sodass die
-Paper-Tracker App gegebenenfalles auch auf Arbeitsplatzrechnern verwendet werden kann.
+Paper-Tracker App gegebenenfalls auch auf Arbeitsplatzrechnern verwendet werden kann.
 
 Auch für das Erstellen der App wurden einige Bibliotheken verwendet, die die Entwicklung vereinfachen.
 Vor allem werden zum Beispiel Bibliotheken verwendet, um die Kommunikation mit dem Backend-Server zu ermöglichen.
 Die verwendeten Bibliotheken sind im Folgenden aufgelistet:
 \begin{description}
 	\item[http (https://pub.dev/packages/http)] \hfill \\
-		\enquote{http} ist eine Bilbiothek, die es ermöglicht asynchron \gls{HTTP}-Anfragen durchzuführen. Die Bibliothek wird dafür verwendet, um mit dem Backend-Server zu kommunizieren.
+		\enquote{http} ist eine Bibliothek, die es ermöglicht, asynchron \gls{HTTP}-Anfragen durchzuführen. Die Bibliothek wird dafür verwendet, um mit dem Backend-Server zu kommunizieren.
 	\item[json\_annotation (https://pub.dev/packages/json\_annotation)] \hfill \\
 		Mit \enquote{json\_annotation} kann über Annotationen im Programmcode eine Serialisierung zu \gls{JSON} und Deserialisierung von \gls{JSON} für Datenklassen generiert werden.
 	\item[shared\_preferences (https://pub.dev/packages/shared\_preferences)] \hfill \\
@@ -546,7 +548,8 @@ Die verwendeten Bibliotheken sind im Folgenden aufgelistet:
 	\item[fluttertoast (https://pub.dev/packages/fluttertoast)] \hfill \\
 		Mit \enquote{fluttertoast} können kleine Pop-ups dargestellt werden, die dem Nutzer der App einfach und schnell Feedback zu einer Aktion geben können.
 	\item[url\_launcher (https://pub.dev/packages/url\_launcher)] \hfill \\
-		Mit Hilfe von \enquote{url\_launcher} können \gls{URL}s im Browser des Smartphones geöffnet werden. Für den Paper-Tracker wird dies zum Download des Daten-Export verwendet.
+		Mit Hilfe von \enquote{url\_launcher} können \gls{URL}s im Browser des Smartphones geöffnet
+		werden. Für den Paper-Tracker wird dies zum Download des Daten-Exports verwendet.
 	\item[intl (https://pub.dev/packages/intl)] \hfill \\
 		Die \enquote{intl}-Bibliothek wird für das Formatieren von Daten und Uhrzeiten verwendet. Zudem kann sie für die Übersetzung der App in andere Sprachen verwendet werden.
 \end{description}
@@ -564,18 +567,18 @@ Weiter sind im Unterordner \enquote{model} alle Modell-Klassen, die auch für de
 Für diese wird mit Hilfe der \enquote{json\_annotation} Bibliothek Code für die Serialisierung zu \gls{JSON} und die
 Deserialisierung von \gls{JSON} generiert.
 
-Um Daten dieser Modelle vom Server abzurufen, werden verschiedene Klienten-Klassen aus dem \enquote{client} Ornder verwendet.
+Um Daten dieser Modelle vom Server abzurufen, werden verschiedene Klienten-Klassen aus dem \enquote{client}-Ordner verwendet.
 Es gibt einen grundlegenden Klienten, welcher eine Verfügbarkeitsabfrage und Anfragen an den Server zur Verfügung stellt.
 Dieser verwendet die konfigurierte Server \gls{URL}.
 Die Anfragen werden über die \enquote{http} Bibliothek ausgeführt.
-Die weiteren Klienten (z.B. \enquote{RoomClient}) verwendet den grundlegenden Klienten und stellen Funktionen direkt im Bezug
+Die weiteren Klienten (z.B. \enquote{RoomClient}) verwenden den grundlegenden Klienten und stellen Funktionen direkt im Bezug
 auf die zugehörige Klasse des Klienten zur Verfügung.
 So können über den \enquote{RoomClient} zum Beispiel alle Räume abgefragt werden.
 Diese Klienten führen dann die Konvertierung von und zu \gls{JSON} durch.
 
 Im \enquote{pages} Unterordner sind alle anzuzeigenden Seiten der App untergebracht.
 Dies sind zum Beispiel die Hauptübersichtsseite oder die Detailseite für einen Raum.
-Auf diesen Seiten werden so genannte \enquote{Widgets} verwendet, aus denen letztendlich das Layout und der Inhalt einer
+Auf diesen Seiten werden sogenannte \enquote{Widgets} verwendet, aus denen letztendlich das Layout und der Inhalt einer
 Seite zusammengesetzt werden.
 Neben den durch die Standardbibliothek und weiteren Bibliotheken bereitgestellten Widgets werden auch selbst programmierte verwendet.
 Diese befinden sich im \enquote{widgets} Unterordner.
@@ -586,13 +589,13 @@ Der Aufbau einer Seite und eines Widgets sind weiter unten näher erklärt.
 Unter Routing versteht man die Navigation innerhalb der App auf verschiedene Routen und damit im Falle der Paper-Tracker
 App auf verschiedene Seiten.
 Für das Routing wird in der App die Standard-Klasse \enquote{MaterialApp} verwendet.
-Dieser wird eine Zuordnung von einer Route in Form einer Zeichenkette auf eine Seite mitgegeben.
+Dieser wird eine Zuordnung von einer Route zu einer Seite in Form einer Zeichenkette mitgegeben.
 
 In der kompletten App kann dann über \enquote{Navigator.of(context)} auf die Navigation zugegriffen werden.
 Der Kontext ist in jeder zur App zugehörigen Seite und Widget vorhanden.
 Die Navigation bietet die folgenden wichtigen Funktionalitäten:
-Mit \enquote{pushNamed} kann über die zuvor in der Zuordnung definierte Route, auf die dazugehörige Seite navigiert werden.
-Diesem Funktionsaufruf können auch Parameter mitgegeben werden, die von der geöffnete Seite verwendet werden können.
+Mit \enquote{pushNamed} kann über die zuvor in der Zuordnung definierte Route auf die dazugehörige Seite navigiert werden.
+Diesem Funktionsaufruf können auch Parameter mitgegeben werden, die von der geöffneten Seite verwendet werden können.
 Über \enquote{pop} kann die zuletzt geöffnete Seite wieder geschlossen werden.
 Dabei wird die zuvor geöffnete Seite wieder angezeigt oder bei der letzten Seite die App geschlossen.
 
@@ -698,10 +701,10 @@ Widget build(BuildContext context) {
 
 Wie bereits erwähnt, wurden einige Widgets, die auf den Seiten der App verwendet werden, selbst programmiert.
 Dies hilft dabei duplizierte Konstellationen von Widgets auf verschiedenen Seiten zu verringern, indem man diese
-verallgemeinert und als eigenen Widget zur Verfügung stellt.
+verallgemeinert und als eigenes Widget zur Verfügung stellt.
 Auch können in diesen Widgets bestimmte Design-Formatierungen gemacht werden, die dann an dieser Stelle zentral verwaltet
 werden können.
-Allgemein können die eigenen Widget in drei Kategorien aufgeteilt werden:
+Allgemein können die eigenen Widgets in drei Kategorien aufgeteilt werden:
 Dialoge, Listen und allgemeine Widgets.
 
 Dialoge beinhalten teilweise generalisierte und teilweise spezialisierte Dialoge, die von den Seiten aus aufgerufen werden können.
@@ -722,8 +725,8 @@ Lediglich das Design der Dialog-Widgets ist darauf angepasst, in einem Dialogfen
 
 Unter den Listen-Widgets sind zum einen allgemeine Listen, die dem Design aus dem Entwurf der App entsprechen, und zum
 anderen Listen für spezifische Modell-Klassen.
-Diese Listen basieren auf dem allgemeinen Listen.
-So gibt es zum Beispiel Listen für Räume, Tracker oder auch die Schritte eines Workflow.
+Diese Listen basieren auf den allgemeinen Listen.
+So gibt es zum Beispiel Listen für Räume, Tracker oder auch die Schritte eines Workflows.
 Die verschiedenen Listen sind in \autoref{fig:app_lists} zu sehen.
 
 \begin{figure}[htbp]
@@ -740,7 +743,7 @@ von Informationen dienen können.
 Als Rückgabe werden meistens entweder sogenannte \enquote{Callback}-Funktionen oder \enquote{Controller} verwendet.
 Callback-Funktionen sind Funktionen von zum Beispiel der Seite, die das Widget verwendet, die dem Widget als Parameter
 mitgegeben werden.
-Möchte das Widget Informationen zurück geben, wird der entsprechende Callback aufgerufen und als Parameter die eigentliche
+Möchte das Widget Informationen zurückgeben, wird der entsprechende Callback aufgerufen und als Parameter die eigentliche
 Funktion mitgegeben.
 Verwendet das Widget einen Controller wird dem Widget ein Objekt mitgegeben, welches die zu verschickenden
 Informationen speichern kann.
@@ -772,11 +775,11 @@ Bei diesem Layout befindet sich der Mikrocontroller auf der Batterie.
 Dies ergibt den Vorteil, dass die Grundfläche des Trackers mit ca. 45x35mm sehr gering gehalten wird.
 Daraus ergibt sich dementsprechend der Nachteil, dass mit ca. 15mm die Konstruktion relativ hoch wird.
 
-Das aus dem Layout enstandene Modell besteht aus zwei verschiedenen Teilen: Dem Körper des Gehäuse und dem Deckel.
+Das aus dem Layout entstandene Modell besteht aus zwei verschiedenen Teilen: Dem Körper des Gehäuses und dem Deckel.
 
 Der Körper ist in \autoref{fig:case-high-body} dargestellt.
-Er biete eine Art Schublade, in welche die Batterie hineinpasst.
-Oberhalb der Schublade wird der Mikrocontroller durch Wände im Platz gehalten.
+Er bietet eine Art Schublade, in welche die Batterie hineinpasst.
+Oberhalb der Schublade wird der Mikrocontroller durch Wände am Platz gehalten.
 An der Seite gibt es eine Aussparung, um den \gls{USB}-Port zum Laden benutzen zu können.
 
 Geschlossen wird der Körper mit dem Deckel.
@@ -813,17 +816,17 @@ Der Unterschied zum ersten Layout ist, dass der Mikrocontroller neben der Batter
 	\label{fig:case-lay-beside}
 \end{figure}
 
-Dies resultiert in einer erhöhten Grundfläche zum ersten Layout von 70x35mm aber in einer Reduktion der Höhe auf nur 12mm.
+Dies resultiert in einer erhöhten Grundfläche zum ersten Layout von 70x35mm, aber in einer Reduktion der Höhe auf nur 12mm.
 
 Das Modell nach diesem Layout ist in drei verschiedene Teile aufgeteilt.
-Es gibt, wie zum ersten Layout, auch einen Körper und einen Deckel.
+Es gibt, wie beim ersten Layout, auch einen Körper und einen Deckel.
 Zusätzlich gibt es jedoch noch den Clip zum Befestigen an Papier.
 Dieser ist demnach nicht mehr im Deckel mit enthalten.
 
 Der Körper ist in \autoref{fig:case-low-body} dargestellt.
-Er bietet einen Platz für die Batterie und den Mikrocontroller nebeneinander.
-Für den \gls{USB}-Port ist ebenfalls in der Außenwand eine Ausparung vorhanden.
-Kleine Erhebungen halten die Teile am Platz und verhindern ein umherschieben.
+Er bietet Platz für die Batterie und den Mikrocontroller nebeneinander.
+Für den \gls{USB}-Port ist ebenfalls in der Außenwand eine Aussparung vorhanden.
+Kleine Erhebungen halten die Teile am Platz und verhindern ein Umherschieben.
 In diesen Erhebungen sind auch Löcher für Schrauben inkludiert und auf der Unterseite Platz für eine Mutter.
 Der größere Einschnitt in der Unterseite ist für den Clip bestimmt.
 
@@ -834,10 +837,10 @@ Der größere Einschnitt in der Unterseite ist für den Clip bestimmt.
 	\label{fig:case-low-body}
 \end{figure}
 
-Der Deckel des Modells ist ähnlich dem Körper, besizt aber keine Außenwände.
+Der Deckel des Modells ist ähnlich dem Körper, besitzt aber keine Außenwände.
 Er ist in \autoref{fig:case-low-lid} abgebildet.
 Die kleinen Erhebungen des Deckels fixieren die Teile innerhalb des Gehäuses auf der vertikalen Achse.
-Statt Platz für eine Mutter auf der Aussenseite der Erhebungen mit Schraubenlöchern, ist eine Einsenkung für den Schraubkopf vorgesehen.
+Statt Platz für eine Mutter auf der Außenseite der Erhebungen mit Schraubenlöchern, ist eine Einsenkung für den Schraubkopf vorgesehen.
 
 \begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/low_lid.png}
@@ -849,7 +852,7 @@ Statt Platz für eine Mutter auf der Aussenseite der Erhebungen mit Schraubenlö
 Angebracht ist der Clip an dem Einschnitt im Körper und fixiert durch die zwei danebenliegenden Schraubenlöcher.
 Die Schraube wird dabei zwischen den Erhebungen des Körpers und des Deckels, sowie durch die in
 \autoref{fig:case-low-clip} dargestellten Flügel des Clips geführt.
-Für die Fixierung an einem Papierstapel wurde die gleiche Technik, wie für das erste Layout verwendet.
+Für die Fixierung an einem Papierstapel wurde die gleiche Technik wie für das erste Layout verwendet.
 Um den 3D-Druck zu simplifizieren wurden bei diesem Entwurf jedoch keine Noppen an den Clip und an
 den Körper des Gehäuses angebracht. Diese werden nach dem Druck aufgeklebt.
 
@@ -873,9 +876,10 @@ Dies ist die Unterstützung für mehrere Räume pro Schritt in einem Workflow Te
 Aktuell kann nur ein Raum ausgewählt werden, der immer in einer eigenen Liste an erster Stelle an den Server geschickt wird.
 Konkret müssten auf der \enquote{WorkflowTemplatePage} und den dazugehörigen Widgets alle Auswahllisten für einen Raum durch
 eine Mehrfachauswahl ersetzt werden.
-Weiter müsste das Widget für die Darstellung von Steps eines Templates angepasst werden, dass es mehrere Räume anzeigen kann.
+Weiter müsste das Widget für die Darstellung von Steps eines Templates so angepasst werden, dass es
+mehrere Räume anzeigen kann.
 
-Zusätzlich neben dieser funktionalen Änderung, sollten einige nichtfunktionale Änderungen durchgeführt werden.
+Zusätzlich zu dieser funktionalen Änderung, sollten einige nichtfunktionale Änderungen durchgeführt werden.
 Zum einen muss das Farbschema der App überarbeitet werden.
 Der Kontrast zwischen dem Violett und verschiedenen Hintergrundfarben liegt lediglich zwischen $1.21:1 - 1.68:1$.
 Empfohlen wird laut dem Kriterium 1.4.3 in \cite{W3C2018} ein Kontrastwert von mindestens $4.5:1$.
@@ -883,7 +887,7 @@ Auch weitere verwendete Farben sind schwer erkennbar und können durch bessere e
 
 Die Mehrfachauswahl der für das Einlernen eines Raumes verwendeten \gls{SSID}s besitzt einen kleinen Fehler, der jedoch
 für den Benutzer sehr verwirrend sein kann.
-Es ist möglich die Auswahlbox eines Eintrages der Liste durch Drücken auf den gesamten Eintrag zu setzten, jedoch nicht
+Es ist möglich die Auswahlbox eines Eintrages der Liste durch Drücken auf den gesamten Eintrag zu setzen, jedoch nicht
 bei einem Druck auf die Auswahlbox selbst.
 Dies kann dem Nutzer suggerieren, dass er keine Auswahl treffen kann, da meistens versucht wird, mit der Auswahlbox selbst
 zu interagieren.
@@ -896,13 +900,13 @@ Hier muss sich auf ein konsistentes Verhalten geeinigt werden und dieses konsequ
 \subsection{Messung des Batteriestandes}
 
 Wie in \autoref{sec:hardware-used-technologies} beschrieben, stellt die TinyPICO-Plattform eine
-Bibliothek bereit, mit der die Spannung des \gls{Akku} abgefragt werden kann und somit der aktuelle
+Bibliothek bereit, mit der die Spannung des \gls{Akku}s abgefragt werden kann und somit der aktuelle
 Ladestand berechnet werden kann. Diese Information ist wertvoll, um zu verhindern, dass ein Workflow
 nicht richtig getracked wird, weil der \gls{Akku} eines Trackers leer wird. Daher wird der
 Ladestand, wie in \autoref{tab:detail-attributes} gezeigt, auch in der App dargestellt. Dies macht das
 Überprüfen des Ladestandes sehr komfortabel.
 
-Problematisch ist jedoch, dass die Spannung des \gls{Akku} nur sehr grob gemessen wird, was dazu
+Problematisch ist jedoch, dass die Spannung des \gls{Akku}s nur sehr grob gemessen wird, was dazu
 führt, dass der Tracker bei zwei direkt hintereinander durchgeführten Abfragen des Ladestandes mit
 Schwankungen bis zu $5\%$ antwortet. Dieses Hindernis lässt sich durch weitere Hardware, welche
 die Spannung misst, überwinden. Dies würde den Tracker weiter vergrößern, weswegen diese Option
@@ -910,7 +914,7 @@ nicht in Frage kommt. Eine weitere mögliche Lösung könnte eine Filterung nach
 sein. Diese könnte auf Seiten des Trackers oder im Server implementiert werden.
 
 Auch der Ladestatus, also ob ein Tracker aktuell aufgeladen wird oder sich entlädt, wird von der
-gelieferten Bilbiothek nicht immer korrekt wiedergegeben. Dies kann dazu führen, dass ein sich
+gelieferten Bibliothek nicht immer korrekt wiedergegeben. Dies kann dazu führen, dass ein sich
 entladender Tracker in der App vorübergehend als ladend angezeigt wird. Auch für die Korrektur dieses
 Fehlers wäre externe Hardware nötig. Anders als das vorherig beschriebene Problem kann hierfür kein
 Filter genutzt werden, da auch mehrere hintereinander durchgeführte Abfragen des Status sehr häufig zum
