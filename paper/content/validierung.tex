@@ -174,7 +174,7 @@ Mit Hilfe dieser Komponenten werden folgende Schritte von der Testperson erwarte
 	\end{enumerate}
 	\item Aufrufen der Download Seite des Servers
 	\item Download der Android App und Installation
-	\item Durcharbeiten des Tutorials innerhalb der App inklusive des Flashen eines Trackers
+	\item Durcharbeiten des Tutorials innerhalb der App
 \end{enumerate}
 
 \subsection{Ergebnisse}
@@ -183,9 +183,8 @@ Mit Hilfe dieser Komponenten werden folgende Schritte von der Testperson erwarte
 
 Die gewählte Testperson hatte bereits Vorwissen zur Nutzung von Docker und entschied sich daher für
 die Installation des Servers über das Docker-Image. Dies war reibungslos möglich und der Server konnte
-erfolgreich gestartet werden. Es wurde sich dazu entschlossen, die Beispielkonfiguration zu
-übernehmen, wobei nur das Feld \texttt{mail.recipients} um eine entsprechende Mailadresse ergänzt
-wurde.
+erfolgreich gestartet werden. Es wurde sich dazu entschlossen, die Beispielkonfiguration ohne
+Anpassungen zu übernehmen.
 
 Die Download-Seite konnte im Anschluss erfolgreich aufgerufen werden.
 
@@ -229,13 +228,6 @@ klar, wie diese zu benutzen sind.
 Insgesamt war die App wurde die App für gut nutzbar befunden, jedoch könen vor allem an der
 Farbgestaltung noch einige Kleinigkeiten verbessert werden.
 
-\subsubsection{Flashen eines Trackers}
-
-Dieser Schritt konnte leider nicht validiert werden. Grund dafür ist, dass die entsprechende
-Hardware bereits an der \gls{DHBW} abgegeben wurde und somit nicht mehr zur Verfügung stand.
-Die Tracker wurden während den Tests der App emuliert, indem die entsprechenden Endpunkte des Servers
-manuell aufgerufen wurden.
-
 \section{Gesamtergebnis der Validierung}
 
 Insgesamt konnte durch die Validierung gezeigt werden, dass das Gesamtsystem vergleichsweise einfach
@@ -251,5 +243,3 @@ nicht in der App umgesetzt werden konnte, sondern nur in der Backend-Anwendung, 
 Anforderung als nicht umgesetzt angesehen. \ref{fa:export} wurde umgesetzt und ist daher auch ohne
 explizite Validierung als abgeschlossen angesehen.
 
-Die in \autoref{sec:validation-setup-usability} beschriebenen Tests haben gezeigt, dass die
-Anwendung von einer domänenfremden Person installierbar und nutzbar ist.
