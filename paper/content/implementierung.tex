@@ -7,7 +7,7 @@ entsprechenden Firmware implementiert wurde.
 
 \subsection{Verwendete Technologien}\label{sec:hardware-used-technologies}
 
-Als Mikrokontrollerplattform wurde die sogenannte \enquote{TinyPICO}-Plattform gewählt. Nach eigener
+Als Mikrocontrollerplattform wurde die sogenannte \enquote{TinyPICO}-Plattform gewählt. Nach eigener
 Aussage handelt es sich dabei um die kleinste vorgefertigte Entwicklungsplattform basierend auf
 Mikrocontrollern vom Typ ESP32. (vgl. \cite{tinypico2020}) Dieser Aspekt ist für die Erfüllung von \ref{nf:klein} wichtig.
 Dieser Mikrocontroller wurde gewählt, da er alle benötigten Funktionen wie beispielsweise \gls{WLAN}
@@ -15,12 +15,12 @@ bereits über ein \gls{API} bereitstellt.
 
 Die TinyPICO-Entwicklungsplattform stellt neben dem Mikrocontroller weitere Hardware bereit, so sind
 unter anderem
-die Stromversorgung über \gls{USB} sowie Lithium-Polymer-\gls{Akku}, ein Übersetzer von \gls{USB}
-zu \gls{UART} zur Programmierung des Mikrocontroller und eine Vollspektrum-\gls{LED} verbaut.
-Ein weiterer Vorteil ist das bereits integrierte Ladesystem, welches einen angeschlossen
+eine Stromversorgung über \gls{USB} sowie Lithium-Polymer-\gls{Akku}, ein Übersetzer von \gls{USB}
+zu \gls{UART} zur Programmierung des Mikrocontrollers und eine Vollspektrum-\gls{LED} verbaut.
+Ein weiterer Vorteil ist das bereits integrierte Ladesystem, welches einen angeschlossenen
 Lithium-Polymer-\gls{Akku} automatisch auflädt, sobald der Tracker über \gls{USB} mit einer
 Stromquelle verbunden wird. Außerdem können über das Ladesystem der aktuelle Ladezustand und die
-Spannung des \gls{Akku} abgefragt werden, was für die Erfüllung von \ref{fa:benachrichtigung}
+Spannung des \glspl{Akku} abgefragt werden, was für die Erfüllung von \ref{fa:benachrichtigung}
 unabdingbar ist.
 
 Die Firmware wurde in der Programmiersprache C++ auf Basis des Arduino-Frameworks erstellt. Dieses
@@ -29,17 +29,17 @@ verbreitet ist und somit viele Bibliotheken für das Framework existieren.
 
 Das \enquote{Flasher}-Tool zum Programmieren und Konfigurieren der Firmware wurde in Python
 entwickelt.
-Der Grund dafür liegt in Möglichkeit sehr schnell und simpel ein Programm und auch ein \gls{GUI} zu
-programmieren.
+Der Grund dafür liegt in der Möglichkeit sehr schnell und simpel sowohl ein Programm als auch eine \gls{GUI}
+programmieren zu können.
 Dies wird durch die Bibliothek \enquote{PySimpleGUI} ermöglicht, die lediglich mit einer groben Layout-Beschreibung
-ein Oberfläche zusammenstellt.
+eine Oberfläche zusammenstellt.
 Alle weiteren benötigten Bibliotheken sind in der Python-Standardbibliothek enthalten.
 Vor allem ist hierbei die \enquote{multiprocessing}-Bibliothek wichtig, mit welcher andere Programme aufgerufen werden können.
 Um aus dem enstandenen Python-Skript eine ausführbare Datei für die verbreitesten Betriebssysteme zu erstellen, wird \enquote{PyInstaller} verwendet.
 Die daraus enstehende Datei beinhaltet bis auf das PlatformIO-Tooling alle benötigten Ressourcen.
 
 \subsection{Flasher}
-Aufgrund der angestrebten Einfachheit dieses Programmes, besteht es aus insgesamt nur drei Dateien.
+Aufgrund der angestrebten Einfachheit dieses Programmes besteht es aus insgesamt nur drei Dateien.
 Der Hauptbestandteil des Flashers ist das eigentliche Python-Skript.
 Zusätzlich wird die Datei \enquote{requirements.txt} benötigt, welche alle Bibliotheken für den
 Bibliotheksmanager \enquote{pip} auflistet.
@@ -51,10 +51,10 @@ Das Skript selbst beginnt nach dem Importieren der benötigten Bibliotheken mit 
 Kommandozeilenargumente.
 Möglich ist nur das Argument \texttt{--keep-credentials}.
 Das Skript erzeugt eine Datei, in welcher die Zugangsdaten für das vom Tracker zu verwendende
-\gls{WLAN}-Netzwerk, sowie weitere potentiell sensitiven Informationen enthalten sind. Im
-Standardfall wird diese Datei nach dem Erstelln der Firmware und der Programmierung des Trackers
-gelöscht. Ist das Kommandozeilenargument \texttt{--keep-credentials} gegeben, wir die Datei nach
-Erfolgreichem Abschluss des Programmiervorganges nicht gelöscht, was vor allem in der
+\gls{WLAN}-Netzwerk sowie weitere potentiell sensitive Informationen enthalten sind. Im
+Standardfall wird diese Datei nach dem Erstellen der Firmware und der Programmierung des Trackers
+gelöscht. Ist das Kommandozeilenargument \texttt{--keep-credentials} gegeben, wird die Datei nach
+erfolgreichem Abschluss des Programmiervorganges nicht gelöscht, was vor allem in der
 Entwicklungsphase der Software vorteilhaft ist.
 
 Weiter werden einige Konstanten definiert.
@@ -67,12 +67,12 @@ Dies wird über ein Aufrufen von PlatformIO ermöglicht: \enquote{pio device lis
 
 Die nächste Funktion generiert die für die Firmware benötigte Datei mit der Konfiguration des Trackers.
 Sie liest ein Template mit Platzhalter-Werten der Datei ein und ersetzt die Platzhalter mit den eingegebenen Werten, die als Parameter übergeben werden.
-Nach dem Einsetzen der Werte, wird die Datei geschrieben.
+Nach dem Einsetzen der Werte wird die Datei geschrieben.
 Der Pfad, an dem sich die Firmware befindet, ist auch Teil der Werte, die als Parameter übergeben werden.
 Zugriff auf einen einzelnen Wert wird über die oben erwähnten konstanten \enquote{Keys} ermöglicht.
 
 In der letzten Funktion wird das Programmieren an sich ausgeführt.
-Auch diese Funktion bekommt die eingebenene Werte als Parameter. Aus diesen wird der ausgewählte Port benötigt.
+Auch diese Funktion bekommt die eingebenenen Werte als Parameter. Aus diesen wird der ausgewählte Port benötigt.
 Mit diesem wird wieder PlatformIO aufgerufen: \enquote{pio run -e tinypico -t upload --upload-port port}.
 
 Vor dem Hauptteil des Skripts werden noch die Layouts für die \gls{GUI} benötigt.
@@ -85,7 +85,7 @@ Am unteren Teil des Layouts befindet sich ein Button, der das Programmieren star
 \begin{figure}[htbp]
 	\includegraphics[width=\textwidth]{images/flasher/input.png}
 	\centering
-	\caption{Layout des Eingabe-Fenster}
+	\caption{Layout des Eingabe-Fensters}
 	\label{fig:flasher-input}
 \end{figure}
 
@@ -97,21 +97,21 @@ Der Button ist zum Schließen des Programms, sobald der Vorgang abgeschlossen is
 \begin{figure}[htbp]
 	\includegraphics[width=\textwidth]{images/flasher/flash.png}
 	\centering
-	\caption{Layout des Programmier-Fenster}
+	\caption{Layout des Programmier-Fensters}
 	\label{fig:flasher-flash}
 \end{figure}
 
-Im Hauptteil des Skripts werden nun zuerst das Fenster mit dem Eingabe-Layout geöffnet.
+Im Hauptteil des Skripts wird nun zuerst das Fenster mit dem Eingabe-Layout geöffnet.
 Sobald der Button zum Start gedrückt wurde, werden die eingegebenen Werte ausgelesen.
-Das Eingabe-Fenster wird geschlossen und das Programmier-Fenster mit den entsprechendem Layout geöffnet.
+Das Eingabe-Fenster wird geschlossen und das Programmier-Fenster mit dem entsprechendem Layout geöffnet.
 Ist dieses offen, wird die Funktion zum Generieren der Konfigurationsdatei und die Funktion zum Programmieren des Trackers aufgerufen.
 Im Textfeld des Layouts werden diese Schritte entsprechend dokumentiert.
-Auch die Ausgabe des Programmierens wird in das Textfeld ausgegeben.
+Auch die Ausgabe des Programmierens wird im Textfeld abgebildet.
 Nach dem Programmieren wird, je nach Kommandozeilenargument, die generierte Datei gelöscht.
 Nun kann das Fenster und damit das gesamte Programm über den Schließen-Button geschlossen werden.
 
-Tritt während diesem gesamten Vorgang ein Fehler auf, wird dieser entsprechend aufgefangen und die Fehlermeldung im Textfeld angezeigt.
-Das Löschen der generierten Datei wird auf im Fehlerfall ausgeführt.
+Tritt während dieses gesamten Vorgang ein Fehler auf, wird dieser entsprechend aufgefangen und die Fehlermeldung im Textfeld angezeigt.
+Das Löschen der generierten Datei wird auch im Fehlerfall ausgeführt.
 
 \subsection{Akkumulator}
 
@@ -120,12 +120,12 @@ Zu diesem Zweck wird die Laufzeit des Trackers mit einem \gls{Akku} mit einer Ka
 mAh$ in verschiedenen Szenarien gemessen. Bei den Tests befindet sich der Tracker dauerhaft im
 \enquote{Tracking}-Status, meldet also immer wieder die aktuelle Position an den Server. Dieser
 Zustand wurde gewählt, da hier der Stromverbrauch am größten ist. Zu beachten ist jedoch, dass der
-Tracker pro Zyklus immer nur einmal die \gls{WLAN}-Umgebung an den Server übermittelt. Wie in
+Tracker pro Zyklus (Aufwachen und Abholen eines Kommandos) immer nur einmal die \gls{WLAN}-Umgebung an den Server übermittelt. Wie in
 \autoref{sec:tracker-lokalisierung} beschrieben, ist dies noch nicht unbedingt ausreichend, um den
 Tracker zu lokalisieren.
 
 Im ersten Test, dessen Ergebnis in
-\autoref{fig:battery-runtime-quicktrack} zu sehen ist, wurde dabei alle $10$ Sekunden die Position
+\autoref{fig:battery-runtime-quicktrack} in blau zu sehen ist, wurde dabei alle $10$ Sekunden die Position
 des Trackers abgefragt.
 
 \begin{figure}[htbp]
@@ -136,14 +136,14 @@ des Trackers abgefragt.
 \end{figure}
 
 Beim ersten Test ist der Tracker nach dem Bearbeiten einer Aufgabe direkt in den \enquote{Deep-Sleep}
-übergegangen. Beim zweiten Test erst, wenn die vom Server übermittelte Schlafdauer größer als $10$
+übergegangen. Beim zweiten Test (dargestellt in rot) erst dann, wenn die vom Server übermittelte Schlafdauer größer als $10$
 Sekunden ist, was in diesem Test nie der Fall war. Wie deutlich zu sehen ist, kann durch das
 sofortige Schlafen des Trackers eine um circa $400$ Minuten längere Laufzeit erreicht werden. Es ist
 jedoch zu erwarten, dass der Tracker immer länger als $10$ Sekunden schläft, außer beim Einlernen
 eines neuen Raumes. Bei dieser Operation ist vor allem die Reaktivität des Trackers wichtig, um
 möglichst viele \glspl{AP} mit möglichst vielen Messungen zu erfassen. Daher wird die
 Funktionalität, dass der Tracker sich nur in den \enquote{Deep-Sleep} begibt, wenn die Schlafdauer
-$10$ Sekunden überschreitet implementiert und die damit verbundene, geringere Laufzeit in Kauf
+$10$ Sekunden überschreitet, implementiert und die damit verbundene, geringere Laufzeit in Kauf
 genommen.
 
 \begin{figure}[htbp]
@@ -159,7 +159,7 @@ zu ermitteln. Die Laufzeit des Trackers mit diesen Parametern ist in
 Trackers nahezu linear mit der Schlafdauer. Mit einer Schlafdauer von $60$ Sekunden konnte bereits
 eine Laufzeit von mehr als 4 Tagen erreicht werden.
 
-Daraus lässt sich schließen, dass \ref*{nf:akku} mit einem \gls{Akku} mit einer Kapazität von $850
+Daraus lässt sich schließen, dass sich \ref*{nf:akku} mit einem \gls{Akku} mit einer Kapazität von $850
 mAh$ erfüllen lässt, indem der Tracker nicht den gesamten Tag aktiv ist oder das Tracking-Intervall
 auf $120$ Sekunden erhöht wird. Da Dokumente üblicherweise nicht den gesamten Tag über getracked
 werden müssen, sondern nur in den üblichen Arbeitszeiten, wird die Möglichkeit in den Server
@@ -344,7 +344,7 @@ Datengröße der Scanergebnisse je nach Anzahl der vom Tracker sichtbaren \gls{W
 groß für ein einzelnes \gls{UDP}-Paket ist\footnote{Im Arduino-Framework gibt es eine
 Limitierung von 1446 Bytes für die Größe eines \gls{UDP}-Paketes. (vgl. \cite{Arduino2020})}, wurde
 das \gls{API} so gestaltet, dass die Ergebnisse in mehreren Paketen an den Server übermittelt werden
-können. Dazu berechnet der Tracker im Vorraus, in wie viele Pakete die Scanergebnisse geteilt werden
+können. Dazu berechnet der Tracker im Voraus, in wie viele Pakete die Scanergebnisse geteilt werden
 müssen. Diese Zahl, sowie ein für den Ergebnissatz einheitlicher, zufällig erzeugter \gls{ID} sind
 jedem Teilpaket angehängt. So kann der Server erkennen, ob alle Ergebnisse empfangen wurden und
 diese dann verwenden. Dass nicht alle Pakete eines Ergebnissatzes beim Server angekommen sind ist
@@ -789,14 +789,14 @@ Zudem sind Noppen angebracht, die die Grifffestigkeit erhöhen sollen.
 \begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/high_body.png}
 	\centering
-	\caption{Körper des Gehäuse-Modell mit Controller auf der Batterie}
+	\caption{Körper des Gehäuse-Modells mit Controller auf der Batterie}
 	\label{fig:case-high-body}
 \end{figure}
 
 \begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/high_complete.png}
 	\centering
-	\caption{Gehäuse-Modell mit Controller auf der Batterie}
+	\caption{Gehäuse-Modells mit Controller auf der Batterie}
 	\label{fig:case-high}
 \end{figure}
 
@@ -830,7 +830,7 @@ Der größere Einschnitt in der Unterseite ist für den Clip bestimmt.
 \begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/low_body.jpg}
 	\centering
-	\caption{Körper des Gehäuse-Modell mit Controller neben der Batterie}
+	\caption{Körper des s mit Controller neben der Batterie}
 	\label{fig:case-low-body}
 \end{figure}
 
@@ -842,7 +842,7 @@ Statt Platz für eine Mutter auf der Aussenseite der Erhebungen mit Schraubenlö
 \begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/low_lid.png}
 	\centering
-	\caption{Deckel des Gehäuse-Modell mit Controller neben der Batterie}
+	\caption{Deckel des Gehäuse-Modells mit Controller neben der Batterie}
 	\label{fig:case-low-lid}
 \end{figure}
 
@@ -856,7 +856,7 @@ den Körper des Gehäuses angebracht. Diese werden nach dem Druck aufgeklebt.
 \begin{figure}[htbp]
 	\includegraphics[width=300px]{images/case/low_clip.png}
 	\centering
-	\caption{Clip des Gehäuse-Modell mit Controller neben der Batterie}
+	\caption{Clip des Gehäuse-Modells mit Controller neben der Batterie}
 	\label{fig:case-low-clip}
 \end{figure}
 

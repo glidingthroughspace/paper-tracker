@@ -1,7 +1,7 @@
 \chapter{Analyse} \label{chap:analyse}
 
 In den folgenden Abschnitten werden der Ist-Zustand, aus welchem sich die Problemstellung ergibt,
-der Soll-Zustand, sowie die gestellten Anforderungen beschrieben.
+der Soll-Zustand sowie die gestellten Anforderungen beschrieben.
 
 \section{Ist-Analyse} \label{sec:ist-analyse}
 
@@ -15,14 +15,14 @@ hohe Wartezeit stattgefunden hat.
 
 Ziel der Entwicklung und damit dieser Studienarbeit ist das Erarbeiten einer Lösung, mit welcher die aktuelle Position eines Dokuments und der aktuelle Fortschritt des Prozesses sichtbar gemacht werden kann.
 Es soll ein möglichst unauffälliges Gerät sein und eine intuitive Bedienung ermöglichen.
-Über aktuelle und abgeschlossene Prozesse sollen Daten analysiert werden können, um Möglichkeiten zur Prozessoptimierungen erkennen zu können.
+Über aktuelle und abgeschlossene Prozesse sollen Daten analysiert werden können, um Möglichkeiten für Prozessoptimierungen erkennen zu können.
 
 \section{Anforderungsanalyse} \label{sec:anforderungsanalyse}
 
 Im Folgenden werden die gestellten Anforderungen in funktionale und nichtfunktionale Anforderungen
 unterteilt.
 Dabei beschreiben funktionale Anforderungen konkrete Funktionen, die die entwickelte Lösung bieten
-muss, nichtfunktionale Anforderungen hingegegen zeigen Rahmenbedingungen, sowie Anforderungen an die
+muss, nichtfunktionale Anforderungen hingegegen zeigen Rahmenbedingungen sowie Anforderungen an die
 technische Umsetzung auf.
 Desweiteren werden den Anforderungen Prioritäten zugewiesen, wobei ein Wert von 0 die höchste
 Priorität, ein Wert von 3 die niedrigste Priorität beschreibt, sodass die Lösung ohne Erfüllung der
@@ -52,7 +52,7 @@ beschreibt, die nicht zum Betrieb notwendig sind.
 	  zu Optimierungen genutzt werden kann
 	\item \label{fa:arbeitszeiten} \textit{Priorität 3} \\
 		Es sollen Arbeitszeiten angegeben werden können.  Der Tracker soll nur innerhalb der
-		Arbeitzeiten aktiv sein.
+		Arbeitszeiten aktiv sein.
 	\item \label{fa:wochenende} \textit{Priorität 3} \\
 		Es soll einstellbar sein, dass der Tracker am Wochenende nicht aktiv ist
 \end{enumerate}
@@ -74,15 +74,15 @@ beschreibt, die nicht zum Betrieb notwendig sind.
 		Die Lösung sollte skalierbar hinsichtlich der Anzahl der Tracker und der Größe des
 		Tracking-Bereiches sein
 	\item \label{nf:nachvollziehbarkeit} \textit{Priorität 2}\\
-		Zur optimalen Nachvollziehbarkeit von Workflows sollten deren auch nach Abschluss nicht gelöscht
-		werden
+		Zur optimalen Nachvollziehbarkeit von Workflows sollten diese auch nach Abschluss nicht gelöscht
+		werden können
 \end{enumerate}
 
 \section{Stand der Forschung} \label{sec:stand-der-forschung}
 
 Positionsbestimmung in Gebäuden ist ein Problem, zu welchem es viel Forschung gibt, da bestehende
 Lokalisierungsdienste wie \gls{GPS} in Gebäuden nur unzureichend nutzbar sind (vgl. \cite{Liu}). Dieser Abschnitt soll
-daher eine grobe Übersicht über den Stand der Forschung bieten und bestehende Arbeit mit den
+daher eine grobe Übersicht über den Stand der Forschung bieten und bestehende Arbeiten mit den
 Anforderungen und der Methodik dieser Arbeit abgleichen.
 
 \subsection{Relative Positionsmessung in Meshnetzwerken}
@@ -99,7 +99,7 @@ Mit dieser Methode kann eine Genauigkeit von bis zu einem Meter bei der Lokalisi
 werden.
 
 Für den hier vorgestellten Anwendungsfall ist dieser Ansatz jedoch nicht geeignet, da im gesamten
-Gebäude Sensoren verteilt werden müssen, um eine lückenlose Positionierung gewährleisten zu können.
+Gebäude Sensoren verteilt werden müssten, um eine lückenlose Positionierung gewährleisten zu können.
 
 \subsection{Lokalisierung durch \glsentryshort{WLAN}-Netzwerke}
 
@@ -111,10 +111,10 @@ anderem in \cite{Xiang2004}, \cite{Dong2009}, \cite{Paschalidis2009} und \cite{L
 In allen diesen Werken wird die Position eines Endgerätes dadurch bestimmt, dass ausgewertet wird,
 von welchen \gls{WLAN}-\glspl{AP} das Endgerät ein Signal empfängt und wie stark dieses ist.
 
-Dazu werden Mobile Geräte, wie Mobiltelefone und Laptops mit einer Software ausgestattet, welche in
-regelmäßigen Abständen alle \glspl{AP} in seiner Umgebung abruft und die jeweilige Signalstärke
+Dazu werden mobile Geräte, wie Mobiltelefone und Laptops, mit einer Software ausgestattet, welche in
+regelmäßigen Abständen alle \glspl{AP} in der Umgebung abruft und die jeweilige Signalstärke
 speichert. Die vorgestellten Lokalisierungsalgorithmen basieren darauf, dass \gls{WLAN}-Umgebungen
-\enquote{eingelernt} werden und dann neue Messungen auf die gelenten gematched werden.
+\enquote{eingelernt} werden und dann neue Messungen auf die gelernten gematched werden.
 
-Über diese Verfahren können Geräte mit bis zu $95\%$ Sicherheit auf einem Meter genau lokalisiert
+Über diese Verfahren können Geräte mit bis zu $95\%$ Sicherheit auf einen Meter genau lokalisiert
 werden. Diese Genauigkeit ist ausreichend für den gewünschten Verwendungszweck.

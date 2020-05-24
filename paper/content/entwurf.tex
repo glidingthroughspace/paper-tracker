@@ -22,13 +22,13 @@ Sie kommuniziert ebenfalls mit der Backend-Anwendung und fragt von dieser Inform
 
 Die Entwürfe der drei Komponenten werden in den nachfolgenden Abschnitten im Detail erläutert.
 
-Zusätzlich zu den drei Hauptkomponenten soll es eine Tool geben, dass das Setup eines Hardware-Trackers erleichtert.
+Zusätzlich zu den drei Hauptkomponenten soll es ein Tool geben, dass das Setup eines Hardware-Trackers erleichtert.
 Dieses Tool, genannt \enquote{Flasher}, dient zur Konfiguration der Firmware und dem Programmieren der Firmware auf die Hardware.
 
 \begin{figure}[h!tbp]
 	\includegraphics[width=\textwidth]{images/architecture_de.png}
 	\centering
-	\caption{Architektur des Paper-Tracker}
+	\caption{Architektur des Paper-Trackers}
 	\label{fig:architecture}
 \end{figure}
 
@@ -56,7 +56,7 @@ Die gesammelten Daten werden dann im Anschluss an das Backend übermittelt.
 Als Metrik für das Tracking über \gls{WLAN} können die in \autoref{sec:grundlagen-wlan} erläuterten
 \gls{RSSI} oder \gls{RCPI} verwendet werden. Da diese Werte jedoch nicht unbedingt proportional zum
 Abstand zum \gls{AP} wachsen oder fallen, da Funksignale durch unterschiedliche Materialien
-unterscheidlich gedämpft werden, können sie nicht als absolut angesehen und verwendet werden.
+unterschiedlich gedämpft werden, können sie nicht als absolut angesehen und verwendet werden.
 Wie auf dem Server das eigentliche Einlernen eines Raumes und die Lokalisierung eines Trackers funktioniert,
 ist in \autoref{sec:server-tracking} erläutert.
 
@@ -81,11 +81,11 @@ Das Kommando wird direkt ausgeführt und dabei gegebenenfalls angefallene Ergebn
 Als Beispiel für ein Kommando ist das \enquote{SendTrackingInformation} weiter unten im Sequenzdiagramm dargestellt.
 
 Mit dem Kommando erhält der Tracker zusätzlich eine Zeit, für die er schlafen soll.
-Ist diese Zeit über einem bestimmten Grenzwert (z.B. 10 Sekunden) geht der Tracker in den sogenannten \enquote{Deep Sleep},
+Ist diese Zeit über einem bestimmten Grenzwert (z.B. 10 Sekunden), geht der Tracker in den sogenannten \enquote{Deep Sleep},
 in welchem er möglichst wenig Strom verbraucht.
 Wird dieser Grenzwert bei nur kurzen Zeiten nicht überschritten, wartet der Tracker die Zeit lediglich ab.
 Dies verhindert ein ständiges Neuaufbauen der Verbindung zum \gls{WLAN}, welches sowohl Zeit als auch Strom kostet.
-Nachdem entweder die Zeit im \enquote{Deep Sleep} oder wartend verbracht wurde, geht der Prozess wieder von vorne los.
+Nachdem die Zeit entweder im \enquote{Deep Sleep} oder wartend verbracht wurde, geht der Prozess wieder von vorne los.
 
 \begin{figure}[]
 	\includegraphics[height=0.9\textheight]{images/communication.png}
@@ -107,9 +107,9 @@ Einige Attribute des Trackers sind eine ID, das Label, der Batteriestatus, eine 
 und einige Zeitstempel.
 Die Zeitstempel geben zum Beispiel an, wann zuletzt ein Kommando abgeholt wurde oder wann zuletzt der Batteriestatus aktualisiert wurde.
 Mit Hilfe der letzten dem Tracker gesendeten Zeit zum Schlafen kann mit der Funktion \enquote{GetSecondsToNextPoll()} abgefragt werden,
-wann sich der Tracker vorraussichtlich das nächste Kommando abholt.
+wann sich der Tracker voraussichtlich das nächste Kommando abholt.
 Neben den Attributen besitzt sie eine Referenz auf einen Status.
-Dieser Status gibt an, zu was der Tracker zur Zeit verwendet wird und in welchen anderen Zustand gewechselt werden kann.
+Dieser Status gibt an, zu was der Tracker zur Zeit verwendet wird und in welche anderen Zustände gewechselt werden kann.
 
 Es gibt vier verschiedene Zustände, die in Integern kodiert sind:
 \begin{description}
@@ -118,9 +118,9 @@ Es gibt vier verschiedene Zustände, die in Integern kodiert sind:
 	\item[Learning = 2] \hfill \\
 		Tracker wird für das Lernen eines Raumes verwendet und kann bei erfolgreichem Abschluss in \enquote{LearningFinished} oder bei Abbruch in \enquote{Idle} übergehen.
 	\item[LearningFinished = 3] \hfill \\
-		Das Lernen eines Raumes mit diesem Tracker wurde beendet. Die Ergebnisse können berechnet und einem Raum zugewiesen werden. In Folge darauf, geht der Tracker in den Zustand \enquote{Idle} über.
+		Das Lernen eines Raumes mit diesem Tracker wurde beendet. Die Ergebnisse können berechnet und einem Raum zugewiesen werden. In Folge darauf geht der Tracker in den Zustand \enquote{Idle} über.
 	\item[Tracking = 4] \hfill \\
-		Der Tracker besitzt aktuell einen Workflow, den er trackt. Nach Abschluss dieses Workflows oder nach Abbruch, geht der Tracker in den Status \enquote{Idle} über.
+		Der Tracker besitzt aktuell einen Workflow, den er trackt. Nach Abschluss dieses Workflows oder nach Abbruch geht der Tracker in den Status \enquote{Idle} über.
 \end{description}
 
 Weiter besitzt der Tracker eine Referenz auf eine aktive Workflow-Ausführung und den aktuellen Raum.
@@ -129,7 +129,7 @@ Beide Referenzen können nichtexistent sein, falls der Tracker keinen aktiven Wo
 Ein \enquote{Room} ist ein physikalischer Raum, der von einem Tracker erkannt werden soll.
 Neben einem Identifizierer und einem \enquote{Label} (Name) für den Raum werden zusätzlich mehrere \enquote{BSSIDTrackingData} gespeichert.
 Diese beinhalten für einen spezifischen \enquote{Access Point}/\gls{BSSID} einige Messdaten zu der gemessenen Signalstärke.
-Über diese kann über eine Antwort des Trackers mit \enquote{ScanResults} die Position des Tracker bestimmt werden.
+Über diese kann über eine Antwort des Trackers mit \enquote{ScanResults} die Position des Trackers bestimmt werden.
 
 Damit der Tracker eine Antwort sendet, wird diese mit Hilfe eines Kommandos angefragt.
 Diese Kommandos werden jeweils in einer Instanz der \enquote{Command}-Klasse abgebildet.
@@ -146,9 +146,9 @@ In diesem werden die einzelnen Schritte (\enquote{Steps}) des Workflows festgele
 Für einen \enquote{Step} werden ein Label und eine oder mehrere Referenzen auf dazugehörige Räume gespeichert.
 Über die Klasse \enquote{NextStep} werden Referenzen auf nachfolgende Schritte modelliert.
 Die \enquote{NextStep} Klasse besitzt ein Attribut \enquote{DecisionLabel}.
-Ist diese ein leerer String, so ist dieser verbundene Schritt ein linearer.
-Mit einem nicht-leeren String, gibt es mit diesem Schritt verschiedene Auswahlmöglichkeiten.
-Durch das transitive Attribut \enquote{StepEditingLocked} der \enquote{WorkflowTemplate}-Klasse, wird die Bearbeitung blockiert.
+Ist dieses ein leerer String, so ist dieser verbundene Schritt ein linearer.
+Mit einem nicht-leeren String gibt es mit diesem Schritt verschiedene Auswahlmöglichkeiten.
+Durch das transitive Attribut \enquote{StepEditingLocked} der \enquote{WorkflowTemplate}-Klasse wird die Bearbeitung blockiert.
 Dieses Attribut ist gesetzt, sobald es eine Ausführung des Templates gab.
 
 Die \enquote{WorkflowExec}-Klasse stellt einen konkreten Workflow in der Ausführung dar.
@@ -176,8 +176,8 @@ Die unterschiedlichen Schnittstellen sollen die aus der Analyse entwickelten Ans
 
 \paragraph{Tracker-Schnittstelle} \label{par:tracker-schnittstelle}
 Für die Schnittstelle des Trackers bedeutet dies, dass sie möglichst simpel und effizient sein muss.
-Dies wird über ein entsprechendes Protokoll und einem Datenformat erreicht.
-Das verwendete Protokoll ist das \acrfull{CoAP} Protokoll und das Datenformat ist \acrfull{CBOR}.
+Dies wird über ein entsprechendes Protokoll und ein Datenformat erreicht.
+Das verwendete Protokoll ist das \gls{CoAP} und das Datenformat ist \gls{CBOR}.
 
 Bei \gls{CoAP} handelt es sich um ein spezialisiertes Protokoll für die Verwendung in
 \gls{IoT}-Hardware, welches dafür optimiert wurde möglichst wenig \gls{Overhead} zu haben.
@@ -192,13 +192,13 @@ Werden die Protokolle anhand dieses Aspektes verglichen, erweist sich \gls{CoAP}
 Protokoll. (vgl. \cite{Dizdarevic2019}, \cite{Naik2017})
 
 \gls{CBOR} ist ein Datenformat, das auf kleine Code- und Nachrichtengrößen optimiert ist.
-Demnach ist es auch für der \gls{IoT}-Bereich sehr gut geeignet.
-Vom Aufbau des Formats, ist es sehr gut mit \gls{JSON} zu vergleichen, da es auch Schlüssel-Wert-Paare verwendet.
+Demnach ist es auch für den \gls{IoT}-Bereich sehr gut geeignet.
+Der Aufbau des Formats ist sehr gut mit \gls{JSON} vergleichbar, da es auch Schlüssel-Wert-Paare verwendet.
 Der große Unterschied ist jedoch, dass \gls{CBOR} binär kodiert wird und \gls{JSON} in Text kodiert wird.
-Dadurch ist \gls{CBOR} nicht menschenlesbar aber sehr gut maschinenlesbar.
+Dadurch ist \gls{CBOR} nicht menschenlesbar, aber sehr gut maschinenlesbar.
 Bei einem Vergleich zwischen der \gls{CBOR} Bibliothek \enquote{libCBOR} und der \gls{JSON} Bibliothek \enquote{ArduinoJson}
 konnte zudem festgestellt werden, dass bei gleicher Nachricht das \gls{CBOR} Format ca. 26.5\% kleinere Nachrichten
-in 83.3\% der Zeit schnellerer Zeit serialisiert hat.
+in 83.3\% der Zeit schnellerer serialisiert hat.
 
 Die Tracker-Schnittstelle soll drei Endpunkte zur Verfügung stellen.
 Diese sind in \autoref{tab:coap-api} aufgelistet.
@@ -241,12 +241,11 @@ Alle verfügbaren Endpunkte der App-Schnittstelle sind in \autoref{tab:http-api}
 \texttt{GET}    & \texttt{/tracker}                  & Auflistung der Tracker             & -                                                       & Liste aller Tracker                                                      \\ \hline
 \texttt{PUT}    & \texttt{/tracker/:id}              & Tracker aktualisieren              & Tracker                                                 & Aktualisierter Tracker                                                  \\ \hline
 \texttt{DELETE} & \texttt{/tracker/:id}              & Tracker löschen                    & -                                                       & -                                                                       \\ \hline
-\texttt{GET}    & \texttt{/tracker/:id/next\_poll}   & Zeit bis nächste Kommando Abholung & -                                                       & Sekunden                                                                \\ \hline
+\texttt{GET}    & \texttt{/tracker/:id/next\_poll}   & Zeit zur nächsten Kommando Abholung & -                                                       & Sekunden                                                                \\ \hline
 \texttt{POST}   & \texttt{/tracker/:id/learn}        & Lernen mit Tracker starten         & -                                                       & Lernzeit                                                                \\ \hline
 \texttt{GET}    & \texttt{/tracker/:id/learn}        & Lernstatus abfragen                & -                                                       & \begin{tabular}[c]{@{}l@{}}Abgeschlossen\\ Gefundene SSIDs\end{tabular} \\ \hline
 \texttt{DELETE} & \texttt{/tracker/:id/learn}        & Lernen abbrechen                   & -                                                       & -                                                                       \\ \hline
 \texttt{POST}   & \texttt{/tracker/:id/learn/finish} & Lernen abschließen                 & \begin{tabular}[c]{@{}l@{}}Raum ID\\ SSIDs\end{tabular} & \\ \hline
-\texttt{GET}    & \texttt{/tracker}                  & Auflistung der Tracker             & -                                                       & Liste aller Tracker                                                      \\ \hline
 \multicolumn{5}{c}{\textit{Workflows}} \\ \hline
 \texttt{GET}    & \texttt{/workflow/template}                   & Auflistung der Templates            & -                                                           & Liste aller Templates                                                   \\ \hline
 \texttt{POST}   & \texttt{/workflow/template}                   & Template erstellen                  & Template                                                    & Erstelltes Template                                                     \\ \hline
@@ -260,7 +259,7 @@ Alle verfügbaren Endpunkte der App-Schnittstelle sind in \autoref{tab:http-api}
 \texttt{POST}   & \texttt{/workflow/template/:id/step/:id/move} & Schritt verschieben                 & Richtung                                                    & -                                                                       \\ \hline
 \texttt{POST}   & \texttt{/workflow/template/revision}          & Template Revision erstellen         & Label                                                       & Erstellte Revision                                                      \\ \hline
 \texttt{GET}    & \texttt{/workflow/exec}                       & Auflistung der Ausführungen         & -                                                           & Execution                                                               \\ \hline
-\texttt{POST}   & \texttt{/workflow/exec}                       & Ausführung erstellen                & Execution                                                   & Erstelle Execution                                                      \\ \hline
+\texttt{POST}   & \texttt{/workflow/exec}                       & Ausführung erstellen                & Execution                                                   & Erstellte Execution                                                      \\ \hline
 \texttt{POST}   & \texttt{/workflow/exec/:id/progress/:id}      & Ausführung zu Schritt progressieren & -                                                           & -                                                                       \\ \hline
 \texttt{POST}   & \texttt{/workflow/exec/:id/cancel}            & Ausführung abbrechen                & -                                                           & -                                                                       \\ \hline
 \multicolumn{5}{c}{\textit{Sonstiges}}  \\ \hline
@@ -281,8 +280,8 @@ Die erste Schicht bildet das Paket \enquote{router}, die zweite Schicht das Pake
 Im \enquote{router} Paket befinden sich die Router für die zwei externen Schnittstellen des Servers.
 Die \gls{HTTP} Schnittstelle für die App befindet sich in der \enquote{HttpRouter}-Klasse und die \gls{CoAP} Schnittstelle für den Tracker befindet sich in der \enquote{CoapRouter}-Klasse.
 Beide Klassen besitzen eine Methode \enquote{Serve}.
-Mit dieser Methode werden die Router letztendlich gestartet so, dass sie Verbingungen annehmen können.
-Als Parameter bekommen sie die Adresse, auf die sie Verbindungen annehmen, und im Falle des \enquote{CoapRouter} auch das Transport-Protokoll.
+Mit dieser Methode werden die Router letztendlich so gestartet, dass sie Verbindungen annehmen können.
+Als Parameter bekommen sie die Adresse, auf der sie Verbindungen annehmen, und im Falle des \enquote{CoapRouter} auch das Transport-Protokoll.
 
 Das \enquote{managers} Paket beinhaltet sechs verschiedene Manager, die die Businesslogik für verschiedene Teilbereiche 
 und damit Anforderungen des Servers beinhalten:
@@ -290,19 +289,19 @@ und damit Anforderungen des Servers beinhalten:
 	\item[TrackerManager] Anforderungen \ref{fa:tracking}, \ref{fa:neue-tracker}, \ref{fa:arbeitszeiten}, \ref{fa:wochenende}, \ref{fa:benachrichtigung} \hfill \\
 		Verantwortlich für das Verwalten der Tracker. Entscheidet über die Kommandos für einen Tracker, wenn dieser ein Kommando abfragt.
 	\item[RoomManager] Anforderung \ref{fa:raumplan} \hfill \\
-		Verwalten alle Operationen für Räume
+		Verwaltet alle Operationen für Räume
 	\item[LearningManager] Anforderung \ref{fa:tracking} \hfill \\
-		Regelt das Einlernen von Scanergebnisse für einen Raum
+		Regelt das Einlernen von Scanergebnissen für einen Raum
 	\item[WorkflowTemplateManager] Anforderungen \ref{fa:neue-workflows}, \ref{fa:mehrere-orte} \hfill \\
 		Bietet Möglichkeiten zur Verwaltung der Templates
 	\item[WorkflowExecManager] Anforderungen \ref{fa:tracking}, \ref{fa:optionale-schritte} \hfill \\
-		Starten von Templates als Ausführungen und Durchführung von Fortschritten eines Workflows
+		Startet Templates als Ausführungen und führt Fortschritte eines Workflows durch
 	\item[TrackingManager] Anforderung \ref{fa:tracking} \hfill \\
 		Enthält Algorithmen für das eigentliche Tracking
 	\item[ExportManager] Anforderung \ref{fa:export} \hfill \\
 		Stellt den Excel-Export zur Verfügung
 \end{description}
-Alle Manager sind als Singleton implementiert so, dass sie sich auch untereinander problemlos aufrufen können.
+Alle Manager sind als Singleton implementiert, so dass sie sich auch untereinander problemlos aufrufen können.
 Konfiguriert werden die Manager über die global verfügbare \enquote{Config} Klasse.
 
 Die unterste Schicht bildet das \enquote{repositories} Paket.
@@ -387,8 +386,8 @@ In diesem Fall wird als Raum für den Tracker \enquote{Unbekannt} eingetragen un
 
 Für einen Daten-Export muss zuerst ausgewählt werden, welche Daten exportiert werden sollen.
 Da der Export des Paper-Trackers bei einer Optimierung der Workflows helfen soll, müssen hauptsächlich Daten der
-Klassen \enquote{WorkflowTemplate}/\enquote{WorkflowExecution} und derem Umfeld exportiert werden.
-Konkret wären dies die Templates, deren Ausführungen inklsuive detailierter Infos der Schritte (\enquote{ExecStepInfo}).
+Klassen \enquote{WorkflowTemplate}/\enquote{WorkflowExecution} und deren Umfeld exportiert werden.
+Konkret wären dies die Templates und deren Ausführungen inklusive detailierter Infos der Schritte (\enquote{ExecStepInfo}).
 Diese Informationen können helfen, langsame oder nicht benötigte Schritte eines Workflows zu identifizieren.
 
 Weiter sollen auch Informationen zu den Revisionen eines Templates exportiert werden.
@@ -403,7 +402,7 @@ Die zu erfassenden Metriken sind:
 
 Mit der Auswahl der Daten kann auch das Format des Exports ausgewählt werden.
 Alle zu exportierenden Daten können sehr gut in Tabellen exportiert werden.
-Dies führt zu hauptsächlich zwei Exportformate: \gls{CSV} und Excel.
+Dies führt zu hauptsächlich zwei Exportformaten: \gls{CSV} und Excel.
 
 \gls{CSV} ist ein weit verbreitetes und simples Format, da es hauptsächlich mit Kommas (',') und Zeilenumbrüchen arbeitet.
 Dadurch ist es sehr einfach zu erstellen und einzulesen.
@@ -417,7 +416,7 @@ Dies würde für den Export des Paper-Trackers bedeuten, dass entweder mehrere D
 Excel oder genauer das von Excel verwendete \enquote{xlsx}-Format ist ein offenes und standardisiertes Format
 für Kalkulationstabellen (vgl. \cite{iso29500}).
 Da es ein offenes Format ist, kann es auch von anderen Programmen, wie Libre Office, geöffnet und bearbeitet werden.
-Es muss nicht wie bei \gls{CSV} erst importiert werden.
+Es muss nicht, wie bei \gls{CSV}, erst importiert werden.
 Auch unterstützt es mehrere Tabellen in einer Datei, welches den Download des Exports vereinfacht.
 Aus diesen Gründen wird Excel als Exportformat für den Paper-Tracker verwendet.
 
@@ -445,17 +444,17 @@ Die Hauptseite ist der zentrale Einstiegspunkt der App und bietet eine Übersich
 Informationen.
 
 Allgemein ist die Hauptseite in einen Kopfbereich und einen Inhaltsbereich aufgeteilt.
-Der Kopfbereicht zeigt lediglich den Titel der App \enquote{Paper-Tracker} an und einen Button, mit dem das Tutorial aufgerufen werden kann.
+Der Kopfbereich zeigt lediglich den Titel der App \enquote{Paper-Tracker} an und einen Button, mit dem das Tutorial aufgerufen werden kann.
 Das Tutorial ist weiter in \autoref{sec:app-tutorial} beschrieben.
 Im Inhaltsbereich gibt es weiter eine Aufteilung in verschiedene Tabs, die jeweils für eine Klasse im Datenmodell stehen.
 Es soll einen Tab für Workflows in der Ausführung, Workflow-Templates, Räume und Tracker geben.
 Jeder Tab und damit jede Klasse soll ein eindeutiges Icon zugewiesen bekommen, mit dem die Klassen auf verschiedenen Seiten der App wiedererkannt werden können.
 Die Tabs sollen über ein Wischen nach links und rechts oder über ein Auswählen in der Tableiste gewechselt werden können.
 
-In den Tabs wird eine Liste aller Objekte der entsprechenden Klasse mit den wichtigsten dazugehörigen Informationen angezeigt.
+In den Tabs wird jeweils eine Liste aller Objekte der entsprechenden Klasse mit den wichtigsten dazugehörigen Informationen angezeigt.
 Dies ist zum Beispiel für einen Tracker der aktuelle Raum oder der Batteriestatus.
 
-Über ein Pull-Down\footnote{Herunterziehen der Liste über den eigentlichen Inhalt hinaus.} der jeweiligen Liste, kann diese aktualisiert werden.
+Über ein Pull-Down\footnote{Herunterziehen der Liste über den eigentlichen Inhalt hinaus.} der jeweiligen Liste kann diese aktualisiert werden.
 Wenn der Nutzer einen Eintrag der Liste auswählt, soll sich eine Detailseite zu diesem Objekt öffnen.
 Ein Design-Prototyp dazu ist in \autoref{sec:app-room} dargestellt.
 
@@ -484,11 +483,11 @@ Als letzte Box in der Liste wird ein Button angezeigt, mit dem der Nutzer einen 
 Die Eingabe der Informationen des neuen Schrittes sollen in einem Dialog erfolgen.
 Diese Box wird nur angezeigt, falls der anzuzeigende Workflow bearbeitbar ist.
 
-In den Boxen zu den Schritten sollen einige Informationen angezeit werden.
-So werden beispielsweise der Name des Schrittes, der dem Schritt zugewiesenen Raum und die
+In den Boxen zu den Schritten sollen einige Informationen angezeigt werden.
+So werden beispielsweise der Name des Schrittes, der dem Schritt zugewiesene Raum und die
 verfügbaren Optionen dargestellt.
 Die Optionen sind jeweils einzelne Buttons.
-Durch ein Auswählen eines Options-Button, werden die zu diesem Button gehörenden Schritte unter dem Schritt eingerückt angezeigt.
+Durch ein Auswählen eines Options-Buttons, werden die zu diesem Button gehörenden Schritte unter dem Schritt eingerückt angezeigt.
 Diese Schritte werden wie oben beschrieben in einer identischen Liste angezeigt und unterstützen auch das Einfügen neuer Schritte.
 
 \begin{figure}[h!tbp]
@@ -498,12 +497,12 @@ Diese Schritte werden wie oben beschrieben in einer identischen Liste angezeigt 
 	\label{fig:ui-workflow}
 \end{figure}
 
-\subsubsection{Detailseite für Räume} \label{sec:app-room}
+\subsubsection{Detailseite für Tracker} \label{sec:app-room}
 In \autoref{fig:ui-detail-page} ist der Design-Prototyp für eine Detailseite dargestellt.
 Beispielhaft wird hier die Tracker-Detailseite behandelt.
 
 Im Kopfbereich der Seite ist neben einem Button für die Navigation das Icon für die Klasse Tracker und der Name des Trackers dargestellt.
-Der Inhaltsbereich der Seite beihaltet eine Liste mit allen wichtigen Attributen des Trackers.
+Der Inhaltsbereich der Seite beinhaltet eine Liste mit allen wichtigen Attributen des Trackers.
 Jeder Eintrag besteht aus dem Namen des Attributs links und dem Attribut selbst rechts.
 Wenn möglich soll das Attribut selbst in einem modifizierbaren Feld dargestellt werden, das vorerst gesperrt ist.
 
@@ -513,7 +512,7 @@ Dabei wird aus dem \enquote{Stift}-Icon ein \enquote{Speichern}-Icon und über d
 Der rechte Button dient zum Löschen des dargestellten Objekts.
 
 Je nach Klasse des dargestellten Objekts ändert sich das Icon im Kopfbereich und die angezeigten Attribute.
-In folgender \autoref{tab:detail-attributes} ist gelistet, für welche Klassen welche Attribute angezeigt werden und, ob diese editierbar sind.
+In folgender \autoref{tab:detail-attributes} ist gelistet, für welche Klassen welche Attribute angezeigt werden und ob diese editierbar sind.
 
 \begin{table}[]
 \centering
@@ -554,10 +553,10 @@ Dazu muss in zwei Dropdowns der zu lernende Raum und der zum Lernen verwendete T
 Wird von einer Detailseite eines Raumes oder Trackers auf die Lernseite navigiert, so wird dieses Objekt entsprechend in einem der Dropdowns vorausgewählt.
 Sind Raum und Tracker ausgewählt, kann der Einlernvorgang gestartet werden.
 
-In diesem Fall wird statt dem Button zum Starten des Lernens eine Liste der gefundenen \glspl{SSID} angezeigt.
+In diesem Fall wird statt des Buttons zum Starten des Lernens eine Liste der gefundenen \glspl{SSID} angezeigt.
 Der Nutzer kann in dieser Liste auswählen, welche \glspl{SSID} zum Einlernen des Raumes verwendet werden sollen.
 Die Liste wird während des Vorgangs stetig mit neu gefundenen \glspl{SSID} erweitert.
-Sobald der Vorgang beendet wird, kann am Ende der Seite das Einlernen über einen Button abgeschlossen werden.
+Sobald der Vorgang beendet ist, kann am Ende der Seite das Einlernen über einen Button abgeschlossen werden.
 Wird dieser betätigt, wird von der Seite automatisch auf die vorherige zurücknavigiert.
 
 \begin{figure}[h!tbp]
@@ -573,7 +572,7 @@ Das Hinzufügen eines neuen Objektes einer Klasse kann über den \enquote{Floati
 Durch den Button soll ein Dialog geöffnet werden, deren Design-Prototyp in \autoref{fig:ui-popup} dargestellt ist.
 
 Der Dialog wird durch ein Pop-up realisiert.
-Dieses hat eine Überschrift, die angibt welches Objekt erzeugt wird.
+Dieses hat eine Überschrift, die angibt, welches Objekt erzeugt wird.
 Unter der Überschrift können in einer Liste alle benötigten Attribute des Objekts eingegeben werden.
 Wenn möglich, wie zum Beispiel bei der Auswahl eines Raumes, soll eine Dropdown-Auswahl verwendet werden.
 Zu dem Dropdown soll auch wieder das Icon der Klasse, aus welcher ein Objekt ausgewählt werden soll, dargestellt werden.
@@ -591,7 +590,7 @@ Beim ersten Start der App soll automatisch ein Tutorial gestartet werden, welche
 Der Nutzer soll dieses Tutorial auch von der Hauptseite aus aufrufen können.
 
 Das Layout des Tutorials ist schlicht gehalten.
-Im Zentrum ist eine Box dargestellt, in der es ein Titel, ein Bild und eine Beschreibung gibt.
+Im Zentrum ist eine Box dargestellt, in der es einen Titel, ein Bild und eine Beschreibung gibt.
 Durch eine Liste an solchen Boxen kann durch ein Wischen nach links und rechts geblättert werden.
 Jede Box soll mit ihrem Inhalt einen Aspekt der App näher erläutern und dem Nutzer erklären.
 Unter der Box wird dem Nutzer signalisiert, wie weit dieser durch die Liste fortgeschritten ist,
@@ -618,7 +617,7 @@ Dafür sind die folgenden Inhalte angedacht:
 	\item Pull-Down der Liste zum Aktualisieren. Der zuvor konfigurierte Tracker erscheint
 	\item Tracker-Detailseite und das Bearbeiten eines Trackers
 	\item Raum-Liste und das Erstellen eines neuen Raumes
-	\item Funktionsweise des Einlernen eines Raumes
+	\item Funktionsweise des Einlernens eines Raumes
 	\item Template-Liste und das Erstellen eines Templates
 	\item Editieren eines Templates in der Detailseite des Templates
 	\item Erstellen einer neuen Revision eines Workflow Templates
@@ -629,7 +628,7 @@ Dafür sind die folgenden Inhalte angedacht:
 \subsubsection{Icons für zentrale Klassen}
 
 Wie schon zu der Hauptseite und Detailseite angemerkt, gibt es für jede zentrale Klasse ein zugehöriges Icon.
-Die soll ermöglichen, dass der Endbenutzer in der App über die Icons die dazugehörige Klasse wiedererkennen kann.
+Dies soll ermöglichen, dass der Endbenutzer in der App über die Icons die dazugehörige Klasse wiedererkennen kann.
 So kann direkt erkannt werden, welcher Objekttyp auf der Detailseite angezeigt wird, oder welche
 Objekte in einem Dropdown ausgewählt werden können.
 Zusätzlich kann das Icon abgeändert werden, wenn sich zum Beispiel der Zustand eines Objektes ändert.
@@ -665,4 +664,4 @@ Die benötigten Konfigurationswerte sind in der folgenden Liste dargestellt:
 Neben den Konfigurationsdaten müssen noch der Ort der Firmware auf dem ausführenden Computer und der Port, an welchem die Hardware verbunden ist, angegeben werden.
 
 Nachdem alle Konfigurationsdaten angegeben sind, soll das Tool die Hardware mit den Werten programmieren.
-Dabei soll dem Nutzer der aktuelle Prozess in Form eines Fortschrittsbalken oder durch Anzeige von Protokollen visualisiert werden.
+Dabei soll dem Nutzer der aktuelle Prozess in Form eines Fortschrittsbalkens oder durch Anzeige von Protokollen visualisiert werden.

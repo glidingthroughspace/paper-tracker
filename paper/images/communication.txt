@@ -6,7 +6,7 @@ participant Server
 
 loop
   Tracker->Tracker: Aufwachen
-  Tracker->Tracker: Verbindung zu WLAN aufbauen
+  Tracker->Tracker: Verbindung zum WLAN aufbauen
   alt Keine Tracker ID gespeichert
   Tracker->Server: Tracker ID beantragen
   Server-->Tracker: Neue Tracker ID
@@ -30,7 +30,7 @@ group Tracking Kommando
   Tracker->Tracker: Anzahl verfügbarer APs abfragen
   Tracker->Tracker: Informationen über APs in Liste sammeln
   loop Für alle X APs
-  Tracker->Server: Gesammelt Informationen über X APs
+  Tracker->Server: Gesammelte Informationen über X APs
   end
   Tracker<--Server: Bestätigung
 end

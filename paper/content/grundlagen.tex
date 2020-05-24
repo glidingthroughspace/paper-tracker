@@ -9,17 +9,17 @@ Der Zeitrahmen für dieses Projekt und die Studienarbeit beläuft sich auf ein h
 \section{Funktionsweise \glsentryfull{WLAN}} \label{sec:grundlagen-wlan}
 
 Unter \gls{WLAN} versteht man im Allgemeinen ein Funknetz nach einem Standard der \gls{IEEE} 802.11 Familie.
-Alle Standards der Familie basieren auf dem ursprünglichen 802.11 Standard und erweitern diesen um neue Funktionalität, Frequenzen und höheren Datenraten.
+Alle Standards der Familie basieren auf dem ursprünglichen 802.11 Standard und erweitern diesen um neue Funktionalität, Frequenzen und höhere Datenraten.
 (vgl. \cite{Schnabel2020})
 
-Für die Funktionsweise des Paper-Trackers muss der Teil der \enquote{Service Sets} der Spezifikation detailiert erleutert werden.
-Unter einem Service Set versteht man im Allgemeinen alle Geräte in einem \gls{WLAN}-Netzwerk.
+Für die Funktionsweise des Paper-Trackers muss der Teil der \enquote{Service Sets} der Spezifikation detailiert erläutert werden.
+Ein Service Set besteht aus allen Geräten in einem \gls{WLAN}-Netzwerk.
 Auf diesen basiert die Lokalisierung der Dokumente.
 
 \subsection{\glsentryfull{BSS}}
 
-Ein \gls{BSS} ist Service Set, in dem es nur einen \gls{AP} und damit ein Gerät, dass das Funknetz aufbaut, gibt.
-Zu diesem \gls{AP} können beliebig viele Klienten verbunden sein.
+Ein \gls{BSS} ist ein Service Set, in dem es nur einen \gls{AP} und damit ein Gerät, das das Funknetz aufbaut, gibt.
+Mit diesem \gls{AP} können beliebig viele Klienten verbunden sein.
 In einem solchen Netzwerk besitzt der \gls{AP} eine \gls{SSID} und eine \gls{BSSID}.
 Die \gls{SSID} ist der Name des Netzwerks, das von einem Endbenutzer ausgewählt wird, um sich mit dem \gls{WLAN} zu verbinden.
 Da mehrere \gls{BSS} die gleiche \gls{SSID} verwenden können, besitzt der \gls{AP} auch eine \gls{BSSID}.
@@ -30,7 +30,7 @@ Mit Hilfe dieser \gls{BSSID} können Klienten zwischen den verschiedenen Netzwer
 \subsection{\glsentryfull{ESS}}
 
 In einem \gls{ESS} existieren mehrere \gls{BSS}, die miteinander z.B. über ein \gls{LAN} verbunden sind.
-Alle \gls{BSS} in diesem Service Set haben eine eigene \gls{BSSID} aber bauen ein Netz mit der gleichen \gls{SSID} auf.
+Alle \gls{BSS} in diesem Service Set haben eine eigene \gls{BSSID}, aber bauen ein Netz mit der gleichen \gls{SSID} auf.
 So können Klienten z.B. in größeren Gebäuden zwischen verschiedenen \gls{BSS} wechseln, ohne es zu bemerken.
 (vgl. \cite{Haider2019})
 
@@ -39,8 +39,8 @@ So können Klienten z.B. in größeren Gebäuden zwischen verschiedenen \gls{BSS
 Die \gls{RSSI} ist eine Größe, welche im Allgemeinen die Energie eines Radiosignals repräsentiert.
 Es gibt keine Standardisierung hinsichtlich der Messmethode oder der entstehenden Einheit, in
 welcher die \gls{RSSI} angegeben wird. Da sie ein Maß für Dämpfung ist, wird jedoch immer eine
-negative Zahl angegeben. Je näher sich diese Zahl null nähert, desto stärker ist das Signal.
-Typischerweise liegt der Messwert im Bereich zwischen null und $-100$.
+negative Zahl angegeben. Je näher sich diese Zahl Null nähert, desto stärker ist das Signal.
+Typischerweise liegt der Messwert im Bereich zwischen Null und $-100$.
 
 Als standardisierter Ersatz für die \gls{RSSI} wurde der \gls{RCPI} eingeführt. Diese Größe wird
 immer in der Einheit dBm angegeben und wird über ein definiertes Intervall gemessen. Der
@@ -58,16 +58,16 @@ Es ist das \enquote{Beschaffungs-Genehmigungsverfahren}, das benötigt wird, um 
 \begin{figure}[h!tbp]
 	\includegraphics[width=\textwidth]{images/beschaffungs-genehmigungsverfahren.png}
 	\centering
-	\caption{Beschaffungs-Genehmigungsverfahren der \gls{DHBW}}
+	\caption{Beschaffungs-Genehmigungsverfahren der \glsentryshort{DHBW}}
 	\label{fig:beschaffungsverfahren}
 \end{figure}
 
 Der Prozess beginnt mit dem Antragsteller, welcher den Beschaffungsantrag stellt.
-Der Antrag geht zum Fachvorgesetzten des Antragsteller, welcher diesen fachlich prüft.
+Der Antrag geht zum Fachvorgesetzten des Antragstellers, welcher diesen fachlich prüft.
 Ist die Prüfung nicht erfolgreich, wird eine Ablehnung begründet und der Prozess beendet.
 
 Bei erfolgreicher Prüfung muss der Antrag, wenn er über 5.000€ liegt, zudem vom Dekan geprüft werden.
-Dieser kann entweder den Antrag wie oben beschrieben ablehnen oder stimmt diesem zu.
+Dieser kann entweder den Antrag wie oben beschrieben ablehnen oder diesem zustimmen.
 
 Ist der Antrag für eine Bestellung unter 5.000€ oder er bekommt die Zustimmung des Dekans, erhält als nächstes die Verwaltung den Antrag.
 Die Verwaltung muss prüfen, ob die Mittel für diese Bestellung vorhanden sind.
