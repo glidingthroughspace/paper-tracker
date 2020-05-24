@@ -48,3 +48,15 @@ credentials are correct.
 The app is written in Flutter and thus is available for Android and iOS. However, prebuilt apps only
 exist for Android. You can download them from Github Releases, an explanation of which download
 you'll need is given on the server's download page.
+
+# Licensing
+
+This repository contains multiple sub-projects (folders), each of which has its
+own `LICENSE` file, denoting which license is used for the specific
+sub-project. The TL;DR is: Code is licensed under the [Apache
+2.0](https://www.apache.org/licenses/LICENSE-2.0.html) license, the paper
+(everything in the `paper/` directory) is under the
+[CC-BY-NC-SA 4.0](http://creativecommons.org/licenses/by-nc-sa/4.0/)
+license.
+
+
